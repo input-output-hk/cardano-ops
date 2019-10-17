@@ -1,0 +1,62 @@
+{
+    "cardano-node": {
+        "branch": "master",
+        "description": null,
+        "homepage": null,
+        "owner": "input-output-hk",
+        "repo": "cardano-node",
+        "rev": "8128dceddbb9074f5b25ca01728613cac4360298",
+        "sha256": "16fj9wjq6c21152fj14y5jxsiymp49dp4x67pzvqhsb7yyb819p9",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/8128dceddbb9074f5b25ca01728613cac4360298.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "gitignore": {
+        "branch": "master",
+        "description": "Nix function for filtering local git sources",
+        "homepage": "",
+        "owner": "hercules-ci",
+        "repo": "gitignore",
+        "rev": "f9e996052b5af4032fe6150bba4a6fe4f7b9d698",
+        "sha256": "0jrh5ghisaqdd0vldbywags20m2cxpkbbk5jjjmwaw0gr8nhsafv",
+        "type": "tarball",
+        "url": "https://github.com/hercules-ci/gitignore/archive/f9e996052b5af4032fe6150bba4a6fe4f7b9d698.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "iohk-nix": {
+        "branch": "master",
+        "description": "nix scripts shared across projects",
+        "homepage": null,
+        "owner": "input-output-hk",
+        "repo": "iohk-nix",
+        "rev": "df102b7d2232cab23354bf2b247bbeba39f4bfcf",
+        "sha256": "0fg6z9ram3qaa784c39jmgbkgb4sn049b0xjd58ncwwb2l34hhin",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/df102b7d2232cab23354bf2b247bbeba39f4bfcf.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "nixpkgs": {
+        "branch": "nixos-unstable",
+        "description": "A read-only mirror of NixOS/nixpkgs tracking the released channels. Send issues and PRs to",
+        "homepage": "https://github.com/NixOS/nixpkgs",
+        "owner": "NixOS",
+        "repo": "nixpkgs-channels",
+        "rev": "94500c93dc239761bd144128a1684abcd08df6b7",
+        "sha256": "0p6bd16mb1k5c3zihl1c3d62m419rii102xfb340pccgbd8j34bc",
+        "type": "tarball",
+        "url": "https://github.com/NixOS/nixpkgs-channels/archive/94500c93dc239761bd144128a1684abcd08df6b7.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "ops-lib": {
+        "branch": "master",
+        "description": "NixOps deployment configuration library for IOHK devops ",
+        "homepage": null,
+        "owner": "input-output-hk",
+        "repo": "ops-lib",
+        "rev": "65a527d8ee09d8ebb8286c789c30576b320c72eb",
+        "sha256": "0pkzq5jnbd9khm4dgjlsy88h0ljp43c8jdk3w1b77ql60jrij29l",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/65a527d8ee09d8ebb8286c789c30576b320c72eb.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    }
+}
