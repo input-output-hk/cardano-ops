@@ -5,5 +5,7 @@ self: super: {
     domain = "";
 
     applicationMonitoringPortsFor = name: node: [];
+
+    environment = "stagingshelleyshort";
   };
 }
