@@ -2,7 +2,9 @@
 {
 
   imports = [
-    ../modules/cardano-node-service.nix
+    ../modules/base-service.nix
   ];
+
+
 
 }

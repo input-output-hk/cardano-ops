@@ -23,9 +23,9 @@ fi
 
 # NixOps setup
 export NIXOPS_DEPLOYMENT=shelley-libvirtd
-export NIX_PATH="ops-lib=/home/jbgi/Dev/iohk/ops-lib:nixpkgs=$(nix eval '(import ./nix {}).path')"
+export NIX_PATH="nixpkgs=$(nix eval '(import ./nix {}).path')"
 
-#nixops destroy || true
-#nixops delete || true
-#nixops create ./deployments/shelley-libvirtd.nix -I nixpkgs=./nix
+nixops destroy || true
+nixops delete || true
+nixops create ./deployments/shelley-libvirtd.nix -I nixpkgs=./nix
 nixops deploy --show-trace

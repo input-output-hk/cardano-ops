@@ -1,4 +1,4 @@
 [
-  ./cardano-node.nix
+  ./cardano.nix
   ../globals.nix
 ]

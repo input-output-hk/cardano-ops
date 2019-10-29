@@ -4,8 +4,10 @@ self: super: {
 
     domain = "";
 
-    applicationMonitoringPortsFor = name: node: [];
+    systemStart = 0;
 
-    environment = "stagingshelleyshort";
+    applicationMonitoringPortsFor = name: node: [ ];
+
+    configurationKey = "mainnet_staging_short_epoch_full";
   };
 }

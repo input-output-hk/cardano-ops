@@ -13,6 +13,7 @@ let
 in
 {
   imports = [
+    iohk-ops-lib.modules.common
     (sources.cardano-node + "/nix/nixos")
   ];
 

@@ -11,6 +11,7 @@ let
   cluster = import ../clusters/shelley.nix pkgs {
     inherit (aws) targetEnv;
     tiny = aws.t2nano;
+    medium = aws.t2xlarge;
     large = aws.t3xlarge;
   };
 

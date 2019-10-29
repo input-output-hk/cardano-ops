@@ -11,6 +11,18 @@
         "url": "https://github.com/input-output-hk/cardano-node/archive/8128dceddbb9074f5b25ca01728613cac4360298.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "cardano-sl": {
+        "branch": "develop",
+        "description": "Cryptographic currency implementing Ouroboros PoS protocol",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "cardano-sl",
+        "rev": "07d59e70c8fcb87ce815e7de00e069b4e33141ab",
+        "sha256": "06vv85b0qk87ck27izl7i9x42k1nmmalj4dfdbz8k3jrc00h3x14",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-sl/archive/07d59e70c8fcb87ce815e7de00e069b4e33141ab.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "gitignore": {
         "branch": "master",
         "description": "Nix function for filtering local git sources",
@@ -53,10 +65,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "beef26264674c72e979332998277062978bb80b0",
-        "sha256": "1i7q53gwlh0wgv9s7hh2x2j5rpsnrwbjp1jg4mykhnd7c8mqgnwv",
+        "rev": "55fbeb953f6f6931458735160251d12af210f454",
+        "sha256": "02z19a32zq362y5dxl8j0kpvrb2kcf50xhsxvskdb5dr1y5bmiis",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/beef26264674c72e979332998277062978bb80b0.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/55fbeb953f6f6931458735160251d12af210f454.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
