@@ -5,10 +5,25 @@ let
   stateDir = "/var/lib/cardano-node";
   publicIP = if options.networking.publicIPv4.isDefined then config.networking.publicIPv4 else null;
   privateIP = if options.networking.privateIPv4.isDefined then config.networking.privateIPv4 else "0.0.0.0";
-  nodeToPublicIP   = node:
+  nodeToPublicIP = node:
     let ip = node.config.networking.publicIPv4;
     in if (node.options.networking.publicIPv4.isDefined && ip != null)
     then ip else "";
+
+  cardanoNodes = filterAttrs
+    (_: node: node.config.services.cardano-node-legacy.enable or false)
+    nodes;
+  nodeName = node: head (attrNames (filterAttrs (_: n: n == node) nodes));
+  hostName = name: "${name}.cardano";
+  topology = {
+    nodes = mapAttrs (name: node: let nodeCfg = node.config.services.cardano-node-legacy; in {
+      type = nodeCfg.nodeType;
+      region = node.config.deployment.ec2.region;
+      static-routes = map (map nodeName) nodeCfg.staticRoutes;
+      host = hostName name;
+      port = nodeCfg.port;
+    }) cardanoNodes;
+  };
 
   command = toString ([
     cfg.executable
@@ -35,6 +50,7 @@ in {
 
   options = {
     services.cardano-node-legacy = {
+      enable = mkEnableOption "cardano-node-legacy"  // { default = true; };
       port = mkOption { type = types.int; default = 3000; };
       systemStart = mkOption { type = types.int; default = 0; };
 
@@ -54,7 +70,10 @@ in {
       };
       autoStart = mkOption { type = types.bool; default = true; };
 
-      topologyYaml = mkOption { type = types.path; };
+      topologyYaml = mkOption {
+        type = types.path;
+        default = writeText "topology.yaml"  (builtins.toJSON topology);
+      };
 
       genesisN = mkOption { type = types.int; default = 6; };
       slotDuration = mkOption { type = types.int; default = 20; };
@@ -65,14 +84,14 @@ in {
 
       staticRoutes = mkOption {
         default = [];
-        type = types.listOf types.listOf types.attrs;
+        type = types.listOf (types.listOf types.attrs);
         description = ''Static routes to peers.'';
       };
 
     };
   };
 
-  config = {
+  config = mkIf cfg.enable {
 
     users = {
       users.cardano-node = {
@@ -128,6 +147,8 @@ in {
       user = "cardano-node";
       destDir = "/var/lib/keys";
     };
+
+    #TODO: extraHosts
   };
 
 
