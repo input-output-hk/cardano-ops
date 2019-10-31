@@ -30,6 +30,7 @@ let
 
   otherNodes = {
     monitoring = {
+      deployment.ec2.region = "eu-central-1";
       imports = [ medium roles.monitor ];
     };
   };

@@ -31,11 +31,11 @@ let
   ];
 
   importSecurityGroup = region: securityGroup:
-    securityGroup { inherit region accessKeyId; };
+    securityGroup { inherit lib region accessKeyId nodes; };
 
   mkEC2SecurityGroup = region:
     foldl' recursiveUpdate { }
-    (map (importSecurityGroup region) securityGroupFiles);
+    (map (importSecurityGroup region) securityGroups);
 
   settings = {
     resources = {
@@ -49,7 +49,7 @@ let
         }) nodes;
 
       ec2KeyPairs = listToAttrs (map (region:
-        nameValuePair "shelley-${region}" { inherit region accessKeyId; })
+        nameValuePair "${globals.deploymentName}-${region}" { inherit region accessKeyId; })
         regions);
     };
   };
