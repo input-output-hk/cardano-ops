@@ -1,38 +1,51 @@
-{ name, nodes, config, options, ... }:
+{ name, nodes, config, options, resources, ... }:
 with (import ../nix {}); with lib;
 let
   cfg = config.services.cardano-node-legacy;
   stateDir = "/var/lib/cardano-node";
-  publicIP = if options.networking.publicIPv4.isDefined then config.networking.publicIPv4 else null;
-  privateIP = if options.networking.privateIPv4.isDefined then config.networking.privateIPv4 else "0.0.0.0";
-  nodeToPublicIP = node:
-    let ip = node.config.networking.publicIPv4;
-    in if (node.options.networking.publicIPv4.isDefined && ip != null)
-    then ip else "";
+  listenIp =
+    let ip = config.networking.privateIPv4;
+    in if (options.networking.privateIPv4.isDefined && ip != null) then ip else "0.0.0.0";
+  publicIp = staticRouteIp name;
 
   cardanoNodes = filterAttrs
     (_: node: node.config.services.cardano-node-legacy.enable or false)
     nodes;
+
   nodeName = node: head (attrNames (filterAttrs (_: n: n == node) nodes));
   hostName = name: "${name}.cardano";
   topology = {
     nodes = mapAttrs (name: node: let nodeCfg = node.config.services.cardano-node-legacy; in {
       type = nodeCfg.nodeType;
       region = node.config.deployment.ec2.region;
-      static-routes = map (map nodeName) nodeCfg.staticRoutes;
+      static-routes = nodeCfg.staticRoutes;
       host = hostName name;
       port = nodeCfg.port;
     }) cardanoNodes;
   };
 
+  staticRouteIp = nodeName: resources.elasticIPs."${nodeName}-ip".address
+    or (let
+      publicIp = nodes.${nodeName}.config.networking.publicIPv4;
+      privateIp = nodes.${nodeName}.config.networking.privateIPv4;
+    in
+      if (nodes.${nodeName}.options.networking.publicIPv4.isDefined && publicIp != null) then publicIp
+      else if (nodes.${nodeName}.options.networking.privateIPv4.isDefined && privateIp != null) then privateIp
+      else abort "No suitable ip found for node: ${nodeName}"
+    );
+
+  staticRoutesHostList = concatMap (map (nodeName: {
+    name = hostName nodeName;
+    ip = staticRouteIp nodeName;
+  })) cfg.staticRoutes;
+
   command = toString ([
     cfg.executable
-    (optionalString (publicIP != null)
-     "--address ${publicIP}:${toString cfg.port}")
-    "--listen ${privateIP}:${toString cfg.port}"
+    "--address ${publicIp}:${toString cfg.port}"
+    "--listen ${listenIp}:${toString cfg.port}"
     (optionalString cfg.jsonLog "--json-log ${stateDir}/jsonLog.json")
     (optionalString (config.services.monitoring-exporters.metrics) "--metrics +RTS -T -RTS --statsd-server 127.0.0.1:${toString config.services.monitoring-exporters.statsdPort}")
-    "--keyfile ${stateDir}/key.sk"
+    (optionalString (cfg.nodeType == "core") "--keyfile ${stateDir}/key.sk")
     (optionalString (globals.systemStart != 0) "--system-start ${toString globals.systemStart}")
     "--log-config ${cardano-node-legacy-config}/log-configs/cluster.yaml"
     "--logs-prefix /var/lib/cardano-node"
@@ -84,7 +97,7 @@ in {
 
       staticRoutes = mkOption {
         default = [];
-        type = types.listOf (types.listOf types.attrs);
+        type = types.listOf (types.listOf types.str);
         description = ''Static routes to peers.'';
       };
 
@@ -117,8 +130,7 @@ in {
 
     systemd.services.cardano-node-legacy = {
       description   = "cardano node legacy service";
-      after         = [ "network.target" "cardano-node-key.service"  ];
-      wants = [ "cardano-node-key.service" ];
+      after         = [ "network.target" ];
       wantedBy = optionals cfg.autoStart [ "multi-user.target" ];
       script = ''
         [ -f /var/lib/keys/cardano-node ] && cp -f /var/lib/keys/cardano-node ${stateDir}/key.sk
@@ -143,12 +155,15 @@ in {
       };
     };
 
-    deployment.keys.cardano-node = {
-      user = "cardano-node";
-      destDir = "/var/lib/keys";
+    services.dnsmasq = {
+      enable = true;
+      servers = [ "127.0.0.1" ];
     };
 
-    #TODO: extraHosts
+    networking.extraHosts = ''
+      ${publicIp} ${hostName name}
+      ${concatStringsSep "\n" (map (host: "${host.ip} ${host.name}") staticRoutesHostList)}
+    '';
   };
 
 

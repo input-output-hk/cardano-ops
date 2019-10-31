@@ -1,4 +1,4 @@
-with import <nixpkgs> {};
+with import ./nix {};
 let
   inherit (pkgs.lib)
     attrValues filter filterAttrs flatten foldl' hasAttrByPath listToAttrs
@@ -8,7 +8,7 @@ let
   inherit (credentials) accessKeyId;
   inherit (iohk-ops-lib.physical) aws;
 
-  cluster = import ../clusters/shelley.nix pkgs {
+  cluster = import ../clusters/shelley.nix {
     inherit (aws) targetEnv;
     tiny = aws.t2nano;
     medium = aws.t2xlarge;
