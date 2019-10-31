@@ -1,4 +1,4 @@
-with import ./nix {};
+with import ../nix {};
 let
   inherit (lib)
     attrValues filter filterAttrs flatten foldl' hasAttrByPath listToAttrs
