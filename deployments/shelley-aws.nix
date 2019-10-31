@@ -1,6 +1,6 @@
 with import ./nix {};
 let
-  inherit (pkgs.lib)
+  inherit (lib)
     attrValues filter filterAttrs flatten foldl' hasAttrByPath listToAttrs
     mapAttrs' nameValuePair recursiveUpdate unique;
 
@@ -49,7 +49,7 @@ let
         }) nodes;
 
       ec2KeyPairs = listToAttrs (map (region:
-        nameValuePair "${config.deployment.name}-${region}" { inherit region accessKeyId; })
+        nameValuePair "shelley-${region}" { inherit region accessKeyId; })
         regions);
     };
   };
