@@ -26,8 +26,9 @@ let
     allow-all
     allow-ssh
     # allow-deployer-ssh
-    allow-monitoring-collection
+    (allow-monitoring-collection {})
     allow-public-www-https
+    allow-graylog
   ];
 
   importSecurityGroup = region: securityGroup:
