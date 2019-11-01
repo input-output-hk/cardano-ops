@@ -10,9 +10,11 @@ self: super: {
 
     configurationKey = "mainnet_staging_short_epoch_full";
 
+    environment = "stagingshelley";
+
     ec2 = {
       credentials = {
-        accessKeyId = builtins.getEnv "AWS_ACCESS_KEY_ID";
+        accessKeyId = "cardano-deployer";
       };
     };
   };

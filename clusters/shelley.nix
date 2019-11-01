@@ -41,8 +41,10 @@ let
     inherit (def) name;
     value = {
       deployment.ec2.region = def.region;
-      imports = [ tiny (import ../roles/legacy-core.nix i) ];
-      services.cardano-node-legacy.staticRoutes = def.staticRoutes;
+      imports = [ tiny ../roles/core.nix ];
+      services.cardano-node.nodeId = i;
+      # imports = [ tiny (import ../roles/legacy-core.nix i) ];
+      # services.cardano-node-legacy.staticRoutes = def.staticRoutes;
     };
   };
 
