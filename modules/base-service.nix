@@ -12,12 +12,22 @@ let
   nodePort = 3001;
   hostAddr = if options.networking.privateIPv4.isDefined then config.networking.privateIPv4 else "0.0.0.0";
   nodeId = config.services.cardano-node.nodeId;
-  mkProducer = node: { addr = node.config.networking.privateIPv4; port = 3001; valency = 1; };
+  # TODO: this doesn't work, perhaps publicIPv4 is empty, I need a way to filter out self node
+  otherNodes = builtins.filter (node: node.config.networking.publicIPv4 != options.networking.publicIPv4) (builtins.attrValues nodes);
+  mkProducer = node: { addr = node.config.networking.publicIPv4; port = 3001; valency = 1; };
+  producers = map mkProducer otherNodes;
+  region = config.deployment.ec2.region;
 in
 {
   imports = [
     iohk-ops-lib.modules.common
     (sources.cardano-node + "/nix/nixos")
+  ];
+
+  deployment.ec2.securityGroups = [
+    resources.ec2SecurityGroups."allow-cardano-node-${region}"
+    resources.ec2SecurityGroups."allow-ssh-${region}"
+    resources.ec2SecurityGroups."allow-monitoring-collection-${region}"
   ];
 
   networking.firewall = {
@@ -37,10 +47,9 @@ in
     consensusProtocol = "real-pbft";
     inherit hostAddr;
     port = nodePort;
-    topology = builtins.toFile "topology.yaml" (builtins.toJSON
+    topology = builtins.toFile "topology.yaml" (builtins.toJSON 
                  [ { nodeAddress = { addr = hostAddr; port = nodePort; };
-                   inherit nodeId;
-                   producers = map mkProducer (builtins.attrValues nodes);
+                   inherit nodeId producers;
                  } ]);
     logger.configFile = ./iohk-monitoring-config.yaml;
   };

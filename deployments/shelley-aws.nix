@@ -29,6 +29,7 @@ let
     (allow-monitoring-collection {})
     allow-public-www-https
     allow-graylog
+    (import ../security-groups/allow-cardano-node.nix)
   ];
 
   importSecurityGroup = region: securityGroup:
