@@ -13,13 +13,27 @@ with (import ../nix {});
       coreIndex = lib.mkOption {
         type = lib.types.int;
       };
-      isCardanoLegacyCore = lib.mkOption {
-        type = lib.types.bool;
-        default = false;
-      };
-      isCardanoLegacyRelay = lib.mkOption {
-        type = lib.types.bool;
-        default = false;
+      roles = {
+        isCardanoLegacyCore = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+        };
+        isCardanoLegacyRelay = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+        };
+        isCardanoCore = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+        };
+        isCardanoRelay = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+        };
+        isByronProxy = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+        };
       };
     };
   };

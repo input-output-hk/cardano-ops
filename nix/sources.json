@@ -60,15 +60,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
-        "branch": "ops-lib-sgtest",
+        "branch": "master",
         "description": "NixOps deployment configuration library for IOHK devops ",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "dc01b45e6146638ded2a12f8ee832aa093c1b204",
-        "sha256": "1a9qrdfdrnsx4qw3k06b35yg1hlpxpnn0fivinh76hzpfmhaxcwp",
+        "rev": "1cdd23b3cadc4bd7ec8f9253c6c12ecb2212c98e",
+        "sha256": "0szcbw11d0658pwj52d8l851ni7w3d6x57qma5cmf3vylh3ksmhk",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/dc01b45e6146638ded2a12f8ee832aa093c1b204.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/1cdd23b3cadc4bd7ec8f9253c6c12ecb2212c98e.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
