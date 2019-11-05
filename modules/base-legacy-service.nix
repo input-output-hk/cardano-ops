@@ -18,9 +18,14 @@ let
     nodes = mapAttrs (name: node: let nodeCfg = node.config.services.cardano-node-legacy; in {
       type = nodeCfg.nodeType;
       region = node.config.deployment.ec2.region;
-      static-routes = nodeCfg.staticRoutes;
       host = hostName name;
       port = nodeCfg.port;
+    } // optionalAttrs (concatLists nodeCfg.staticRoutes != []) {
+      static-routes = nodeCfg.staticRoutes;
+    } // optionalAttrs (concatLists nodeCfg.dynamicSubscribe != []) {
+      dynamic-subscribe = map (map (h: {
+        "host" = if (nodes ? h) then hostName h else h;
+      })) nodeCfg.dynamicSubscribe;
     }) cardanoNodes;
   };
 
@@ -34,10 +39,10 @@ let
       else abort "No suitable ip found for node: ${nodeName}"
     );
 
-  staticRoutesHostList = concatMap (map (nodeName: {
+  peersHostList = concatMap (map (nodeName: {
     name = hostName nodeName;
     ip = staticRouteIp nodeName;
-  })) cfg.staticRoutes;
+  })) (cfg.staticRoutes ++ map (filter (h: nodes ? h)) cfg.dynamicSubscribe);
 
   command = toString ([
     cfg.executable
@@ -101,6 +106,12 @@ in {
         description = ''Static routes to peers.'';
       };
 
+      dynamicSubscribe = mkOption {
+        default = [];
+        type = types.listOf (types.listOf types.str);
+        description = ''Dnymic subscribe routes.'';
+      };
+
     };
   };
 
@@ -162,7 +173,7 @@ in {
 
     networking.extraHosts = ''
       ${publicIp} ${hostName name}
-      ${concatStringsSep "\n" (map (host: "${host.ip} ${host.name}") staticRoutesHostList)}
+      ${concatStringsSep "\n" (map (host: "${host.ip} ${host.name}") peersHostList)}
     '';
   };
 
