@@ -18,6 +18,7 @@ let
   mkProducer = node: { addr = node.config.networking.publicIPv4; port = 3001; valency = 1; };
   producers = map mkProducer otherNodes;
   region = config.deployment.ec2.region;
+  loggerConfig = import ./iohk-monitoring-config.nix;
 in
 {
   imports = [
@@ -43,9 +44,6 @@ in
   services.cardano-node = {
     enable = true;
     pbftThreshold = "0.9";
-#    inherit (cardanoLib.environments.${toCardanoEnvName globals.environment})
-#      genesisFile
-#      genesisHash;
     consensusProtocol = "real-pbft";
     inherit hostAddr;
     port = nodePort;
@@ -53,6 +51,6 @@ in
                  [ { nodeAddress = { addr = hostAddr; port = nodePort; };
                    inherit nodeId producers;
                  } ]);
-    logger.configFile = ./iohk-monitoring-config.yaml;
+    logger.configFile = builtins.toFile "log-config.json" (builtins.toJSON loggerConfig);
   };
 }
