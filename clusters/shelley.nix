@@ -5,7 +5,8 @@
 with (import ../nix {});
 let
 
-  inherit (lib) recursiveUpdate mapAttrs listToAttrs imap1;
+  inherit (lib) recursiveUpdate mapAttrs listToAttrs imap0;
+  inherit (pkgs) copyPathToStore;
   inherit (iohk-ops-lib) roles modules;
 
   # for now, keys need to be generated for each core nodes with:
@@ -15,26 +16,26 @@ let
       name = "a1";
       region = "eu-central-1";
       zone = "eu-central-1b";
-      staticRoutes = [["b1" "c1"] ["r1"] ["d1"]];
+      staticRoutes = [["b1"] ["r1"] ["c1"]];
     }
     {
       name = "b1";
       region = "eu-west-1";
       zone = "eu-west-1a";
-      staticRoutes = [["c1" "d1"] ["r2"] ["a1"]];
+      staticRoutes = [["c1"] ["r2"] ["a1"]];
     }
     {
       name = "c1";
       region = "ap-southeast-1";
       zone = "ap-southeast-1b";
-      staticRoutes = [["d1" "a1"] ["r3"] ["b1"]];
+      staticRoutes = [["a1"] ["r3"] ["b1"]];
     }
-    {
-      name = "d1";
-      region = "eu-central-1";
-      zone = "eu-central-1b";
-      staticRoutes = [["a1" "b1"] ["c1"]];
-    }
+    #{
+    #  name = "d1";
+    #  region = "eu-central-1";
+    #  zone = "eu-central-1b";
+    #  staticRoutes = [["a1" "b1"] ["c1"]];
+    #}
   ];
 
   relayNodes = [
@@ -58,7 +59,7 @@ let
     }
   ];
 
-  cardanoNodes = listToAttrs (imap1 mkCoreNode coreNodes)
+  cardanoNodes = listToAttrs (imap0 mkCoreNode coreNodes)
     // listToAttrs (map mkRelayNode relayNodes);
 
   otherNodes = {
@@ -70,6 +71,9 @@ let
 
   nodes = mapAttrs (_: mkNode) (cardanoNodes // otherNodes);
 
+  mkSigningKey = i: copyPathToStore (../configuration/delegate-keys.00 + "${toString i}.key");
+  mkDelegationCertificate = i: copyPathToStore (../configuration/delegation-cert.00 + "${toString i}.json");
+
   mkCoreNode = i: def: {
     inherit (def) name;
     value = {
@@ -77,8 +81,10 @@ let
       deployment.ec2.zone = def.zone;
       imports = [ tiny ../roles/core.nix ];
       services.cardano-node.nodeId = i;
-      # imports = [ tiny (import ../roles/legacy-core.nix i) ];
-      # services.cardano-node-legacy.staticRoutes = def.staticRoutes;
+      services.cardano-node.genesisFile = ../configuration/genesis.json;
+      services.cardano-node.genesisHash = lib.fileContents ../configuration/GENHASH;
+      services.cardano-node.signingKey = toString (mkSigningKey i);
+      services.cardano-node.delegationCertificate = toString (mkDelegationCertificate i);
     };
   };
 
@@ -88,8 +94,6 @@ let
       deployment.ec2.region = def.region;
       deployment.ec2.zone = def.zone;
       imports = [ tiny ../roles/core.nix ];
-      # imports = [ tiny ../roles/legacy-relay.nix ];
-      # services.cardano-node-legacy.staticRoutes = def.staticRoutes;
     };
   };
 

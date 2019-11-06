@@ -11,20 +11,20 @@ rotation:
 setupBackends:
   - KatipBK
   - EKGViewBK
-  - EditorBK
-  - TraceForwarderBK
+    #- EditorBK
+    #- TraceForwarderBK
 
 # if not indicated otherwise, then messages are passed to these backends:
 defaultBackends:
-  - TraceForwarderBK
   - KatipBK
+  #- TraceForwarderBK
   #- EditorBK
 
 # file to forward traced objects
-logOutput: "log-pipe-0"
+#logOutput: "log-pipe-0"
 
 # if wanted, the GUI is listening on this port:
-hasGUI: 12870
+#hasGUI: 12870
 
 # if wanted, the EKG interface is listening on this port:
 hasEKG: 12780
@@ -88,5 +88,7 @@ options:
         - IOStats
   mapBackends:
     cardano.node.metrics:
+      - EKGViewBK
+    cardano.node.metrics.ChainDB:
       - EKGViewBK
 
