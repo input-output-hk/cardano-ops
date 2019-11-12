@@ -17,7 +17,7 @@ let
     nodes;
   cardanoHostList = lib.mapAttrsToList (nodeName: node: {
     name = hostName nodeName;
-    ip = resources.elasticIPs."${nodeName}-ip".address;
+    ip = staticRouteIp nodeName;
   }) cardanoNodes;
 
   topology = {
@@ -46,11 +46,6 @@ let
       else if (nodes.${nodeName}.options.networking.privateIPv4.isDefined && privateIp != null) then privateIp
       else abort "No suitable ip found for node: ${nodeName}"
     );
-
-  peersHostList = concatMap (map (nodeName: {
-    name = hostName nodeName;
-    ip = staticRouteIp nodeName;
-  })) (cfg.staticRoutes ++ map (filter (h: nodes ? h)) cfg.dynamicSubscribe);
 
   command = toString ([
     cfg.executable
