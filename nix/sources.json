@@ -36,15 +36,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "iohk-nix": {
-        "branch": "master",
+        "branch": "shelley-staging-short-bump",
         "description": "nix scripts shared across projects",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "df102b7d2232cab23354bf2b247bbeba39f4bfcf",
-        "sha256": "0fg6z9ram3qaa784c39jmgbkgb4sn049b0xjd58ncwwb2l34hhin",
+        "rev": "11ec470ea9740780066881326b0a9a948abf93c3",
+        "sha256": "0yrfca4r0zvlagxr8dzbh826gszlgk1ri8asz8yjx821d605wjj1",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/df102b7d2232cab23354bf2b247bbeba39f4bfcf.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/11ec470ea9740780066881326b0a9a948abf93c3.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
@@ -60,15 +60,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
-        "branch": "master",
+        "branch": "ops-lib-sgtest",
         "description": "NixOps deployment configuration library for IOHK devops ",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "32a0f5bcbd53b0e802016a23d3bc844f8c733d52",
-        "sha256": "1gha2slzzgdp3xllzq05ahdysyb97raklygrwlkmy99gk3xhw2wz",
+        "rev": "dc01b45e6146638ded2a12f8ee832aa093c1b204",
+        "sha256": "1a9qrdfdrnsx4qw3k06b35yg1hlpxpnn0fivinh76hzpfmhaxcwp",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/32a0f5bcbd53b0e802016a23d3bc844f8c733d52.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/dc01b45e6146638ded2a12f8ee832aa093c1b204.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

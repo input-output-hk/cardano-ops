@@ -8,16 +8,21 @@ let
   inherit (credentials) accessKeyId;
   inherit (iohk-ops-lib.physical) aws;
 
-  cluster = import ../clusters/shelley.nix {
+  cluster = import ../clusters/staging-shelley-short.nix {
     inherit (aws) targetEnv;
     tiny = aws.t2nano;
     medium = aws.t2xlarge;
-    large = aws.t3xlarge;
+    large = aws.t2large;
   };
 
   nodes = filterAttrs (name: node:
     ((node.deployment.targetEnv or null) == "ec2")
     && ((node.deployment.ec2.region or null) != null)) cluster;
+
+  cardanoLegacyNodes = lib.traceValFn (x: (__trace "CardanoLegacyNodes:" __attrNames x))
+    (filterAttrs (name: node:
+      (node.node.isCardanoLegacyCore or false)
+      || (node.node.isCardanoLegacyRelay or false)) cluster);
 
   regions =
     unique (map (node: node.deployment.ec2.region) (attrValues nodes));
@@ -29,11 +34,11 @@ let
     (allow-monitoring-collection {})
     allow-public-www-https
     allow-graylog
-    (import ../security-groups/allow-cardano-node.nix)
+    allow-cardano-legacy-node
   ];
 
   importSecurityGroup = region: securityGroup:
-    securityGroup { inherit lib region accessKeyId nodes; };
+    securityGroup { inherit lib region accessKeyId cardanoLegacyNodes nodes; };
 
   mkEC2SecurityGroup = region:
     foldl' recursiveUpdate { }
@@ -57,6 +62,22 @@ let
           (nameValuePair "cardano-keypair-Emurgo-${region}" { inherit region accessKeyId; })
         ])
         regions));
+    };
+    defaults = { resources, config, ... }: {
+      options = {
+        node2 = {
+          org = lib.mkOption {
+            type = lib.types.enum [ "IOHK" "Emurgo" "CF" ];
+            default = "IOHK";
+          };
+          coreIndex = lib.mkOption {
+            type = lib.types.int;
+          };
+        };
+      };
+      config = {
+        deployment.ec2.keyPair = resources.ec2KeyPairs."cardano-keypair-${config.node2.org}-${config.deployment.ec2.region}";
+      };
     };
   };
 in
