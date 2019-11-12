@@ -31,7 +31,7 @@ let
     allow-all
     allow-ssh
     # allow-deployer-ssh
-    (allow-monitoring-collection {})
+    allow-monitoring-collection
     allow-public-www-https
     allow-graylog
     allow-cardano-legacy-node
@@ -64,20 +64,7 @@ let
         regions));
     };
     defaults = { resources, config, ... }: {
-      options = {
-        node2 = {
-          org = lib.mkOption {
-            type = lib.types.enum [ "IOHK" "Emurgo" "CF" ];
-            default = "IOHK";
-          };
-          coreIndex = lib.mkOption {
-            type = lib.types.int;
-          };
-        };
-      };
-      config = {
-        deployment.ec2.keyPair = resources.ec2KeyPairs."cardano-keypair-${config.node2.org}-${config.deployment.ec2.region}";
-      };
+      deployment.ec2.keyPair = resources.ec2KeyPairs."cardano-keypair-${config.node.org}-${config.deployment.ec2.region}";
     };
   };
 in

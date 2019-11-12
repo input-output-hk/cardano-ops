@@ -66,7 +66,7 @@ let
 in {
 
   imports = [
-    iohk-ops-lib.modules.common
+    ./common.nix
   ];
 
   options = {

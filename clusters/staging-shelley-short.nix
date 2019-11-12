@@ -181,8 +181,8 @@ let
       imports = [ large ../roles/legacy-core.nix ];
       services.cardano-node-legacy.staticRoutes = def.staticRoutes;
       node.isCardanoLegacyCore = true;
-      node2.coreIndex = i;
-      node2.org = def.org;
+      node.coreIndex = i;
+      node.org = def.org;
     };
   };
 
@@ -193,7 +193,7 @@ let
       imports = [ large ../roles/legacy-relay.nix ];
       services.cardano-node-legacy.staticRoutes = def.staticRoutes;
       node.isCardanoLegacyRelay = true;
-      node2.org = def.org;
+      node.org = def.org;
     };
   };
 

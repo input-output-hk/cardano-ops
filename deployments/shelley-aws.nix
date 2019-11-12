@@ -2,7 +2,7 @@ with import ../nix {};
 let
   inherit (lib)
     attrValues filter filterAttrs flatten foldl' hasAttrByPath listToAttrs
-    mapAttrs' nameValuePair recursiveUpdate unique;
+    mapAttrs' nameValuePair recursiveUpdate unique concatLists;
 
   inherit (globals.ec2) credentials;
   inherit (credentials) accessKeyId;
@@ -50,7 +50,7 @@ let
           inherit (node.deployment.ec2) region;
         }) nodes;
 
-      ec2KeyPairs = listToAttrs (__concatLists (map (region:
+      ec2KeyPairs = listToAttrs (concatLists (map (region:
         [
           (nameValuePair "cardano-keypair-IOHK-${region}" { inherit region accessKeyId; })
           (nameValuePair "cardano-keypair-CF-${region}" { inherit region accessKeyId; })

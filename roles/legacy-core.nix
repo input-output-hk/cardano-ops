@@ -12,7 +12,7 @@
   ];
 
   deployment.keys.cardano-node = {
-    keyFile = ../keys + "/${toString config.node2.coreIndex}.sk";
+    keyFile = ../keys + "/${toString config.node.coreIndex}.sk";
     user = "cardano-node";
     destDir = "/var/lib/keys";
   };
