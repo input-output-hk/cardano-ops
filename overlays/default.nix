@@ -1,7 +1,7 @@
-sources:
-  # overlays from ops-lib (include ops-lib sources):
-  (import sources.ops-lib {}).overlays
+sourcePaths:
+  # overlays from ops-lib (include ops-lib sourcePaths):
+  (import sourcePaths.ops-lib {}).overlays
   # our own overlays:
   ++ map import (import ./overlay-list.nix)
   # merge upstream sources with our own:
-  ++ [( _: super: { sources = if (super ? sources) then super.sources // sources else sources ;})]
+  ++ [( _: super: { sourcePaths = if (super ? sourcePaths) then super.sourcePaths // sourcePaths else sourcePaths ;})]

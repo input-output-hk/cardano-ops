@@ -1,7 +1,7 @@
 { pkgs, name, nodes, config, options, resources, ... }:
-with (import ../nix {}); with (builtins.removeAttrs lib ["sources"]);
+with (import ../nix {}); with lib;
 let
-  iohkNix = import sources.iohk-nix {};
+  iohkNix = import sourcePaths.iohk-nix {};
   inherit (iohkNix) cardanoLib;
   inherit (iohkNix.cardanoLib) cardanoConfig;
   cfg = config.services.cardano-node-legacy;

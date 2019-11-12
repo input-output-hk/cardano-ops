@@ -1,7 +1,7 @@
 { pkgs, lib, options, config, nodes, resources,  ... }:
 with (import ../nix {});
 let
-  inherit (import sources.iohk-nix {}) cardanoLib;
+  inherit (import sourcePaths.iohk-nix {}) cardanoLib;
 
   toCardanoEnvName = env: {
     # mapping of environnement name from globals.nix to the one defined in cardanoLib:
@@ -23,7 +23,7 @@ in
 {
   imports = [
     iohk-ops-lib.modules.common
-    (sources.cardano-node + "/nix/nixos")
+    (sourcePaths.cardano-node + "/nix/nixos")
   ];
 
   deployment.ec2.securityGroups = [
@@ -47,7 +47,7 @@ in
     consensusProtocol = "real-pbft";
     inherit hostAddr;
     port = nodePort;
-    topology = builtins.toFile "topology.yaml" (builtins.toJSON 
+    topology = builtins.toFile "topology.yaml" (builtins.toJSON
                  [ { nodeAddress = { addr = hostAddr; port = nodePort; };
                    inherit nodeId producers;
                  } ]);

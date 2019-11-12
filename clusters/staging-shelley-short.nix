@@ -3,7 +3,7 @@
 , ...
 }:
 let
-  inherit (import ../nix {}) iohk-ops-lib lib sources;
+  inherit (import ../nix {}) iohk-ops-lib lib sourcePaths;
   inherit (lib) recursiveUpdate mapAttrs listToAttrs imap1;
   inherit (iohk-ops-lib) roles modules;
 
@@ -200,7 +200,7 @@ let
   mkNode = args:
     recursiveUpdate {
       deployment.targetEnv = targetEnv;
-      nixpkgs.overlays = import ../overlays sources;
+      nixpkgs.overlays = import ../overlays sourcePaths;
     } args;
 
 in {

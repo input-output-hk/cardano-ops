@@ -100,7 +100,7 @@ let
   mkNode = args:
     recursiveUpdate {
       deployment.targetEnv = targetEnv;
-      nixpkgs.overlays = import ../overlays sources;
+      nixpkgs.overlays = import ../overlays sourcePaths;
     } args;
 
 in {
