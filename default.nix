@@ -1,10 +1,13 @@
-{ sources ? import ./nix/sources.nix
+{ sourcePaths ? import ./nix/sources.nix
 , system ? builtins.currentSystem
 , crossSystem ? null
 , config ? {}
 }@args: with import ./nix args; {
-  shell = mkShell {
-    buildInputs = [ telnet dnsutils niv nixops nix cardano-cli ];
+  shell = let
+    cardanoSL = import sourcePaths.cardano-sl {};
+  in  mkShell {
+    buildInputs = [ niv nixops nix cardano-cli telnet dnsutils ] ++
+                  (with cardanoSL.nix-tools.exes; [ cardano-sl-auxx cardano-sl-tools ]);
     passthru = {
       gen-graylog-creds = iohk-ops-lib.scripts.gen-graylog-creds { staticPath = ./static; };
     };

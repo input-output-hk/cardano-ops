@@ -1,4 +1,4 @@
-keyIndex: { ... }:
+{ resources, config, ... }:
 {
 
   imports = [
@@ -7,8 +7,12 @@ keyIndex: { ... }:
 
   services.cardano-node-legacy.nodeType = "core";
 
+  deployment.ec2.securityGroups = [
+    resources.ec2SecurityGroups."allow-cardano-legacy-node-${config.node.region}"
+  ];
+
   deployment.keys.cardano-node = {
-    keyFile = ../keys + "/${toString keyIndex}.sk";
+    keyFile = ../keys + "/${toString config.node.coreIndex}.sk";
     user = "cardano-node";
     destDir = "/var/lib/keys";
   };

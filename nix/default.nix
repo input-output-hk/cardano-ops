@@ -1,8 +1,8 @@
-{ sources ? import ./sources.nix
+{ sourcePaths ? import ./sources.nix
 , system ? builtins.currentSystem
 , crossSystem ? null
 , config ? {} }:
-import sources.nixpkgs {
-  overlays = import ../overlays sources;
+import sourcePaths.nixpkgs {
+  overlays = import ../overlays sourcePaths;
   inherit system crossSystem config;
 }

@@ -1,3 +1,5 @@
 globals.nix
 static
 keys
+.envrc
+genesis-keys

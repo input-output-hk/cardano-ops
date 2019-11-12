@@ -26,7 +26,7 @@
 , pkgs ? import ./nix {}
 }:
 
-with import ((import pkgs.sources.iohk-nix) {}).release-lib {
+with import ((import pkgs.sourcePaths.iohk-nix) {}).release-lib {
   inherit pkgs;
 
   inherit supportedSystems supportedCrossSystems scrubJobs projectArgs;
