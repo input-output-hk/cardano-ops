@@ -86,7 +86,7 @@ let
 
       ec2KeyPairs = listToAttrs (concatMap (region:
         map (org:
-          nameValuePair "example-keypair-${org}-${region}" {
+          nameValuePair "cardano-keypair-${org}-${region}" {
             inherit region;
             accessKeyId = pkgs.globals.ec2.credentials.accessKeyIds.${org};
           }
@@ -95,7 +95,7 @@ let
     };
     defaults = { name, resources, config, ... }: {
       deployment.ec2 = {
-        keyPair = resources.ec2KeyPairs."example-keypair-${config.node.org}-${config.deployment.ec2.region}";
+        keyPair = resources.ec2KeyPairs."cardano-keypair-${config.node.org}-${config.deployment.ec2.region}";
         securityGroups = map (sgName: resources.ec2SecurityGroups.${sgName})
           (attrNames (securityGroupsByNode.${name} or {}));
       };

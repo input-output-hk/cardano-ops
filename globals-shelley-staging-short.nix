@@ -7,7 +7,7 @@ self: super: {
 
     domain = "${deploymentName}.aws.iohkdev.io";
 
-    systemStart = 0;
+    systemStart = 1563218113;
 
     configurationKey = "mainnet_staging_short_epoch_full";
 
