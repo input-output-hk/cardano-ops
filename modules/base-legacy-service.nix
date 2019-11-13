@@ -72,7 +72,7 @@ in {
   options = {
     services.cardano-node-legacy = {
       enable = mkEnableOption "cardano-node-legacy"  // { default = true; };
-      port = mkOption { type = types.int; default = 3000; };
+      port = mkOption { type = types.int; default = pkgs.globals.cardanoNodeLegacyPort; };
       systemStart = mkOption { type = types.int; default = 0; };
 
       nodeType = mkOption { type = types.enum [ "core" "relay" "edge" ];};
