@@ -9,7 +9,7 @@ self: super: {
 
     systemStart = 1563218113;
 
-    configurationKey = "mainnet_staging_short_epoch_full";
+    configurationKey = "shelley_staging_short_full";
 
     environment = "shelley_staging_short";
 
