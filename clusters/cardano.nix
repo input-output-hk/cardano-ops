@@ -18,7 +18,8 @@ let
   cardanoNodes = listToAttrs (imap1 mkLegacyCoreNode legacyCoreNodes)
     // listToAttrs (map mkLegacyRelayNode legacyRelayNodes)
     // listToAttrs (map mkCoreNode coreNodes)
-    // listToAttrs (map mkRelayNode relayNodes);
+    // listToAttrs (map mkRelayNode relayNodes)
+    // listToAttrs (map mkByronProxyNode byronProxies);
 
   otherNodes = {
     monitoring = {
@@ -65,6 +66,18 @@ let
       };
       deployment.ec2.region = def.region;
       imports = [ large ../roles/relay.nix ];
+    };
+  };
+
+  mkByronProxyNode = def: {
+    inherit (def) name;
+    value = {
+      node = {
+        roles.isByronProxy = true;
+        inherit (def) org;
+      };
+      deployment.ec2.region = def.region;
+      imports = [ large ../roles/byron-proxy.nix ];
     };
   };
 

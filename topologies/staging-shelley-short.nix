@@ -147,7 +147,11 @@
   legacyRelayNodes = [];
 
   byronProxies = [
-
+    {
+      name = "p-a-1";
+      region = "eu-central-1";
+      org = "IOHK";
+    }
   ];
 
   coreNodes = [

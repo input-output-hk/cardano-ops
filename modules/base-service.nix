@@ -3,12 +3,6 @@ with (import ../nix {});
 let
   inherit (import sourcePaths.iohk-nix {}) cardanoLib;
 
-  toCardanoEnvName = env: {
-    # mapping of environnement name from globals.nix to the one defined in cardanoLib:
-    stagingshelleyshort = "shelley_staging_short";
-    stagingshelley      = "shelley_staging";
-  }.${env} or env;
-
   nodePort = pkgs.globals.cardanoNodePort;
   monitoringPorts = [ 9100 9102 9113 ];
   hostAddr = if options.networking.privateIPv4.isDefined then config.networking.privateIPv4 else "0.0.0.0";

@@ -6,9 +6,7 @@ let
   inherit (iohkNix.cardanoLib) cardanoConfig;
   cfg = config.services.cardano-node-legacy;
   stateDir = "/var/lib/cardano-node";
-  listenIp =
-    let ip = config.networking.privateIPv4;
-    in if (options.networking.privateIPv4.isDefined && ip != null) then ip else "0.0.0.0";
+  listenIp = getListenIp nodes.${name};
   publicIp = staticRouteIp name;
 
   hostName = name: "${name}.cardano";
@@ -37,15 +35,7 @@ let
 
   nodeName = node: head (attrNames (filterAttrs (_: n: n == node) nodes));
 
-  staticRouteIp = nodeName: resources.elasticIPs."${nodeName}-ip".address
-    or (let
-      publicIp = nodes.${nodeName}.config.networking.publicIPv4;
-      privateIp = nodes.${nodeName}.config.networking.privateIPv4;
-    in
-      if (nodes.${nodeName}.options.networking.publicIPv4.isDefined && publicIp != null) then publicIp
-      else if (nodes.${nodeName}.options.networking.privateIPv4.isDefined && privateIp != null) then privateIp
-      else abort "No suitable ip found for node: ${nodeName}"
-    );
+  staticRouteIp = getStaticRouteIp resources nodes;
 
   command = toString ([
     cfg.executable

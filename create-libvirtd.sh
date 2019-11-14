@@ -24,4 +24,4 @@ fi
 nixops destroy || true
 nixops delete || true
 nixops create ./deployments/cardano-libvirtd.nix -I nixpkgs=./nix
-nixops deploy --show-trace
+nixops deploy --show-trace --build-only
