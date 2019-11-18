@@ -68,6 +68,14 @@ let
     };
   };
 
+  mkExplorerNode = def: {
+    inherit (def) name;
+    value = {
+      deployment.ec2.region = def.region;
+      imports = [ medium ../roles/explorer.nix ];
+    };
+  };
+
   mkLegacyCoreNode = i: def: {
     inherit (def) name;
     value = {
