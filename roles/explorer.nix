@@ -5,10 +5,11 @@ let
   iohkLib = import ../lib.nix { };
   cluster = "mainnet";
   targetEnv = iohkLib.cardanoLib.environments.${cluster};
-  host = "example.org";
+  host = "explorer.example.org";
 in {
   imports = [
     (sources.cardano-node + "/nix/nixos")
+    (sources.cardano-explorer + "/nix/nixos")
   ];
   services.cardano-node = {
     environment = cluster;
