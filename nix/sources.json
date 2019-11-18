@@ -1,4 +1,16 @@
 {
+    "cardano-explorer": {
+        "branch": "master",
+        "description": "The new Cardano Explorer",
+        "homepage": null,
+        "owner": "input-output-hk",
+        "repo": "cardano-explorer",
+        "rev": "40eb7e3b30922d2f525e9ab1fe22ed626a2149d2",
+        "sha256": "1lpqriq25j1422p60vnicpfgbdafk4y8saln3b5ws8bx5fnakcw3",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-explorer/archive/40eb7e3b30922d2f525e9ab1fe22ed626a2149d2.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-node": {
         "branch": "master",
         "description": null,

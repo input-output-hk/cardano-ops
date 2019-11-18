@@ -9,9 +9,6 @@ let
 in {
   imports = [
     (sources.cardano-node + "/nix/nixos")
-    ../../cardano-explorer/nix/nixos
-    ../../cardano-explorer/nix/nixos/cardano-exporter-service.nix
-    ../../cardano-explorer/nix/nixos/cardano-graphql-service.nix
   ];
   services.cardano-node = {
     environment = cluster;
