@@ -26,7 +26,7 @@ let
       static-routes = nodeCfg.staticRoutes;
     } // optionalAttrs (concatLists nodeCfg.dynamicSubscribe != []) {
       dynamic-subscribe = map (map (h: {
-        "host" = if (nodes ? h) then hostName h else h;
+        "host" = if (nodes ? ${h}) then hostName h else h;
       })) nodeCfg.dynamicSubscribe;
     }) cardanoNodes;
   };
