@@ -5,10 +5,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-byron-proxy",
-        "rev": "6c1bb0d561ccb92758d68bd2bf2f7dcb25592685",
-        "sha256": "0mfn9jw00vh37ka492s74z540ry5q75skz0pv2mwk2vwnidz8gwp",
+        "rev": "8734afc5647da027292038bfffc8086d92e02678",
+        "sha256": "1fnxvr2pxs57vbdn78bxrdii7jvpb68nh77mbcnws2jyy55wh2dx",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-byron-proxy/archive/6c1bb0d561ccb92758d68bd2bf2f7dcb25592685.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-byron-proxy/archive/8734afc5647da027292038bfffc8086d92e02678.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
@@ -48,27 +48,27 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "iohk-nix": {
-        "branch": "shelley-staging-short-bump",
+        "branch": "master",
         "description": "nix scripts shared across projects",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "11ec470ea9740780066881326b0a9a948abf93c3",
-        "sha256": "0yrfca4r0zvlagxr8dzbh826gszlgk1ri8asz8yjx821d605wjj1",
+        "rev": "bc3a58ccacffea0ad6b346f06a63022c142bb99a",
+        "sha256": "1qql6781lvr1ibc4zn8mikjm47gq8cf3w30wljlycf2nz0bhzahf",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/11ec470ea9740780066881326b0a9a948abf93c3.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/bc3a58ccacffea0ad6b346f06a63022c142bb99a.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
-        "branch": "nixos-unstable",
+        "branch": "nixos-19.09",
         "description": "A read-only mirror of NixOS/nixpkgs tracking the released channels. Send issues and PRs to",
         "homepage": "https://github.com/NixOS/nixpkgs",
         "owner": "NixOS",
         "repo": "nixpkgs-channels",
-        "rev": "94500c93dc239761bd144128a1684abcd08df6b7",
-        "sha256": "0p6bd16mb1k5c3zihl1c3d62m419rii102xfb340pccgbd8j34bc",
+        "rev": "e1843646b04fb564abf6330a9432a76df3269d2f",
+        "sha256": "1h1nv7bb6j0ccx8v0sz3gcwl1jqz3v2bb13ham0ky0rg9cvdv91h",
         "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs-channels/archive/94500c93dc239761bd144128a1684abcd08df6b7.tar.gz",
+        "url": "https://github.com/NixOS/nixpkgs-channels/archive/e1843646b04fb564abf6330a9432a76df3269d2f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
@@ -77,10 +77,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "1cdd23b3cadc4bd7ec8f9253c6c12ecb2212c98e",
-        "sha256": "0szcbw11d0658pwj52d8l851ni7w3d6x57qma5cmf3vylh3ksmhk",
+        "rev": "f35ceb58886db0e4ba479d2ca4999daa5eda0033",
+        "sha256": "18688c1lpzwg68blj7s5pm6ppzinymrcil2cx02lmvm5g4mndpq2",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/1cdd23b3cadc4bd7ec8f9253c6c12ecb2212c98e.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/f35ceb58886db0e4ba479d2ca4999daa5eda0033.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
