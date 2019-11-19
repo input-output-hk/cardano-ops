@@ -70,6 +70,9 @@
       ];
       org = "CF";
     }
+  ];
+
+  legacyRelayNodes = [
     {
       name = "r-a-1";
       region = "eu-central-1";
@@ -142,12 +145,41 @@
       ];
       org = "IOHK";
     }
+    {
+      name = "u-a-1";
+      region = "ap-northeast-1";
+      dynamicSubscribe = [
+        [ "r-a-1" "r-a-3" ]
+        [ "r-a-2" "r-c-1" "r-b-2" ]
+      ];
+      org = "IOHK";
+    }
+    {
+      name = "u-b-1";
+      region = "ap-northeast-1";
+      dynamicSubscribe = [
+        [ "r-c-1" "r-a-3" ]
+        [ "r-b-2" "r-a-2" "r-c-2" ]
+      ];
+      org = "IOHK";
+    }
+    {
+      name = "u-c-1";
+      region = "ap-southeast-1";
+      dynamicSubscribe = [
+        [ "r-c-1" "r-a-3" ]
+        [ "r-c-2" "r-a-2" "r-b-2" ]
+      ];
+      org = "IOHK";
+    }
   ];
 
-  legacyRelayNodes = [];
-
   byronProxies = [
-
+    {
+      name = "p-a-1";
+      region = "eu-central-1";
+      org = "IOHK";
+    }
   ];
 
   coreNodes = [

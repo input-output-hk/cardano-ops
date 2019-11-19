@@ -2,6 +2,8 @@
 
 set -euxo pipefail
 
+cd "$(dirname "$0")/.."
+
 # https://nixos.org/nixops/manual/#idm140737322394336
 # Needed for libvirtd:
 #
