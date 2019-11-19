@@ -12,8 +12,8 @@ let
   cluster = import ../clusters/cardano.nix {
     inherit (aws) targetEnv;
     tiny = aws.t2nano;
-    medium = aws.t2xlarge;
-    large = aws.t2large;
+    medium = aws.t2large;
+    large = aws.t2xlarge;
   };
 
   nodes = filterAttrs (name: node:

@@ -48,7 +48,7 @@ let
         inherit (def) org;
       };
       deployment.ec2.region = def.region;
-      imports = [ large ../roles/core.nix ];
+      imports = [ medium ../roles/core.nix ];
       services.cardano-node.nodeId = i;
       services.cardano-node.genesisFile = ../configuration/genesis.json;
       services.cardano-node.genesisHash = lib.fileContents ../configuration/GENHASH;
@@ -65,7 +65,7 @@ let
         inherit (def) org;
       };
       deployment.ec2.region = def.region;
-      imports = [ large ../roles/relay.nix ];
+      imports = [ medium ../roles/relay.nix ];
     };
   };
 
@@ -77,7 +77,7 @@ let
         inherit (def) org;
       };
       deployment.ec2.region = def.region;
-      imports = [ large ../roles/byron-proxy.nix ];
+      imports = [ medium ../roles/byron-proxy.nix ];
       services.cardano-node-legacy.staticRoutes = def.staticRoutes or [];
       services.cardano-node-legacy.dynamicSubscribe = def.dynamicSubscribe or [];
     };
@@ -92,7 +92,7 @@ let
         inherit (def) org;
       };
       deployment.ec2.region = def.region;
-      imports = [ large ../roles/legacy-core.nix ];
+      imports = [ medium ../roles/legacy-core.nix ];
       services.cardano-node-legacy.staticRoutes = def.staticRoutes;
     };
   };
@@ -105,7 +105,7 @@ let
         inherit (def) org;
       };
       deployment.ec2.region = def.region;
-      imports = [ large ../roles/legacy-relay.nix ];
+      imports = [ medium ../roles/legacy-relay.nix ];
       services.cardano-node-legacy.staticRoutes = def.staticRoutes or [];
       services.cardano-node-legacy.dynamicSubscribe = def.dynamicSubscribe or [];
     };
