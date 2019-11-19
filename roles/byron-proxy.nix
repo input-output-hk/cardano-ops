@@ -11,9 +11,9 @@ with import ../nix {};
 
   services.byron-proxy = {
     enable = true;
+    inherit cardanoLib;
     environment = globals.environment;
     nodeId = name;
-    pbftThreshold = "0.9";
     proxyHost = "0.0.0.0";
   };
 }
