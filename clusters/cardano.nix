@@ -78,6 +78,8 @@ let
       };
       deployment.ec2.region = def.region;
       imports = [ large ../roles/byron-proxy.nix ];
+      services.cardano-node-legacy.staticRoutes = def.staticRoutes or [];
+      services.cardano-node-legacy.dynamicSubscribe = def.dynamicSubscribe or [];
     };
   };
 
