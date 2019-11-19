@@ -7,7 +7,9 @@ self: super: {
 
     domain = "${deploymentName}.aws.iohkdev.io";
 
-    systemStart = 1563218113;
+    # Saturday, November 16, 2019 1:00:00 AM
+    systemStart = 1573866000;
+
 
     configurationKey = "shelley_staging_short_full";
 
