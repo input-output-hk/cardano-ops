@@ -2,6 +2,8 @@
 
 set -euxo pipefail
 
+cd "$(dirname "$0")/.."
+
 # https://nixos.org/nixops/manual/#idm140737322394336
 # Needed for libvirtd:
 #
@@ -24,4 +26,4 @@ fi
 nixops destroy || true
 nixops delete || true
 nixops create ./deployments/cardano-libvirtd.nix -I nixpkgs=./nix
-nixops deploy --show-trace --build-only
+nixops deploy --show-trace
