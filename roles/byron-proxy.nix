@@ -2,7 +2,10 @@
 , ...
 }:
 with import ../nix {};
-{
+let
+  iohkNix = import sourcePaths.iohk-nix {};
+  inherit (iohkNix) cardanoLib;
+in {
 
   imports = [
     ../modules/common.nix
