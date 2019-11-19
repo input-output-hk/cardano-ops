@@ -11,6 +11,8 @@ in {
     (sources.cardano-node + "/nix/nixos")
     (sources.cardano-explorer + "/nix/nixos")
   ];
+  services.graphql-engine.enable = true;
+  services.cardano-graphql.enable = true;
   services.cardano-node = {
     environment = cluster;
     topology = iohkLib.cardanoLib.mkEdgeTopology { edgeNodes = iohkLib.cardanoLib.environments.${cluster}.edgeNodes; edgePort = 7777; };
