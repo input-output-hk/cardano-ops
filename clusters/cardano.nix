@@ -37,8 +37,9 @@ let
 
   nodes = mapAttrs (_: mkNode) (cardanoNodes // otherNodes);
 
-  mkSigningKey = i: copyPathToStore (../configuration/delegate-keys.00 + "${toString i}.key");
-  mkDelegationCertificate = i: copyPathToStore (../configuration/delegation-cert.00 + "${toString i}.json");
+  leftPad = number: width: lib.fixedWidthString width "0" (toString number);
+  mksigningkey = i: copypathtostore (../configuration/delegate-keys + ".${leftpad i 3}.key");
+  mkdelegationcertificate = i: copypathtostore (../configuration/delegation-cert + ".${leftpad i 3}.json");
 
   mkCoreNode = i: def: {
     inherit (def) name;
@@ -48,7 +49,7 @@ let
         inherit (def) org;
       };
       deployment.ec2.region = def.region;
-      imports = [ large ../roles/core.nix ];
+      imports = [ medium ../roles/core.nix ];
       services.cardano-node.nodeId = i;
       services.cardano-node.genesisFile = ../configuration/genesis.json;
       services.cardano-node.genesisHash = lib.fileContents ../configuration/GENHASH;
@@ -65,7 +66,7 @@ let
         inherit (def) org;
       };
       deployment.ec2.region = def.region;
-      imports = [ large ../roles/relay.nix ];
+      imports = [ medium ../roles/relay.nix ];
     };
   };
 
@@ -77,7 +78,9 @@ let
         inherit (def) org;
       };
       deployment.ec2.region = def.region;
-      imports = [ large ../roles/byron-proxy.nix ];
+      imports = [ medium ../roles/byron-proxy.nix ];
+      services.cardano-node-legacy.staticRoutes = def.staticRoutes or [];
+      services.cardano-node-legacy.dynamicSubscribe = def.dynamicSubscribe or [];
     };
   };
 
@@ -90,7 +93,7 @@ let
         inherit (def) org;
       };
       deployment.ec2.region = def.region;
-      imports = [ large ../roles/legacy-core.nix ];
+      imports = [ medium ../roles/legacy-core.nix ];
       services.cardano-node-legacy.staticRoutes = def.staticRoutes;
     };
   };
@@ -103,7 +106,7 @@ let
         inherit (def) org;
       };
       deployment.ec2.region = def.region;
-      imports = [ large ../roles/legacy-relay.nix ];
+      imports = [ medium ../roles/legacy-relay.nix ];
       services.cardano-node-legacy.staticRoutes = def.staticRoutes or [];
       services.cardano-node-legacy.dynamicSubscribe = def.dynamicSubscribe or [];
     };
@@ -112,7 +115,7 @@ let
   mkNode = args:
     recursiveUpdate {
       deployment.targetEnv = targetEnv;
-      nixpkgs.overlays = import ../overlays sourcePaths;
+      nixpkgs.overlays = pkgs.cardano-ops-overlays;
     } args;
 
 in {

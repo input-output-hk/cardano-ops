@@ -6,41 +6,11 @@ let
   inherit (iohkNix.cardanoLib) cardanoConfig;
   cfg = config.services.cardano-node-legacy;
   stateDir = "/var/lib/cardano-node";
-  listenIp = getListenIp nodes.${name};
-  publicIp = staticRouteIp name;
-
-  hostName = name: "${name}.cardano";
-  cardanoNodes = filterAttrs
-    (_: node: node.config.services.cardano-node-legacy.enable or false)
-    nodes;
-  cardanoHostList = lib.mapAttrsToList (nodeName: node: {
-    name = hostName nodeName;
-    ip = staticRouteIp nodeName;
-  }) cardanoNodes;
-
-  topology = {
-    nodes = mapAttrs (name: node: let nodeCfg = node.config.services.cardano-node-legacy; in {
-      type = nodeCfg.nodeType;
-      region = node.config.deployment.ec2.region;
-      host = hostName name;
-      port = nodeCfg.port;
-    } // optionalAttrs (concatLists nodeCfg.staticRoutes != []) {
-      static-routes = nodeCfg.staticRoutes;
-    } // optionalAttrs (concatLists nodeCfg.dynamicSubscribe != []) {
-      dynamic-subscribe = map (map (h: {
-        "host" = if (nodes ? h) then hostName h else h;
-      })) nodeCfg.dynamicSubscribe;
-    }) cardanoNodes;
-  };
-
-  nodeName = node: head (attrNames (filterAttrs (_: n: n == node) nodes));
-
-  staticRouteIp = getStaticRouteIp resources nodes;
-
+  port = globals.cardanoNodeLegacyPort;
   command = toString ([
     cfg.executable
-    "--address ${publicIp}:${toString cfg.port}"
-    "--listen ${listenIp}:${toString cfg.port}"
+    "--address ${cfg.publicIp}:${toString port}"
+    "--listen ${cfg.listenIp}:${toString port}"
     (optionalString cfg.jsonLog "--json-log ${stateDir}/jsonLog.json")
     (optionalString (config.services.monitoring-exporters.metrics) "--metrics +RTS -T -RTS --statsd-server 127.0.0.1:${toString config.services.monitoring-exporters.statsdPort}")
     (optionalString (cfg.nodeType == "core") "--keyfile ${stateDir}/key.sk")
@@ -56,16 +26,12 @@ let
 in {
 
   imports = [
-    ./common.nix
+    ./common-cardano-legacy.nix
   ];
 
   options = {
     services.cardano-node-legacy = {
       enable = mkEnableOption "cardano-node-legacy"  // { default = true; };
-      port = mkOption { type = types.int; default = pkgs.globals.cardanoNodeLegacyPort; };
-      systemStart = mkOption { type = types.int; default = 0; };
-
-      nodeType = mkOption { type = types.enum [ "core" "relay" "edge" ];};
 
       extraCommandArgs = mkOption { type = types.listOf types.str; default = []; };
       saveCoreDumps = mkOption {
@@ -80,36 +46,11 @@ in {
         default = "${cardano-node-legacy}/bin/cardano-node-simple";
       };
       autoStart = mkOption { type = types.bool; default = true; };
-
-      topologyYaml = mkOption {
-        type = types.path;
-        default = writeText "topology.yaml"  (builtins.toJSON topology);
-      };
-
-      genesisN = mkOption { type = types.int; default = 6; };
-      slotDuration = mkOption { type = types.int; default = 20; };
-      networkDiameter = mkOption { type = types.int; default = 15; };
-      mpcRelayInterval = mkOption { type = types.int; default = 45; };
-      stats = mkOption { type = types.bool; default = false; };
       jsonLog = mkOption { type = types.bool; default = false; };
-
-      staticRoutes = mkOption {
-        default = [];
-        type = types.listOf (types.listOf types.str);
-        description = ''Static routes to peers.'';
-      };
-
-      dynamicSubscribe = mkOption {
-        default = [];
-        type = types.listOf (types.listOf types.str);
-        description = ''Dnymic subscribe routes.'';
-      };
-
     };
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = [ pkgs.telnet ];
 
     users = {
       users.cardano-node = {
@@ -123,14 +64,6 @@ in {
       groups.cardano-node = {
         gid = 123123;
       };
-    };
-
-    networking.firewall = {
-      allowedTCPPorts = [ cfg.port ];
-
-      # TODO: securing this depends on CSLA-27
-      # NOTE: this implicitly blocks DHCPCD, which uses port 68
-      allowedUDPPortRanges = [ { from = 1024; to = 65000; } ];
     };
 
     systemd.services.cardano-node-legacy = {
@@ -159,16 +92,6 @@ in {
         Type = "notify";
       };
     };
-
-    services.dnsmasq = {
-      enable = true;
-      servers = [ "127.0.0.1" ];
-    };
-
-    networking.extraHosts = ''
-      ${publicIp} ${hostName name}
-      ${concatStringsSep "\n" (map (host: "${host.ip} ${host.name}") cardanoHostList)}
-    '';
   };
 
 

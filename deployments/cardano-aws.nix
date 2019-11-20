@@ -12,8 +12,8 @@ let
   cluster = import ../clusters/cardano.nix {
     inherit (aws) targetEnv;
     tiny = aws.t2nano;
-    medium = aws.t2xlarge;
-    large = aws.t2large;
+    medium = aws.t2large;
+    large = aws.t2xlarge;
   };
 
   nodes = filterAttrs (name: node:
@@ -32,7 +32,7 @@ let
       groups = [ (import ../physical/aws/security-groups/allow-legacy-peers.nix) ];
     }
     {
-      nodes = getAttrs (map (n: n.name) legacyRelayNodes) nodes;
+      nodes = getAttrs (map (n: n.name) (legacyRelayNodes ++ byronProxies)) nodes;
       groups = [ (import ../physical/aws/security-groups/allow-legacy-public.nix) ];
     }
     {
