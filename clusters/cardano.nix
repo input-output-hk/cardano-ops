@@ -37,8 +37,9 @@ let
 
   nodes = mapAttrs (_: mkNode) (cardanoNodes // otherNodes);
 
-  mkSigningKey = i: copyPathToStore (../configuration/delegate-keys.00 + "${toString i}.key");
-  mkDelegationCertificate = i: copyPathToStore (../configuration/delegation-cert.00 + "${toString i}.json");
+  leftPad = number: width: lib.fixedWidthString width "0" (toString number);
+  mksigningkey = i: copypathtostore (../configuration/delegate-keys + ".${leftpad i 3}.key");
+  mkdelegationcertificate = i: copypathtostore (../configuration/delegation-cert + ".${leftpad i 3}.json");
 
   mkCoreNode = i: def: {
     inherit (def) name;
@@ -114,7 +115,7 @@ let
   mkNode = args:
     recursiveUpdate {
       deployment.targetEnv = targetEnv;
-      nixpkgs.overlays = import ../overlays sourcePaths;
+      nixpkgs.overlays = pkgs.cardano-ops-overlays;
     } args;
 
 in {
