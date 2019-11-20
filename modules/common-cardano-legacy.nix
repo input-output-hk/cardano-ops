@@ -82,7 +82,6 @@ in {
     };
 
     networking.extraHosts = ''
-      ${cfg.publicIp} ${hostName name}
       ${concatStringsSep "\n" (map (host: "${host.ip} ${host.name}") cardanoHostList)}
     '';
   };
