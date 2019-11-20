@@ -32,7 +32,7 @@ let
       groups = [ (import ../physical/aws/security-groups/allow-legacy-peers.nix) ];
     }
     {
-      nodes = getAttrs (map (n: n.name) legacyRelayNodes) nodes;
+      nodes = getAttrs (map (n: n.name) (legacyRelayNodes ++ byronProxies)) nodes;
       groups = [ (import ../physical/aws/security-groups/allow-legacy-public.nix) ];
     }
     {
