@@ -7,7 +7,6 @@ let
   iohkNix = import sourcePaths.iohk-nix {};
   inherit (iohkNix) cardanoLib;
   inherit (cardanoLib) mkProxyTopology;
-  inherit (globals) cardanoNodePort cardanoNodeLegacyPort systemStart;
   legacyCardanoCfg = config.services.cardano-node-legacy;
 in {
 
@@ -22,14 +21,13 @@ in {
     environment = globals.environment;
     nodeId = name;
     proxyHost = legacyCardanoCfg.listenIp;
-    proxyPort = cardanoNodePort;
-    listen = "${legacyCardanoCfg.listenIp}:${toString cardanoNodeLegacyPort}";
-    address = "${legacyCardanoCfg.publicIp}:${toString cardanoNodeLegacyPort}";
+    proxyPort = globals.cardanoNodePort;
+    listen = "${legacyCardanoCfg.listenIp}:${toString globals.cardanoNodeLegacyPort}";
+    address = "${legacyCardanoCfg.publicIp}:${toString globals.cardanoNodeLegacyPort}";
     topologyFile = legacyCardanoCfg.topologyYaml;
-    extraOptions = "--system-start ${toString systemStart}";
   };
 
-  networking.firewall.allowedTCPPorts = [ cardanoNodePort ];
+  networking.firewall.allowedTCPPorts = [ globals.cardanoNodePort ];
 
   services.cardano-node-legacy.nodeType = "relay";
 }

@@ -51,8 +51,8 @@ let
       deployment.ec2.region = def.region;
       imports = [ medium ../roles/core.nix ];
       services.cardano-node.nodeId = i;
-      services.cardano-node.genesisFile = ../configuration/genesis.json;
-      services.cardano-node.genesisHash = lib.fileContents ../configuration/GENHASH;
+      services.cardano-node.environments = iohkNix.environments;
+      services.cardano-node.environemnt = globals.environment;
       services.cardano-node.signingKey = toString (mkSigningKey i);
       services.cardano-node.delegationCertificate = toString (mkDelegationCertificate i);
     };

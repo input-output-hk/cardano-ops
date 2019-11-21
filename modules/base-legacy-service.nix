@@ -14,7 +14,6 @@ let
     (optionalString cfg.jsonLog "--json-log ${stateDir}/jsonLog.json")
     (optionalString (config.services.monitoring-exporters.metrics) "--metrics +RTS -T -RTS --statsd-server 127.0.0.1:${toString config.services.monitoring-exporters.statsdPort}")
     (optionalString (cfg.nodeType == "core") "--keyfile ${stateDir}/key.sk")
-    (optionalString (globals.systemStart != 0) "--system-start ${toString globals.systemStart}")
     "--log-config ${cardano-node-legacy-config}/log-configs/cluster.yaml"
     "--logs-prefix /var/lib/cardano-node"
     "--db-path ${stateDir}/node-db"

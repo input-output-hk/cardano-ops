@@ -17,22 +17,22 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "5bc92a6ba6ad5707edf15338aa073d757d827575",
-        "sha256": "1vrrizjnb9y4f6zn5xfz729rxb1svw85p4vrlzlbmmhwzgslbq08",
+        "rev": "d402dd42874ae0acbbfb4c42ffb2a773370f1f3d",
+        "sha256": "1ksl6yqm8s485bxdahxmzcs0k6f7dy7s461hqgc6bclcdkjs1vsl",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/5bc92a6ba6ad5707edf15338aa073d757d827575.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/d402dd42874ae0acbbfb4c42ffb2a773370f1f3d.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-sl": {
-        "branch": "develop",
+        "branch": "master",
         "description": "Cryptographic currency implementing Ouroboros PoS protocol",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-sl",
-        "rev": "7c968d8079ca344249dc92b33b4226eb3acd6832",
-        "sha256": "1ps1nqhs67pm11q1r3ngry7s6mdp38hnsjqp7nmh1j98r78f6wsd",
+        "rev": "1a792d7cd0f0c93a0f0c28f66372bce3c3808dbd",
+        "sha256": "1vk71zn9bnkgkhgcyj59wzrp28crjwcd0lgnm013mhzpvxycgn61",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-sl/archive/7c968d8079ca344249dc92b33b4226eb3acd6832.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-sl/archive/1a792d7cd0f0c93a0f0c28f66372bce3c3808dbd.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "gitignore": {
@@ -53,10 +53,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "bc3a58ccacffea0ad6b346f06a63022c142bb99a",
-        "sha256": "1qql6781lvr1ibc4zn8mikjm47gq8cf3w30wljlycf2nz0bhzahf",
+        "rev": "f854c957a65295639d2062867552b65c7dc227a6",
+        "sha256": "1jl07ng2nx6lgj9rrqzl242r263505llzzxb592fn81h0dq6jx1r",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/bc3a58ccacffea0ad6b346f06a63022c142bb99a.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/f854c957a65295639d2062867552b65c7dc227a6.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
