@@ -1,7 +1,7 @@
 { pkgs, lib, options, config, name, nodes, resources,  ... }:
 with (import ../nix {});
 let
-  inherit (import sourcePaths.iohk-nix {}) cardanoLib;
+  iohkNix = import sourcePaths.iohk-nix {};
 
   nodePort = pkgs.globals.cardanoNodePort;
 

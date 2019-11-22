@@ -1,7 +1,6 @@
 { targetEnv
-, tiny
 , medium
-, large
+, xlarge-monitor
 , ...
 }:
 with (import ../nix {});
@@ -25,8 +24,9 @@ let
     monitoring = {
       deployment.ec2.region = "eu-central-1";
       imports = [
-        large
+        xlarge-monitor
         roles.monitor
+        ../modules/monitoring-cardano.nix
       ];
       node = {
         roles.isMonitor = true;
