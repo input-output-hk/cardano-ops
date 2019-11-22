@@ -32,6 +32,33 @@ let
         roles.isMonitor = true;
         org = "IOHK";
       };
+
+      # TODO: remove once explorer exports metrics at path `/metrics`
+      services.prometheus = {
+        scrapeConfigs = [
+          {
+            job_name = "explorer";
+            scrape_interval = "10s";
+            metrics_path = "/";
+            static_configs = [{
+              targets = [ "explorer-ip:8080" ];
+              labels = { alias = "explorer-ip-8080"; };
+            }];
+          }
+        ];
+      };
+    };
+
+    explorer = {
+      deployment.ec2.region = "eu-central-1";
+      imports = [ medium ../roles/explorer.nix ];
+
+      # TODO: Add 12798 when prometheus binding is a parameter
+      services.monitoring-exporters.extraPrometheusExportersPorts = [ 8080 ];
+      node = {
+        roles.isExplorer = true;
+        org = "IOHK";
+      };
     };
   };
 
@@ -52,7 +79,7 @@ let
       imports = [ medium ../roles/core.nix ];
       services.cardano-node.nodeId = i;
       services.cardano-node.environments = iohkNix.environments;
-      services.cardano-node.environemnt = globals.environment;
+      services.cardano-node.environment = globals.environment;
       services.cardano-node.signingKey = toString (mkSigningKey i);
       services.cardano-node.delegationCertificate = toString (mkDelegationCertificate i);
     };
@@ -66,7 +93,14 @@ let
         inherit (def) org;
       };
       deployment.ec2.region = def.region;
-      imports = [ medium ../roles/relay.nix ];
+      imports = [
+        medium
+        ../roles/relay.nix
+
+        # TODO: remove module when prometheus binding is a parameter
+        ../modules/nginx-monitoring-proxy.nix
+      ];
+      services.monitoring-exporters.extraPrometheusExportersPorts = [ 12798 ];
     };
   };
 

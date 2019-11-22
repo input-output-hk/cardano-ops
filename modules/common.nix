@@ -34,6 +34,14 @@ with (import ../nix {});
           type = lib.types.bool;
           default = false;
         };
+        isMonitor = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+        };
+        isExplorer = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+        };
       };
     };
   };

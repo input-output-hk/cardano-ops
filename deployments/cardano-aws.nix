@@ -20,6 +20,8 @@ let
     ((node.deployment.targetEnv or null) == "ec2")
     && ((node.deployment.ec2.region or null) != null)) cluster;
 
+  doMonitoring = any (n: n.node.roles.isMonitor or false) (attrValues nodes);
+
   regions =
     unique (map (node: node.deployment.ec2.region) (attrValues nodes));
 
@@ -51,12 +53,13 @@ let
       ];
     }
     {
+      nodes = (filterAttrs (_: n: n.node.roles.isExplorer or false) nodes);
+      groups = [ allow-public-www-https ];
+    }
+    {
       inherit nodes;
-      groups = [
-        allow-deployer-ssh
-      ]
-      ++ optional (any (n: n.node.roles.isMonitor or false) (attrValues nodes))
-        allow-monitoring-collection;
+      groups = [ allow-deployer-ssh ]
+               ++ optional doMonitoring allow-monitoring-collection;
     }
   ];
 
