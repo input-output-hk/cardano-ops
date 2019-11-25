@@ -100,7 +100,14 @@ let
         # TODO: remove module when prometheus binding is a parameter
         ../modules/nginx-monitoring-proxy.nix
       ];
-      services.monitoring-exporters.extraPrometheusExportersPorts = [ 12798 ];
+      services.monitoring-exporters.extraPrometheusExportersPorts = [ globals.cardanoNodePrometheusExporterPort ];
+      services.nginx-monitoring-proxy = {
+        proxyName = "localproxy";
+        listenPort = globals.cardanoNodePrometheusExporterPort;
+        listenPath = "/metrics";
+        proxyPort = 12797;
+        proxyPath = "/metrics";
+      };
     };
   };
 
@@ -112,9 +119,35 @@ let
         inherit (def) org;
       };
       deployment.ec2.region = def.region;
-      imports = [ medium ../roles/byron-proxy.nix ];
+      imports = [
+        medium
+        ../roles/byron-proxy.nix
+
+        # TODO: remove module when prometheus binding is a parameter
+        ../modules/nginx-monitoring-proxy.nix
+      ];
       services.cardano-node-legacy.staticRoutes = def.staticRoutes or [];
       services.cardano-node-legacy.dynamicSubscribe = def.dynamicSubscribe or [];
+
+      services.monitoring-exporters.extraPrometheusExportersPorts = [ globals.byronProxyPrometheusExporterPort ];
+      services.nginx-monitoring-proxy = {
+        proxyName = "localproxy";
+        listenPort = globals.byronProxyPrometheusExporterPort;
+        listenPath = "/metrics";
+        proxyPort = 12796;
+        proxyPath = "/metrics";
+      };
+
+      # TODO: modify/remove when prometheus binding is a parameter
+      services.byron-proxy.logger.configFile =
+        let
+          byronProxySrc = sourcePaths.cardano-byron-proxy;
+          loggerUnmodFile = byronProxySrc + "/cfg/logging.yaml";
+          loggerUnmod = __readFile loggerUnmodFile;
+          loggerMod = lib.replaceStrings [ "hasPrometheus: 12799" ] [ "hasPrometheus: 12796" ] loggerUnmod;
+          loggerModFile = __toFile "logging-prom-12796.yaml" loggerMod;
+        in
+          loggerModFile;
     };
   };
 

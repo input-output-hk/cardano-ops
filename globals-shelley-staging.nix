@@ -5,7 +5,7 @@ self: super: {
 
     deploymentName = "staging-shelley";
 
-    domain = "${deploymentName}.aws.iohkdev.io";
+    domain = "${deploymentName}.dev.iohkdev.io";
 
     configurationKey = "shelley_staging_full";
 
@@ -16,9 +16,8 @@ self: super: {
     ec2 = {
       credentials = {
         accessKeyIds = {
-          "IOHK" = "default";
-          "Emurgo" = "default";
-          "CF" = "default";
+          "IOHK" = "dev-deployer";
+          dns = "dev-deployer";
         };
       };
     };

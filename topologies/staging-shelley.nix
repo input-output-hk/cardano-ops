@@ -42,7 +42,7 @@
         [ "r-b-1" "r-b-2" ]
         [ "p-b-1" "p-a-1" ]
       ];
-      org = "Emurgo";
+      org = "IOHK";
     }
     {
       name = "c-b-2";
@@ -53,7 +53,7 @@
         [ "r-b-2" "r-b-1" ]
         [ "p-b-1" "p-c-1" ]
       ];
-      org = "Emurgo";
+      org = "IOHK";
     }
     {
       name = "c-c-1";
@@ -64,7 +64,7 @@
         [ "r-c-1" "r-c-2" ]
         [ "p-c-1" "p-a-1" ]
       ];
-      org = "CF";
+      org = "IOHK";
     }
     {
       name = "c-c-2";
@@ -75,7 +75,7 @@
         [ "r-c-2" "r-c-1" ]
         [ "p-c-1" "p-b-1" ]
       ];
-      org = "CF";
+      org = "IOHK";
     }
   ];
 
