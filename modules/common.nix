@@ -13,6 +13,9 @@ with (import ../nix {});
       coreIndex = lib.mkOption {
         type = lib.types.int;
       };
+      nodeId = lib.mkOption {
+        type = lib.types.int;
+      };
       roles = {
         isCardanoLegacyCore = lib.mkOption {
           type = lib.types.bool;

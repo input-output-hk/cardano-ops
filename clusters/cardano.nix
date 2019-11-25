@@ -58,6 +58,7 @@ let
       node = {
         roles.isExplorer = true;
         org = "IOHK";
+        nodeId = 99;
       };
     };
   };
@@ -68,20 +69,20 @@ let
   mksigningkey = i: copypathtostore (../configuration/delegate-keys + ".${leftpad i 3}.key");
   mkdelegationcertificate = i: copypathtostore (../configuration/delegation-cert + ".${leftpad i 3}.json");
 
-  mkCoreNode = i: def: {
+  mkCoreNode = def: {
     inherit (def) name;
     value = {
       node = {
         roles.isCardanoCore = true;
-        inherit (def) org;
+        inherit (def) org nodeId;
       };
       deployment.ec2.region = def.region;
       imports = [ medium ../roles/core.nix ];
-      services.cardano-node.nodeId = i;
-      services.cardano-node.environments = iohkNix.environments;
-      services.cardano-node.environment = globals.environment;
-      services.cardano-node.signingKey = toString (mkSigningKey i);
-      services.cardano-node.delegationCertificate = toString (mkDelegationCertificate i);
+      services.cardano-node = {
+        inherit (def) producers;
+        signingKey = toString (mkSigningKey def.nodeId);
+        delegationCertificate = toString (mkDelegationCertificate def.nodeId);
+      };
     };
   };
 
@@ -90,7 +91,10 @@ let
     value = {
       node = {
         roles.isCardanoRelay = true;
-        inherit (def) org;
+        inherit (def) org nodeId;
+      };
+      services.cardano-node = {
+        inherit (def) producers;
       };
       deployment.ec2.region = def.region;
       imports = [
@@ -100,7 +104,6 @@ let
         # TODO: remove module when prometheus binding is a parameter
         ../modules/nginx-monitoring-proxy.nix
       ];
-      services.monitoring-exporters.extraPrometheusExportersPorts = [ globals.cardanoNodePrometheusExporterPort ];
       services.nginx-monitoring-proxy = {
         proxyName = "localproxy";
         listenPort = globals.cardanoNodePrometheusExporterPort;
@@ -116,7 +119,7 @@ let
     value = {
       node = {
         roles.isByronProxy = true;
-        inherit (def) org;
+        inherit (def) org nodeId;
       };
       deployment.ec2.region = def.region;
       imports = [

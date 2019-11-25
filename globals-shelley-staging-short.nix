@@ -5,7 +5,7 @@ self: super: {
 
     deploymentName = "staging-shelley-short";
 
-    domain = "${deploymentName}.aws.iohkdev.io";
+    domain = "${deploymentName}.dev.iohkdev.io";
 
     configurationKey = "shelley_staging_short_full";
 
@@ -17,7 +17,7 @@ self: super: {
       credentials = {
         accessKeyIds = {
           "IOHK" = "dev-deployer";
-          "dns" = "default";
+          "dns" = "dev-deployer";
         };
       };
     };

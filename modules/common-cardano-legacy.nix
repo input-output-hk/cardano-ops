@@ -22,6 +22,7 @@ let
       region = node.config.deployment.ec2.region;
       host = hostName name;
       port = port;
+      kademlia = false;
     } // optionalAttrs (concatLists nodeCfg.staticRoutes != []) {
       static-routes = nodeCfg.staticRoutes;
     } // optionalAttrs (concatLists nodeCfg.dynamicSubscribe != []) {
