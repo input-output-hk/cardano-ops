@@ -232,18 +232,21 @@
       region = "eu-central-1";
       org = "IOHK";
       nodeId = 8;
+      producers = ["p-a-1" "e-b-1" "e-c-1"];
     }
     {
       name = "e-b-1";
       region = "ap-northeast-1";
       org = "IOHK";
       nodeId = 9;
+      producers = ["p-b-1" "e-a-1" "e-c-1"];
     }
     {
       name = "e-c-1";
       region = "ap-southeast-1";
       org = "IOHK";
       nodeId = 10;
+      producers = ["p-c-1" "e-a-1" "e-b-1"];
     }
   ];
 }
