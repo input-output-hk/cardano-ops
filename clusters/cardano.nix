@@ -20,7 +20,7 @@ let
     // listToAttrs (map mkRelayNode relayNodes)
     // listToAttrs (map mkByronProxyNode byronProxies);
 
-  otherNodes = {
+  otherNodes = (lib.optionalAttrs (globals.withMonitoring or true) {
     monitoring = {
       deployment.ec2.region = "eu-central-1";
       imports = [
@@ -48,7 +48,7 @@ let
         ];
       };
     };
-
+  }) // (lib.optionalAttrs (globals.withExplorer or true) {
     explorer = {
       deployment.ec2.region = "eu-central-1";
       imports = [ medium ../roles/explorer.nix ];
@@ -61,7 +61,7 @@ let
         nodeId = 99;
       };
     };
-  };
+  });
 
   nodes = mapAttrs (_: mkNode) (cardanoNodes // otherNodes);
 
