@@ -27,6 +27,7 @@ in {
     enable = true;
     cluster = globals.environment;
     socketPath = "/run/cardano-node/node-core-0.socket";
+    environment = targetEnv;
   };
   systemd.services.cardano-explorer-node = {
     wants = [ "cardano-node.service" ];
