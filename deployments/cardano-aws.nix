@@ -29,19 +29,19 @@ let
 
   securityGroups = with aws.security-groups; [
     {
-      nodes = getAttrs (map (n: n.name) legacyCoreNodes) nodes;
+      nodes = getAttrs (map (n: n.name) (legacyCoreNodes ++ byronProxies)) nodes;
       groups = [ (import ../physical/aws/security-groups/allow-legacy-peers.nix) ];
     }
     {
-      nodes = getAttrs (map (n: n.name) (legacyRelayNodes ++ byronProxies)) nodes;
+      nodes = getAttrs (map (n: n.name) legacyRelayNodes) nodes;
       groups = [ (import ../physical/aws/security-groups/allow-legacy-public.nix) ];
     }
     {
-      nodes = getAttrs (map (n: n.name) coreNodes) nodes;
+      nodes = getAttrs (map (n: n.name) (coreNodes ++ byronProxies)) nodes;
       groups = [ (import ../physical/aws/security-groups/allow-peers.nix) ];
     }
     {
-      nodes = getAttrs (map (n: n.name) (relayNodes ++ byronProxies)) nodes;
+      nodes = getAttrs (map (n: n.name) relayNodes) nodes;
       groups = [ (import ../physical/aws/security-groups/allow-public.nix) ];
     }
     {
