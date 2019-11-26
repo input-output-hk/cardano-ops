@@ -17,9 +17,9 @@ self: super: {
       credentials = {
         accessKeyIds = {
           "IOHK" = "iohk";
-          "Emurgo" = "third-party";
-          "CF" = "fifth-party";
-          dns = "default";
+          "Emurgo" = "fifth-party";
+          "CF" = "third-party";
+          dns = "dns";
         };
       };
     };
