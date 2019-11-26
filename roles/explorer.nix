@@ -3,6 +3,8 @@ with import ../nix {};
 
 let
   inherit (import sourcePaths.iohk-nix {}) cardanoLib;
+  cardano-sl = import sourcePaths.cardano-sl { gitrev = sourcePaths.cardano-sl.rev; };
+  explorerFrontend = cardano-sl.explorerFrontend;
   cluster = globals.environment;
   targetEnv = cardanoLib.environments.${cluster};
 in {
@@ -14,8 +16,8 @@ in {
 
   environment.systemPackages = with pkgs; [ bat fd lsof netcat ncdu ripgrep tree vim ];
 
-  services.graphql-engine.enable = true;
-  services.cardano-graphql.enable = true;
+  services.graphql-engine.enable = false;
+  services.cardano-graphql.enable = false;
   services.cardano-node = {
     inherit (globals) environment;
     environments = cardanoLib.environments;
@@ -51,15 +53,29 @@ in {
     virtualHosts."explorer.${globals.domain}" = {
       enableACME = true;
       forceSSL = true;
-      locations."/graphql" = {
-        proxyPass = "http://127.0.0.1:3100/graphql";
+      locations = {
+        "/" = {
+          root = explorerFrontend;
+        };
+        "/socket.io/" = {
+           proxyPass = "http://127.0.0.1:8110";
+           extraConfig = ''
+             proxy_http_version 1.1;
+             proxy_set_header Upgrade $http_upgrade;
+             proxy_set_header Connection "upgrade";
+             proxy_read_timeout 86400;
+           '';
+        };
+        "/api" = {
+          proxyPass = "http://127.0.0.1:8100/api";
+        };
       };
-      locations."/api" = {
-        proxyPass = "http://127.0.0.1:8100/api";
-      };
-      locations."/graphql" = {
-        proxyPass = "http://127.0.0.1:3100/graphql";
-      };
+      #locations."/graphiql" = {
+      #  proxyPass = "http://127.0.0.1:3100/graphiql";
+      #};
+      #locations."/graphql" = {
+      #  proxyPass = "http://127.0.0.1:3100/graphql";
+      #};
     };
   };
 }
