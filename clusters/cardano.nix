@@ -65,10 +65,6 @@ let
 
   nodes = mapAttrs (_: mkNode) (cardanoNodes // otherNodes);
 
-  leftPad = number: width: lib.fixedWidthString width "0" (toString number);
-  mksigningkey = i: copypathtostore (../configuration/delegate-keys + ".${leftpad i 3}.key");
-  mkdelegationcertificate = i: copypathtostore (../configuration/delegation-cert + ".${leftpad i 3}.json");
-
   mkCoreNode = def: {
     inherit (def) name;
     value = {
@@ -80,8 +76,6 @@ let
       imports = [ medium ../roles/core.nix ];
       services.cardano-node = {
         inherit (def) producers;
-        signingKey = toString (mkSigningKey def.nodeId);
-        delegationCertificate = toString (mkDelegationCertificate def.nodeId);
       };
     };
   };
