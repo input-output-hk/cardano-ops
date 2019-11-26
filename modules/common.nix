@@ -13,6 +13,9 @@ with (import ../nix {});
       coreIndex = lib.mkOption {
         type = lib.types.int;
       };
+      nodeId = lib.mkOption {
+        type = lib.types.int;
+      };
       roles = {
         isCardanoLegacyCore = lib.mkOption {
           type = lib.types.bool;
@@ -31,6 +34,14 @@ with (import ../nix {});
           default = false;
         };
         isByronProxy = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+        };
+        isMonitor = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+        };
+        isExplorer = lib.mkOption {
           type = lib.types.bool;
           default = false;
         };

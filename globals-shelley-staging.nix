@@ -3,21 +3,21 @@ self: super: {
 
     static = import ./static;
 
-    deploymentName = "staging-shelley-short";
+    deploymentName = "staging-shelley";
 
     domain = "${deploymentName}.dev.iohkdev.io";
 
-    configurationKey = "shelley_staging_short_full";
+    configurationKey = "shelley_staging_full";
 
-    environment = "shelley_staging_short";
+    environment = "shelley_staging";
 
-    topology = import ./topologies/staging-shelley-short.nix;
+    topology = import ./topologies/staging-shelley.nix;
 
     ec2 = {
       credentials = {
         accessKeyIds = {
           "IOHK" = "dev-deployer";
-          "dns" = "dev-deployer";
+          dns = "dev-deployer";
         };
       };
     };

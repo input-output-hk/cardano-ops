@@ -3,7 +3,7 @@
   defaultScribes = [ [ "StdoutSK" "stdout" ] ];
   hasEKG = 12780;
   hasPrometheus = 12798;
-  minSeverity = "Debug";
+  minSeverity = "Info";
   options = {
     cfokey = { value = "Release-1.0.0"; };
     mapBackends = {

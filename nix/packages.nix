@@ -1,4 +1,5 @@
 self: super: {
+  pp = v: __trace (__toJSON v) v;
   getStaticRouteIp = resources: nodes: nodeName: resources.elasticIPs."${nodeName}-ip".address
     or (let
       publicIp = nodes.${nodeName}.config.networking.publicIPv4;

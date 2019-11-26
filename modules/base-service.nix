@@ -1,18 +1,51 @@
-{ pkgs, lib, options, config, nodes, resources,  ... }:
-with (import ../nix {});
+{ pkgs, lib, options, config, name, nodes, resources,  ... }:
+with (import ../nix {}); with lib;
 let
-  inherit (import sourcePaths.iohk-nix {}) cardanoLib;
+  iohkNix = import sourcePaths.iohk-nix {};
 
+  nodeId = config.node.nodeId;
+  cfg = config.services.cardano-node;
   nodePort = pkgs.globals.cardanoNodePort;
-  monitoringPorts = [ 9100 9102 9113 ];
-  hostAddr = if options.networking.privateIPv4.isDefined then config.networking.privateIPv4 else "0.0.0.0";
-  nodeId = config.services.cardano-node.nodeId;
-  # TODO: this doesn't work, perhaps publicIPv4 is empty, I need a way to filter out self node
-  otherNodes = builtins.filter (node: node.config.networking.publicIPv4 != options.networking.publicIPv4) (builtins.attrValues nodes);
-  mkProducer = node: { addr = node.config.networking.publicIPv4; port = nodePort; valency = 1; };
-  producers = map mkProducer otherNodes;
-  region = config.deployment.ec2.region;
-  loggerConfig = import ./iohk-monitoring-config.nix;
+  hostAddr = getListenIp nodes.${name};
+
+  monitoringPort = globals.cardanoNodePrometheusExporterPort;
+
+  hostName = name: "${name}.cardano";
+  staticRouteIp = getStaticRouteIp resources nodes;
+
+  cardanoNodes = filterAttrs
+    (_: node: node.config.services.cardano-node.enable
+           or node.config.services.byron-proxy.enable or false)
+    nodes;
+
+  cardanoHostList = lib.mapAttrsToList (nodeName: node: {
+    name = hostName nodeName;
+    ip = staticRouteIp nodeName;
+  }) cardanoNodes;
+
+  producers = map (n: {
+    addr = if (nodes ? ${n}) then hostName n else n;
+    port = nodePort;
+    valency = 1;
+  }) cfg.producers;
+
+  topology =  builtins.toFile "topology.yaml" (builtins.toJSON (lib.mapAttrsToList (nodeName: node: {
+        _file = ./base-service.nix;
+        nodeId = node.config.node.nodeId;
+        nodeAddress = {
+          addr = if (nodeName == name)
+            then hostAddr
+            else hostName nodeName;
+          port = nodePort;
+        };
+        producers = if (nodeName == name)
+          then producers
+          else [];
+      }) cardanoNodes));
+
+  loggerConfig = import ./iohk-monitoring-config.nix // {
+    hasPrometheus = 12797; #FIXME: use monitoringPort and remove nginx proxy.
+  };
 in
 {
   imports = [
@@ -20,24 +53,50 @@ in
     (sourcePaths.cardano-node + "/nix/nixos")
   ];
 
-  networking.firewall = {
-    allowedTCPPorts = [ nodePort ] ++ monitoringPorts;
-
-    # TODO: securing this depends on CSLA-27
-    # NOTE: this implicitly blocks DHCPCD, which uses port 68
-    allowedUDPPortRanges = [ { from = 1024; to = 65000; } ];
+  options = {
+    services.cardano-node = {
+      publicIp = mkOption { type = types.str; default = staticRouteIp name;};
+      producers = mkOption {
+        default = [];
+        type = types.listOf types.str;
+        description = ''Static routes to peers.'';
+      };
+    };
   };
 
-  services.cardano-node = {
-    enable = true;
-    pbftThreshold = "0.9";
-    consensusProtocol = "real-pbft";
-    inherit hostAddr;
-    port = nodePort;
-    topology = builtins.toFile "topology.yaml" (builtins.toJSON
-                 [ { nodeAddress = { addr = hostAddr; port = nodePort; };
-                   inherit nodeId producers;
-                 } ]);
-    logger.configFile = builtins.toFile "log-config.json" (builtins.toJSON loggerConfig);
+  config = {
+
+    services.monitoring-exporters.extraPrometheusExportersPorts = [ monitoringPort ];
+
+    networking.firewall = {
+      allowedTCPPorts = [ nodePort monitoringPort ];
+
+      # TODO: securing this depends on CSLA-27
+      # NOTE: this implicitly blocks DHCPCD, which uses port 68
+      allowedUDPPortRanges = [ { from = 1024; to = 65000; } ];
+    };
+
+    # TODO: remove rec when prometheus binding is a parameter
+    services.cardano-node = rec {
+      enable = true;
+      inherit hostAddr nodeId topology;
+      port = nodePort;
+      inherit (globals) environment;
+      environments = iohkNix.cardanoLib.environments;
+
+      # TODO: remove prometheus port override when prometheus binding is a parameter
+      nodeConfig = environments.${environment}.nodeConfig // loggerConfig // {
+        NodeId = nodeId;
+      };
+    };
+
+    services.dnsmasq = {
+      enable = true;
+      servers = [ "127.0.0.1" ];
+    };
+
+    networking.extraHosts = ''
+        ${concatStringsSep "\n" (map (host: "${host.ip} ${host.name}") cardanoHostList)}
+    '';
   };
 }

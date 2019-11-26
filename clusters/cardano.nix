@@ -1,7 +1,6 @@
 { targetEnv
-, tiny
 , medium
-, large
+, xlarge-monitor
 , ...
 }:
 with (import ../nix {});
@@ -25,12 +24,41 @@ let
     monitoring = {
       deployment.ec2.region = "eu-central-1";
       imports = [
-        large
+        xlarge-monitor
         roles.monitor
+        ../modules/monitoring-cardano.nix
       ];
       node = {
         roles.isMonitor = true;
         org = "IOHK";
+      };
+
+      # TODO: remove once explorer exports metrics at path `/metrics`
+      services.prometheus = {
+        scrapeConfigs = [
+          {
+            job_name = "explorer";
+            scrape_interval = "10s";
+            metrics_path = "/";
+            static_configs = [{
+              targets = [ "explorer-ip:8080" ];
+              labels = { alias = "explorer-ip-8080"; };
+            }];
+          }
+        ];
+      };
+    };
+
+    explorer = {
+      deployment.ec2.region = "eu-central-1";
+      imports = [ medium ../roles/explorer.nix ];
+
+      # TODO: Add 12798 when prometheus binding is a parameter
+      services.monitoring-exporters.extraPrometheusExportersPorts = [ 8080 ];
+      node = {
+        roles.isExplorer = true;
+        org = "IOHK";
+        nodeId = 99;
       };
     };
   };
@@ -41,20 +69,20 @@ let
   mksigningkey = i: copypathtostore (../configuration/delegate-keys + ".${leftpad i 3}.key");
   mkdelegationcertificate = i: copypathtostore (../configuration/delegation-cert + ".${leftpad i 3}.json");
 
-  mkCoreNode = i: def: {
+  mkCoreNode = def: {
     inherit (def) name;
     value = {
       node = {
         roles.isCardanoCore = true;
-        inherit (def) org;
+        inherit (def) org nodeId;
       };
       deployment.ec2.region = def.region;
       imports = [ medium ../roles/core.nix ];
-      services.cardano-node.nodeId = i;
-      services.cardano-node.genesisFile = ../configuration/genesis.json;
-      services.cardano-node.genesisHash = lib.fileContents ../configuration/GENHASH;
-      services.cardano-node.signingKey = toString (mkSigningKey i);
-      services.cardano-node.delegationCertificate = toString (mkDelegationCertificate i);
+      services.cardano-node = {
+        inherit (def) producers;
+        signingKey = toString (mkSigningKey def.nodeId);
+        delegationCertificate = toString (mkDelegationCertificate def.nodeId);
+      };
     };
   };
 
@@ -63,10 +91,26 @@ let
     value = {
       node = {
         roles.isCardanoRelay = true;
-        inherit (def) org;
+        inherit (def) org nodeId;
+      };
+      services.cardano-node = {
+        inherit (def) producers;
       };
       deployment.ec2.region = def.region;
-      imports = [ medium ../roles/relay.nix ];
+      imports = [
+        medium
+        ../roles/relay.nix
+
+        # TODO: remove module when prometheus binding is a parameter
+        ../modules/nginx-monitoring-proxy.nix
+      ];
+      services.nginx-monitoring-proxy = {
+        proxyName = "localproxy";
+        listenPort = globals.cardanoNodePrometheusExporterPort;
+        listenPath = "/metrics";
+        proxyPort = 12797;
+        proxyPath = "/metrics";
+      };
     };
   };
 
@@ -75,12 +119,38 @@ let
     value = {
       node = {
         roles.isByronProxy = true;
-        inherit (def) org;
+        inherit (def) org nodeId;
       };
       deployment.ec2.region = def.region;
-      imports = [ medium ../roles/byron-proxy.nix ];
+      imports = [
+        medium
+        ../roles/byron-proxy.nix
+
+        # TODO: remove module when prometheus binding is a parameter
+        ../modules/nginx-monitoring-proxy.nix
+      ];
       services.cardano-node-legacy.staticRoutes = def.staticRoutes or [];
       services.cardano-node-legacy.dynamicSubscribe = def.dynamicSubscribe or [];
+
+      services.monitoring-exporters.extraPrometheusExportersPorts = [ globals.byronProxyPrometheusExporterPort ];
+      services.nginx-monitoring-proxy = {
+        proxyName = "localproxy";
+        listenPort = globals.byronProxyPrometheusExporterPort;
+        listenPath = "/metrics";
+        proxyPort = 12796;
+        proxyPath = "/metrics";
+      };
+
+      # TODO: modify/remove when prometheus binding is a parameter
+      services.byron-proxy.logger.configFile =
+        let
+          byronProxySrc = sourcePaths.cardano-byron-proxy;
+          loggerUnmodFile = byronProxySrc + "/cfg/logging.yaml";
+          loggerUnmod = __readFile loggerUnmodFile;
+          loggerMod = lib.replaceStrings [ "hasPrometheus: 12799" ] [ "hasPrometheus: 12796" ] loggerUnmod;
+          loggerModFile = __toFile "logging-prom-12796.yaml" loggerMod;
+        in
+          loggerModFile;
     };
   };
 

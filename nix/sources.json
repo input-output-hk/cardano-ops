@@ -5,10 +5,22 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-byron-proxy",
-        "rev": "e48305e33dad6297c986ed1d2b02d6831303d0af",
-        "sha256": "0fi7cphvdhx0sp9gvm15n79n3c87qnfr0zhxqga33hcvpm8nziz7",
+        "rev": "f64f1a06cf923820248715d988d2605dac544485",
+        "sha256": "1lydbzfxq2g1lna9nwir8j8r8kylbsfw40p1vy4piw8n74rk1jpc",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-byron-proxy/archive/e48305e33dad6297c986ed1d2b02d6831303d0af.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-byron-proxy/archive/f64f1a06cf923820248715d988d2605dac544485.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "cardano-explorer": {
+        "branch": "master",
+        "description": "The new Cardano Explorer",
+        "homepage": null,
+        "owner": "input-output-hk",
+        "repo": "cardano-explorer",
+        "rev": "7898f83b9c3d2bfb1f66f44d026d0787a0355057",
+        "sha256": "1nhl44a6nf8kzj4gas9lic307m9vgdisx3hd26w9d3ah24chr5bm",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-explorer/archive/7898f83b9c3d2bfb1f66f44d026d0787a0355057.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
@@ -17,22 +29,22 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "5bc92a6ba6ad5707edf15338aa073d757d827575",
-        "sha256": "1vrrizjnb9y4f6zn5xfz729rxb1svw85p4vrlzlbmmhwzgslbq08",
+        "rev": "d56ef7e55b6adc119532d2546da8649ae21b1cca",
+        "sha256": "16sn4anlydv0gfd1b32px0kisxd1msssx7rghbblskkkw0mj4qd2",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/5bc92a6ba6ad5707edf15338aa073d757d827575.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/d56ef7e55b6adc119532d2546da8649ae21b1cca.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-sl": {
-        "branch": "develop",
+        "branch": "master",
         "description": "Cryptographic currency implementing Ouroboros PoS protocol",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-sl",
-        "rev": "7c968d8079ca344249dc92b33b4226eb3acd6832",
-        "sha256": "1ps1nqhs67pm11q1r3ngry7s6mdp38hnsjqp7nmh1j98r78f6wsd",
+        "rev": "1a792d7cd0f0c93a0f0c28f66372bce3c3808dbd",
+        "sha256": "1vk71zn9bnkgkhgcyj59wzrp28crjwcd0lgnm013mhzpvxycgn61",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-sl/archive/7c968d8079ca344249dc92b33b4226eb3acd6832.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-sl/archive/1a792d7cd0f0c93a0f0c28f66372bce3c3808dbd.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "gitignore": {
@@ -53,10 +65,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "bc3a58ccacffea0ad6b346f06a63022c142bb99a",
-        "sha256": "1qql6781lvr1ibc4zn8mikjm47gq8cf3w30wljlycf2nz0bhzahf",
+        "rev": "0d3463cbafda5f30d46688a20e2e9df1231f4195",
+        "sha256": "15cw424d60p0b2r9q8k8qk085x80v59c64cyg6cphg7844kbq6z4",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/bc3a58ccacffea0ad6b346f06a63022c142bb99a.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/0d3463cbafda5f30d46688a20e2e9df1231f4195.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
@@ -77,10 +89,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "f35ceb58886db0e4ba479d2ca4999daa5eda0033",
-        "sha256": "18688c1lpzwg68blj7s5pm6ppzinymrcil2cx02lmvm5g4mndpq2",
+        "rev": "a280a769e911fbdc6e5c40794b15dd8570c39063",
+        "sha256": "085ad6mdccbpz8zndsz8nfm8r0zn2h7pp5r42wslqwm9x3c2h7nm",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/f35ceb58886db0e4ba479d2ca4999daa5eda0033.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/a280a769e911fbdc6e5c40794b15dd8570c39063.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

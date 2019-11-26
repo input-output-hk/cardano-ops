@@ -21,6 +21,9 @@ let
   # merge upstream sources with our own:
   upstream-overlays = [
       ( _: super: {
+
+      iohkNix = import sourcePaths.iohk-nix {};
+
       cardano-ops-overlays = overlays;
       sourcePaths = (super.sourcePaths or {}) // sourcePaths;
     })
