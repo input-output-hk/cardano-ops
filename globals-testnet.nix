@@ -1,5 +1,5 @@
 self: super: {
-  globals = import ./globals-defaults.nix // rec {
+  globals = (import ./globals-defaults.nix self)// rec {
 
     static = import ./static;
 
@@ -7,9 +7,7 @@ self: super: {
 
     domain = "cardano-testnet.iohkdev.io";
 
-    configurationKey = "testnet_full";
-
-    environment = "testnet";
+    environmentName = "testnet";
 
     topology = import ./topologies/testnet.nix;
 

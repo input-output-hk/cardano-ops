@@ -1,5 +1,5 @@
 self: super: {
-  globals = import ./globals-defaults.nix // rec {
+  globals = (import ./globals-defaults.nix self) // rec {
 
     static = import ./static;
 
@@ -7,9 +7,7 @@ self: super: {
 
     domain = "awstest.iohkdev.io";
 
-    configurationKey = "mainnet_dryrun_full";
-
-    environment = "staging";
+    environmentName = "staging";
 
     topology = import ./topologies/staging.nix;
 

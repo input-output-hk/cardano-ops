@@ -1,3 +1,4 @@
+pkgs:
 let
   requireEnv = name:
     let value = builtins.getEnv name;
@@ -6,6 +7,11 @@ let
     else
       value;
 in rec {
+
+  environments = pkgs.iohkNix.cardanoLib.environments;
+
+  environmentConfig = pkgs.globals.environments.${pkgs.globals.environmentName};
+
   deployerIp = requireEnv "DEPLOYER_IP";
   cardanoNodePort = 3001;
   cardanoNodeLegacyPort = 3000;

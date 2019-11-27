@@ -3,10 +3,25 @@
 , crossSystem ? null
 , config ? {}
 }@args: with import ./nix args; {
+
   shell = let
     cardanoSL = import sourcePaths.cardano-sl {};
+    mkDevGenesis = writeShellScriptBin "make-dev-genesis" (builtins.replaceStrings
+      [ "\${RUNNER}"
+        "SCRIPTDIR=$(dirname $0)"
+        "--log-config                 \"configuration/log-configuration.yaml\""
+        "TARGETDIR=\"\${CONFIGDIR}/\${GENHASH:0:5}"
+        "--n-delegate-addresses         \${n_delegates}"
+      ]
+      [ ""
+        "SCRIPTDIR=${sourcePaths.cardano-node}/scripts"
+        "--log-config                 \"\${CONFIGDIR}/log-configuration.yaml\""
+        ("TARGETDIR=\"" + toString ./keys)
+        ""
+      ]
+     (builtins.readFile (sourcePaths.cardano-node + "/scripts/genesis.sh")));
   in  mkShell {
-    buildInputs = [ niv nixops nix cardano-cli telnet dnsutils ] ++
+    buildInputs = [ niv nixops nix cardano-cli telnet dnsutils mkDevGenesis ] ++
                   (with cardanoSL.nix-tools.exes; [ cardano-sl-auxx cardano-sl-tools ]);
     NIX_PATH = "nixpkgs=${path}";
     NIXOPS_DEPLOYMENT = "${globals.deploymentName}";

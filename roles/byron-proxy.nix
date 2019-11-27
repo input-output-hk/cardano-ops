@@ -6,7 +6,6 @@ with import ../nix {};
 let
   iohkNix = import sourcePaths.iohk-nix {};
   inherit (iohkNix) cardanoLib;
-  inherit (cardanoLib) mkProxyTopology;
   legacyCardanoCfg = config.services.cardano-node-legacy;
 in {
 
@@ -17,8 +16,13 @@ in {
 
   services.byron-proxy = {
     enable = true;
-    inherit cardanoLib;
-    environment = globals.environment;
+    cardanoLib = {
+      inherit (cardanoLib) cardanoConfig;
+      environments = {
+        "${globals.environmentName}" = globals.environmentConfig;
+      };
+    };
+    environment = globals.environmentName;
     nodeId = name;
     proxyHost = legacyCardanoCfg.listenIp;
     proxyPort = globals.cardanoNodePort;
