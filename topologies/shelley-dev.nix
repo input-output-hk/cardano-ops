@@ -23,7 +23,15 @@
     }
   ];
 
-  relayNodes = [];
+  relayNodes = [
+    {
+      name = "r";
+      nodeId = 99;
+      org = "IOHK";
+      region = "eu-central-1";
+      producers = ["a" "b" "c"];
+    }
+  ];
 
   legacyCoreNodes = [];
 
