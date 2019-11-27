@@ -3,7 +3,7 @@ self: super: {
 
     static = import ./static;
 
-    deploymentName = "rc-staging";
+    deploymentName = "testnet";
 
     domain = "cardano-testnet.iohkdev.io";
 
