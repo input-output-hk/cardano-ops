@@ -5,7 +5,7 @@ self: super: {
 
     withMonitoring = false;
 
-    withExplorer = false;
+    withExplorer = true;
 
     deploymentName = "${builtins.baseNameOf ./.}";
 
