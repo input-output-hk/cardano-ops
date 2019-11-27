@@ -1,5 +1,5 @@
 self: super: {
-  globals = import ./globals-defaults.nix // rec {
+  globals = (import ./globals-defaults.nix self) // rec {
 
     static = import ./static;
 
@@ -7,9 +7,7 @@ self: super: {
 
     domain = "${deploymentName}.dev.iohkdev.io";
 
-    configurationKey = "shelley_staging_full";
-
-    environment = "shelley_staging";
+    environmentName = "shelley_staging";
 
     topology = import ./topologies/staging-shelley.nix;
 

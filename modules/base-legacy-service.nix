@@ -1,8 +1,6 @@
 { pkgs, name, nodes, config, options, resources, ... }:
 with (import ../nix {}); with lib;
 let
-  iohkNix = import sourcePaths.iohk-nix {};
-  inherit (iohkNix) cardanoLib;
   inherit (iohkNix.cardanoLib) cardanoConfig;
   cfg = config.services.cardano-node-legacy;
   stateDir = "/var/lib/cardano-node";
@@ -18,7 +16,7 @@ let
     "--logs-prefix /var/lib/cardano-node"
     "--db-path ${stateDir}/node-db"
     "--configuration-file ${cardanoConfig}/configuration.yaml"
-    "--configuration-key ${globals.configurationKey}"
+    "--configuration-key ${globals.environmentConfig.confKey}"
     "--topology ${cfg.topologyYaml}"
     "--node-id ${name}"
   ] ++ cfg.extraCommandArgs);
