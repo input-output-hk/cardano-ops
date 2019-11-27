@@ -2,11 +2,8 @@
 with import ../nix {};
 
 let
-  inherit (import sourcePaths.iohk-nix {}) cardanoLib;
   cardano-sl = import sourcePaths.cardano-sl { gitrev = sourcePaths.cardano-sl.rev; };
   explorerFrontend = cardano-sl.explorerFrontend;
-  cluster = globals.environment;
-  targetEnv = cardanoLib.environments.${cluster};
 in {
   imports = [
     (sourcePaths.cardano-node + "/nix/nixos")
@@ -19,15 +16,16 @@ in {
   services.graphql-engine.enable = false;
   services.cardano-graphql.enable = false;
   services.cardano-node = {
-    extraArgs = "+RTS -N2 -A10m -qg -qb -RTS";
-    inherit (globals) environment;
-    environments = cardanoLib.environments;
+    environment = globals.environmentName;
+    environments = {
+      "${globals.environmentName}" = globals.environmentConfig;
+    };
     enable = true;
   };
   services.cardano-exporter = {
     enable = true;
-    cluster = globals.environment;
-    environment = targetEnv;
+    cluster = globals.environmentName;
+    environment = globals.environmentConfig;
     socketPath = "/run/cardano-node/node-core-0.socket";
     #environment = targetEnv;
   };

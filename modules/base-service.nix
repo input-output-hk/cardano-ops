@@ -77,16 +77,18 @@ in
     };
 
     # TODO: remove rec when prometheus binding is a parameter
-    services.cardano-node = rec {
+    services.cardano-node = {
       extraArgs = "+RTS -N2 -A10m -qg -qb -RTS";
       enable = true;
       inherit hostAddr nodeId topology;
       port = nodePort;
-      inherit (globals) environment;
-      environments = iohkNix.cardanoLib.environments;
+      environment = globals.environmentName;
+      environments = {
+        "${globals.environmentName}" = globals.environmentConfig;
+      };
 
       # TODO: remove prometheus port override when prometheus binding is a parameter
-      nodeConfig = environments.${environment}.nodeConfig // loggerConfig // {
+      nodeConfig = globals.environmentConfig.nodeConfig // loggerConfig // {
         NodeId = nodeId;
       };
     };
