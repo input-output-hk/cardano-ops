@@ -90,6 +90,7 @@ in
         NodeId = nodeId;
       };
     };
+    services.cardano-node.serviceConfig.MemoryMax = "3.5G";
 
     services.dnsmasq = {
       enable = true;

@@ -89,6 +89,7 @@ in {
         WorkingDirectory = stateDir;
         PrivateTmp = true;
         Type = "notify";
+        MemoryMax = "3.5G";
       };
     };
   };
