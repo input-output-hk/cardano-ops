@@ -26,7 +26,7 @@ in {
     address = "${legacyCardanoCfg.publicIp}:${toString globals.cardanoNodeLegacyPort}";
     topologyFile = legacyCardanoCfg.topologyYaml;
   };
-  services.byron-proxy.serviceConfig.MemoryMax = "3.5G";
+  systemd.services.byron-proxy.serviceConfig.MemoryMax = "3.5G";
 
 
   networking.firewall.allowedTCPPorts = [ globals.cardanoNodePort ];
