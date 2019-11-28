@@ -14,6 +14,7 @@ in {
 
   services.cardano-node = {
     signingKey = "/var/lib/keys/cardano-node-signing";
+    extraArgs = "--trace-block-fetch-decisions --trace-block-fetch-client --trace-block-fetch-server --trace-tx-inbound --trace-tx-outbound --trace-local-tx-submission-server --trace-mempool --trace-forge --trace-chain-sync-protocol --trace-block-fetch-protocol --trace-tx-submission-protocol --trace-local-chain-sync-protocol --trace-local-tx-submission-protocol";
     delegationCertificate = "/var/lib/keys/cardano-node-delegation-cert";
   };
 
