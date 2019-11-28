@@ -16,6 +16,7 @@ in {
   services.graphql-engine.enable = false;
   services.cardano-graphql.enable = false;
   services.cardano-node = {
+    extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-h" "-M3G" "-RTS" ];
     environment = globals.environmentName;
     environments = {
       "${globals.environmentName}" = globals.environmentConfig;
