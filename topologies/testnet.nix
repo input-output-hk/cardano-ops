@@ -1,6 +1,6 @@
 {
   legacyCoreNodes = [
-   {
+    {
       name = "c-a-1";
       region = "eu-central-1";
       staticRoutes = [
@@ -278,8 +278,8 @@
       org = "IOHK";
       nodeId = 15;
       staticRoutes = [
-        [ "r-a-1" "r-a-3" "r-c-2" "r-d-1" ]
-        [ "r-a-2" "r-d-1" "r-c-1" "r-b-2" ]
+        [ "r-a-1" "r-d-1" "r-c-2" ]
+        [ "r-a-2" "r-c-1" "r-b-2" ]
       ];
     }
     {
@@ -288,8 +288,8 @@
       org = "IOHK";
       nodeId = 16;
       staticRoutes = [
-        [ "r-b-1" "r-a-3"] ["r-d-1" "r-c-1" ]
-        [ "r-b-2" "r-c-2"] ["r-a-1" "r-d-1" ]
+        [ "r-b-1" "r-d-1" "r-c-1" ]
+        [ "r-b-2" "r-c-2" "r-a-1" ]
       ];
     }
     {
@@ -298,8 +298,8 @@
       org = "IOHK";
       nodeId = 17;
       staticRoutes = [
-        [ "r-c-1" "r-a-3"] ["r-d-1"  "r-b-2" ]
-        [ "r-c-2" "r-d-1"] ["r-b-1" "r-a-2" ]
+        [ "r-c-1" "r-d-1" "r-b-2" ]
+        [ "r-c-2" "r-b-1" "r-a-2" ]
       ];
     }
     {
@@ -308,8 +308,8 @@
       org = "IOHK";
       nodeId = 18;
       staticRoutes = [
-        [ "r-d-1"  "r-c-1"] ["r-a-3" "r-b-2" ]
-        [ "r-a-2" "r-c-2"] ["r-b-1" "r-d-1" ]
+        [ "r-a-1" "r-d-1" "r-b-1" ]
+        [ "r-a-2" "r-b-2" "r-c-2" ]
       ];
     }
   ];
