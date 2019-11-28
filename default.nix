@@ -9,13 +9,11 @@
     mkDevGenesis = writeShellScriptBin "make-dev-genesis" (builtins.replaceStrings
       [ "\${RUNNER}"
         "SCRIPTDIR=$(dirname $0)"
-        "--log-config                 \"configuration/log-configuration.yaml\""
         "TARGETDIR=\"\${CONFIGDIR}/\${GENHASH:0:5}"
         "--n-delegate-addresses         \${n_delegates}"
       ]
       [ ""
         "SCRIPTDIR=${sourcePaths.cardano-node}/scripts"
-        "--log-config                 \"\${CONFIGDIR}/log-configuration.yaml\""
         ("TARGETDIR=\"" + toString ./keys)
         ""
       ]
