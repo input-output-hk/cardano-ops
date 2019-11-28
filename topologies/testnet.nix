@@ -14,7 +14,7 @@
       region = "eu-central-1";
       staticRoutes = [
         ["c-d-1" "c-a-1"] ["c-b-1" "c-d-1"] ["c-a-1" "c-b-1"] ["r-a-2" "r-c-1"]
-        [ "b-a-1" "b-d-1" "b-c-1" "b-b-1" ]
+        [ "b-a-1" "b-d-1"] ["b-c-1" "b-b-1" ]
       ];
       org = "IOHK";
     }
@@ -23,7 +23,7 @@
       region = "ap-northeast-1";
       staticRoutes = [
         ["c-b-2" "r-b-2"] ["c-c-1" "c-c-2"] ["c-a-1" "c-d-1"] ["r-b-1" "r-b-2"]
-        [ "b-b-1" "b-a-1" "b-c-1" "b-d-1" ]
+        [ "b-b-1" "b-a-1"] ["b-c-1" "b-d-1" ]
       ];
       org = "IOHK";
     }
@@ -32,7 +32,7 @@
       region = "ap-northeast-1";
       staticRoutes = [
         ["c-a-2" "c-d-1"] ["c-b-1" "r-b-1"] ["r-b-2" "r-b-1"]
-        [ "b-b-1" "b-d-1" "b-c-1" "b-a-1" ]
+        [ "b-b-1" "b-d-1"] ["b-c-1" "b-a-1" ]
       ];
       org = "IOHK";
     }
@@ -41,7 +41,7 @@
       region = "ap-southeast-1";
       staticRoutes = [
         ["c-d-1" "c-a-1"] ["c-c-2" "r-c-1"] ["r-c-1" "r-c-2"]
-        [ "b-c-1" "b-a-1" "b-d-1" "b-c-1" ]
+        [ "b-c-1" "b-a-1"] ["b-d-1" "b-c-1" ]
       ];
       org = "IOHK";
     }
@@ -50,7 +50,7 @@
       region = "ap-southeast-1";
       staticRoutes = [
         ["c-b-2" "c-b-1"] ["c-c-1" "r-c-1"] ["r-c-2" "r-c-1"]
-        [ "b-c-1" "b-b-1" "b-d-1" "b-a-1" ]
+        [ "b-c-1" "b-b-1"] ["b-d-1" "b-a-1" ]
       ];
       org = "IOHK";
     }
@@ -59,7 +59,7 @@
       region = "us-east-2";
       staticRoutes = [
         ["c-a-1" "c-a-2"] ["c-b-1" "c-b-2"] ["c-c-1" "c-c-2"] ["r-d-1" "r-a-1"]
-        [ "b-d-1" "b-a-1" "b-b-1" "b-c-1" ]
+        [ "b-d-1" "b-a-1"] ["b-b-1" "b-c-1" ]
       ];
       org = "IOHK";
     }
@@ -71,7 +71,7 @@
       region = "eu-central-1";
       staticRoutes = [
         ["c-d-1" "c-a-1"] ["c-a-2" "c-a-1"] ["r-a-2" "r-d-1"]
-        [ "b-a-1" "b-b-1" "b-c-1" "b-d-1" ]
+        [ "b-a-1" "b-b-1"] ["b-c-1" "b-d-1" ]
       ];
       org = "IOHK";
     }
@@ -80,7 +80,7 @@
       region = "eu-central-1";
       staticRoutes = [
         ["c-a-1" "c-d-1"] ["c-a-2" "c-d-1"] ["r-d-1" "r-a-1"]
-        [ "b-a-1" "b-d-1" "b-c-1" "b-b-1" ]
+        [ "b-a-1" "b-d-1"] ["b-c-1" "b-b-1" ]
       ];
       org = "IOHK";
     }
@@ -89,7 +89,7 @@
       region = "ap-northeast-1";
       staticRoutes = [
         ["c-b-1" "c-b-2"] ["r-d-1" "r-a-2"] ["r-b-2" "r-c-1"]
-        [ "b-b-1" "b-a-1" "b-c-1" "b-d-1" ]
+        [ "b-b-1" "b-a-1"] ["b-c-1" "b-d-1" ]
       ];
       org = "IOHK";
     }
@@ -98,7 +98,7 @@
       region = "ap-northeast-1";
       staticRoutes = [
         ["c-b-2" "c-b-1"] ["r-b-1" "r-a-1"] ["r-c-2" "r-c-1"]
-        [ "b-b-1" "b-d-1" "b-c-1" "b-a-1" ]
+        [ "b-b-1" "b-d-1"] ["b-c-1" "b-a-1" ]
       ];
       org = "IOHK";
     }
@@ -107,7 +107,7 @@
       region = "ap-southeast-1";
       staticRoutes = [
         ["c-c-1" "c-c-2"] ["r-a-2" "r-a-1"] ["r-c-2" "r-a-1"]
-        [ "b-c-1" "b-a-1" "b-b-1" "b-d-1" ]
+        [ "b-c-1" "b-a-1"] ["b-b-1" "b-d-1" ]
       ];
       org = "IOHK";
     }
@@ -116,7 +116,7 @@
       region = "ap-southeast-1";
       staticRoutes = [
         ["c-c-2" "c-c-1"] ["r-b-2" "r-b-1"] ["r-c-1" "r-a-1"]
-        [ "b-c-1" "b-d-1" "b-b-1" "b-a-1" ]
+        [ "b-c-1" "b-d-1"] ["b-b-1" "b-a-1" ]
       ];
       org = "IOHK";
     }
@@ -125,7 +125,7 @@
       region = "us-east-2";
       staticRoutes = [
         ["c-d-1" "c-a-2"] ["c-a-1" "c-a-2"] ["r-a-1" "r-a-2"] ["r-b-1" "r-b-2"]
-        [ "b-d-1" "b-b-1" "b-a-1" "b-c-1" ]
+        [ "b-d-1" "b-b-1"] ["b-a-1" "b-c-1" ]
       ];
       org = "IOHK";
     }
@@ -288,8 +288,8 @@
       org = "IOHK";
       nodeId = 16;
       staticRoutes = [
-        [ "r-b-1" "r-a-3"  "r-d-1" "r-c-1" ]
-        [ "r-b-2" "r-c-2" "r-a-1" "r-d-1" ]
+        [ "r-b-1" "r-a-3"] ["r-d-1" "r-c-1" ]
+        [ "r-b-2" "r-c-2"] ["r-a-1" "r-d-1" ]
       ];
     }
     {
@@ -298,8 +298,8 @@
       org = "IOHK";
       nodeId = 17;
       staticRoutes = [
-        [ "r-c-1" "r-a-3"  "r-d-1"  "r-b-2" ]
-        [ "r-c-2" "r-d-1" "r-b-1" "r-a-2" ]
+        [ "r-c-1" "r-a-3"] ["r-d-1"  "r-b-2" ]
+        [ "r-c-2" "r-d-1"] ["r-b-1" "r-a-2" ]
       ];
     }
     {
@@ -308,8 +308,8 @@
       org = "IOHK";
       nodeId = 18;
       staticRoutes = [
-        [ "r-d-1"  "r-c-1" "r-a-3" "r-b-2" ]
-        [ "r-a-2" "r-c-2" "r-b-1" "r-d-1" ]
+        [ "r-d-1"  "r-c-1"] ["r-a-3" "r-b-2" ]
+        [ "r-a-2" "r-c-2"] ["r-b-1" "r-d-1" ]
       ];
     }
   ];
