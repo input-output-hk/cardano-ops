@@ -36,7 +36,7 @@ in with import ../nix {}; {
 
     services.nginx = {
       enable = true;
-      virtualHosts."${cfg.proxyName}.${globals.domain}" = {
+      virtualHosts."${cfg.proxyName}" = {
         enableACME = false;
         forceSSL = false;
         listen = [ { addr = "0.0.0.0"; port = cfg.listenPort; } ];

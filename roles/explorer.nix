@@ -26,8 +26,9 @@ in {
   services.cardano-exporter = {
     enable = true;
     cluster = globals.environment;
-    socketPath = "/run/cardano-node/node-core-0.socket";
     environment = targetEnv;
+    socketPath = "/run/cardano-node/node-core-0.socket";
+    #environment = targetEnv;
   };
   systemd.services.cardano-explorer-node = {
     wants = [ "cardano-node.service" ];
@@ -51,32 +52,41 @@ in {
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;
-    virtualHosts."explorer.${globals.domain}" = {
-      enableACME = true;
-      forceSSL = true;
-      locations = {
-        "/" = {
-          root = explorerFrontend;
+    virtualHosts = {
+      "explorer.${globals.domain}" = {
+        enableACME = true;
+        forceSSL = true;
+        locations = {
+          "/" = {
+            root = explorerFrontend;
+          };
+          #"/socket.io/" = {
+          #   proxyPass = "http://127.0.0.1:8110";
+          #   extraConfig = ''
+          #     proxy_http_version 1.1;
+          #     proxy_set_header Upgrade $http_upgrade;
+          #     proxy_set_header Connection "upgrade";
+          #     proxy_read_timeout 86400;
+          #   '';
+          #};
+          "/api" = {
+            proxyPass = "http://127.0.0.1:8100/api";
+          };
         };
-        "/socket.io/" = {
-           proxyPass = "http://127.0.0.1:8110";
-           extraConfig = ''
-             proxy_http_version 1.1;
-             proxy_set_header Upgrade $http_upgrade;
-             proxy_set_header Connection "upgrade";
-             proxy_read_timeout 86400;
-           '';
-        };
-        "/api" = {
-          proxyPass = "http://127.0.0.1:8100/api";
+        #locations."/graphiql" = {
+        #  proxyPass = "http://127.0.0.1:3100/graphiql";
+        #};
+        #locations."/graphql" = {
+        #  proxyPass = "http://127.0.0.1:3100/graphql";
+        #};
+      };
+      "explorer-ip" = {
+        locations = {
+          "/metrics2/exporter" = {
+            proxyPass = "http://127.0.0.1:8080/";
+          };
         };
       };
-      #locations."/graphiql" = {
-      #  proxyPass = "http://127.0.0.1:3100/graphiql";
-      #};
-      #locations."/graphql" = {
-      #  proxyPass = "http://127.0.0.1:3100/graphql";
-      #};
     };
   };
 }

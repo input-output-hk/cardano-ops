@@ -78,6 +78,7 @@ in
 
     # TODO: remove rec when prometheus binding is a parameter
     services.cardano-node = rec {
+      extraArgs = "+RTS -N2 -A10m -qg -qb -RTS";
       enable = true;
       inherit hostAddr nodeId topology;
       port = nodePort;

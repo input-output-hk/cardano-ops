@@ -17,22 +17,22 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-explorer",
-        "rev": "20b28e7f1a60d14a7a58e847e657a22aa3d8396b",
-        "sha256": "0s34ss846gykwrspy27dhywzhdai5yrnqgisq2zy6lc594r8pylb",
+        "rev": "5f90c0b57d24a9b5650cc286516a7cdd356bf86f",
+        "sha256": "10va198cb04q9c7ny2pnn4aq3y5cm5mq3g0sh4f12qafphpv8pmd",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-explorer/archive/20b28e7f1a60d14a7a58e847e657a22aa3d8396b.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-explorer/archive/5f90c0b57d24a9b5650cc286516a7cdd356bf86f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
-        "branch": "master",
+        "branch": "rtsopts",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "d56ef7e55b6adc119532d2546da8649ae21b1cca",
-        "sha256": "16sn4anlydv0gfd1b32px0kisxd1msssx7rghbblskkkw0mj4qd2",
+        "rev": "d5294cd0c05b432def9f88e404a44f9b900a828f",
+        "sha256": "0ymhx0x23g33jfdny6231x6d8c79a2097536q4s5wrli8iw0rv4b",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/d56ef7e55b6adc119532d2546da8649ae21b1cca.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/d5294cd0c05b432def9f88e404a44f9b900a828f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-sl": {
@@ -60,15 +60,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "iohk-nix": {
-        "branch": "master",
+        "branch": "iohk-nix-staging-config",
         "description": "nix scripts shared across projects",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "0d3463cbafda5f30d46688a20e2e9df1231f4195",
-        "sha256": "15cw424d60p0b2r9q8k8qk085x80v59c64cyg6cphg7844kbq6z4",
+        "rev": "742edd7517882247b1b2abc9a86fa7eb9e240603",
+        "sha256": "0iv5lf639hxikhpyy9fkd9xirln7awgwlx35bslc66m92byygkjm",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/0d3463cbafda5f30d46688a20e2e9df1231f4195.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/742edd7517882247b1b2abc9a86fa7eb9e240603.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
@@ -84,15 +84,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
-        "branch": "master",
+        "branch": "c4-large",
         "description": "NixOps deployment configuration library for IOHK devops ",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "a280a769e911fbdc6e5c40794b15dd8570c39063",
-        "sha256": "085ad6mdccbpz8zndsz8nfm8r0zn2h7pp5r42wslqwm9x3c2h7nm",
+        "rev": "83951eeb67812b5b2733f685b38ac68973b1d764",
+        "sha256": "0hv02dfwdnlla5878nksz3964j3l164gc8vbjl8zjqcpgqq9iiy6",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/a280a769e911fbdc6e5c40794b15dd8570c39063.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/83951eeb67812b5b2733f685b38ac68973b1d764.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
