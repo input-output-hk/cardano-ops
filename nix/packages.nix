@@ -7,7 +7,7 @@ self: super: {
     in
       if (nodes.${nodeName}.options.networking.publicIPv4.isDefined && publicIp != null) then publicIp
       else if (nodes.${nodeName}.options.networking.privateIPv4.isDefined && privateIp != null) then privateIp
-      else abort "No suitable ip found for node: ${nodeName}"
+      else (builtins.trace "No suitable ip found for node: ${nodeName}" "")
     );
 
   getListenIp = node:
