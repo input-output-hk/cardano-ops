@@ -1,8 +1,8 @@
 
 {config, name, lib, ...}:
+with import ../nix {};
 let
   nodeId = config.node.nodeId;
-  leftPad = number: width: lib.fixedWidthString width "0" (toString number);
   signingKey = ../keys/delegate-keys + ".${leftPad nodeId 3}.key";
   delegationCertificate = ../keys/delegation-cert + ".${leftPad nodeId 3}.json";
 
