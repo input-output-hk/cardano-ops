@@ -19,6 +19,7 @@ in {
   services.graphql-engine.enable = false;
   services.cardano-graphql.enable = false;
   services.cardano-node = {
+    extraArgs = "+RTS -N2 -A10m -qg -qb -RTS";
     inherit (globals) environment;
     environments = cardanoLib.environments;
     enable = true;
