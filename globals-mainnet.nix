@@ -7,7 +7,7 @@ self: super: {
 
     domain = "cardano-mainnet.iohk.io";
 
-    configurationKey = "mainnet_dryrun_full";
+    configurationKey = "mainnet_full";
 
     environment = "mainnet";
 
