@@ -16,9 +16,9 @@ self: super: {
     ec2 = {
       credentials = {
         accessKeyIds = {
-          "IOHK" = "mainnet-iohk";
-          "Emurgo" = "mainnet-emurgo";
-          "CF" = "mainnet-cf";
+          IOHK = "mainnet-iohk";
+          Emurgo = "mainnet-emurgo";
+          CF = "mainnet-cf";
           dns = "mainnet-iohk";
         };
       };
