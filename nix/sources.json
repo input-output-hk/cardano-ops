@@ -24,15 +24,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
-        "branch": "serge/unshare-modules",
+        "branch": "master",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "877b28d1c0f3b46f0032a92b8eb30f68e02ea20b",
-        "sha256": "07h15213wxbi75bhp0f2cjwgbbl5m7g93q0vafqx14f7dbf2r7rp",
+        "rev": "68b8a68ab27bb836347c832a75f9c2fb7b406324",
+        "sha256": "1v5jynsmcg63s5pzr6bv6q85r5m03knm1b5sg85psmdx1q59qbyi",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/877b28d1c0f3b46f0032a92b8eb30f68e02ea20b.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/68b8a68ab27bb836347c832a75f9c2fb7b406324.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-sl": {
