@@ -1,6 +1,6 @@
 {
     "cardano-byron-proxy": {
-        "branch": "master",
+        "branch": "1.0.0",
         "description": "A bydirectional proxy between the Shelly and Byron versions of the Cardano network",
         "homepage": null,
         "owner": "input-output-hk",
@@ -9,37 +9,34 @@
         "sha256": "1lydbzfxq2g1lna9nwir8j8r8kylbsfw40p1vy4piw8n74rk1jpc",
         "type": "tarball",
         "url": "https://github.com/input-output-hk/cardano-byron-proxy/archive/f64f1a06cf923820248715d988d2605dac544485.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
-        "version": "1.0.0"
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer": {
-        "branch": "master",
+        "branch": "1.0.0",
         "description": "The new Cardano Explorer",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-explorer",
-        "rev": "6b3e817241ecc7355060c238f2a829cc6162fcf0",
-        "sha256": "0x210i605vlycwfbjja5ffw668kq6fj96lax69cbg9dgicld9r7z",
+        "rev": "f96fa12f08e3847780d3c737d0f48a797e2e7ee7",
+        "sha256": "1k29ydhsw0v3x7qwsn0pgk9ajccwsx0ks00q2mb8pahcf5cif4mm",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-explorer/archive/6b3e817241ecc7355060c238f2a829cc6162fcf0.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
-        "version": "1.0.0"
+        "url": "https://github.com/input-output-hk/cardano-explorer/archive/f96fa12f08e3847780d3c737d0f48a797e2e7ee7.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
-        "branch": "master",
+        "branch": "1.0.0",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "8103152f38aa55ec5000ff8809fbfb54d64b0c41",
-        "sha256": "14bcdlsbkq9s9as55ynn2ll4z0d543fn598s62z7shmy14d8ibjg",
+        "rev": "4cf223d84dd6d117de624a9c2bea8239013a6e98",
+        "sha256": "01kirj9b4pmy5ykl55lglb2mg9gg6sgwfvbcfppl24vhn1mq666d",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/8103152f38aa55ec5000ff8809fbfb54d64b0c41.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
-        "version": "1.0.0"
+        "url": "https://github.com/input-output-hk/cardano-node/archive/4cf223d84dd6d117de624a9c2bea8239013a6e98.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-sl": {
-        "branch": "master",
+        "branch": "3.1.0",
         "description": "Cryptographic currency implementing Ouroboros PoS protocol",
         "homepage": "",
         "owner": "input-output-hk",
@@ -48,8 +45,7 @@
         "sha256": "1vk71zn9bnkgkhgcyj59wzrp28crjwcd0lgnm013mhzpvxycgn61",
         "type": "tarball",
         "url": "https://github.com/input-output-hk/cardano-sl/archive/1a792d7cd0f0c93a0f0c28f66372bce3c3808dbd.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
-        "version": "3.1.0"
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "gitignore": {
         "branch": "master",
