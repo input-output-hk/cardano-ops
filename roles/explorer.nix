@@ -4,6 +4,7 @@ with import ../nix {};
 let
   cardano-sl = import sourcePaths.cardano-sl { gitrev = sourcePaths.cardano-sl.rev; };
   explorerFrontend = cardano-sl.explorerFrontend;
+  postgresql12 = (import sourcePaths.nixpkgs-postgresql12 {}).postgresql_12;
 in {
   imports = [
     (sourcePaths.cardano-node + "/nix/nixos")
@@ -12,6 +13,7 @@ in {
   ];
 
   environment.systemPackages = with pkgs; [ bat fd lsof netcat ncdu ripgrep tree vim cardano-cli ];
+  services.postgresql.package = postgresql12;
 
   services.graphql-engine.enable = false;
   services.cardano-graphql.enable = false;

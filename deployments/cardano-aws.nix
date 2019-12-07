@@ -12,6 +12,7 @@ let
   cluster = import ../clusters/cardano.nix {
     inherit (aws) targetEnv;
     medium = aws.t3a-medium;
+    xlarge = aws.t3a-xlarge;
     xlarge-monitor = aws.t3a-xlargeMonitor;
   };
 

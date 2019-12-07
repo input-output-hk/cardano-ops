@@ -83,6 +83,18 @@
         "url": "https://github.com/NixOS/nixpkgs-channels/archive/e1843646b04fb564abf6330a9432a76df3269d2f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "nixpkgs-postgresql12": {
+        "branch": "nixpkgs-unstable",
+        "description": "Nix Packages collection",
+        "homepage": null,
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "cc6cf0a96a627e678ffc996a8f9d1416200d6c81",
+        "sha256": "1srjikizp8ip4h42x7kr4qf00lxcp1l8zp6h0r1ddfdyw8gv9001",
+        "type": "tarball",
+        "url": "https://github.com/nixos/nixpkgs/archive/cc6cf0a96a627e678ffc996a8f9d1416200d6c81.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "ops-lib": {
         "branch": "c4-large",
         "description": "NixOps deployment configuration library for IOHK devops ",

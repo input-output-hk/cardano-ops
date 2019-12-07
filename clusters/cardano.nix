@@ -1,5 +1,6 @@
 { targetEnv
 , medium
+, xlarge
 , xlarge-monitor
 , ...
 }:
@@ -33,9 +34,9 @@ let
         org = "IOHK";
       };
 
-      # TODO: remove once explorer exports metrics at path `/metrics`
       services.prometheus = {
         scrapeConfigs = [
+          # TODO: remove once explorer exports metrics at path `/metrics`
           {
             job_name = "explorer-exporter";
             scrape_interval = "10s";
@@ -45,15 +46,30 @@ let
               labels = { alias = "explorer-exporter"; };
             }];
           }
+          # TODO: remove once explorer python api is deprecated
+          {
+            job_name = "explorer-python-api";
+            scrape_interval = "10s";
+            metrics_path = "/metrics/explorer-python-api";
+            static_configs = [{
+              targets = [ "explorer-ip" ];
+              labels = { alias = "explorer-python-api"; };
+            }];
+          }
         ];
       };
     };
   }) // (lib.optionalAttrs globals.withExplorer {
     explorer = {
-      deployment.ec2.region = "eu-central-1";
+      deployment.ec2 = {
+        region = "eu-central-1";
+        ebsInitialRootDiskSize = 100;
+      };
       imports = [
-        medium
+        xlarge
         ../roles/explorer.nix
+        # TODO: remove module when the new explorer is available
+        ../roles/explorer-legacy.nix
         # TODO: remove module when prometheus binding is a parameter
         ../modules/nginx-monitoring-proxy.nix
       ];

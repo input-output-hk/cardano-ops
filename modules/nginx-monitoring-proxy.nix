@@ -39,7 +39,10 @@ in with import ../nix {}; {
       virtualHosts."${cfg.proxyName}" = {
         enableACME = false;
         forceSSL = false;
-        listen = [ { addr = "0.0.0.0"; port = cfg.listenPort; } ];
+        listen = [
+          { addr = "0.0.0.0"; port = cfg.listenPort; }
+          { addr = "[::]"; port = cfg.listenPort; }
+        ];
         locations."${cfg.listenPath}".proxyPass = "http://127.0.0.1:${toString cfg.proxyPort}${cfg.proxyPath}";
       };
     };
