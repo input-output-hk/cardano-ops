@@ -44,7 +44,7 @@ let
       }) cardanoNodes));
 
   loggerConfig = import ./iohk-monitoring-config.nix // {
-    hasPrometheus = 12797; #FIXME: use monitoringPort and remove nginx proxy.
+    hasPrometheus = [ "127.0.0.1" 12797 ]; #FIXME: use monitoringPort and remove nginx proxy.
   };
 in
 {
