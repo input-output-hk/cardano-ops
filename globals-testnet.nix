@@ -1,22 +1,18 @@
-self: super: {
-  globals = (import ./globals-defaults.nix self) // rec {
+pkgs: {
 
-    static = import ./static;
+  deploymentName = "testnet";
 
-    deploymentName = "testnet";
+  domain = "cardano-testnet.iohkdev.io";
 
-    domain = "cardano-testnet.iohkdev.io";
+  environmentName = "testnet";
 
-    environmentName = "testnet";
+  topology = import ./topologies/testnet.nix;
 
-    topology = import ./topologies/testnet.nix;
-
-    ec2 = {
-      credentials = {
-        accessKeyIds = {
-          "IOHK" = "default";
-          dns = "default";
-        };
+  ec2 = {
+    credentials = {
+      accessKeyIds = {
+        IOHK = "default";
+        dns = "default";
       };
     };
   };

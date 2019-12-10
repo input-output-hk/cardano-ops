@@ -1,24 +1,20 @@
-self: super: {
-  globals = (import ./globals-defaults.nix self) // rec {
+pkgs: {
 
-    static = import ./static;
+  deploymentName = "rc-staging";
 
-    deploymentName = "rc-staging";
+  domain = "awstest.iohkdev.io";
 
-    domain = "awstest.iohkdev.io";
+  environmentName = "staging";
 
-    environmentName = "staging";
+  topology = import ./topologies/staging.nix;
 
-    topology = import ./topologies/staging.nix;
-
-    ec2 = {
-      credentials = {
-        accessKeyIds = {
-          "IOHK" = "iohk";
-          "Emurgo" = "fifth-party";
-          "CF" = "third-party";
-          dns = "dns";
-        };
+  ec2 = {
+    credentials = {
+      accessKeyIds = {
+        IOHK = "iohk";
+        Emurgo = "fifth-party";
+        CF = "third-party";
+        dns = "dns";
       };
     };
   };

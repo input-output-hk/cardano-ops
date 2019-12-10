@@ -1,22 +1,16 @@
-self: super: {
-  globals = (import ./globals-defaults.nix self) // rec {
+pkgs: {
 
-    static = import ./static;
+  deploymentName = "staging-shelley";
 
-    deploymentName = "staging-shelley";
+  environmentName = "shelley_staging";
 
-    domain = "${deploymentName}.dev.iohkdev.io";
+  topology = import ./topologies/staging-shelley.nix;
 
-    environmentName = "shelley_staging";
-
-    topology = import ./topologies/staging-shelley.nix;
-
-    ec2 = {
-      credentials = {
-        accessKeyIds = {
-          "IOHK" = "dev-deployer";
-          dns = "dev-deployer";
-        };
+  ec2 = {
+    credentials = {
+      accessKeyIds = {
+        IOHK = "dev-deployer";
+        dns = "dev-deployer";
       };
     };
   };

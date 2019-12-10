@@ -20,7 +20,7 @@ let
     // listToAttrs (map mkRelayNode relayNodes)
     // listToAttrs (map mkByronProxyNode byronProxies);
 
-  otherNodes = (lib.optionalAttrs (globals.withMonitoring or true) {
+  otherNodes = (lib.optionalAttrs globals.withMonitoring {
     monitoring = {
       deployment.ec2.region = "eu-central-1";
       imports = [
@@ -48,7 +48,7 @@ let
         ];
       };
     };
-  }) // (lib.optionalAttrs (globals.withExplorer or true) {
+  }) // (lib.optionalAttrs globals.withExplorer {
     explorer = {
       deployment.ec2.region = "eu-central-1";
       imports = [
