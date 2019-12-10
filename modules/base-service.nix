@@ -86,7 +86,8 @@ in
       environments = {
         "${globals.environmentName}" = globals.environmentConfig;
       };
-
+      # Remove when update to next release:
+      genesisHash = globals.environmentConfig.genesisHash;
       # TODO: remove prometheus port override when prometheus binding is a parameter
       nodeConfig = globals.environmentConfig.nodeConfig // loggerConfig // {
         NodeId = nodeId;

@@ -21,6 +21,8 @@ in {
     environments = {
       "${globals.environmentName}" = globals.environmentConfig;
     };
+    # Remove when update to next release:
+    genesisHash = globals.environmentConfig.genesisHash;
     enable = true;
   };
   services.cardano-exporter = {
@@ -44,7 +46,7 @@ in {
     '';
   };
 
-  services.cardano-explorer-api.enable = true;
+  services.cardano-explorer-webapi.enable = true;
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
   services.nginx = {
