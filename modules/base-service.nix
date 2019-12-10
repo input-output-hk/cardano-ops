@@ -44,7 +44,7 @@ let
       }) cardanoNodes));
 
   loggerConfig = import ./iohk-monitoring-config.nix // {
-    hasPrometheus = 12797; #FIXME: use monitoringPort and remove nginx proxy.
+    hasPrometheus = [ "127.0.0.1" 12797 ]; #FIXME: use monitoringPort and remove nginx proxy.
   };
 in
 {
@@ -77,16 +77,19 @@ in
     };
 
     # TODO: remove rec when prometheus binding is a parameter
-    services.cardano-node = rec {
-      extraArgs = "+RTS -N2 -A10m -qg -qb -RTS";
+    services.cardano-node = {
+      extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-h" "-M3G"  "-RTS" ];
       enable = true;
       inherit hostAddr nodeId topology;
       port = nodePort;
-      inherit (globals) environment;
-      environments = iohkNix.cardanoLib.environments;
-
+      environment = globals.environmentName;
+      environments = {
+        "${globals.environmentName}" = globals.environmentConfig;
+      };
+      # Remove when update to next release:
+      genesisHash = globals.environmentConfig.genesisHash;
       # TODO: remove prometheus port override when prometheus binding is a parameter
-      nodeConfig = environments.${environment}.nodeConfig // loggerConfig // {
+      nodeConfig = globals.environmentConfig.nodeConfig // loggerConfig // {
         NodeId = nodeId;
       };
     };

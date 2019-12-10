@@ -20,7 +20,7 @@ let
     // listToAttrs (map mkRelayNode relayNodes)
     // listToAttrs (map mkByronProxyNode byronProxies);
 
-  otherNodes = {
+  otherNodes = (lib.optionalAttrs globals.withMonitoring {
     monitoring = {
       deployment.ec2.region = "eu-central-1";
       imports = [
@@ -48,7 +48,7 @@ let
         ];
       };
     };
-
+  }) // (lib.optionalAttrs globals.withExplorer {
     explorer = {
       deployment.ec2.region = "eu-central-1";
       imports = [
@@ -73,13 +73,9 @@ let
         nodeId = 99;
       };
     };
-  };
+  });
 
   nodes = mapAttrs (_: mkNode) (cardanoNodes // otherNodes);
-
-  leftPad = number: width: lib.fixedWidthString width "0" (toString number);
-  mksigningkey = i: copypathtostore (../configuration/delegate-keys + ".${leftpad i 3}.key");
-  mkdelegationcertificate = i: copypathtostore (../configuration/delegation-cert + ".${leftpad i 3}.json");
 
   mkCoreNode = def: {
     inherit (def) name;
@@ -92,8 +88,6 @@ let
       imports = [ medium ../roles/core.nix ];
       services.cardano-node = {
         inherit (def) producers;
-        signingKey = toString (mkSigningKey def.nodeId);
-        delegationCertificate = toString (mkDelegationCertificate def.nodeId);
       };
     };
   };

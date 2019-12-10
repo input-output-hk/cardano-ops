@@ -1,3 +1,4 @@
+pkgs:
 let
   requireEnv = name:
     let value = builtins.getEnv name;
@@ -5,7 +6,24 @@ let
       abort "${name} environment variable is not set"
     else
       value;
-in rec {
+in {
+
+  static = import ./static;
+
+  deploymentName = "${builtins.baseNameOf ./.}";
+
+  environmentName = pkgs.globals.deploymentName;
+
+  domain = "${pkgs.globals.deploymentName}.dev.iohkdev.io";
+
+  withMonitoring = true;
+
+  withExplorer = true;
+
+  environments = pkgs.iohkNix.cardanoLib.environments;
+
+  environmentConfig = pkgs.globals.environments.${pkgs.globals.environmentName};
+
   deployerIp = requireEnv "DEPLOYER_IP";
   cardanoNodePort = 3001;
   cardanoNodeLegacyPort = 3000;
@@ -15,8 +33,8 @@ in rec {
   cardanoExplorerPrometheusExporterPort = 8080;
 
   extraPrometheusExportersPorts = [
-    cardanoNodePrometheusExporterPort
-    byronProxyPrometheusExporterPort
-    cardanoExplorerPrometheusExporterPort
+    pkgs.globals.cardanoNodePrometheusExporterPort
+    pkgs.globals.byronProxyPrometheusExporterPort
+    pkgs.globals.cardanoExplorerPrometheusExporterPort
   ];
 }

@@ -1,26 +1,20 @@
-self: super: {
-  globals = import ./globals-defaults.nix // rec {
+pkgs: {
 
-    static = import ./static;
+  deploymentName = "mainnet";
 
-    deploymentName = "mainnet";
+  domain = "cardano-mainnet.iohk.io";
 
-    domain = "cardano-mainnet.iohk.io";
+  environmentName = "mainnet";
 
-    configurationKey = "mainnet_full";
+  topology = import ./topologies/mainnet.nix;
 
-    environment = "mainnet";
-
-    topology = import ./topologies/mainnet.nix;
-
-    ec2 = {
-      credentials = {
-        accessKeyIds = {
-          IOHK = "mainnet-iohk";
-          Emurgo = "mainnet-emurgo";
-          CF = "mainnet-cf";
-          dns = "mainnet-iohk";
-        };
+  ec2 = {
+    credentials = {
+      accessKeyIds = {
+        IOHK = "mainnet-iohk";
+        Emurgo = "mainnet-emurgo";
+        CF = "mainnet-cf";
+        dns = "mainnet-iohk";
       };
     };
   };

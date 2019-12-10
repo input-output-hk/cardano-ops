@@ -15,8 +15,12 @@ let
 
   globals =
     if builtins.pathExists ../globals.nix
-    then [(import ../globals.nix)]
-    else builtins.trace "globals.nix missing, please add symlink" [];
+    then [(self: _: {
+      globals = import ../globals-defaults.nix self // import ../globals.nix self;
+    })]
+    else builtins.trace "globals.nix missing, please add symlink" [(self: _: {
+      globals = import ../globals-defaults.nix self;
+    })];
 
   # merge upstream sources with our own:
   upstream-overlays = [

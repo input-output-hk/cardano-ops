@@ -2,11 +2,8 @@
 with import ../nix {};
 
 let
-  inherit (import sourcePaths.iohk-nix {}) cardanoLib;
   cardano-sl = import sourcePaths.cardano-sl { gitrev = sourcePaths.cardano-sl.rev; };
   explorerFrontend = cardano-sl.explorerFrontend;
-  cluster = globals.environment;
-  targetEnv = cardanoLib.environments.${cluster};
 in {
   imports = [
     (sourcePaths.cardano-node + "/nix/nixos")
@@ -14,20 +11,24 @@ in {
     ../modules/common.nix
   ];
 
-  environment.systemPackages = with pkgs; [ bat fd lsof netcat ncdu ripgrep tree vim ];
+  environment.systemPackages = with pkgs; [ bat fd lsof netcat ncdu ripgrep tree vim cardano-cli ];
 
   services.graphql-engine.enable = false;
   services.cardano-graphql.enable = false;
   services.cardano-node = {
-    extraArgs = "+RTS -N2 -A10m -qg -qb -RTS";
-    inherit (globals) environment;
-    environments = cardanoLib.environments;
+    extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-h" "-M3G" "-RTS" ];
+    environment = globals.environmentName;
+    environments = {
+      "${globals.environmentName}" = globals.environmentConfig;
+    };
+    # Remove when update to next release:
+    genesisHash = globals.environmentConfig.genesisHash;
     enable = true;
   };
   services.cardano-exporter = {
     enable = true;
-    cluster = globals.environment;
-    environment = targetEnv;
+    cluster = globals.environmentName;
+    environment = globals.environmentConfig;
     socketPath = "/run/cardano-node/node-core-0.socket";
     #environment = targetEnv;
   };
@@ -45,7 +46,7 @@ in {
     '';
   };
 
-  services.cardano-explorer-api.enable = true;
+  services.cardano-explorer-webapi.enable = true;
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
   services.nginx = {

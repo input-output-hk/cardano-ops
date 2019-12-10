@@ -1,9 +1,6 @@
 { pkgs, name, nodes, config, options, resources, ... }:
 with (import ../nix {}); with lib;
 let
-  iohkNix = import sourcePaths.iohk-nix {};
-  inherit (iohkNix) cardanoLib;
-  inherit (iohkNix.cardanoLib) cardanoConfig;
   cfg = config.services.cardano-node-legacy;
   port = globals.cardanoNodeLegacyPort;
   hostName = name: "${name}.cardano";
