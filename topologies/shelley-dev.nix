@@ -11,14 +11,14 @@
       name = "b";
       nodeId = 1;
       org = "IOHK";
-      region = "eu-central-1";
+      region = "ap-southeast-2";
       producers = ["c" "a"];
     }
     {
       name = "c";
       nodeId = 2;
       org = "IOHK";
-      region = "eu-central-1";
+      region = "us-east-1";
       producers = ["a" "b"];
     }
   ];

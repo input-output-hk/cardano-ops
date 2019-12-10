@@ -1,6 +1,6 @@
 {
   defaultBackends = [ "KatipBK" ];
-  defaultScribes = [ [ "StdoutSK" "stdout" ] ];
+  defaultScribes = [ [ "StdoutSK" "stdout" ] [ "FileSK" "/var/lib/cardano-node/logs/node.json" ] ];
   hasEKG = 12780;
   hasPrometheus = 12798;
   minSeverity = "Info";
@@ -65,14 +65,23 @@
       "cardano.epoch-validation.utxo-stats" = { subtrace = "NoTrace"; };
     };
   };
-  rotation = { rpKeepFilesNum = 10; rpLogLimitBytes = 5000000; rpMaxAgeHours = 24; };
+  rotation = { rpKeepFilesNum = 20; rpLogLimitBytes = 25000000; rpMaxAgeHours = 24; };
   setupBackends = [ "KatipBK" "EKGViewBK" ];
   setupScribes = [
-    {
-      scFormat = "ScJson";
-      scKind = "StdoutSK";
-      scName = "stdout";
-      scRotation = null;
-    }
-  ];
+      {
+        scFormat = "ScText";
+        scKind = "StdoutSK";
+        scName = "stdout";
+      }
+      {
+        scFormat = "ScJson";
+        scKind = "FileSK";
+        scName = "/var/lib/cardano-node/logs/node.json";
+        scRotation = {
+          rpLogLimitBytes = 25000000;
+          rpKeepFilesNum =  20;
+          rpMaxAgeHours =   24;
+        };
+      }
+    ];
 }

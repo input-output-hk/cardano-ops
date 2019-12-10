@@ -32,6 +32,7 @@ let
     "--trace-tx-submission-protocol"
     "--trace-local-chain-sync-protocol"
     "--trace-local-tx-submission-protocol"
+    "--tracing-verbosity-maximal"
   ] ++ cfg.extraCommandArgs);
 in {
 
