@@ -74,7 +74,7 @@ in
 
     services.cardano-node = rec {
       enable = true;
-      extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
+      extraArgs = [ "+RTS" "-N1" "-I0" "-RTS" ];
       environment = globals.environmentName;
       inherit hostAddr nodeId topology;
       port = nodePort;

@@ -28,6 +28,7 @@ in {
       "--trace-tx-inbound"
       "--trace-tx-outbound"
       "--trace-tx-submission-protocol"
+      "--tracing-verbosity-maximal"
     ];
     delegationCertificate = "/var/lib/keys/cardano-node-delegation-cert";
   };
