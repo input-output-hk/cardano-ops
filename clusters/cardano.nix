@@ -70,19 +70,9 @@ let
         ../roles/explorer.nix
         # TODO: remove module when the new explorer is available
         ../roles/explorer-legacy.nix
-        # TODO: remove module when prometheus binding is a parameter
-        ../modules/nginx-monitoring-proxy.nix
       ];
-      services.nginx-monitoring-proxy = {
-        proxyName = "explorer-ip";
-        listenPort = 80;
-        listenPath = "/metrics";
-        proxyPort = 12798;
-        proxyPath = "/metrics";
-      };
 
-      # TODO: Add 12798 when prometheus binding is a parameter
-      services.monitoring-exporters.extraPrometheusExportersPorts = [ 80 ];
+      services.monitoring-exporters.extraPrometheusExportersPorts = [ 12798 ];
       node = {
         roles.isExplorer = true;
         org = "IOHK";
@@ -122,17 +112,7 @@ let
       imports = [
         medium
         ../roles/relay.nix
-
-        # TODO: remove module when prometheus binding is a parameter
-        ../modules/nginx-monitoring-proxy.nix
       ];
-      services.nginx-monitoring-proxy = {
-        proxyName = "localproxy";
-        listenPort = globals.cardanoNodePrometheusExporterPort;
-        listenPath = "/metrics";
-        proxyPort = 12797;
-        proxyPath = "/metrics";
-      };
     };
   };
 

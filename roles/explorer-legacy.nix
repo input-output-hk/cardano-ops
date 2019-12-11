@@ -4,7 +4,7 @@ with import ../nix {};
 let
   inherit (lib) mkForce;
   cardano-sl-pkgs = import sourcePaths.cardano-sl { gitrev = sourcePaths.cardano-sl.rev; };
-  explorerFrontend = cardano-sl-pkgs.explorerFrontend;
+  explorerFrontend = (import sourcePaths.cardano-sl-explorer { gitrev = sourcePaths.cardano-sl-explorer.rev; }).explorerFrontend;
   explorerLegacy = cardano-sl-pkgs.nix-tools.cexes.cardano-sl-explorer.cardano-explorer;
 in {
   imports = [
@@ -18,7 +18,7 @@ in {
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
   # Higher than default files are required during public scraping
-  systemd.services.cardano-node.serviceConfig.LimitNOFILE = 4096;
+  systemd.services.cardano-node-legacy.serviceConfig.LimitNOFILE = 4096;
   services.cardano-node-legacy = {
     executable = "${explorerLegacy}/bin/cardano-explorer";
 
@@ -26,11 +26,12 @@ in {
     extraCommandArgs = [ "--web-port 8101" ];
 
     # TODO: static or dynamic routes may need optimization
-    staticRoutes = [
-      [ "r-a-1" "r-a-3" "r-c-2" ]
-      [ "r-a-2" "r-c-1" "r-b-2" ]
+    staticRoutes = [];
+    dynamicSubscribe = [
+      [ "r-c-1" "r-a-3" ]
+      [ "r-c-2" "r-a-2" "r-b-2" ]
+      [ "p-c-1" "p-a-1" ]
     ];
-    dynamicSubscribe = [];
   };
 
   # Cardano node legacy can use cardano node user def for both services to coexist
@@ -81,6 +82,9 @@ in {
                rewrite ^/api-new/(.*)$ /api/$1 break ;
              '';
              proxyPass = "http://127.0.0.1:8100/api";
+          };
+          "/graphql" = {
+            proxyPass = "http://127.0.0.1:3100/graphql";
           };
         };
         # Otherwise nginx serves files with timestamps unixtime+1 from /nix/store

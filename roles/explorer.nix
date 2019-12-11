@@ -1,10 +1,13 @@
-{ config, ... }:
+{ config, name, nodes, ... }:
 with import ../nix {};
 
 let
+  iohkNix = import sourcePaths.iohk-nix {};
   cardano-sl = import sourcePaths.cardano-sl { gitrev = sourcePaths.cardano-sl.rev; };
   explorerFrontend = cardano-sl.explorerFrontend;
   postgresql12 = (import sourcePaths.nixpkgs-postgresql12 {}).postgresql_12;
+  nodeId = config.node.nodeId;
+  hostAddr = getListenIp nodes.${name};
 in {
   imports = [
     (sourcePaths.cardano-node + "/nix/nixos")
@@ -15,18 +18,19 @@ in {
   environment.systemPackages = with pkgs; [ bat fd lsof netcat ncdu ripgrep tree vim cardano-cli ];
   services.postgresql.package = postgresql12;
 
-  services.graphql-engine.enable = false;
-  services.cardano-graphql.enable = false;
-  services.cardano-node = {
-    extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-h" "-M3G" "-RTS" ];
-    environment = globals.environmentName;
-    environments = {
-      "${globals.environmentName}" = globals.environmentConfig;
-    };
-    # Remove when update to next release:
-    genesisHash = globals.environmentConfig.genesisHash;
+  services.graphql-engine.enable = true;
+  services.cardano-graphql.enable = true;
+  services.cardano-node = rec {
     enable = true;
+    extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
+    environment = globals.environmentName;
+    environments = iohkNix.cardanoLib.environments;
+    nodeConfig = environments.${environment}.nodeConfig // {
+      hasPrometheus = [ hostAddr 12798 ];
+      NodeId = nodeId;
+    };
   };
+  systemd.services.cardano-node.serviceConfig.MemoryMax = "3.5G";
   services.cardano-exporter = {
     enable = true;
     cluster = globals.environmentName;
@@ -80,9 +84,9 @@ in {
         #locations."/graphiql" = {
         #  proxyPass = "http://127.0.0.1:3100/graphiql";
         #};
-        #locations."/graphql" = {
-        #  proxyPass = "http://127.0.0.1:3100/graphql";
-        #};
+        locations."/graphql" = {
+          proxyPass = "http://127.0.0.1:3100/graphql";
+        };
       };
       "explorer-ip" = {
         locations = {
