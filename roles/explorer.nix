@@ -20,12 +20,14 @@ in {
 
   services.graphql-engine.enable = true;
   services.cardano-graphql.enable = true;
-  services.cardano-node = rec {
+  services.cardano-node = {
     enable = true;
     extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
     environment = globals.environmentName;
-    environments = iohkNix.cardanoLib.environments;
-    nodeConfig = environments.${environment}.nodeConfig // {
+    environments = {
+      "${globals.environmentName}" = globals.environmentConfig;
+    };
+    nodeConfig = globals.environmentConfig.nodeConfig // {
       hasPrometheus = [ hostAddr 12798 ];
       NodeId = nodeId;
     };

@@ -19,6 +19,7 @@ in {
   withMonitoring = true;
 
   withExplorer = true;
+  withLegacyExplorer = true;
 
   environments = pkgs.iohkNix.cardanoLib.environments;
 

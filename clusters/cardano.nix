@@ -68,9 +68,9 @@ let
       imports = [
         xlarge
         ../roles/explorer.nix
-        # TODO: remove module when the new explorer is available
-        ../roles/explorer-legacy.nix
-      ];
+      ]
+      # TODO: remove module when the new explorer is available
+      ++ lib.optional (globals.withLegacyExplorer) ../roles/explorer-legacy.nix;
 
       services.monitoring-exporters.extraPrometheusExportersPorts = [ 12798 ];
       node = {

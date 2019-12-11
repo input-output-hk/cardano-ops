@@ -1,6 +1,7 @@
 pkgs: rec {
 
   withMonitoring = false;
+  withLegacyExplorer = false;
 
   environmentName = "shelley-dev";
 
