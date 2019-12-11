@@ -37,12 +37,12 @@ let
       services.prometheus = {
         scrapeConfigs = [
           {
-            job_name = "explorer";
+            job_name = "explorer-exporter";
             scrape_interval = "10s";
-            metrics_path = "/";
+            metrics_path = "/metrics2/exporter";
             static_configs = [{
-              targets = [ "explorer-ip:8080" ];
-              labels = { alias = "explorer-ip-8080"; };
+              targets = [ "explorer-ip" ];
+              labels = { alias = "explorer-exporter"; };
             }];
           }
         ];
@@ -51,10 +51,22 @@ let
   }) // (lib.optionalAttrs (globals.withExplorer or true) {
     explorer = {
       deployment.ec2.region = "eu-central-1";
-      imports = [ medium ../roles/explorer.nix ];
+      imports = [
+        medium
+        ../roles/explorer.nix
+        # TODO: remove module when prometheus binding is a parameter
+        ../modules/nginx-monitoring-proxy.nix
+      ];
+      services.nginx-monitoring-proxy = {
+        proxyName = "explorer-ip";
+        listenPort = 80;
+        listenPath = "/metrics";
+        proxyPort = 12798;
+        proxyPath = "/metrics";
+      };
 
       # TODO: Add 12798 when prometheus binding is a parameter
-      services.monitoring-exporters.extraPrometheusExportersPorts = [ 8080 ];
+      services.monitoring-exporters.extraPrometheusExportersPorts = [ 80 ];
       node = {
         roles.isExplorer = true;
         org = "IOHK";

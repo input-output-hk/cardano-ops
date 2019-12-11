@@ -78,6 +78,7 @@ in
 
     # TODO: remove rec when prometheus binding is a parameter
     services.cardano-node = {
+      extraArgs = [ "+RTS" "-N1" "-I0" "-RTS" ];
       enable = true;
       inherit hostAddr nodeId topology;
       port = nodePort;
@@ -91,6 +92,7 @@ in
         NodeId = nodeId;
       };
     };
+    systemd.services.cardano-node.serviceConfig.MemoryMax = "3.5G";
 
     services.dnsmasq = {
       enable = true;
