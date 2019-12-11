@@ -30,7 +30,6 @@ let
   }) cfg.producers;
 
   topology =  builtins.toFile "topology.yaml" (builtins.toJSON (lib.mapAttrsToList (nodeName: node: {
-        _file = ./base-service.nix;
         nodeId = node.config.node.nodeId;
         nodeAddress = {
           addr = if (nodeName == name)
@@ -72,14 +71,16 @@ in
       allowedUDPPortRanges = [ { from = 1024; to = 65000; } ];
     };
 
-    services.cardano-node = rec {
+    services.cardano-node = {
       enable = true;
       extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
       environment = globals.environmentName;
       inherit hostAddr nodeId topology;
       port = nodePort;
-      environments = iohkNix.cardanoLib.environments;
-      nodeConfig = environments.${environment}.nodeConfig // {
+      environments = {
+        "${globals.environmentName}" = globals.environmentConfig;
+      };
+      nodeConfig = globals.environmentConfig.nodeConfig // {
         hasPrometheus = [ hostAddr 12798 ];
         NodeId = nodeId;
       };
