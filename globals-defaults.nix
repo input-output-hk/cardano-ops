@@ -31,10 +31,12 @@ in {
   cardanoNodePrometheusExporterPort = 12798;
   byronProxyPrometheusExporterPort = 12799;
   cardanoExplorerPrometheusExporterPort = 8080;
+  cardanoExplorerPythonApiPrometheusExporterPort = 7001;
 
   extraPrometheusExportersPorts = [
     pkgs.globals.cardanoNodePrometheusExporterPort
     pkgs.globals.byronProxyPrometheusExporterPort
     pkgs.globals.cardanoExplorerPrometheusExporterPort
+    pkgs.globals.cardanoExplorerPythonApiPrometheusExporterPort
   ];
 }
