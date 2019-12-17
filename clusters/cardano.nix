@@ -12,22 +12,24 @@ let
 
   inherit (globals) topology byronProxyPort;
   inherit (topology) legacyCoreNodes legacyRelayNodes byronProxies coreNodes relayNodes;
-  inherit (lib) recursiveUpdate mapAttrs listToAttrs imap1;
+  inherit (lib) recursiveUpdate mapAttrs listToAttrs imap1 concatLists;
   inherit (iohk-ops-lib) roles modules;
 
   # for now, keys need to be generated for each core nodes with:
   # for i in {1..2}; do cardano-cli --byron-legacy keygen --secret ./keys/$i.sk --no-password; done
 
-  cardanoNodes = listToAttrs (map mkLegacyCoreNode legacyCoreNodes)
-    // listToAttrs (map mkLegacyRelayNode legacyRelayNodes)
-    // listToAttrs (map mkCoreNode coreNodes)
-    // listToAttrs (map mkRelayNode relayNodes)
-    // listToAttrs (map mkByronProxyNode byronProxies)
-    // (lib.optionalAttrs (topology ? testNodes) (listToAttrs (map mkTestNode topology.testNodes)));
+  cardanoNodes = listToAttrs (concatLists [
+    (map mkLegacyCoreNode legacyCoreNodes)
+    (map mkLegacyRelayNode legacyRelayNodes)
+    (map mkCoreNode coreNodes)
+    (map mkRelayNode relayNodes)
+    (map mkByronProxyNode byronProxies)
+    (map mkTestNode (topology.testNodes or []))
+  ]);
 
   otherNodes = (lib.optionalAttrs globals.withMonitoring {
-    monitoring = {
-      deployment.ec2.region = "eu-central-1";
+    monitoring = let def = (topology.monitoring or {}); in mkNode {
+      deployment.ec2.region = def.region or "eu-central-1";
       imports = [
         (if globals.withHighCapacityMonitoring then t3-2xlarge-monitor else xlarge-monitor)
         roles.monitor
@@ -35,7 +37,7 @@ let
       ];
       node = {
         roles.isMonitor = true;
-        org = "IOHK";
+        org = def.org or "IOHK";
       };
 
       services.prometheus = {
@@ -81,11 +83,11 @@ let
           })
         );
       };
-    };
+    } def;
   }) // (lib.optionalAttrs globals.withExplorer {
-    explorer = {
+    explorer = let def = (topology.explorer or {}); in mkNode {
       deployment.ec2 = {
-        region = "eu-central-1";
+        region = def.region or "eu-central-1";
         ebsInitialRootDiskSize = 100;
       };
       imports = [
@@ -97,14 +99,18 @@ let
 
       services.monitoring-exporters.extraPrometheusExportersPorts =
         [ globals.cardanoNodePrometheusExporterPort ];
+
+      services.cardano-node.producers = lib.mkIf (coreNodes != [] || relayNodes != [])
+        (map (n: n.name) (if relayNodes != [] then relayNodes else coreNodes));
+
       node = {
         roles.isExplorer = true;
-        org = "IOHK";
-        nodeId = 99;
+        org = def.org or "IOHK";
+        nodeId = def.nodeId or 99;
       };
-    };
+    } def;
   }) // (lib.optionalAttrs globals.withFaucet {
-    "${globals.faucetHostname}" = {
+    "${globals.faucetHostname}" = let def = (topology.faucet or {}); in mkNode {
       deployment.ec2 = {
         region = "eu-central-1";
       };
@@ -116,14 +122,14 @@ let
         roles.isFaucet = true;
         org = "IOHK";
       };
-    };
+    } def;
   });
 
-  nodes = mapAttrs (_: mkNode) (cardanoNodes // otherNodes);
+  nodes = cardanoNodes // otherNodes;
 
-  mkCoreNode = def: {
+  mkCoreNode =  def: {
     inherit (def) name;
-    value = {
+    value = mkNode {
       node = {
         roles.isCardanoCore = true;
         inherit (def) org nodeId;
@@ -133,12 +139,12 @@ let
       services.cardano-node = {
         inherit (def) producers;
       };
-    };
+    } def;
   };
 
   mkRelayNode = def: {
     inherit (def) name;
-    value = {
+    value = mkNode {
       node = {
         roles.isCardanoRelay = true;
         inherit (def) org nodeId;
@@ -152,12 +158,12 @@ let
       ] else [
         medium ../roles/relay.nix
       ];
-    };
+    } def;
   };
 
   mkByronProxyNode = def: {
     inherit (def) name;
-    value = {
+    value = mkNode {
       node = {
         roles.isByronProxy = true;
         inherit (def) org nodeId;
@@ -175,12 +181,12 @@ let
 
       services.monitoring-exporters.extraPrometheusExportersPorts = [ globals.byronProxyPrometheusExporterPort ];
 
-    };
+    } def;
   };
 
   mkLegacyCoreNode = def: {
     inherit (def) name;
-    value = {
+    value = mkNode {
       node = {
         roles.isCardanoLegacyCore = true;
         inherit (def) org nodeId;
@@ -191,12 +197,12 @@ let
       #imports = [ medium ../roles/legacy-core.nix;
       # ../roles/sync-nonlegacy-chain-state.nix ];
       services.cardano-node-legacy.staticRoutes = def.staticRoutes;
-    };
+    } def;
   };
 
   mkLegacyRelayNode = def: {
     inherit (def) name;
-    value = {
+    value = mkNode {
       node = {
         roles.isCardanoLegacyRelay = true;
         inherit (def) org;
@@ -205,26 +211,38 @@ let
       imports = [ medium ../roles/legacy-relay.nix ];
       services.cardano-node-legacy.staticRoutes = def.staticRoutes or [];
       services.cardano-node-legacy.dynamicSubscribe = def.dynamicSubscribe or [];
-    };
+    } def;
   };
 
   # Load client with optimized NVME disks, for prometheus monitored clients syncs
   mkTestNode = def: {
     inherit (def) name;
-    value = {
+    value = mkNode {
       node = {
         inherit (def) org;
       };
       deployment.ec2.region = def.region;
       imports = [ m5ad-xlarge ../roles/load-client.nix ];
-    };
+    } def;
   };
 
-  mkNode = args:
-    recursiveUpdate {
-      deployment.targetEnv = targetEnv;
-      nixpkgs.overlays = pkgs.cardano-ops-overlays;
-    } args;
+  mkNode = args: def:
+    recursiveUpdate (
+      recursiveUpdate {
+        imports = args.imports ++ (def.imports or []);
+        deployment.targetEnv = targetEnv;
+        nixpkgs.overlays = pkgs.cardano-ops-overlays;
+      } args)
+      (builtins.removeAttrs def [
+        "imports"
+        "name"
+        "org"
+        "region"
+        "nodeId"
+        "producers"
+        "staticRoutes"
+        "dynamicSubscribe"
+      ]);
 
 in {
   network.description = "Cardano cluster - ${globals.deploymentName}";
