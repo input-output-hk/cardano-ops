@@ -72,15 +72,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "iohk-nix": {
-        "branch": "master",
+        "branch": "proxy-default-logging",
         "description": "nix scripts shared across projects",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "911ffe9ab4f1c05685b56e2407e87d2373137930",
-        "sha256": "0dr2r1rjhddg3jxx13ny1slv3hnx2ai2h8qfxji89jx473p4ybqm",
+        "rev": "5118d5c4756e4f83a3ab267602c8a0bbba5e19a5",
+        "sha256": "0i5yx52ryac3sfisv88npj278jd4a49gjxv2ykgrzw61bm3sq0ax",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/911ffe9ab4f1c05685b56e2407e87d2373137930.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/5118d5c4756e4f83a3ab267602c8a0bbba5e19a5.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
