@@ -18,8 +18,8 @@ in {
   environment.systemPackages = with pkgs; [ bat fd lsof netcat ncdu ripgrep tree vim cardano-cli ];
   services.postgresql.package = postgresql12;
 
-  services.graphql-engine.enable = true;
-  services.cardano-graphql.enable = true;
+  services.graphql-engine.enable = false;
+  services.cardano-graphql.enable = false;
   services.cardano-node = {
     enable = true;
     extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
