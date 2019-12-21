@@ -133,16 +133,6 @@ let
 
       services.monitoring-exporters.extraPrometheusExportersPorts = [ globals.byronProxyPrometheusExporterPort ];
 
-      # TODO: modify/remove when prometheus binding is a parameter
-      services.byron-proxy.logger.configFile =
-        let
-          byronProxySrc = sourcePaths.cardano-byron-proxy;
-          loggerUnmodFile = byronProxySrc + "/cfg/logging.yaml";
-          loggerUnmod = __readFile loggerUnmodFile;
-          loggerMod = lib.replaceStrings [ "hasPrometheus: 12799" ] [ "hasPrometheus: 12796" ] loggerUnmod;
-          loggerModFile = __toFile "logging-prom-12796.yaml" loggerMod;
-        in
-          loggerModFile;
     };
   };
 
