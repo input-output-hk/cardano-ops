@@ -1,4 +1,5 @@
 { name
+, nodes
 , config
 , ...
 }:
@@ -7,6 +8,7 @@ let
   iohkNix = import sourcePaths.iohk-nix {};
   inherit (iohkNix) cardanoLib;
   legacyCardanoCfg = config.services.cardano-node-legacy;
+  hostAddr = getListenIp nodes.${name};
 in {
 
   imports = [
@@ -29,6 +31,9 @@ in {
     listen = "${legacyCardanoCfg.listenIp}:${toString globals.cardanoNodeLegacyPort}";
     address = "${legacyCardanoCfg.publicIp}:${toString globals.cardanoNodeLegacyPort}";
     topologyFile = legacyCardanoCfg.topologyYaml;
+    logger.configFile = __toFile "log-config.json" (__toJSON (cardanoLib.defaultProxyLogConfig // {
+      hasPrometheus = [ hostAddr 12799 ];
+    }));
   };
   systemd.services.byron-proxy.serviceConfig.MemoryMax = "3.5G";
 
