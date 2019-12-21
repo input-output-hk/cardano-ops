@@ -127,21 +127,11 @@ let
       imports = [
         medium
         ../roles/byron-proxy.nix
-
-        # TODO: remove module when prometheus binding is a parameter
-        ../modules/nginx-monitoring-proxy.nix
       ];
       services.cardano-node-legacy.staticRoutes = def.staticRoutes or [];
       services.cardano-node-legacy.dynamicSubscribe = def.dynamicSubscribe or [];
 
       services.monitoring-exporters.extraPrometheusExportersPorts = [ globals.byronProxyPrometheusExporterPort ];
-      services.nginx-monitoring-proxy = {
-        proxyName = "localproxy";
-        listenPort = globals.byronProxyPrometheusExporterPort;
-        listenPath = "/metrics";
-        proxyPort = 12796;
-        proxyPath = "/metrics";
-      };
 
       # TODO: modify/remove when prometheus binding is a parameter
       services.byron-proxy.logger.configFile =
