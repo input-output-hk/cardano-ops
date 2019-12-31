@@ -1,6 +1,7 @@
 { name
-, nodes
 , config
+, nodes
+, resources
 , ...
 }:
 with import ../nix {};
@@ -9,6 +10,19 @@ let
   inherit (iohkNix) cardanoLib;
   legacyCardanoCfg = config.services.cardano-node-legacy;
   hostAddr = getListenIp nodes.${name};
+  nodePort = globals.cardanoNodePort;
+  hostName = name: "${name}.cardano";
+  staticRouteIp = getStaticRouteIp resources nodes;
+  coreCardanoNodes = lib.filterAttrs
+    (_: node: node.config.node.roles.isCardanoCore or false)
+    nodes;
+  coreCardanoHostList = lib.mapAttrsToList (nodeName: node: {
+    name = hostName nodeName;
+    ip = staticRouteIp nodeName;
+  }) coreCardanoNodes;
+  producersOpts = toString (map
+    (c: "--producer-addr [${c.name}]:${toString nodePort}")
+    coreCardanoHostList);
 in {
 
   imports = [
@@ -31,6 +45,7 @@ in {
     listen = "${legacyCardanoCfg.listenIp}:${toString globals.cardanoNodeLegacyPort}";
     address = "${legacyCardanoCfg.publicIp}:${toString globals.cardanoNodeLegacyPort}";
     topologyFile = legacyCardanoCfg.topologyYaml;
+    extraOptions = producersOpts;
     logger.configFile = __toFile "log-config.json" (__toJSON (cardanoLib.defaultProxyLogConfig // {
       hasPrometheus = [ hostAddr 12799 ];
     }));
@@ -41,4 +56,8 @@ in {
   networking.firewall.allowedTCPPorts = [ globals.cardanoNodePort ];
 
   services.cardano-node-legacy.nodeType = "relay";
+
+  networking.extraHosts = ''
+      ${lib.concatStringsSep "\n" (map (host: "${host.ip} ${host.name}") coreCardanoHostList)}
+  '';
 }
