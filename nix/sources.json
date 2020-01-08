@@ -12,27 +12,51 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer": {
-        "branch": "node-1.2.0",
+        "branch": "1.2.1",
         "description": "The new Cardano Explorer",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-explorer",
-        "rev": "1f134c119dea84657b7f7220837b1c5b56fe55c0",
-        "sha256": "19rpz5nr5gmrxq9hffg295s5wis85hnkr0azx012cx6zc71cjhsh",
+        "rev": "1ad422b511dee8b8e586c8d85f46a8ec2929b691",
+        "sha256": "019mfv6zvm3m39crb62xyha380djjm3sk7hvdjjp9812ms85jc7c",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-explorer/archive/1f134c119dea84657b7f7220837b1c5b56fe55c0.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-explorer/archive/1ad422b511dee8b8e586c8d85f46a8ec2929b691.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
-        "branch": "1.1.0",
+        "branch": "1.3.0",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "15de948f8debb5402ec0e42e7fa1142c1187e298",
-        "sha256": "0wr5cmpk1lhwlz6b217nmhzggvz1nmxkmfz8nvyfq8jip2vablpa",
+        "rev": "d6010bf333da7270be353daa4b40ae26740dcb0c",
+        "sha256": "1jc3bgymxbxgglgafd9h2883cibxv5n4fxf06wqmw610gdz83zqq",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/15de948f8debb5402ec0e42e7fa1142c1187e298.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/d6010bf333da7270be353daa4b40ae26740dcb0c.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "cardano-node-PR-454": {
+        "branch": "cad-371-trace-acceptor-removed",
+        "description": null,
+        "homepage": null,
+        "owner": "input-output-hk",
+        "repo": "cardano-node",
+        "rev": "de5af555770bb4bc6540472c4333518be1bd347d",
+        "sha256": "09d7zi8vf3jk5fs85q3i8772vv65yx9glbp9rw0acbabz0a93vq1",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/de5af555770bb4bc6540472c4333518be1bd347d.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "cardano-node-no-log-rough": {
+        "branch": "jlotoski/logs-off-rough-patched",
+        "description": null,
+        "homepage": null,
+        "owner": "input-output-hk",
+        "repo": "cardano-node",
+        "rev": "d495ad5d1b773ab8ded3f0697e04b0ef79bd6c39",
+        "sha256": "197z7w8ff3wbga68b29vdah2ygqyp6hcr7ac5i35ibxhbvrybm5q",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/d495ad5d1b773ab8ded3f0697e04b0ef79bd6c39.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-sl": {
@@ -72,15 +96,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "iohk-nix": {
-        "branch": "proxy-default-logging",
+        "branch": "master",
         "description": "nix scripts shared across projects",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "5118d5c4756e4f83a3ab267602c8a0bbba5e19a5",
-        "sha256": "0i5yx52ryac3sfisv88npj278jd4a49gjxv2ykgrzw61bm3sq0ax",
+        "rev": "911ffe9ab4f1c05685b56e2407e87d2373137930",
+        "sha256": "0dr2r1rjhddg3jxx13ny1slv3hnx2ai2h8qfxji89jx473p4ybqm",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/5118d5c4756e4f83a3ab267602c8a0bbba5e19a5.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/911ffe9ab4f1c05685b56e2407e87d2373137930.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {

@@ -18,7 +18,11 @@ let
   cardanoNodes = listToAttrs (imap1 mkLegacyCoreNode legacyCoreNodes)
     // listToAttrs (map mkLegacyRelayNode legacyRelayNodes)
     // listToAttrs (map mkCoreNode coreNodes)
-    // listToAttrs (map mkRelayNode relayNodes)
+
+    # Relays will be defined explicitly for now since they may need several overrides
+    # for different environments, patches, etc
+    #// listToAttrs (map mkRelayNode relayNodes)
+
     // listToAttrs (map mkByronProxyNode byronProxies);
 
   otherNodes = (lib.optionalAttrs globals.withMonitoring {
@@ -33,8 +37,9 @@ let
         roles.isMonitor = true;
         org = "IOHK";
       };
-
-      services.prometheus = {
+      services.monitoring-services.logging = false;
+      services.graylog.enable = false;
+      services.prometheus = lib.mkIf globals.withExplorer {
         scrapeConfigs = [
           # TODO: remove once explorer exports metrics at path `/metrics`
           {
@@ -79,7 +84,132 @@ let
         nodeId = 99;
       };
     };
-  });
+  }) // {
+    # 1.3.0 tag
+    staging-1 = {
+      deployment.ec2.region = "eu-central-1";
+      imports = [
+        medium
+        ../roles/relay-test.nix
+      ];
+      node = {
+        roles.isCardanoRelay = true;
+        org = "IOHK";
+        nodeId = 11;
+      };
+      services.cardano-node = rec {
+        environmentName = "staging";
+        producers = globals.environments.${environmentName}.edgeNodes;
+      };
+    };
+
+    # 1.3.0 plus no logs, rough patched (cherry pick)
+    staging-2 = {
+      deployment.ec2.region = "eu-central-1";
+      imports = [
+        medium
+        ../roles/relay-test-no-log-rough.nix
+      ];
+      node = {
+        roles.isCardanoRelay = true;
+        org = "IOHK";
+        nodeId = 12;
+      };
+      services.cardano-node = rec {
+        environmentName = "staging";
+        producers = globals.environments.${environmentName}.edgeNodes;
+        #haskellArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
+      };
+    };
+
+    # 1.3.0 plus no logs, config option
+    staging-3 = {
+      deployment.ec2.region = "eu-central-1";
+      imports = [
+        medium
+        ../roles/relay-test.nix
+      ];
+      node = {
+        roles.isCardanoRelay = true;
+        org = "IOHK";
+        nodeId = 13;
+      };
+      services.cardano-node = rec {
+        environmentName = "staging";
+        producers = globals.environments.${environmentName}.edgeNodes;
+        #haskellArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
+        logging = false;
+      };
+    };
+
+    # 1.3.0 plus no logs, cardano-node PR #454
+    staging-4 = {
+      deployment.ec2.region = "eu-central-1";
+      imports = [
+        medium
+        ../roles/relay-test-PR-454.nix
+      ];
+      node = {
+        roles.isCardanoRelay = true;
+        org = "IOHK";
+        nodeId = 14;
+      };
+      services.cardano-node = rec {
+        environmentName = "staging";
+        producers = globals.environments.${environmentName}.edgeNodes;
+        #haskellArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
+      };
+    };
+
+    testnet-1 = {
+      deployment.ec2.region = "eu-central-1";
+      imports = [
+        medium
+        ../roles/relay-test.nix
+      ];
+      node = {
+        roles.isCardanoRelay = true;
+        org = "IOHK";
+        nodeId = 21;
+      };
+      services.cardano-node = rec {
+        environmentName = "testnet";
+        producers = globals.environments.${environmentName}.edgeNodes;
+      };
+    };
+    shelley-1 = {
+      deployment.ec2.region = "eu-central-1";
+      imports = [
+        medium
+        ../roles/relay-test.nix
+      ];
+      node = {
+        roles.isCardanoRelay = true;
+        org = "IOHK";
+        nodeId = 31;
+      };
+      services.cardano-node = rec {
+        environmentName = "shelley_staging";
+        producers = globals.environments.${environmentName}.edgeNodes;
+      };
+    };
+    mainnet-1 = {
+      deployment.ec2.region = "eu-central-1";
+      imports = [
+        medium
+        ../roles/relay-test.nix
+      ];
+      node = {
+        roles.isCardanoRelay = true;
+        org = "IOHK";
+        nodeId = 41;
+      };
+      services.cardano-node = rec {
+        environmentName = "mainnet";
+        producers = globals.environments.${environmentName}.edgeNodes;
+      };
+    };
+  };
 
   nodes = mapAttrs (_: mkNode) (cardanoNodes // otherNodes);
 
