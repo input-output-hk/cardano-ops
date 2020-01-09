@@ -1,5 +1,11 @@
 with (import ../nix {});
-{ ... }: {
+{ ... }:
+let
+  boolOption = lib.mkOption {
+    type = lib.types.bool;
+    default = false;
+  };
+in {
   imports = [
     iohk-ops-lib.modules.common
   ];
@@ -17,34 +23,13 @@ with (import ../nix {});
         type = lib.types.int;
       };
       roles = {
-        isCardanoLegacyCore = lib.mkOption {
-          type = lib.types.bool;
-          default = false;
-        };
-        isCardanoLegacyRelay = lib.mkOption {
-          type = lib.types.bool;
-          default = false;
-        };
-        isCardanoCore = lib.mkOption {
-          type = lib.types.bool;
-          default = false;
-        };
-        isCardanoRelay = lib.mkOption {
-          type = lib.types.bool;
-          default = false;
-        };
-        isByronProxy = lib.mkOption {
-          type = lib.types.bool;
-          default = false;
-        };
-        isMonitor = lib.mkOption {
-          type = lib.types.bool;
-          default = false;
-        };
-        isExplorer = lib.mkOption {
-          type = lib.types.bool;
-          default = false;
-        };
+        isCardanoLegacyCore = boolOption;
+        isCardanoLegacyRelay = boolOption;
+        isCardanoCore = boolOption;
+        isCardanoRelay = boolOption;
+        isByronProxy = boolOption;
+        isMonitor = boolOption;
+        isExplorer = boolOption;
       };
     };
   };
