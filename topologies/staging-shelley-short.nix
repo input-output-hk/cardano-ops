@@ -10,6 +10,7 @@
         [ "p-a-1" "p-b-1" ]
       ];
       org = "IOHK";
+      nodeId = 1;
     }
     {
       name = "c-a-2";
@@ -21,6 +22,7 @@
         [ "p-a-1" "p-c-1" ]
       ];
       org = "IOHK";
+      nodeId = 2;
     }
     {
       name = "c-a-3";
@@ -32,6 +34,7 @@
         [ "p-b-1" "p-c-1" ]
       ];
       org = "IOHK";
+      nodeId = 3;
     }
     {
       name = "c-b-1";
@@ -43,6 +46,7 @@
         [ "p-b-1" "p-a-1" ]
       ];
       org = "IOHK";
+      nodeId = 4;
     }
     {
       name = "c-b-2";
@@ -54,6 +58,7 @@
         [ "p-b-1" "p-c-1" ]
       ];
       org = "IOHK";
+      nodeId = 5;
     }
     {
       name = "c-c-1";
@@ -65,6 +70,7 @@
         [ "p-c-1" "p-a-1" ]
       ];
       org = "IOHK";
+      nodeId = 6;
     }
     {
       name = "c-c-2";
@@ -76,6 +82,7 @@
         [ "p-c-1" "p-b-1" ]
       ];
       org = "IOHK";
+      nodeId = 7;
     }
   ];
 
