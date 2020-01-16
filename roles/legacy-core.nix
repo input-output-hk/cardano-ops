@@ -8,7 +8,7 @@
   services.cardano-node-legacy.nodeType = "core";
 
   deployment.keys.cardano-node = {
-    keyFile = ../keys + "/${toString config.node.coreIndex}.sk";
+    keyFile = ../keys + "/${toString config.node.nodeId}.sk";
     user = "cardano-node";
     destDir = "/var/lib/keys";
   };

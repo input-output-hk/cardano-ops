@@ -10,6 +10,7 @@
         [ "b-a-1" "b-b-1" ]
       ];
       org = "IOHK";
+      nodeId = 1;
     }
     {
       name = "c-a-2";
@@ -21,6 +22,7 @@
         [ "r-a-2" "r-c-1" ]
       ];
       org = "IOHK";
+      nodeId = 2;
     }
     {
       name = "c-b-1";
@@ -33,6 +35,7 @@
         [ "b-b-1" "b-a-1" ]
       ];
       org = "Emurgo";
+      nodeId = 3;
     }
     {
       name = "c-b-2";
@@ -44,6 +47,7 @@
         [ "b-b-1" "b-c-1" ]
       ];
       org = "Emurgo";
+      nodeId = 4;
     }
     {
       name = "c-c-1";
@@ -55,6 +59,7 @@
         [ "b-c-1" "b-a-1" ]
       ];
       org = "CF";
+      nodeId = 5;
     }
     {
       name = "c-c-2";
@@ -66,6 +71,7 @@
         [ "b-c-1" "b-b-1" ]
       ];
       org = "CF";
+      nodeId = 6;
     }
     {
       name = "c-d-1";
@@ -78,6 +84,7 @@
         [ "b-b-1" "b-c-1" ]
       ];
       org = "IOHK";
+      nodeId = 7;
     }
   ];
 

@@ -15,7 +15,7 @@ let
   # for now, keys need to be generated for each core nodes with:
   # for i in {1..2}; do cardano-cli --byron-legacy keygen --secret ./keys/$i.sk --no-password; done
 
-  cardanoNodes = listToAttrs (imap1 mkLegacyCoreNode legacyCoreNodes)
+  cardanoNodes = listToAttrs (map mkLegacyCoreNode legacyCoreNodes)
     // listToAttrs (map mkLegacyRelayNode legacyRelayNodes)
     // listToAttrs (map mkCoreNode coreNodes)
     // listToAttrs (map mkRelayNode relayNodes)
@@ -136,16 +136,18 @@ let
     };
   };
 
-  mkLegacyCoreNode = i: def: {
+  mkLegacyCoreNode = def: {
     inherit (def) name;
     value = {
       node = {
         roles.isCardanoLegacyCore = true;
-        coreIndex = i;
-        inherit (def) org;
+        inherit (def) org nodeId;
       };
       deployment.ec2.region = def.region;
       imports = [ medium ../roles/legacy-core.nix ];
+      # Temporary for legacy migration:
+      #imports = [ medium ../roles/legacy-core.nix;
+      # ../roles/sync-nonlegacy-chain-state.nix ];
       services.cardano-node-legacy.staticRoutes = def.staticRoutes;
     };
   };
