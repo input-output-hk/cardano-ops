@@ -197,6 +197,8 @@ in {
         explorer-users explorer-python-api explorer_python_api
         explorer-users root explorer_python_api
         explorer-users postgres postgres
+        explorer-users cexplorer cexplorer
+        explorer-users root cexplorer
       '';
       authentication = ''
         local all all ident map=explorer-users
