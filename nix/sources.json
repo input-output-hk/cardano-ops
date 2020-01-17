@@ -1,6 +1,6 @@
 {
     "cardano-byron-proxy": {
-        "branch": "1.0.3",
+        "branch": "tags/1.0.3",
         "description": "A bydirectional proxy between the Shelly and Byron versions of the Cardano network",
         "homepage": null,
         "owner": "input-output-hk",
@@ -12,19 +12,19 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer": {
-        "branch": "1.2.2",
+        "branch": "tags/1.2.2",
         "description": "The new Cardano Explorer",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-explorer",
-        "rev": "c36f34ff21309b381708b6a22adf5acfb8c62cb0",
-        "sha256": "041bq7bpq21raczvvjfii6kpnab8xrd9l5apaqpyzz17hhrgda3p",
+        "rev": "91c32f901363cd46f43e509081e8e11500b112f1",
+        "sha256": "1v7bxpfvl9l203478kyhbifvapmlsr93p8kaw9cn2qzykxaypxcg",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-explorer/archive/c36f34ff21309b381708b6a22adf5acfb8c62cb0.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-explorer/archive/91c32f901363cd46f43e509081e8e11500b112f1.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
-        "branch": "1.4.0",
+        "branch": "tags/1.4.0",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
@@ -77,10 +77,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "11c073e4af57bdcd26df08a3b58cc18634cd660e",
-        "sha256": "1dimfk9k2dwsy4f6b5sf507cslk41rs2df6zgb2idnsjs1lqcn8v",
+        "rev": "4c7d599978c482b546677ec376b389e47c86a966",
+        "sha256": "1rmy0gcv950phhz985lb0h4g759bxh2fdvcgb6aka71i6mf8qakk",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/11c073e4af57bdcd26df08a3b58cc18634cd660e.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/4c7d599978c482b546677ec376b389e47c86a966.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {

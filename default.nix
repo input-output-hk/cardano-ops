@@ -19,7 +19,7 @@
       ]
      (builtins.readFile (sourcePaths.cardano-node + "/scripts/genesis.sh")));
   in  mkShell {
-    buildInputs = [ niv nixops nix cardano-cli telnet dnsutils mkDevGenesis ] ++
+    buildInputs = [ niv nixops nix cardano-cli telnet dnsutils mkDevGenesis nix-diff ] ++
                   (with cardanoSL.nix-tools.exes; [ cardano-sl-auxx cardano-sl-tools ]);
     NIX_PATH = "nixpkgs=${path}";
     NIXOPS_DEPLOYMENT = "${globals.deploymentName}";
