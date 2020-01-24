@@ -13,16 +13,17 @@ let
   nodePort = globals.cardanoNodePort;
   hostName = name: "${name}.cardano";
   staticRouteIp = getStaticRouteIp resources nodes;
-  coreCardanoNodes = lib.filterAttrs
-    (_: node: node.config.node.roles.isCardanoCore or false)
+  cardanoNodes = lib.filterAttrs
+    (_: node: node.config.node.roles.isCardanoRelay
+           or node.config.node.roles.isCardanoCore or false)
     nodes;
-  coreCardanoHostList = lib.mapAttrsToList (nodeName: node: {
+  cardanoHostList = lib.mapAttrsToList (nodeName: node: {
     name = hostName nodeName;
     ip = staticRouteIp nodeName;
-  }) coreCardanoNodes;
+  }) cardanoNodes;
   producersOpts = toString (map
     (c: "--producer-addr [${c.name}]:${toString nodePort}")
-    coreCardanoHostList);
+    cardanoHostList);
 in {
 
   imports = [
@@ -58,6 +59,6 @@ in {
   services.cardano-node-legacy.nodeType = "relay";
 
   networking.extraHosts = ''
-      ${lib.concatStringsSep "\n" (map (host: "${host.ip} ${host.name}") coreCardanoHostList)}
+      ${lib.concatStringsSep "\n" (map (host: "${host.ip} ${host.name}") cardanoHostList)}
   '';
 }
