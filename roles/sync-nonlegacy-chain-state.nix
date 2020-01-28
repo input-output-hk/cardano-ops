@@ -11,7 +11,7 @@
 
   node.roles.isCardanoRelay = true;
   services.cardano-node = {
-    producers = ["p-a-1" "c-c-2" "e-b-1" "e-c-1"];
+    producers = ["e-a-1" "e-b-1" "e-c-1"];
   };
   users.users.cardano-node.uid = pkgs.lib.mkForce 10014;
   users.groups.cardano-node.gid = pkgs.lib.mkForce 123123;
