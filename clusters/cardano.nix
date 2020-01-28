@@ -123,6 +123,9 @@ let
         roles.isByronProxy = true;
         inherit (def) org nodeId;
       };
+      services.byron-proxy = {
+        inherit (def) producers;
+      };
       deployment.ec2.region = def.region;
       imports = [
         medium

@@ -284,6 +284,7 @@
       region = "eu-central-1";
       org = "IOHK";
       nodeId = 15;
+      producers = [ "b-b-1" "b-c-1" "b-d-1" "e-a-1" ];
       staticRoutes = [
         [ "r-a-1" "r-d-1" "r-c-2" ]
         [ "r-a-2" "r-c-1" "r-b-2" ]
@@ -294,6 +295,7 @@
       region = "ap-northeast-1";
       org = "IOHK";
       nodeId = 16;
+      producers = [ "b-b-1" "b-c-1" "b-d-1" "e-a-1" ];
       staticRoutes = [
         [ "r-b-1" "r-d-1" "r-c-1" ]
         [ "r-b-2" "r-c-2" "r-a-1" ]
@@ -304,6 +306,7 @@
       region = "ap-southeast-1";
       org = "IOHK";
       nodeId = 17;
+      producers = [ "b-a-1" "b-b-1" "b-d-1" "e-c-1" ];
       staticRoutes = [
         [ "r-c-1" "r-d-1" "r-b-2" ]
         [ "r-c-2" "r-b-1" "r-a-2" ]
@@ -314,6 +317,7 @@
       region = "us-east-2";
       org = "IOHK";
       nodeId = 18;
+      producers = [ "b-a-1" "b-b-1" "b-c-1" "e-d-1" ];
       staticRoutes = [
         [ "r-a-1" "r-d-1" "r-b-1" ]
         [ "r-a-2" "r-b-2" "r-c-2" ]
