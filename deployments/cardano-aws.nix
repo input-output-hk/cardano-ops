@@ -100,6 +100,18 @@ let
           }
         ) orgs)
         regions);
+
+      route53RecordSets = listToAttrs (map (relay: nameValuePair "relays-new-${relay.name}" (
+        { resources, ... }: {
+          zoneName = "${pkgs.globals.dnsZone}.";
+          domainName = "relays-new.${pkgs.globals.domain}.";
+          recordValues = [ resources.machines.${relay.name} ];
+          recordType = "A";
+          setIdentifier = relay.name;
+          routingPolicy = "multivalue";
+          accessKeyId = pkgs.globals.ec2.credentials.accessKeyIds.dns;
+        })
+      ) relayNodes);
     };
     defaults = { name, resources, config, ... }: {
       deployment.ec2 = {
