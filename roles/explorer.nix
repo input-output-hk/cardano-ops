@@ -37,7 +37,7 @@ in {
     enable = true;
     cluster = globals.environmentName;
     environment = globals.environmentConfig;
-    socketPath = "/run/cardano-node/node-core-0.socket";
+    socketPath = "/run/cardano-node/node-core-CoreNodeId 0.socket";
     logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { hasPrometheus = [ hostAddr 12698 ]; };
     #environment = targetEnv;
   };
@@ -46,12 +46,12 @@ in {
     serviceConfig.PermissionsStartOnly = "true";
     preStart = ''
       for x in {1..24}; do
-        [ -S ${config.services.cardano-exporter.socketPath} ] && break
-        echo loop $x: waiting for ${config.services.cardano-exporter.socketPath} 5 sec...
+        [ -S "${config.services.cardano-exporter.socketPath}" ] && break
+        echo loop $x: waiting for "${config.services.cardano-exporter.socketPath}" 5 sec...
       sleep 5
       done
-      chgrp cexplorer ${config.services.cardano-exporter.socketPath}
-      chmod g+w ${config.services.cardano-exporter.socketPath}
+      chgrp cexplorer "${config.services.cardano-exporter.socketPath}"
+      chmod g+w "${config.services.cardano-exporter.socketPath}"
     '';
   };
 
