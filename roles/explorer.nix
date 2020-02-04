@@ -37,7 +37,7 @@ in {
     enable = true;
     cluster = globals.environmentName;
     environment = globals.environmentConfig;
-    socketPath = "/run/cardano-node/node-core-CoreNodeId 0.socket";
+    socketPath = "/run/cardano-node/node-core-0.socket";
     logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { hasPrometheus = [ hostAddr 12698 ]; };
     #environment = targetEnv;
   };
