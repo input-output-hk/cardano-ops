@@ -83,6 +83,12 @@ in
       nodeConfig = globals.environmentConfig.nodeConfig // {
         hasPrometheus = [ hostAddr 12798 ];
         NodeId = nodeId;
+        defaultScribes = [
+          [
+            "JournalSK"
+            "cardano"
+          ]
+        ];
       };
     };
     systemd.services.cardano-node.serviceConfig.MemoryMax = "3.5G";
