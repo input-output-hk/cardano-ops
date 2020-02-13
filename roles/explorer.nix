@@ -95,6 +95,7 @@ in {
     '';
   };
 
+  services.cardano-explorer.enable = true;
   services.cardano-explorer-webapi.enable = true;
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
