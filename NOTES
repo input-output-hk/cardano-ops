@@ -1,0 +1,42 @@
+
+## run benchmark
+
+./restart_cluster.sh
+
+
+  - check that the cluster produces (empty) blocks:
+
+nixops ssh explorer "psql cexplorer -U cexplorer"
+
+SELECT COUNT(*) FROM block;
+
+
+  - then on explorer:
+
+nixops ssh explorer
+
+  - make sure that genesis is right and the path to the deployed binaries and configs
+./run-tx-gen.sh
+
+
+## evalute benchmark run
+
+nixops ssh explorer "./analyse-blocks.sh"
+
+
+## redeploy cluster
+
+nix-shell
+
+nixops deploy
+
+
+## tail of a log
+
+nixops ssh a "tail /var/lib/cardano-node/logs/node.json"
+
+
+## recreate genesis
+
+make-dev-genesis --n-delegate-addresses 3
+

@@ -1,4 +1,4 @@
-{ config, name, nodes, ... }:
+{ config, name, lib, nodes, ... }:
 with import ../nix {};
 
 let
@@ -8,6 +8,16 @@ let
   postgresql12 = (import sourcePaths.nixpkgs-postgresql12 {}).postgresql_12;
   nodeId = config.node.nodeId;
   hostAddr = getListenIp nodes.${name};
+  loggerConfig = import ../modules/iohk-monitoring-config.nix // {
+    hasPrometheus = [ "127.0.0.1" 12797 ];
+    hasEKG = 12798;
+  };
+  # We need first 3 signing keys and delegation certificate
+  # to be able to run tx generator and sign generated transactions.
+  signingKeyGen = ../keys/delegate-keys.000.key;
+  signingKeySrc = ../keys/delegate-keys.001.key;
+  signingKeyRec = ../keys/delegate-keys.002.key;
+  delegationCertificate = ../keys/delegation-cert.000.json;
 in {
   imports = [
     (sourcePaths.cardano-node + "/nix/nixos")
@@ -22,8 +32,8 @@ in {
   services.cardano-graphql.enable = false;
   services.cardano-node = {
     enable = true;
-    extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
     environment = globals.environmentName;
+    # extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
     environments = {
       "${globals.environmentName}" = globals.environmentConfig;
     };
@@ -32,7 +42,37 @@ in {
       NodeId = nodeId;
     };
   };
-  systemd.services.cardano-node.serviceConfig.MemoryMax = "3.5G";
+  # systemd.services.cardano-node.serviceConfig.MemoryMax = "3.5G";
+
+  users.users.cardano-node.extraGroups = [ "keys" ];
+
+  deployment.keys = {
+    "cardano-node-signing-gen" = builtins.trace ("${name}: using " + (toString signingKeyGen)) {
+        keyFile = signingKeyGen;
+        user = "cardano-node";
+        group = "cardano-node";
+        destDir = "/var/lib/keys";
+    };
+    "cardano-node-signing-src" = builtins.trace ("${name}: using " + (toString signingKeySrc)) {
+        keyFile = signingKeySrc;
+        user = "cardano-node";
+        group = "cardano-node";
+        destDir = "/var/lib/keys";
+    };
+    "cardano-node-signing-rec" = builtins.trace ("${name}: using " + (toString signingKeyRec)) {
+        keyFile = signingKeyRec;
+        user = "cardano-node";
+        group = "cardano-node";
+        destDir = "/var/lib/keys";
+    };
+    "cardano-node-delegation-cert" = builtins.trace ("${name}: using " + (toString delegationCertificate)) {
+        keyFile = delegationCertificate;
+        user = "cardano-node";
+        group = "cardano-node";
+        destDir = "/var/lib/keys";
+    };
+  };
+
   services.cardano-exporter = {
     enable = true;
     cluster = globals.environmentName;
