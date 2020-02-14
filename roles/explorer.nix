@@ -1,13 +1,16 @@
-{ config, name, lib, nodes, ... }:
+{ config, name, lib, nodes, resources, ... }:
 with import ../nix {};
 
 let
   iohkNix = import sourcePaths.iohk-nix {};
+
   cardano-sl = import sourcePaths.cardano-sl { gitrev = sourcePaths.cardano-sl.rev; };
   explorerFrontend = cardano-sl.explorerFrontend;
   postgresql12 = (import sourcePaths.nixpkgs-postgresql12 {}).postgresql_12;
-  nodeId = config.node.nodeId;
+  nodePort = globals.cardanoNodePort;
+  nodeId = 99;
   hostAddr = getListenIp nodes.${name};
+  hostName = name: "${name}.cardano";
   loggerConfig = import ../modules/iohk-monitoring-config.nix // {
     hasPrometheus = [ "127.0.0.1" 12797 ];
     hasEKG = 12798;
@@ -18,12 +21,43 @@ let
   signingKeySrc = ../keys/delegate-keys.001.key;
   signingKeyRec = ../keys/delegate-keys.002.key;
   delegationCertificate = ../keys/delegation-cert.000.json;
+  cardanoNodes = lib.filterAttrs
+    (_: node: node.config.services.cardano-node.enable
+           or node.config.services.byron-proxy.enable or false)
+    nodes;
+  cardanoHostList = lib.mapAttrsToList (nodeName: node: {
+    name = hostName nodeName;
+    ip = getStaticRouteIp resources nodes nodeName;
+  }) cardanoNodes;
+  producers = map (n: {
+    addr = if (nodes ? ${n}) then hostName n else n;
+    port = nodePort;
+    valency = 1;
+  }) (map (x: x.name) globals.topology.coreNodes);
+  topology =  builtins.toFile "topology.yaml" (builtins.toJSON (lib.mapAttrsToList (nodeName: node: {
+        nodeId = if (nodeName == name)
+            then nodeId
+            else node.config.node.nodeId;
+        nodeAddress = {
+          addr = if (nodeName == name)
+            then hostAddr
+            else hostName nodeName;
+          port = nodePort;
+        };
+        producers = if (nodeName == name)
+          then producers
+          else [];
+      }) cardanoNodes));
 in {
   imports = [
     (sourcePaths.cardano-node + "/nix/nixos")
     (sourcePaths.cardano-explorer + "/nix/nixos")
     ../modules/common.nix
   ];
+
+  networking.extraHosts = ''
+    ${lib.concatStringsSep "\n" (map (host: "${host.ip} ${host.name}") cardanoHostList)}
+  '';
 
   environment.systemPackages = with pkgs; [ bat fd lsof netcat ncdu ripgrep tree vim cardano-cli ];
   services.postgresql.package = postgresql12;
@@ -34,15 +68,25 @@ in {
     enable = true;
     environment = globals.environmentName;
     # extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
+    inherit topology nodeId;
     environments = {
       "${globals.environmentName}" = globals.environmentConfig;
     };
     nodeConfig = globals.environmentConfig.nodeConfig // {
       hasPrometheus = [ hostAddr 12798 ];
       NodeId = nodeId;
+      # TraceChainSyncClient = true;
+      # TraceBlockFetchClient = true;
+      # TraceDNSResolver = true;
+      # TraceDNSSubscription = true;
+      # TraceIpSubscription = true;
     };
   };
   # systemd.services.cardano-node.serviceConfig.MemoryMax = "3.5G";
+  services.dnsmasq = {
+    enable = true;
+    servers = [ "127.0.0.1" ];
+  };
 
   users.users.cardano-node.extraGroups = [ "keys" ];
 
@@ -75,9 +119,8 @@ in {
 
   services.cardano-exporter = {
     enable = true;
-    cluster = globals.environmentName;
     environment = globals.environmentConfig;
-    socketPath = "/run/cardano-node/node-core-0.socket";
+    socketPath = lib.mkForce "/run/cardano-node/node-core-99.socket";
     logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { hasPrometheus = [ hostAddr 12698 ]; };
     #environment = targetEnv;
   };
@@ -95,8 +138,12 @@ in {
     '';
   };
 
-  services.cardano-explorer.enable = true;
+  services.cardano-explorer = {
+    enable = true;
+    cluster = globals.environmentName;
+  };
   services.cardano-explorer-webapi.enable = true;
+  services.cardano-tx-submit-webapi.enable = lib.mkForce false;
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
   services.nginx = {
