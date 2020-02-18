@@ -11,7 +11,7 @@ in with import ../nix {}; {
 
       listenPort = lib.mkOption {
         type = lib.types.int;
-        default = "12798";
+        default = toString globals.cardanoNodePrometheusExporterPort;
       };
 
       listenPath = lib.mkOption {
