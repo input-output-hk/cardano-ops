@@ -2,6 +2,8 @@ pkgs: {
 
   deploymentName = "testnet";
 
+  dnsZone = "${pkgs.globals.domain}";
+
   domain = "cardano-testnet.iohkdev.io";
 
   environmentName = "testnet";

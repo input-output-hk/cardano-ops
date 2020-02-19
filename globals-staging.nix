@@ -2,6 +2,8 @@ pkgs: {
 
   deploymentName = "rc-staging";
 
+  dnsZone = "${pkgs.globals.domain}";
+
   domain = "awstest.iohkdev.io";
 
   environmentName = "staging";

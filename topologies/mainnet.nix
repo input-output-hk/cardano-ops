@@ -10,6 +10,7 @@
         [ "b-a-1" "b-b-1" ]
       ];
       org = "IOHK";
+      nodeId = 1;
     }
     {
       name = "c-a-2";
@@ -21,6 +22,7 @@
         [ "r-a-2" "r-c-1" ]
       ];
       org = "IOHK";
+      nodeId = 2;
     }
     {
       name = "c-b-1";
@@ -33,6 +35,7 @@
         [ "b-b-1" "b-a-1" ]
       ];
       org = "Emurgo";
+      nodeId = 3;
     }
     {
       name = "c-b-2";
@@ -44,6 +47,7 @@
         [ "b-b-1" "b-c-1" ]
       ];
       org = "Emurgo";
+      nodeId = 4;
     }
     {
       name = "c-c-1";
@@ -55,6 +59,7 @@
         [ "b-c-1" "b-a-1" ]
       ];
       org = "CF";
+      nodeId = 5;
     }
     {
       name = "c-c-2";
@@ -66,6 +71,7 @@
         [ "b-c-1" "b-b-1" ]
       ];
       org = "CF";
+      nodeId = 6;
     }
     {
       name = "c-d-1";
@@ -78,6 +84,7 @@
         [ "b-b-1" "b-c-1" ]
       ];
       org = "IOHK";
+      nodeId = 7;
     }
   ];
 
@@ -547,6 +554,7 @@
       region = "eu-central-1";
       org = "IOHK";
       nodeId = 15;
+      producers = [ "b-b-1" "b-c-1" "e-a-1" ];
       staticRoutes = [
         [ "r-a-1" "r-d-1" "r-c-2" ]
         [ "r-a-2" "r-c-1" "r-b-2" ]
@@ -557,6 +565,7 @@
       region = "ap-northeast-1";
       org = "IOHK";
       nodeId = 16;
+      producers = [ "b-a-1" "b-c-1" "e-b-1" ];
       staticRoutes = [
         [ "r-b-1" "r-d-1" "r-c-1" ]
         [ "r-b-2" "r-c-2" "r-a-1" ]
@@ -567,6 +576,7 @@
       region = "ap-southeast-1";
       org = "IOHK";
       nodeId = 17;
+      producers = [ "b-a-1" "b-c-1" "e-c-1" ];
       staticRoutes = [
         [ "r-c-1" "r-d-1" "r-b-2" ]
         [ "r-c-2" "r-b-1" "r-a-2" ]
@@ -582,28 +592,28 @@
       region = "eu-central-1";
       org = "IOHK";
       nodeId = 8;
-      producers = ["b-a-1" "e-b-1" "e-c-1"];
+      producers = [ "b-a-1" "e-b-1" "e-c-1" "e-d-1" ];
     }
     {
       name = "e-b-1";
       region = "ap-northeast-1";
       org = "IOHK";
       nodeId = 9;
-      producers = ["b-b-1" "e-a-1" "e-c-1"];
+      producers = [ "b-b-1" "e-a-1" "e-c-1" "e-d-1" ];
     }
     {
       name = "e-c-1";
       region = "ap-southeast-1";
       org = "IOHK";
       nodeId = 11;
-      producers = ["b-c-1" "e-a-1" "e-b-1"];
+      producers = [ "b-c-1" "e-a-1" "e-b-1" "e-d-1" ];
     }
     {
       name = "e-d-1";
       region = "us-east-2";
       org = "IOHK";
       nodeId = 12;
-      producers = ["e-a-1" "e-b-1"];
+      producers = [ "e-a-1" "e-b-1" "e-c-1" ];
     }
   ];
 }

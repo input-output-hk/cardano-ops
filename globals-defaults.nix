@@ -14,7 +14,8 @@ in {
 
   environmentName = pkgs.globals.deploymentName;
 
-  domain = "${pkgs.globals.deploymentName}.dev.iohkdev.io";
+  dnsZone = "dev.iohkdev.io";
+  domain = "${pkgs.globals.deploymentName}.${pkgs.globals.dnsZone}";
 
   withMonitoring = true;
 
