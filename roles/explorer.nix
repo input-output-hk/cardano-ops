@@ -9,20 +9,36 @@ let
   postgresql12 = (import sourcePaths.nixpkgs-postgresql12 {}).postgresql_12;
   nodeId = config.node.nodeId;
   hostAddr = getListenIp nodes.${name};
-  socketPath = nodeCfg.socketPath or "/run/cardano-node/node-${toString nodeId}.socket";
 in {
   imports = [
     (sourcePaths.cardano-node + "/nix/nixos")
-    (sourcePaths.cardano-explorer + "/nix/nixos/cardano-exporter-service.nix")
-    (sourcePaths.cardano-explorer + "/nix/nixos/cardano-tx-submitter.nix")
-    (sourcePaths.cardano-explorer + "/nix/nixos/cardano-explorer-webapi.nix")
-    (sourcePaths.cardano-explorer + "/nix/nixos/cardano-explorer-everything.nix")
     (sourcePaths.cardano-graphql + "/nix/nixos")
+    (sourcePaths.cardano-rest + "/nix/nixos")
+    (sourcePaths.cardano-db-sync + "/nix/nixos")
     ../modules/common.nix
   ];
 
   environment.systemPackages = with pkgs; [ bat fd lsof netcat ncdu ripgrep tree vim cardano-cli ];
-  services.postgresql.package = postgresql12;
+  services.postgresql = {
+    package = postgresql12;
+    ensureDatabases = [ "cexplorer" ];
+    ensureUsers = [
+      {
+        name = "cexplorer";
+        ensurePermissions = {
+          "DATABASE cexplorer" = "ALL PRIVILEGES";
+        };
+      }
+    ];
+    identMap = ''
+      explorer-users root cexplorer
+      explorer-users cexplorer cexplorer
+      explorer-users postgres postgres
+    '';
+    authentication = ''
+      local all all ident map=explorer-users
+    '';
+  };
 
   services.graphql-engine.enable = true;
   services.cardano-graphql.enable = true;
@@ -40,36 +56,33 @@ in {
     };
   };
   systemd.services.cardano-node.serviceConfig.MemoryMax = "3.5G";
-  # TODO remove next two line for next release cardano-node 1.7 release:
-  systemd.services.cardano-node.scriptArgs = toString nodeId;
-  systemd.services.cardano-node.preStart = ''
-    if [ -d ${nodeCfg.databasePath}-0 ]; then
-      mv ${nodeCfg.databasePath}-0 ${nodeCfg.databasePath}
-    fi
-  '';
-  services.cardano-exporter = {
+  services.cardano-db-sync = {
     enable = true;
-    inherit socketPath;
     cluster = globals.environmentName;
     environment = globals.environmentConfig;
+    socketPath = "/run/cardano-node/node.socket";
     logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { hasPrometheus = [ hostAddr 12698 ]; };
-    #environment = targetEnv;
+    user = "cexplorer";
+    extended = false;
+    postgres = {
+      database = "cexplorer";
+    };
   };
   systemd.services.cardano-explorer-node = {
     wants = [ "cardano-node.service" ];
     serviceConfig.PermissionsStartOnly = "true";
     preStart = ''
       for x in {1..24}; do
-        [ -S "${socketPath}" ] && break
-        echo loop $x: waiting for "${socketPath}" 5 sec...
+        [ -S "${config.services.cardano-db-sync.socketPath}" ] && break
+        echo loop $x: waiting for "${config.services.cardano-db-sync.socketPath}" 5 sec...
       sleep 5
       done
-      chgrp cexplorer "${socketPath}"
-      chmod g+w "${socketPath}"
+      chgrp cexplorer "${config.services.cardano-db-sync.socketPath}"
+      chmod g+w "${config.services.cardano-db-sync.socketPath}"
     '';
   };
 
-  services.cardano-explorer-webapi.enable = true;
+  services.cardano-explorer-api.enable = true;
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
   services.nginx = {
