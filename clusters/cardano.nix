@@ -72,7 +72,8 @@ let
       # TODO: remove module when the new explorer is available
       ++ lib.optional (globals.withLegacyExplorer) ../roles/explorer-legacy.nix;
 
-      services.monitoring-exporters.extraPrometheusExportersPorts = [ 12798 ];
+      services.monitoring-exporters.extraPrometheusExportersPorts =
+        [ globals.cardanoNodePrometheusExporterPort ];
       node = {
         roles.isExplorer = true;
         org = "IOHK";

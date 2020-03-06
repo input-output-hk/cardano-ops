@@ -29,18 +29,9 @@ let
     valency = 1;
   }) cfg.producers;
 
-  topology =  builtins.toFile "topology.yaml" (builtins.toJSON (lib.mapAttrsToList (nodeName: node: {
-        nodeId = node.config.node.nodeId;
-        nodeAddress = {
-          addr = if (nodeName == name)
-            then hostAddr
-            else hostName nodeName;
-          port = nodePort;
-        };
-        producers = if (nodeName == name)
-          then producers
-          else [];
-      }) cardanoNodes));
+  topology =  builtins.toFile "topology.yaml" (builtins.toJSON {
+    Producers = producers;
+  });
 in
 {
   imports = [
@@ -81,17 +72,24 @@ in
         "${globals.environmentName}" = globals.environmentConfig;
       };
       nodeConfig = globals.environmentConfig.nodeConfig // {
-        hasPrometheus = [ hostAddr 12798 ];
-        NodeId = nodeId;
-        defaultScribes = [
-          [
-            "JournalSK"
-            "cardano"
-          ]
-        ];
+        hasPrometheus = [ hostAddr globals.cardanoNodePrometheusExporterPort ];
+        # TODO: re-enable JournalSK when output is human readable:
+        #defaultScribes = [
+        #  [
+        #    "JournalSK"
+        #    "cardano"
+        #  ]
+        #];
       };
     };
     systemd.services.cardano-node.serviceConfig.MemoryMax = "3.5G";
+    # TODO remove next two line for next release cardano-node 1.7 release:
+    systemd.services.cardano-node.scriptArgs = toString cfg.nodeId;
+    systemd.services.cardano-node.preStart = ''
+      if [ -d ${cfg.databasePath}-${toString cfg.nodeId} ]; then
+        mv ${cfg.databasePath}-${toString cfg.nodeId} ${cfg.databasePath}
+      fi
+    '';
 
     services.dnsmasq = {
       enable = true;
