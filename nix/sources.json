@@ -11,18 +11,6 @@
         "url": "https://github.com/input-output-hk/cardano-byron-proxy/archive/5a4b87c87a8d914f0a4122653aa742949948651f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-explorer": {
-        "branch": "tags/1.3.0",
-        "description": "The new Cardano Explorer",
-        "homepage": null,
-        "owner": "input-output-hk",
-        "repo": "cardano-explorer",
-        "rev": "3ef7a31b56e80c193857ae47fbec87f906dbc4bb",
-        "sha256": "1p66ya1asjf1vxmb73s9pkqs7nz35d8yklnmwh7w01wvyxizm89v",
-        "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-explorer/archive/3ef7a31b56e80c193857ae47fbec87f906dbc4bb.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "cardano-graphql": {
         "branch": "master",
         "description": "GraphQL API for Cardano",
@@ -35,16 +23,40 @@
         "url": "https://github.com/input-output-hk/cardano-graphql/archive/7fdfc8826ebaf9eb35c32f3042e9fefcfb250c94.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "cardano-db-sync": {
+        "branch": "master",
+        "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "cardano-db-sync",
+        "rev": "6c574eab01ee2196503f4760a766177208c1b415",
+        "sha256": "0qcc7xbn7nm7g8519dbs0ck4fydhvpjhrcy25x4c3blklv57wlij",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/6c574eab01ee2196503f4760a766177208c1b415.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-node": {
-        "branch": "tags/1.6.0",
+        "branch": "master",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "a01b3594b6d7b478b235ca9d305a516c7cb28972",
-        "sha256": "0wxzflz0fz6gzj5y1571r4x7ks2z59mpf53k1wr56fv48qbfrkhw",
+        "rev": "52f0082cd34e8f227dc39ad7c457af91898bce35",
+        "sha256": "06hkh9fvf9mbayv6sizr6yk2xz82z2qwf5igk8raah4wxdn04cbg",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/a01b3594b6d7b478b235ca9d305a516c7cb28972.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/52f0082cd34e8f227dc39ad7c457af91898bce35.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "cardano-rest": {
+        "branch": "master",
+        "description": "HTTP interfaces for interacting with the Cardano blockchain.",
+        "homepage": null,
+        "owner": "input-output-hk",
+        "repo": "cardano-rest",
+        "rev": "44f2153e089725bf44de90b2c23feda13dd4860b",
+        "sha256": "15vhkly2mija3rgxbsgv0fk6ddck3dvph3fl59ackhzj2pikwwx0",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-rest/archive/44f2153e089725bf44de90b2c23feda13dd4860b.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-sl": {
@@ -89,10 +101,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "901ac71f92b08f7054c6db12f889c9c911da2ad8",
-        "sha256": "144vbn2jwdqapgc2pi1xpx5dlhjqvqhrm4rfjgnl2if1g31hmfqd",
+        "rev": "5193306abf61cc902cd4e71501b35daf0703373e",
+        "sha256": "0cfj35wpahxp0kjwcz1nl6vl1pkdz7g19vcid093kq0lnp721nsi",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/901ac71f92b08f7054c6db12f889c9c911da2ad8.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/5193306abf61cc902cd4e71501b35daf0703373e.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
