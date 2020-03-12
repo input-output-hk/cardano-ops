@@ -73,13 +73,13 @@ in
       };
       nodeConfig = globals.environmentConfig.nodeConfig // {
         hasPrometheus = [ hostAddr globals.cardanoNodePrometheusExporterPort ];
-        # TODO: re-enable JournalSK when output is human readable:
-        #defaultScribes = [
-        #  [
-        #    "JournalSK"
-        #    "cardano"
-        #  ]
-        #];
+        # Use Journald output:
+        defaultScribes = [
+          [
+            "JournalSK"
+            "cardano"
+          ]
+        ];
       };
     };
     systemd.services.cardano-node.serviceConfig.MemoryMax = "3.5G";
