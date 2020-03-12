@@ -58,6 +58,11 @@
       "steppedLine": false,
       "targets": [
         {
+          "expr": "cardano_node_ChainDB_metrics_blockNum_int",
+          "legendFormat": "{{alias}}",
+          "refId": "C"
+        },
+        {
           "expr": "cardano_node_metrics_ChainDB_blockNum_int",
           "format": "time_series",
           "intervalFactor": 1,
@@ -152,9 +157,14 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "cardano_node_metrics_ChainDB_slotNum_int",
+          "expr": "cardano_node_ChainDB_metrics_slotNum_int",
           "legendFormat": "{{alias}}",
           "refId": "A"
+        },
+        {
+          "expr": "cardano_node_metrics_ChainDB_slotNum_int",
+          "legendFormat": "{{alias}}",
+          "refId": "B"
         }
       ],
       "thresholds": [],
@@ -239,11 +249,18 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "cardano_node_metrics_ChainDB_density_real * 100",
+          "expr": "cardano_node_ChainDB_metrics_density_real * 100",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{alias}}",
           "refId": "A"
+        },
+        {
+          "expr": "cardano_node_metrics_ChainDB_density_real * 100",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "{{alias}}",
+          "refId": "B"
         }
       ],
       "thresholds": [],
@@ -328,9 +345,14 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "cardano_node_metrics_ChainDB_epoch_int",
+          "expr": "cardano_node_ChainDB_metrics_epoch_int",
           "legendFormat": "{{alias}}",
           "refId": "A"
+        },
+        {
+          "expr": "cardano_node_metrics_ChainDB_epoch_int",
+          "legendFormat": "{{alias}}",
+          "refId": "B"
         }
       ],
       "thresholds": [],
@@ -415,9 +437,14 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "cardano_node_metrics_ChainDB_slotInEpoch_int",
+          "expr": "cardano_node_ChainDB_metrics_slotInEpoch_int",
           "legendFormat": "{{alias}}",
           "refId": "A"
+        },
+        {
+          "expr": "cardano_node_metrics_ChainDB_slotInEpoch_int",
+          "legendFormat": "{{alias}}",
+          "refId": "B"
         }
       ],
       "thresholds": [],
@@ -588,9 +615,14 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(cardano_node_metrics_ChainDB_blockNum_int[150s])*60",
+          "expr": "rate(cardano_node_ChainDB_metrics_blockNum_int[150s])*60",
           "legendFormat": "{{alias}}",
           "refId": "A"
+        },
+        {
+          "expr": "rate(cardano_node_metrics_ChainDB_blockNum_int[150s])*60",
+          "legendFormat": "{{alias}}",
+          "refId": "B"
         }
       ],
       "thresholds": [],
@@ -1176,185 +1208,6 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 40
-      },
-      "id": 23,
-      "interval": "",
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "node_memory_MemAvailable_bytes{alias!~\"monitoring.*\"} / node_memory_MemTotal_bytes{alias!~\"monitoring.*\"} * 100",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "{{alias}}",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Node Memory Available (%)",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "prometheus",
-      "description": "Shows how many times cardano related services have been restarted within a 1 hour lookback window",
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 40
-      },
-      "id": 35,
-      "interval": "",
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "round(increase(node_systemd_unit_state{name=~\"cardano.*|byron.*|explorer.*\",state=\"active\"}[1h:10s])) > 0",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "{{alias}}-{{name}}",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Cardano Service Restarts Per Hour",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "none",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "prometheus",
       "description": "Counts only memory that is physically free",
       "fill": 1,
       "fillGradient": 0,
@@ -1627,7 +1480,6 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
-      "description": "Counts memory that is free as well as reclaimable from caches and buffers",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1636,7 +1488,7 @@
         "x": 8,
         "y": 40
       },
-      "id": 24,
+      "id": 23,
       "interval": "",
       "legend": {
         "avg": false,
@@ -1663,7 +1515,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_memory_MemFree_bytes{alias!~\"monitoring.*\"} / node_memory_MemTotal_bytes{alias!~\"monitoring.*\"} * 100",
+          "expr": "node_memory_MemAvailable_bytes{alias!~\"monitoring.*\"} / node_memory_MemTotal_bytes{alias!~\"monitoring.*\"} * 100",
           "hide": false,
           "interval": "",
           "legendFormat": "{{alias}}",
@@ -1674,7 +1526,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Node Memory Free (%)",
+      "title": "Node Memory Available (%)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1690,7 +1542,7 @@
       },
       "yaxes": [
         {
-          "format": "none",
+          "format": "short",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -1813,6 +1665,96 @@
       "gridPos": {
         "h": 8,
         "w": 8,
+        "x": 0,
+        "y": 48
+      },
+      "id": 24,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "node_memory_MemFree_bytes{alias!~\"monitoring.*\"} / node_memory_MemTotal_bytes{alias!~\"monitoring.*\"} * 100",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Node Memory Free (%)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "none",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "description": "Counts memory that is free as well as reclaimable from caches and buffers",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
         "x": 8,
         "y": 48
       },
@@ -1855,6 +1797,96 @@
       "timeRegions": [],
       "timeShift": null,
       "title": "Node Memory Available (%)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "none",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "description": "Shows how many times cardano related services have been restarted within a 1 hour lookback window",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 48
+      },
+      "id": 35,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "round(increase(node_systemd_unit_state{name=~\"cardano.*|byron.*|explorer.*\",state=\"active\"}[1h:10s])) > 0",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "{{alias}}-{{name}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Cardano Service Restarts Per Hour",
       "tooltip": {
         "shared": true,
         "sort": 0,

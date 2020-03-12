@@ -15,7 +15,6 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 14,
   "links": [],
   "panels": [
     {
@@ -68,9 +67,14 @@
           "refId": "B"
         },
         {
-          "expr": "cardano_node_metrics_ChainDB_blockNum_int",
+          "expr": "cardano_node_ChainDB_metrics_blockNum_int",
           "legendFormat": "Node {{alias}}",
           "refId": "C"
+        },
+        {
+          "expr": "cardano_node_metrics_ChainDB_blockNum_int",
+          "legendFormat": "Node {{alias}}",
+          "refId": "D"
         }
       ],
       "thresholds": [],
@@ -154,19 +158,24 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(db_block_height[5m])*60",
+          "expr": "rate(db_block_height[150s])*60",
           "legendFormat": "DB",
           "refId": "C"
         },
         {
-          "expr": "rate(remote_tip_height[5m])*60",
+          "expr": "rate(remote_tip_height[150s])*60",
           "legendFormat": "Node To Client Tip",
           "refId": "B"
         },
         {
-          "expr": "rate(cardano_node_metrics_ChainDB_blockNum_int[5m])*60",
+          "expr": "rate(cardano_node_ChainDB_metrics_blockNum_int[150s])*60",
           "legendFormat": "Node {{alias}}",
           "refId": "A"
+        },
+        {
+          "expr": "rate(cardano_node_metrics_ChainDB_blockNum_int[150s])*60",
+          "legendFormat": "Node {{alias}}",
+          "refId": "D"
         }
       ],
       "thresholds": [],
