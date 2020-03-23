@@ -56,9 +56,9 @@ in {
     virtualHosts = {
       # mkForce the explorer virtual machine config to override
       # the new explorer only nginx config
-      "explorer.${globals.domain}" = mkForce {
+      "${globals.explorerHostName}.${globals.domain}" = mkForce {
         enableACME = true;
-        forceSSL = true;
+        forceSSL = globals.explorerForceSSL;
         locations = {
           "/" = {
             root = explorerFrontend;

@@ -17,8 +17,10 @@ in {
   dnsZone = "dev.iohkdev.io";
   domain = "${pkgs.globals.deploymentName}.${pkgs.globals.dnsZone}";
 
-  withMonitoring = true;
+  explorerHostName = "explorer";
+  explorerForceSSL = true;
 
+  withMonitoring = true;
   withExplorer = true;
   withLegacyExplorer = true;
 

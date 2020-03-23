@@ -15,7 +15,6 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 818,
   "links": [],
   "panels": [
     {
@@ -58,9 +57,14 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(cardano_node_metrics_ChainDB_blockNum_int[1m]) * 60",
+          "expr": "rate(cardano_node_metrics_ChainDB_blockNum_int[150s]) * 60",
           "legendFormat": "{{alias}}",
           "refId": "A"
+        },
+        {
+          "expr": "rate(cardano_node_ChainDB_metrics_blockNum_int[150s]) * 60",
+          "legendFormat": "{{alias}}",
+          "refId": "B"
         }
       ],
       "thresholds": [],
@@ -144,7 +148,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(cardano_byron_proxy_ChainDB_blockNum_int[5m]) * 60",
+          "expr": "rate(cardano_byron_proxy_ChainDB_blockNum_int[150s]) * 60",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -230,7 +234,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "(rate(cardano_total_main_blocks[5m]) * 60)",
+          "expr": "(rate(cardano_total_main_blocks[150s]) * 60)",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -316,19 +320,24 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(cardano_node_metrics_ChainDB_blockNum_int[1m]) * 60",
+          "expr": "rate(cardano_node_ChainDB_metrics_blockNum_int[150s]) * 60",
           "legendFormat": "{{alias}}",
           "refId": "A"
         },
         {
-          "expr": "rate(cardano_total_main_blocks[5m]) * 60",
+          "expr": "rate(cardano_total_main_blocks[150s]) * 60",
           "legendFormat": "{{alias}}",
           "refId": "B"
         },
         {
-          "expr": "rate(cardano_byron_proxy_ChainDB_blockNum_int[5m]) * 60",
+          "expr": "rate(cardano_byron_proxy_ChainDB_blockNum_int[150s]) * 60",
           "legendFormat": "{{alias}}",
           "refId": "C"
+        },
+        {
+          "expr": "rate(cardano_node_metrics_ChainDB_blockNum_int[150s]) * 60",
+          "legendFormat": "{{alias}}",
+          "refId": "D"
         }
       ],
       "thresholds": [],
@@ -904,5 +913,5 @@
   "timezone": "",
   "title": "Cardano: Chain Sync Debug",
   "uid": "49GZWsbZz",
-  "version": 19
+  "version": 311655
 }

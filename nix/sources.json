@@ -1,14 +1,26 @@
 {
     "cardano-byron-proxy": {
-        "branch": "tags/1.0.4",
+        "branch": "tags/1.0.5",
         "description": "A bydirectional proxy between the Shelly and Byron versions of the Cardano network",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-byron-proxy",
-        "rev": "5a4b87c87a8d914f0a4122653aa742949948651f",
-        "sha256": "1l4s7hp4z8mp2q0v84k6j8xnwfgwfqr5m5nnnwyg5w9x35hqkfhp",
+        "rev": "5538821647728516d5702cbfd9fb3000fcf41082",
+        "sha256": "10s3ivzv6hb7mb32imi2dga02vlaibsx8z1m2h7ns8cfkj4yng30",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-byron-proxy/archive/5a4b87c87a8d914f0a4122653aa742949948651f.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-byron-proxy/archive/5538821647728516d5702cbfd9fb3000fcf41082.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "cardano-db-sync": {
+        "branch": "tags/1.4.0",
+        "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "cardano-db-sync",
+        "rev": "be2fb8ae73c3ad872de0ad80621bca4718b64b25",
+        "sha256": "1yvy4628bn8a12cx6id4rq2srwgf18z39pbvhg71kfng5wbpx9ys",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/be2fb8ae73c3ad872de0ad80621bca4718b64b25.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
@@ -23,28 +35,16 @@
         "url": "https://github.com/input-output-hk/cardano-graphql/archive/7fdfc8826ebaf9eb35c32f3042e9fefcfb250c94.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-db-sync": {
-        "branch": "master",
-        "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
-        "homepage": "",
-        "owner": "input-output-hk",
-        "repo": "cardano-db-sync",
-        "rev": "6c574eab01ee2196503f4760a766177208c1b415",
-        "sha256": "0qcc7xbn7nm7g8519dbs0ck4fydhvpjhrcy25x4c3blklv57wlij",
-        "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/6c574eab01ee2196503f4760a766177208c1b415.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "cardano-node": {
-        "branch": "master",
+        "branch": "tags/1.8.0",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "52f0082cd34e8f227dc39ad7c457af91898bce35",
-        "sha256": "06hkh9fvf9mbayv6sizr6yk2xz82z2qwf5igk8raah4wxdn04cbg",
+        "rev": "64c2778c61245dcda13eaf16a2e0738dfacb7a16",
+        "sha256": "1aybhbip4j9275npvrk4w0bch5bl7fbq8faj1qj8h51f1g0ja74l",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/52f0082cd34e8f227dc39ad7c457af91898bce35.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/64c2778c61245dcda13eaf16a2e0738dfacb7a16.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rest": {
@@ -53,10 +53,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-rest",
-        "rev": "44f2153e089725bf44de90b2c23feda13dd4860b",
-        "sha256": "15vhkly2mija3rgxbsgv0fk6ddck3dvph3fl59ackhzj2pikwwx0",
+        "rev": "8895d1eb7e7a3f438500ec6dab230340106a5672",
+        "sha256": "1flisqayp43yb7hx5qb28i16wr5q8blqgdmi471c9bb3ca29l37x",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rest/archive/44f2153e089725bf44de90b2c23feda13dd4860b.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-rest/archive/8895d1eb7e7a3f438500ec6dab230340106a5672.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-sl": {

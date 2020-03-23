@@ -60,6 +60,7 @@ in {
         description = ''Dnymic subscribe routes.'';
       };
 
+      assetLockFile = mkOption { type = types.nullOr types.path; default = null; };
     };
   };
 

@@ -1,11 +1,15 @@
 { resources, config, ... }:
-{
+let
+  assetLockFile = if (builtins.pathExists ../static/asset-locked-addresses.txt) then ../static/asset-locked-addresses.txt else null;
+
+in {
 
   imports = [
     ../modules/base-legacy-service.nix
   ];
 
   services.cardano-node-legacy.nodeType = "core";
+  services.cardano-node-legacy.assetLockFile = assetLockFile;
 
   deployment.keys.cardano-node = {
     keyFile = ../keys + "/${toString config.node.nodeId}.sk";
