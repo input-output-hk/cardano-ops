@@ -1,14 +1,14 @@
 {
     "cardano-byron-proxy": {
-        "branch": "tags/1.0.4",
+        "branch": "tags/1.0.5",
         "description": "A bydirectional proxy between the Shelly and Byron versions of the Cardano network",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-byron-proxy",
-        "rev": "5a4b87c87a8d914f0a4122653aa742949948651f",
-        "sha256": "1l4s7hp4z8mp2q0v84k6j8xnwfgwfqr5m5nnnwyg5w9x35hqkfhp",
+        "rev": "5538821647728516d5702cbfd9fb3000fcf41082",
+        "sha256": "10s3ivzv6hb7mb32imi2dga02vlaibsx8z1m2h7ns8cfkj4yng30",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-byron-proxy/archive/5a4b87c87a8d914f0a4122653aa742949948651f.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-byron-proxy/archive/5538821647728516d5702cbfd9fb3000fcf41082.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync": {
