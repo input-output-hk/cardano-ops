@@ -58,7 +58,7 @@ in {
       # the new explorer only nginx config
       "${globals.explorerHostName}.${globals.domain}" = mkForce {
         enableACME = true;
-        forceSSL = true;
+        forceSSL = globals.explorerForceSSL;
         locations = {
           "/" = {
             root = explorerFrontend;

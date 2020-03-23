@@ -18,6 +18,7 @@ in {
   domain = "${pkgs.globals.deploymentName}.${pkgs.globals.dnsZone}";
 
   explorerHostName = "explorer";
+  explorerForceSSL = true;
 
   withMonitoring = true;
   withExplorer = true;

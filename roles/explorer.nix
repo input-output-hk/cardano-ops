@@ -93,7 +93,7 @@ in {
     virtualHosts = {
       "${globals.explorerHostName}.${globals.domain}" = {
         enableACME = true;
-        forceSSL = true;
+        forceSSL = globals.explorerForceSSL;
         locations = {
           "/" = {
             root = explorerFrontend;

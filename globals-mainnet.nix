@@ -7,6 +7,7 @@ pkgs: {
   domain = "cardano-mainnet.iohk.io";
 
   explorerHostName = "cardano-explorer";
+  explorerForceSSL = false;
 
   environmentName = "mainnet";
 
