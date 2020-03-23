@@ -50,7 +50,7 @@ in {
   config = mkIf cfg.enable {
     services.nginx = mkIf config.services.nginx.enable {
       virtualHosts = {
-        "explorer.${globals.domain}" = mkForce {
+        "${globals.explorerHostName}.${globals.domain}" = mkForce {
           locations = {
             # Use the main explorer API
             "/api/addresses/summary/".proxyPass = "http://127.0.0.1:${toString cfg.legacyProxyPort}";

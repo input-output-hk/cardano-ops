@@ -6,6 +6,8 @@ pkgs: {
 
   domain = "cardano-mainnet.iohk.io";
 
+  explorerHostName = "cardano-explorer";
+
   environmentName = "mainnet";
 
   topology = import ./topologies/mainnet.nix;
