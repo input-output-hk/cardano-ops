@@ -25,5 +25,29 @@
         description = "{{$labels.alias}}: When a node's MemPoolSize grows larger than the system can handle, transactions will be dropped. The actual thresholds for that in mainnet are unknown, but [based on benchmarks done beforehand](https://input-output-rnd.slack.com/archives/C2VJ41WDP/p1506563332000201) transactions started getting dropped when the MemPoolSize was ~200 txs.";
       };
     }
+    {
+      alert = "cardano_node_block_divergence";
+      expr = "abs(max(cardano_total_main_blocks) - ignoring(alias,instance,job,role) group_right(instance) cardano_node_ChainDB_metrics_blockNum_int) > 2";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: cardano-node block divergence detected for more than 5 minutes";
+        description = "{{$labels.alias}}: cardano-node block divergence detected for more than 5 minutes";
+      };
+    }
+    {
+      alert = "byron_proxy_block_divergence";
+      expr = "abs(max(cardano_total_main_blocks) - ignoring(alias,instance,job,role) group_right(instance) cardano_byron_proxy_ChainDB_blockNum_int) > 2";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: byron-proxy block divergence detected for more than 5 minutes";
+        description = "{{$labels.alias}}: byron-proxy block divergence detected for more than 5 minutes";
+      };
+    }
   ];
 }
