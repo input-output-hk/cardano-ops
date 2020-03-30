@@ -81,7 +81,7 @@
         [ "c-b-1" "c-b-2" ]
         [ "c-c-1" "c-c-2" ]
         [ "r-d-1" "r-a-1" ]
-        [ "b-b-1" "b-c-1" ]
+        [ "b-d-1" "b-b-1" ]
       ];
       org = "IOHK";
       nodeId = 7;
@@ -119,7 +119,7 @@
         [ "c-a-1" "c-a-2" ]
         [ "r-a-1" "r-a-2" ]
         [ "r-b-1" "r-b-2" ]
-        [ "b-c-1" "b-b-1" ]
+        [ "b-d-1" "b-c-1" ]
       ];
       org = "IOHK";
     }
@@ -554,7 +554,7 @@
       region = "eu-central-1";
       org = "IOHK";
       nodeId = 15;
-      producers = [ "b-b-1" "b-c-1" "e-a-1" ];
+      producers = [ "b-b-1" "b-c-1" "b-d-1" "e-a-1" "e-a-2" "e-a-3" "e-a-4" "e-a-5" ];
       staticRoutes = [
         [ "r-a-1" "r-d-1" "r-c-2" ]
         [ "r-a-2" "r-c-1" "r-b-2" ]
@@ -565,7 +565,7 @@
       region = "ap-northeast-1";
       org = "IOHK";
       nodeId = 16;
-      producers = [ "b-a-1" "b-c-1" "e-b-1" ];
+      producers = [ "b-a-1" "b-c-1" "b-d-1" "e-b-1" "e-b-2" "e-b-3" "e-b-4" "e-b-5" ];
       staticRoutes = [
         [ "r-b-1" "r-d-1" "r-c-1" ]
         [ "r-b-2" "r-c-2" "r-a-1" ]
@@ -576,10 +576,20 @@
       region = "ap-southeast-1";
       org = "IOHK";
       nodeId = 17;
-      producers = [ "b-a-1" "b-c-1" "e-c-1" ];
+      producers = [ "b-a-1" "b-b-1" "b-d-1" "e-c-1" "e-c-2" "e-c-3" "e-c-4" "e-c-5" ];
       staticRoutes = [
         [ "r-c-1" "r-d-1" "r-b-2" ]
         [ "r-c-2" "r-b-1" "r-a-2" ]
+      ];
+    }
+    {
+      name = "b-d-1";
+      region = "us-east-2";
+      org = "IOHK";
+      nodeId = 18;
+      producers = [ "b-a-1" "b-b-1" "b-c-1" "e-d-1" "e-d-2" "e-d-3" "e-d-4" "e-d-5" ];
+      staticRoutes = [
+        [ "r-d-1" "r-a-2" "r-b-2" "r-c-2" ]
       ];
     }
   ];
@@ -592,28 +602,140 @@
       region = "eu-central-1";
       org = "IOHK";
       nodeId = 8;
-      producers = [ "b-a-1" "e-b-1" "e-c-1" "e-d-1" ];
+      producers = [ "b-a-1" "e-a-2" "e-a-3" "e-a-4" "e-a-5" "e-b-1" "e-c-1" "e-d-1" ];
+    }
+    {
+      name = "e-a-2";
+      region = "eu-central-1";
+      org = "IOHK";
+      nodeId = 19;
+      producers = [ "b-a-1" "e-a-1" "e-a-3" "e-a-4" "e-a-5" "e-b-2" "e-c-2" "e-d-2" ];
+    }
+    {
+      name = "e-a-3";
+      region = "eu-central-1";
+      org = "IOHK";
+      nodeId = 20;
+      producers = [ "b-a-1" "e-a-1" "e-a-2" "e-a-4" "e-a-5" "e-b-3" "e-c-3" "e-d-3" ];
+    }
+    {
+      name = "e-a-4";
+      region = "eu-central-1";
+      org = "IOHK";
+      nodeId = 21;
+      producers = [ "b-a-1" "e-a-1" "e-a-2" "e-a-3" "e-a-5" "e-b-4" "e-c-4" "e-d-4" ];
+    }
+    {
+      name = "e-a-5";
+      region = "eu-central-1";
+      org = "IOHK";
+      nodeId = 22;
+      producers = [ "b-a-1" "e-a-1" "e-a-2" "e-a-3" "e-a-4" "e-b-5" "e-c-5" "e-d-5" ];
     }
     {
       name = "e-b-1";
       region = "ap-northeast-1";
       org = "IOHK";
       nodeId = 9;
-      producers = [ "b-b-1" "e-a-1" "e-c-1" "e-d-1" ];
+      producers = [ "b-b-1" "e-b-2" "e-b-3" "e-b-4" "e-b-5" "e-a-1" "e-c-1" "e-d-1" ];
+    }
+    {
+      name = "e-b-2";
+      region = "ap-northeast-1";
+      org = "IOHK";
+      nodeId = 23;
+      producers = [ "b-b-1" "e-b-1" "e-b-3" "e-b-4" "e-b-5" "e-a-2" "e-c-2" "e-d-2" ];
+    }
+    {
+      name = "e-b-3";
+      region = "ap-northeast-1";
+      org = "IOHK";
+      nodeId = 24;
+      producers = [ "b-b-1" "e-b-1" "e-b-2" "e-b-4" "e-b-5" "e-a-3" "e-c-3" "e-d-3" ];
+    }
+    {
+      name = "e-b-4";
+      region = "ap-northeast-1";
+      org = "IOHK";
+      nodeId = 25;
+      producers = [ "b-b-1" "e-b-1" "e-b-2" "e-b-3" "e-b-5" "e-a-4" "e-c-4" "e-d-4" ];
+    }
+    {
+      name = "e-b-5";
+      region = "ap-northeast-1";
+      org = "IOHK";
+      nodeId = 26;
+      producers = [ "b-b-1" "e-b-1" "e-b-2" "e-b-3" "e-b-4" "e-a-5" "e-c-5" "e-d-5" ];
     }
     {
       name = "e-c-1";
       region = "ap-southeast-1";
       org = "IOHK";
       nodeId = 11;
-      producers = [ "b-c-1" "e-a-1" "e-b-1" "e-d-1" ];
+      producers = [ "b-c-1" "e-c-2" "e-c-3" "e-c-4" "e-c-5" "e-a-1" "e-b-1" "e-d-1" ];
+    }
+    {
+      name = "e-c-2";
+      region = "ap-southeast-1";
+      org = "IOHK";
+      nodeId = 27;
+      producers = [ "b-c-1" "e-c-1" "e-c-3" "e-c-4" "e-c-5" "e-a-2" "e-b-2" "e-d-2" ];
+    }
+    {
+      name = "e-c-3";
+      region = "ap-southeast-1";
+      org = "IOHK";
+      nodeId = 28;
+      producers = [ "b-c-1" "e-c-1" "e-c-2" "e-c-4" "e-c-5" "e-a-3" "e-b-3" "e-d-3" ];
+    }
+    {
+      name = "e-c-4";
+      region = "ap-southeast-1";
+      org = "IOHK";
+      nodeId = 29;
+      producers = [ "b-c-1" "e-c-1" "e-c-2" "e-c-3" "e-c-5" "e-a-4" "e-b-4" "e-d-4" ];
+    }
+    {
+      name = "e-c-5";
+      region = "ap-southeast-1";
+      org = "IOHK";
+      nodeId = 30;
+      producers = [ "b-c-1" "e-c-1" "e-c-2" "e-c-3" "e-c-4" "e-a-5" "e-b-5" "e-d-5" ];
     }
     {
       name = "e-d-1";
       region = "us-east-2";
       org = "IOHK";
       nodeId = 12;
-      producers = [ "e-a-1" "e-b-1" "e-c-1" ];
+      producers = [ "b-d-1" "e-d-2" "e-d-3" "e-d-4" "e-d-5" "e-a-1" "e-b-1" "e-c-1" ];
+    }
+    {
+      name = "e-d-2";
+      region = "us-east-2";
+      org = "IOHK";
+      nodeId = 31;
+      producers = [ "b-d-1" "e-d-1" "e-d-3" "e-d-4" "e-d-5" "e-a-2" "e-b-2" "e-c-2" ];
+    }
+    {
+      name = "e-d-3";
+      region = "us-east-2";
+      org = "IOHK";
+      nodeId = 32;
+      producers = [ "b-d-1" "e-d-1" "e-d-2" "e-d-4" "e-d-5" "e-a-3" "e-b-3" "e-c-3" ];
+    }
+    {
+      name = "e-d-4";
+      region = "us-east-2";
+      org = "IOHK";
+      nodeId = 33;
+      producers = [ "b-d-1" "e-d-1" "e-d-2" "e-d-3" "e-d-5" "e-a-4" "e-b-4" "e-c-4" ];
+    }
+    {
+      name = "e-d-5";
+      region = "us-east-2";
+      org = "IOHK";
+      nodeId = 34;
+      producers = [ "b-d-1" "e-d-1" "e-d-2" "e-d-3" "e-d-4" "e-a-5" "e-b-5" "e-c-5" ];
     }
   ];
 }
