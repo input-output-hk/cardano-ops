@@ -1,7 +1,10 @@
 { targetEnv
 , medium
 , xlarge
+, t3-xlarge
 , xlarge-monitor
+, c5-2xlarge
+, m5ad-xlarge
 , ...
 }:
 with (import ../nix {});
@@ -59,6 +62,34 @@ let
         ];
       };
     };
+
+    faucet = {
+      deployment.ec2 = {
+        region = "eu-central-1";
+      };
+      imports = [
+        medium
+        ../roles/faucet.nix
+      ];
+      node = {
+        roles.isFaucet = true;
+        org = "IOHK";
+      };
+    };
+
+    # Load client with optimized NVME disks
+    l-a-1 = {
+      deployment.ec2 = {
+        region = "eu-central-1";
+      };
+      imports = [
+        m5ad-xlarge
+        ../roles/load-client.nix
+      ];
+      node = {
+        org = "IOHK";
+      };
+    };
   }) // (lib.optionalAttrs globals.withExplorer {
     explorer = {
       deployment.ec2 = {
@@ -111,8 +142,8 @@ let
       };
       deployment.ec2.region = def.region;
       imports = [
-        medium
-        ../roles/relay.nix
+        t3-xlarge
+        ../roles/relay-high-load.nix
       ];
     };
   };

@@ -30,6 +30,7 @@ in {
         isByronProxy = boolOption;
         isMonitor = boolOption;
         isExplorer = boolOption;
+        isFaucet = boolOption;
       };
     };
   };

@@ -52,6 +52,7 @@ in {
           "${globals.environmentName}" = globals.environmentConfig;
         };
       };
+      pbftThreshold = "0.5";
       environment = globals.environmentName;
       nodeId = name;
       proxyHost = legacyCardanoCfg.listenIp;

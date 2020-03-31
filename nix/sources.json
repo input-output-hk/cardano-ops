@@ -23,6 +23,18 @@
         "url": "https://github.com/input-output-hk/cardano-db-sync/archive/be2fb8ae73c3ad872de0ad80621bca4718b64b25.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "cardano-faucet": {
+        "branch": "master",
+        "description": "Faucet for Cardano",
+        "homepage": null,
+        "owner": "input-output-hk",
+        "repo": "cardano-faucet",
+        "rev": "c0ebb0545b3f7ed80534cef5c961e9dfa632c396",
+        "sha256": "0v9msixq8bl48p8bmjcawf73khd0cg51mb5rdsfqi6yj0nx9mg57",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/c0ebb0545b3f7ed80534cef5c961e9dfa632c396.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-graphql": {
         "branch": "master",
         "description": "GraphQL API for Cardano",
@@ -137,10 +149,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "953940b3539a69e8c0c3ee4cc5427c1b9c5f8d64",
-        "sha256": "18m2km2hf51hv3jf55z6nklrj6vjhzg1wr7r7a0mvjyl0bfh7aaq",
+        "rev": "0bfb4eb15c6a1b4559ae4c4c037dc52566a01d7b",
+        "sha256": "144fbx8qpjsn5dvrv9l5pl7dc84faaajgszzg5yqcpgfqakrqyii",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/953940b3539a69e8c0c3ee4cc5427c1b9c5f8d64.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/0bfb4eb15c6a1b4559ae4c4c037dc52566a01d7b.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

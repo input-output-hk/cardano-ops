@@ -13,7 +13,10 @@ let
     inherit (aws) targetEnv;
     medium = aws.t3a-medium;
     xlarge = aws.t3a-xlarge;
+    t3-xlarge = aws.t3-xlarge;
     xlarge-monitor = aws.t3a-xlargeMonitor;
+    c5-2xlarge = aws.c5-2xlarge;
+    m5ad-xlarge = aws.m5ad-xlarge;
   };
 
   nodes = filterAttrs (name: node:
@@ -54,6 +57,10 @@ let
     }
     {
       nodes = (filterAttrs (_: n: n.node.roles.isExplorer or false) nodes);
+      groups = [ allow-public-www-https ];
+    }
+    {
+      nodes = (filterAttrs (_: n: n.node.roles.isFaucet or false) nodes);
       groups = [ allow-public-www-https ];
     }
     {
