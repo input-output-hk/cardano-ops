@@ -59,6 +59,15 @@ let
               labels = { alias = "explorer-python-api"; };
             }];
           }
+          {
+            job_name = "cardano-faucet";
+            scrape_interval = "10s";
+            metrics_path = "/metrics";
+            static_configs = [{
+              targets = [ "faucet.${globals.domain}" ];
+              labels = { alias = "cardano-faucet"; };
+            }];
+          }
         ];
       };
     };
