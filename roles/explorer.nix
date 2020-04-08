@@ -9,6 +9,7 @@ let
   postgresql12 = (import sourcePaths.nixpkgs-postgresql12 {}).postgresql_12;
   nodeId = config.node.nodeId;
   hostAddr = getListenIp nodes.${name};
+  cardanoDbPkgs = import sourcePaths.cardano-db-sync {};
 in {
   imports = [
     (sourcePaths.cardano-node + "/nix/nixos")
@@ -18,7 +19,10 @@ in {
     ../modules/common.nix
   ];
 
-  environment.systemPackages = with pkgs; [ bat fd lsof netcat ncdu ripgrep tree vim cardano-cli ];
+  environment.systemPackages = with pkgs; [
+    bat fd lsof netcat ncdu ripgrep tree vim cardano-cli
+    cardanoDbPkgs.haskellPackages.cardano-db.components.exes.cardano-db-tool
+  ];
   services.postgresql = {
     package = postgresql12;
     ensureDatabases = [ "cexplorer" ];
@@ -63,7 +67,7 @@ in {
     socketPath = nodeCfg.socketPath;
     logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { hasPrometheus = [ hostAddr 12698 ]; };
     user = "cexplorer";
-    extended = false;
+    extended = true;
     postgres = {
       database = "cexplorer";
     };
