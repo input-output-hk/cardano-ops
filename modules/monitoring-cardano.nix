@@ -49,5 +49,58 @@
         description = "{{$labels.alias}}: byron-proxy block divergence detected for more than 5 minutes";
       };
     }
-  ];
+  ] ++ (builtins.concatMap ({region, regionLetter}: [
+    {
+      alert = "high_tcp_connections_${region}";
+      expr = "avg(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*\"}) - count(count(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*\"}) by (alias)) > 36";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "${region}: Average connection per nodes higher than 36 for more than 5 minutes.";
+        description = "${region}: Average connection per nodes higher than 36 for more than 5 minutes. Adding new nodes to that region might soon be required.";
+      };
+    }
+    {
+      alert = "critical_tcp_connections_${region}";
+      expr = "avg(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*\"}) - count(count(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*\"}) by (alias)) > 40";
+      for = "15m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "${region}: Average connection per nodes higher than 40 for more than 15 minutes.";
+        description = "${region}: Average connection per nodes higher than 40 for more than 15 minutes. Adding new nodes to that region IS required.";
+      };
+    }
+    {
+      alert = "high_egress_${region}";
+      expr = "avg(rate(node_network_transmit_bytes_total{alias=~\"e-${regionLetter}-.*\",device!~\"lo\"}[20s]) * 8) > 6 * 1000 * 1000";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "${region}: Average egress throughput is higher than 6 Mibs for more than 5 minutes.";
+        description = "${region}: Average egress throughput is higher than 6 Mibs for more than 5 minutes. Adding new nodes to that region might soon be required.";
+      };
+    }
+    {
+      alert = "critical_egress_${region}";
+      expr = "avg(rate(node_network_transmit_bytes_total{alias=~\"e-${regionLetter}-.*\",device!~\"lo\"}[20s]) * 8) > 7 * 1000 * 1000";
+      for = "15m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "${region}: Average egress throughput is higher than 7 Mibs for more than 15 minutes.";
+        description = "${region}: Average egress throughput is higher than 7 Mibs for more than 15 minutes. Adding new nodes to that region IS required.";
+      };
+    }])
+  [{ region = "eu-central-1";   regionLetter = "a"; }
+   { region = "ap-northeast-1"; regionLetter = "b"; }
+   { region = "ap-southeast-1"; regionLetter = "c"; }
+   { region = "us-east-2";      regionLetter = "d"; }
+  ]);
 }
