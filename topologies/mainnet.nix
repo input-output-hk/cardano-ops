@@ -4,7 +4,7 @@
       name = "c-a-1";
       region = "eu-central-1";
       staticRoutes = [
-        [ "c-a-2" "c-d-1" ]
+        [ "b-a-2" "c-d-1" ]
         [ "c-c-2" "c-c-1" ]
         [ "r-a-1" "r-a-2" ]
         [ "b-a-1" "b-b-1" ]
@@ -13,22 +13,10 @@
       nodeId = 1;
     }
     {
-      name = "c-a-2";
-      region = "eu-central-1";
-      staticRoutes = [
-        [ "c-d-1" "c-a-1" ]
-        [ "c-b-1" "c-d-1" ]
-        [ "c-a-1" "c-b-1" ]
-        [ "r-a-2" "r-c-1" ]
-      ];
-      org = "IOHK";
-      nodeId = 2;
-    }
-    {
       name = "c-b-1";
       region = "ap-northeast-1";
       staticRoutes = [
-        [ "c-b-2" "r-b-2" ]
+        [ "b-d-1" "r-b-2" ]
         [ "c-c-1" "c-c-2" ]
         [ "c-a-1" "c-d-1" ]
         [ "r-b-1" "r-b-2" ]
@@ -36,18 +24,6 @@
       ];
       org = "Emurgo";
       nodeId = 3;
-    }
-    {
-      name = "c-b-2";
-      region = "ap-northeast-1";
-      staticRoutes = [
-        [ "c-a-2" "c-d-1" ]
-        [ "c-b-1" "r-b-1" ]
-        [ "r-b-2" "r-b-1" ]
-        [ "b-b-1" "b-c-1" ]
-      ];
-      org = "Emurgo";
-      nodeId = 4;
     }
     {
       name = "c-c-1";
@@ -65,7 +41,7 @@
       name = "c-c-2";
       region = "ap-southeast-1";
       staticRoutes = [
-        [ "c-b-2" "c-b-1" ]
+        [ "b-b-1" "c-b-1" ]
         [ "c-c-1" "r-c-1" ]
         [ "r-c-2" "r-c-1" ]
         [ "b-c-1" "b-b-1" ]
@@ -77,8 +53,8 @@
       name = "c-d-1";
       region = "us-east-2";
       staticRoutes = [
-        [ "c-a-1" "c-a-2" ]
-        [ "c-b-1" "c-b-2" ]
+        [ "c-a-1" "b-a-1" ]
+        [ "c-b-1" "b-b-1" ]
         [ "c-c-1" "c-c-2" ]
         [ "r-d-1" "r-a-1" ]
         [ "b-d-1" "b-b-1" ]
@@ -94,7 +70,7 @@
       region = "eu-central-1";
       staticRoutes = [
         [ "c-d-1" "c-a-1" ]
-        [ "c-a-2" "c-a-1" ]
+        [ "b-c-1" "c-a-1" ]
         [ "r-a-2" "r-d-1" ]
         [ "b-a-1" "b-b-1" ]
       ];
@@ -105,7 +81,7 @@
       region = "eu-central-1";
       staticRoutes = [
         [ "c-a-1" "c-d-1" ]
-        [ "c-a-2" "c-d-1" ]
+        [ "b-b-1" "c-d-1" ]
         [ "r-d-1" "r-a-1" ]
         [ "b-a-1" "b-c-1" ]
       ];
@@ -115,8 +91,8 @@
       name = "r-d-1";
       region = "us-east-2";
       staticRoutes = [
-        [ "c-d-1" "c-a-2" ]
-        [ "c-a-1" "c-a-2" ]
+        [ "c-d-1" "b-a-1" ]
+        [ "c-a-1" "b-a-1" ]
         [ "r-a-1" "r-a-2" ]
         [ "r-b-1" "r-b-2" ]
         [ "b-d-1" "b-c-1" ]
@@ -127,7 +103,7 @@
       name = "r-b-1";
       region = "ap-northeast-1";
       staticRoutes = [
-        [ "c-b-1" "c-b-2" ]
+        [ "c-b-1" "b-b-1" ]
         [ "r-d-1" "r-a-2" ]
         [ "r-b-2" "r-c-1" ]
         [ "b-b-1" "b-a-1" ]
@@ -138,7 +114,7 @@
       name = "r-b-2";
       region = "ap-northeast-1";
       staticRoutes = [
-        [ "c-b-2" "c-b-1" ]
+        [ "b-a-1" "c-b-1" ]
         [ "r-b-1" "r-a-1" ]
         [ "r-c-2" "r-c-1" ]
         [ "b-b-1" "b-c-1" ]
@@ -554,7 +530,7 @@
       region = "eu-central-1";
       org = "IOHK";
       nodeId = 15;
-      producers = [ "b-b-1" "b-c-1" "b-d-1" "e-a-1" "e-a-2" "e-a-3" "e-a-4" "e-a-5" ];
+      producers = [ "c-a-2" "b-b-1" "b-c-1" "b-d-1" "e-a-1" "e-a-2" "e-a-3" "e-a-4" "e-a-5" ];
       staticRoutes = [
         [ "r-a-1" "r-d-1" "r-c-2" ]
         [ "r-a-2" "r-c-1" "r-b-2" ]
@@ -565,7 +541,7 @@
       region = "ap-northeast-1";
       org = "IOHK";
       nodeId = 16;
-      producers = [ "b-a-1" "b-c-1" "b-d-1" "e-b-1" "e-b-2" "e-b-3" "e-b-4" "e-b-5" ];
+      producers = [ "c-b-2" "b-a-1" "b-c-1" "b-d-1" "e-b-1" "e-b-2" "e-b-3" "e-b-4" "e-b-5" ];
       staticRoutes = [
         [ "r-b-1" "r-d-1" "r-c-1" ]
         [ "r-b-2" "r-c-2" "r-a-1" ]
@@ -576,7 +552,7 @@
       region = "ap-southeast-1";
       org = "IOHK";
       nodeId = 17;
-      producers = [ "b-a-1" "b-b-1" "b-d-1" "e-c-1" "e-c-2" "e-c-3" "e-c-4" "e-c-5" ];
+      producers = [ "c-a-2" "b-a-1" "b-b-1" "b-d-1" "e-c-1" "e-c-2" "e-c-3" "e-c-4" "e-c-5" ];
       staticRoutes = [
         [ "r-c-1" "r-d-1" "r-b-2" ]
         [ "r-c-2" "r-b-1" "r-a-2" ]
@@ -587,14 +563,29 @@
       region = "us-east-2";
       org = "IOHK";
       nodeId = 18;
-      producers = [ "b-a-1" "b-b-1" "b-c-1" "e-d-1" "e-d-2" "e-d-3" "e-d-4" "e-d-5" ];
+      producers = [ "c-b-2" "b-a-1" "b-b-1" "b-c-1" "e-d-1" "e-d-2" "e-d-3" "e-d-4" "e-d-5" ];
       staticRoutes = [
         [ "r-d-1" "r-a-2" "r-b-2" "r-c-2" ]
       ];
     }
   ];
 
-  coreNodes = [ ];
+  coreNodes = [
+    {
+      name = "c-a-2";
+      region = "eu-central-1";
+      producers = ["b-a-1" "c-b-2" "b-d-1" "e-a-1" "e-a-2" "e-a-3" "e-a-4" "e-a-5" "e-c-2" "e-b-2" "e-d-2"];
+      org = "IOHK";
+      nodeId = 2;
+    }
+    {
+      name = "c-b-2";
+      region = "ap-northeast-1";
+      producers = ["b-b-1" "c-a-2" "b-c-1" "e-b-1" "e-b-2" "e-b-3" "e-b-4" "e-b-5" "e-a-4" "e-c-4" "e-d-4"];
+      org = "Emurgo";
+      nodeId = 4;
+    }
+   ];
 
   relayNodes = [
 
@@ -605,35 +596,35 @@
       region = "eu-central-1";
       org = "IOHK";
       nodeId = 8;
-      producers = [ "b-a-1" "e-a-2" "e-a-3" "e-a-4" "e-a-5" "e-b-1" "e-c-1" "e-d-1" ];
+      producers = [ "b-a-1" "c-a-2" "e-a-2" "e-a-3" "e-a-4" "e-a-5" "e-b-1" "e-c-1" "e-d-1" ];
     }
     {
       name = "e-a-2";
       region = "eu-central-1";
       org = "IOHK";
       nodeId = 19;
-      producers = [ "b-a-1" "e-a-1" "e-a-3" "e-a-4" "e-a-5" "e-b-2" "e-c-2" "e-d-2" ];
+      producers = [ "b-a-1" "c-a-2" "e-a-1" "e-a-3" "e-a-4" "e-a-5" "e-b-2" "e-c-2" "e-d-2" ];
     }
     {
       name = "e-a-3";
       region = "eu-central-1";
       org = "IOHK";
       nodeId = 20;
-      producers = [ "b-a-1" "e-a-1" "e-a-2" "e-a-4" "e-a-5" "e-b-3" "e-c-3" "e-d-3" ];
+      producers = [ "b-a-1" "c-a-2" "e-a-1" "e-a-2" "e-a-4" "e-a-5" "e-b-3" "e-c-3" "e-d-3" ];
     }
     {
       name = "e-a-4";
       region = "eu-central-1";
       org = "IOHK";
       nodeId = 21;
-      producers = [ "b-a-1" "e-a-1" "e-a-2" "e-a-3" "e-a-5" "e-b-4" "e-c-4" "e-d-4" ];
+      producers = [ "b-a-1" "c-a-2" "e-a-1" "e-a-2" "e-a-3" "e-a-5" "e-b-4" "e-c-4" "e-d-4" ];
     }
     {
       name = "e-a-5";
       region = "eu-central-1";
       org = "IOHK";
       nodeId = 22;
-      producers = [ "b-a-1" "e-a-1" "e-a-2" "e-a-3" "e-a-4" "e-b-5" "e-c-5" "e-d-5" ];
+      producers = [ "b-a-1" "c-a-2" "e-a-1" "e-a-2" "e-a-3" "e-a-4" "e-b-5" "e-c-5" "e-d-5" ];
     }
 
     # e-a-6 - 10 edge nodes
@@ -795,35 +786,35 @@
       region = "ap-northeast-1";
       org = "IOHK";
       nodeId = 9;
-      producers = [ "b-b-1" "e-b-2" "e-b-3" "e-b-4" "e-b-5" "e-a-1" "e-c-1" "e-d-1" ];
+      producers = [ "b-b-1" "c-b-2" "e-b-2" "e-b-3" "e-b-4" "e-b-5" "e-a-1" "e-c-1" "e-d-1" ];
     }
     {
       name = "e-b-2";
       region = "ap-northeast-1";
       org = "IOHK";
       nodeId = 23;
-      producers = [ "b-b-1" "e-b-1" "e-b-3" "e-b-4" "e-b-5" "e-a-2" "e-c-2" "e-d-2" ];
+      producers = [ "b-b-1" "c-b-2" "e-b-1" "e-b-3" "e-b-4" "e-b-5" "e-a-2" "e-c-2" "e-d-2" ];
     }
     {
       name = "e-b-3";
       region = "ap-northeast-1";
       org = "IOHK";
       nodeId = 24;
-      producers = [ "b-b-1" "e-b-1" "e-b-2" "e-b-4" "e-b-5" "e-a-3" "e-c-3" "e-d-3" ];
+      producers = [ "b-b-1" "c-b-2" "e-b-1" "e-b-2" "e-b-4" "e-b-5" "e-a-3" "e-c-3" "e-d-3" ];
     }
     {
       name = "e-b-4";
       region = "ap-northeast-1";
       org = "IOHK";
       nodeId = 25;
-      producers = [ "b-b-1" "e-b-1" "e-b-2" "e-b-3" "e-b-5" "e-a-4" "e-c-4" "e-d-4" ];
+      producers = [ "b-b-1" "c-b-2" "e-b-1" "e-b-2" "e-b-3" "e-b-5" "e-a-4" "e-c-4" "e-d-4" ];
     }
     {
       name = "e-b-5";
       region = "ap-northeast-1";
       org = "IOHK";
       nodeId = 26;
-      producers = [ "b-b-1" "e-b-1" "e-b-2" "e-b-3" "e-b-4" "e-a-5" "e-c-5" "e-d-5" ];
+      producers = [ "b-b-1" "c-b-2" "e-b-1" "e-b-2" "e-b-3" "e-b-4" "e-a-5" "e-c-5" "e-d-5" ];
     }
 
     # e-b-6 - 10 edge nodes
