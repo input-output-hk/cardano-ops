@@ -32,7 +32,7 @@ in {
     enable = true;
     cardanoEnv = "shelley_staging";
     faucetLogLevel = "DEBUG";
-    secondsBetweenRequests = 10;
+    secondsBetweenRequests = 3600;
   };
 
   deployment.keys = {
@@ -45,6 +45,13 @@ in {
 
     "faucet.passphrase" = {
       keyFile = ../static + "/faucet.passphrase";
+      destDir = "/var/lib/keys/";
+      user = "cardano-node";
+      permissions = "0400";
+    };
+
+    "faucet.apikey" = {
+      keyFile = ../static + "/faucet.apikey";
       destDir = "/var/lib/keys/";
       user = "cardano-node";
       permissions = "0400";
