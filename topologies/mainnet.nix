@@ -4,7 +4,7 @@
       name = "c-a-1";
       region = "eu-central-1";
       staticRoutes = [
-        [ "b-a-2" "c-d-1" ]
+        [ "b-d-1" "c-d-1" ]
         [ "c-c-2" "c-c-1" ]
         [ "r-a-1" "r-a-2" ]
         [ "b-a-1" "b-b-1" ]
