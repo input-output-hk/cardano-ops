@@ -1,10 +1,10 @@
 { targetEnv
-, medium
-, xlarge
-, t3-xlarge
-, xlarge-monitor
-, c5-2xlarge
-, m5ad-xlarge
+, medium               # Standard relay
+, xlarge               # Standard explorer
+, t3-xlarge            # High load relay
+, m5ad-xlarge          # Test node
+, xlarge-monitor       # Standard monitor
+, t3-2xlarge-monitor   # High capacity monitor
 , ...
 }:
 with (import ../nix {});
@@ -22,13 +22,14 @@ let
     // listToAttrs (map mkLegacyRelayNode legacyRelayNodes)
     // listToAttrs (map mkCoreNode coreNodes)
     // listToAttrs (map mkRelayNode relayNodes)
-    // listToAttrs (map mkByronProxyNode byronProxies);
+    // listToAttrs (map mkByronProxyNode byronProxies)
+    // (lib.optionalAttrs (topology ? testNodes) (listToAttrs (map mkTestNode topology.testNodes)));
 
   otherNodes = (lib.optionalAttrs globals.withMonitoring {
     monitoring = {
       deployment.ec2.region = "eu-central-1";
       imports = [
-        xlarge-monitor
+        (if globals.withHighCapacityMonitoring then t3-2xlarge-monitor else xlarge-monitor)
         roles.monitor
         ../modules/monitoring-cardano.nix
       ];
@@ -38,7 +39,7 @@ let
       };
 
       services.prometheus = {
-        scrapeConfigs = [
+        scrapeConfigs = (lib.optional globals.withExplorer (
           # TODO: remove once explorer exports metrics at path `/metrics`
           {
             job_name = "explorer-exporter";
@@ -48,7 +49,7 @@ let
               targets = [ "explorer-ip" ];
               labels = { alias = "explorer-exporter"; };
             }];
-          }
+          })) ++ (lib.optional globals.withLegacyExplorer (
           # TODO: remove once explorer python api is deprecated
           {
             job_name = "explorer-python-api";
@@ -58,45 +59,17 @@ let
               targets = [ "explorer-ip" ];
               labels = { alias = "explorer-python-api"; };
             }];
-          }
+          })) ++ (lib.optional globals.withFaucet (
           {
             job_name = "cardano-faucet";
             scrape_interval = "10s";
             metrics_path = "/metrics";
             static_configs = [{
-              targets = [ "faucet.${globals.domain}" ];
+              targets = [ "${globals.faucetHostname}.${globals.domain}" ];
               labels = { alias = "cardano-faucet"; };
             }];
-          }
-        ];
-      };
-    };
-
-    faucet = {
-      deployment.ec2 = {
-        region = "eu-central-1";
-      };
-      imports = [
-        medium
-        ../roles/faucet.nix
-      ];
-      node = {
-        roles.isFaucet = true;
-        org = "IOHK";
-      };
-    };
-
-    # Load client with optimized NVME disks
-    l-a-1 = {
-      deployment.ec2 = {
-        region = "eu-central-1";
-      };
-      imports = [
-        m5ad-xlarge
-        ../roles/load-client.nix
-      ];
-      node = {
-        org = "IOHK";
+          })
+        );
       };
     };
   }) // (lib.optionalAttrs globals.withExplorer {
@@ -118,6 +91,20 @@ let
         roles.isExplorer = true;
         org = "IOHK";
         nodeId = 99;
+      };
+    };
+  }) // (lib.optionalAttrs globals.withFaucet {
+    "${globals.faucetHostname}" = {
+      deployment.ec2 = {
+        region = "eu-central-1";
+      };
+      imports = [
+        medium
+        ../roles/faucet.nix
+      ];
+      node = {
+        roles.isFaucet = true;
+        org = "IOHK";
       };
     };
   });
@@ -150,9 +137,10 @@ let
         inherit (def) producers;
       };
       deployment.ec2.region = def.region;
-      imports = [
-        t3-xlarge
-        ../roles/relay-high-load.nix
+      imports = if globals.withHighLoadRelays then [
+        t3-xlarge ../roles/high-load-relays.nix
+      ] else [
+        medium ../roles/relay.nix
       ];
     };
   };
@@ -207,6 +195,18 @@ let
       imports = [ medium ../roles/legacy-relay.nix ];
       services.cardano-node-legacy.staticRoutes = def.staticRoutes or [];
       services.cardano-node-legacy.dynamicSubscribe = def.dynamicSubscribe or [];
+    };
+  };
+
+  # Load client with optimized NVME disks, for prometheus monitored clients syncs
+  mkTestNode = def: {
+    inherit (def) name;
+    value = {
+      node = {
+        inherit (def) org;
+      };
+      deployment.ec2.region = def.region;
+      imports = [ m5ad-xlarge ../roles/load-client.nix ];
     };
   };
 

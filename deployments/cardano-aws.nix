@@ -11,12 +11,12 @@ let
 
   cluster = import ../clusters/cardano.nix {
     inherit (aws) targetEnv;
-    medium = aws.t3a-medium;
-    xlarge = aws.t3a-xlarge;
-    t3-xlarge = aws.t3-xlarge;
-    xlarge-monitor = aws.t3a-xlargeMonitor;
-    c5-2xlarge = aws.c5-2xlarge;
-    m5ad-xlarge = aws.m5ad-xlarge;
+    medium = aws.t3a-medium;                     # Standard relay
+    xlarge = aws.t3a-xlarge;                     # Standard explorer
+    t3-xlarge = aws.t3-xlarge;                   # High load relay
+    m5ad-xlarge = aws.m5ad-xlarge;               # Test node
+    xlarge-monitor = aws.t3a-xlargeMonitor;      # Standard monitor
+    t3-2xlarge-monitor = aws.t3-2xlargeMonitor;  # High capacity monitor
   };
 
   nodes = filterAttrs (name: node:
