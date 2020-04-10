@@ -24,6 +24,9 @@ in {
   withExplorer = true;
   withLegacyExplorer = true;
 
+  withHighCapacityMonitoring = false;
+  withHighLoadRelays = false;
+
   environments = pkgs.iohkNix.cardanoLib.environments;
 
   environmentConfig = pkgs.globals.environments.${pkgs.globals.environmentName};

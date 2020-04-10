@@ -9,6 +9,9 @@ pkgs: {
   explorerHostName = "cardano-explorer";
   explorerForceSSL = false;
 
+  withHighCapacityMonitoring = true;
+  withHighLoadRelays = true;
+
   environmentName = "mainnet";
 
   topology = import ./topologies/mainnet.nix;

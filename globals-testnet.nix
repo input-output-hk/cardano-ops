@@ -6,6 +6,9 @@ pkgs: {
 
   domain = "cardano-testnet.iohkdev.io";
 
+  withFaucet = true;
+  faucetHostname = "faucet2";
+
   environmentName = "testnet";
 
   topology = import ./topologies/testnet.nix;
