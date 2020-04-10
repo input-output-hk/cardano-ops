@@ -30,9 +30,16 @@ in {
 
   services.cardano-faucet = {
     enable = true;
-    cardanoEnv = "shelley_staging";
-    faucetLogLevel = "DEBUG";
-    secondsBetweenRequests = 3600;
+    cardanoEnv = globals.environmentName;
+
+    # Defaults to 1000 ADA per request
+    #lovelacesToGive = 1000000000;
+
+    # Defaults to INFO
+    #faucetLogLevel = "DEBUG";
+
+    # Defaults to a 1 day rate request limit, exemptable by API key
+    #secondsBetweenRequests = 3600;
   };
 
   deployment.keys = {
