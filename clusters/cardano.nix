@@ -138,7 +138,7 @@ let
       };
       deployment.ec2.region = def.region;
       imports = if globals.withHighLoadRelays then [
-        t3-xlarge ../roles/high-load-relays.nix
+        t3-xlarge ../roles/relay-high-load.nix
       ] else [
         medium ../roles/relay.nix
       ];
