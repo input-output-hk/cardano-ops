@@ -171,7 +171,6 @@
     }
   ];
 
-
   byronProxies = [
     {
       name = "p-a-1";
@@ -253,6 +252,14 @@
       org = "IOHK";
       nodeId = 10;
       producers = [ "p-c-1" "c-c-2" "e-a-1" "e-b-1"  ];
+    }
+  ];
+
+  testNodes = [
+    {
+      name = "l-a-1";
+      region = "eu-central-1";
+      org = "IOHK";
     }
   ];
 }
