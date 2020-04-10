@@ -30,7 +30,7 @@
       # This script should work on any ec2 instance which has an EBS nvme0n1 root vol and additional
       # non-EBS local nvme[1-9]n1 ephemeral block storage devices, ex: c5, g4, i3, m5, r5, x1, z1.
       set -x
-      df | grep -q /var/lib/cardano-node && { echo "/var/lib/cardano-node is pre-mounted, exiting."; exit 0; }
+      df | grep -q ${replacePath} && { echo "${replacePath} is pre-mounted, exiting."; exit 0; }
       mapfile -t DEVS < <(find /dev -maxdepth 1 -regextype posix-extended -regex ".*/nvme[1-9]n1")
       [ "''${#DEVS[@]}" -eq "0" ] && { echo "No additional NVME found, exiting."; exit 0; }
       if [ -d ${replacePath} ]; then
