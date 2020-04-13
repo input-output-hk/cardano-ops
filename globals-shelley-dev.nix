@@ -2,6 +2,7 @@ pkgs: rec {
 
   withMonitoring = false;
   withLegacyExplorer = false;
+  withExplorerAliases = [];
 
   environmentName = "shelley-dev";
 

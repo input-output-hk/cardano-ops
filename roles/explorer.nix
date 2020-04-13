@@ -96,6 +96,7 @@ in {
     recommendedProxySettings = true;
     virtualHosts = {
       "${globals.explorerHostName}.${globals.domain}" = {
+        serverAliases = globals.withExplorerAliases;
         enableACME = true;
         forceSSL = globals.explorerForceSSL;
         locations = {

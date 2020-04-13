@@ -8,6 +8,7 @@ pkgs: {
 
   explorerHostName = "cardano-explorer";
   explorerForceSSL = false;
+  withExplorerAliases = [ "explorer.mainnet.cardano.org" "explorer.cardano.org" ];
 
   withHighCapacityMonitoring = true;
   withHighLoadRelays = true;
