@@ -76,26 +76,26 @@
     }
     {
       alert = "high_egress_${region}";
-      expr = "avg(rate(node_network_transmit_bytes_total{alias=~\"e-${regionLetter}-.*\",device!~\"lo\"}[20s]) * 8) > 275 * 1000 * 1000";
+      expr = "avg(rate(node_network_transmit_bytes_total{alias=~\"e-${regionLetter}-.*\",device!~\"lo\"}[20s]) * 8) > 150 * 1000 * 1000";
       for = "5m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "${region}: Average egress throughput is higher than 275 Mbps for more than 5 minutes.";
-        description = "${region}: Average egress throughput is higher than 275 Mbps for more than 5 minutes. Adding new nodes to that region might soon be required.";
+        summary = "${region}: Average egress throughput is higher than 150 Mbps for more than 5 minutes.";
+        description = "${region}: Average egress throughput is higher than 150 Mbps for more than 5 minutes. Adding new nodes to that region might soon be required.";
       };
     }
     {
       alert = "critical_egress_${region}";
-      expr = "avg(rate(node_network_transmit_bytes_total{alias=~\"e-${regionLetter}-.*\",device!~\"lo\"}[20s]) * 8) > 350 * 1000 * 1000";
+      expr = "avg(rate(node_network_transmit_bytes_total{alias=~\"e-${regionLetter}-.*\",device!~\"lo\"}[20s]) * 8) > 200 * 1000 * 1000";
       for = "15m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "${region}: Average egress throughput is higher than 350 Mbps for more than 15 minutes.";
-        description = "${region}: Average egress throughput is higher than 350 Mbps for more than 15 minutes. Adding new nodes to that region IS required.";
+        summary = "${region}: Average egress throughput is higher than 200 Mbps for more than 15 minutes.";
+        description = "${region}: Average egress throughput is higher than 200 Mbps for more than 15 minutes. Adding new nodes to that region IS required.";
       };
     }])
   [{ region = "eu-central-1";   regionLetter = "a"; }

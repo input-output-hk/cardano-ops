@@ -12,8 +12,6 @@ in {
     (sourcePaths.cardano-faucet + "/nix/nixos")
   ];
 
-  users.users.cardano-node.extraGroups = [ "keys" ];
-
   environment.systemPackages = with pkgs; [
     faucetPkgs.cardano-wallet-byron
     jq
@@ -65,6 +63,8 @@ in {
     };
   };
 
+  # NOTE: Cardano Faucet maintains its own cardano-node niv pin which is used here
+  users.users.cardano-node.extraGroups = [ "keys" ];
   services.cardano-node.nodeConfig = globals.environmentConfig.nodeConfig // {
     hasPrometheus = [ hostAddr monitoringPort ];
   };
