@@ -14,7 +14,7 @@ in {
 
   environmentName = pkgs.globals.deploymentName;
 
-  dnsZone = "dev.iohkdev.io";
+  dnsZone = "dev.cardano.org";
   domain = "${pkgs.globals.deploymentName}.${pkgs.globals.dnsZone}";
 
   explorerHostName = "explorer";
@@ -23,6 +23,10 @@ in {
   withMonitoring = true;
   withExplorer = true;
   withLegacyExplorer = true;
+  withFaucet = false;
+
+  withHighCapacityMonitoring = false;
+  withHighLoadRelays = false;
 
   environments = pkgs.iohkNix.cardanoLib.environments;
 

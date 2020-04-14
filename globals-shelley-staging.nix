@@ -4,6 +4,13 @@ pkgs: {
 
   environmentName = "shelley_staging";
 
+  explorerAliases = [];
+
+  withFaucet = true;
+  faucetHostname = "faucet";
+
+  withHighLoadRelays = true;
+
   topology = import ./topologies/staging-shelley.nix;
 
   ec2 = {

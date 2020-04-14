@@ -8,6 +8,9 @@ pkgs: {
 
   environmentName = "staging";
 
+  explorerAliases = [];
+  withHighLoadRelays = true;
+
   topology = import ./topologies/staging.nix;
 
   ec2 = {

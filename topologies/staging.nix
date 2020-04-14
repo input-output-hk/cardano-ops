@@ -259,6 +259,7 @@
   ];
 
   relayNodes = [
+    # Group 1 (original group)
     {
       name = "e-a-1";
       region = "eu-central-1";
@@ -280,5 +281,142 @@
       nodeId = 10;
       producers = ["p-c-1" "c-c-2" "e-a-1" "e-b-1"];
     }
+
+    # Likely will want to update the producers of all these nodes once created
+    # Group 2
+
+    {
+      name = "e-a-2";
+      region = "eu-central-1";
+      org = "IOHK";
+      nodeId = 21;
+      producers = ["p-a-1" "c-a-2" "e-b-1" "e-c-1"];
+    }
+    {
+      name = "e-b-2";
+      region = "ap-northeast-1";
+      org = "IOHK";
+      nodeId = 22;
+      producers = ["p-b-1" "c-b-2" "e-a-1" "e-c-1"];
+    }
+    {
+      name = "e-c-2";
+      region = "ap-southeast-1";
+      org = "IOHK";
+      nodeId = 23;
+      producers = ["p-c-1" "c-c-2" "e-a-1" "e-b-1"];
+    }
+
+    {
+      name = "e-a-3";
+      region = "eu-central-1";
+      org = "IOHK";
+      nodeId = 24;
+      producers = ["p-a-1" "c-a-2" "e-b-1" "e-c-1"];
+    }
+    {
+      name = "e-b-3";
+      region = "ap-northeast-1";
+      org = "IOHK";
+      nodeId = 25;
+      producers = ["p-b-1" "c-b-2" "e-a-1" "e-c-1"];
+    }
+    {
+      name = "e-c-3";
+      region = "ap-southeast-1";
+      org = "IOHK";
+      nodeId = 26;
+      producers = ["p-c-1" "c-c-2" "e-a-1" "e-b-1"];
+    }
+
+    {
+      name = "e-a-4";
+      region = "eu-central-1";
+      org = "IOHK";
+      nodeId = 27;
+      producers = ["p-a-1" "c-a-2" "e-b-1" "e-c-1"];
+    }
+    {
+      name = "e-b-4";
+      region = "ap-northeast-1";
+      org = "IOHK";
+      nodeId = 28;
+      producers = ["p-b-1" "c-b-2" "e-a-1" "e-c-1"];
+    }
+    {
+      name = "e-c-4";
+      region = "ap-southeast-1";
+      org = "IOHK";
+      nodeId = 29;
+      producers = ["p-c-1" "c-c-2" "e-a-1" "e-b-1"];
+    }
+
+    # Group 3 -- not deployed yet
+
+    #{
+    #  name = "e-a-5";
+    #  region = "eu-central-1";
+    #  org = "IOHK";
+    #  nodeId = 30;
+    #  producers = ["p-a-1" "c-a-2" "e-b-1" "e-c-1"];
+    #}
+    #{
+    #  name = "e-b-5";
+    #  region = "ap-northeast-1";
+    #  org = "IOHK";
+    #  nodeId = 31;
+    #  producers = ["p-b-1" "c-b-2" "e-a-1" "e-c-1"];
+    #}
+    #{
+    #  name = "e-c-5";
+    #  region = "ap-southeast-1";
+    #  org = "IOHK";
+    #  nodeId = 32;
+    #  producers = ["p-c-1" "c-c-2" "e-a-1" "e-b-1"];
+    #}
+
+    #{
+    #  name = "e-a-6";
+    #  region = "eu-central-1";
+    #  org = "IOHK";
+    #  nodeId = 33;
+    #  producers = ["p-a-1" "c-a-2" "e-b-1" "e-c-1"];
+    #}
+    #{
+    #  name = "e-b-6";
+    #  region = "ap-northeast-1";
+    #  org = "IOHK";
+    #  nodeId = 34;
+    #  producers = ["p-b-1" "c-b-2" "e-a-1" "e-c-1"];
+    #}
+    #{
+    #  name = "e-c-6";
+    #  region = "ap-southeast-1";
+    #  org = "IOHK";
+    #  nodeId = 35;
+    #  producers = ["p-c-1" "c-c-2" "e-a-1" "e-b-1"];
+    #}
+
+    #{
+    #  name = "e-a-7";
+    #  region = "eu-central-1";
+    #  org = "IOHK";
+    #  nodeId = 36;
+    #  producers = ["p-a-1" "c-a-2" "e-b-1" "e-c-1"];
+    #}
+    #{
+    #  name = "e-b-7";
+    #  region = "ap-northeast-1";
+    #  org = "IOHK";
+    #  nodeId = 37;
+    #  producers = ["p-b-1" "c-b-2" "e-a-1" "e-c-1"];
+    #}
+    #{
+    #  name = "e-c-7";
+    #  region = "ap-southeast-1";
+    #  org = "IOHK";
+    #  nodeId = 38;
+    #  producers = ["p-c-1" "c-c-2" "e-a-1" "e-b-1"];
+    #}
   ];
 }
