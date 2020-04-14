@@ -8,7 +8,8 @@ pkgs: {
 
   environmentName = "staging";
 
-  withExplorerAliases = [];
+  explorerAliases = [];
+  withHighLoadRelays = true;
 
   topology = import ./topologies/staging.nix;
 

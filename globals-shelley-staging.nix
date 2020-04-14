@@ -4,7 +4,7 @@ pkgs: {
 
   environmentName = "shelley_staging";
 
-  withExplorerAliases = [];
+  explorerAliases = [];
 
   withFaucet = true;
   faucetHostname = "faucet";

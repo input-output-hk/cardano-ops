@@ -23,6 +23,7 @@ in {
   withMonitoring = true;
   withExplorer = true;
   withLegacyExplorer = true;
+  withFaucet = false;
 
   withHighCapacityMonitoring = false;
   withHighLoadRelays = false;

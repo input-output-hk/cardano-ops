@@ -4,7 +4,7 @@ pkgs: {
 
   environmentName = "shelley_staging_short";
 
-  withExplorerAliases = [];
+  explorerAliases = [];
 
   topology = import ./topologies/staging-shelley-short.nix;
 
