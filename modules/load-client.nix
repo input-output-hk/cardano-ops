@@ -1,7 +1,6 @@
 { pkgs, config, lib, nodes, name, ... }:
 with (import ../nix {}); with lib;
 let
-  iohkNix = import sourcePaths.iohk-nix {};
   cfg = config.services.cardano-node;
   nodePort = globals.cardanoNodePort;
   hostAddr = getListenIp nodes.${name};

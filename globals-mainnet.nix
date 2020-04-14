@@ -6,8 +6,8 @@ pkgs: {
 
   domain = "cardano-mainnet.iohk.io";
 
-  explorerHostName = "cardano-explorer";
-  explorerForceSSL = false;
+  explorerHostName = "explorer";
+  explorerForceSSL = true;
   explorerAliases = [ "explorer.mainnet.cardano.org" "explorer.cardano.org" ];
 
   withHighCapacityMonitoring = true;
