@@ -100,6 +100,7 @@ in {
         https://testnet.iohkdev.io 1;
         https://testnets.cardano.org 1;
         https://staging-testnets-cardano.netlify.com 1;
+        https://staging-testnets-cardano.netlify.app 1;
       }
 
       map $origin_allowed $origin {
