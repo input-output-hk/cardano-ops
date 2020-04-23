@@ -93,9 +93,22 @@ in {
 
   services.nginx = {
     enable = true;
+    package = nginxExplorer;
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;
+    commonHttpConfig = ''
+      log_format x-fwd '$remote_addr - $remote_user [$time_local] '
+                       '"$request" "$http_accept_language" $status $body_bytes_sent '
+                       '"$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
+
+      access_log syslog:server=unix:/dev/log x-fwd;
+      map $http_accept_language $lang {
+              default en;
+              ~de de;
+              ~ja ja;
+      }
+    '';
     virtualHosts = {
       "${globals.explorerHostName}.${globals.domain}" = {
         serverAliases = globals.explorerAliases;
@@ -107,14 +120,18 @@ in {
               graphqlApiHost = "${globals.explorerHostName}.${globals.domain}";
               cardanoNetwork = globals.environmentName;
             };
-            tryFiles = "$uri /index.html";
+            tryFiles = "$uri $uri/index.html /index.html";
+            extraConfig = ''
+              rewrite /tx/(.*) /$lang/transaction?id=$1 redirect;
+              rewrite /address/(.*) /$lang/address?address=$1 redirect;
+            '';
           };
           "/api" = {
             proxyPass = "http://127.0.0.1:8100/api";
           };
-        };
-        locations."/graphql" = {
-          proxyPass = "http://127.0.0.1:3100/graphql";
+          "/graphql" = {
+            proxyPass = "http://127.0.0.1:3100/graphql";
+          };
         };
       };
       "explorer-ip" = {
