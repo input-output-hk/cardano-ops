@@ -1,10 +1,11 @@
-{ config, name, nodes, ... }:
+{ config, lib, name, nodes, ... }:
 with import ../nix {};
 
 let
   nodeCfg = config.services.cardano-node;
   iohkNix = import sourcePaths.iohk-nix {};
   cardano-sl = import sourcePaths.cardano-sl { gitrev = sourcePaths.cardano-sl.rev; };
+  cardano-explorer-app = import sourcePaths.cardano-explorer-app {};
   explorerFrontend = cardano-sl.explorerFrontend;
   postgresql12 = (import sourcePaths.nixpkgs-postgresql12 {}).postgresql_12;
   nodeId = config.node.nodeId;
@@ -17,14 +18,15 @@ in {
     (sourcePaths.cardano-rest + "/nix/nixos")
     (sourcePaths.cardano-db-sync + "/nix/nixos")
     ../modules/common.nix
+    ../modules/cardano-postgres.nix
   ];
 
   environment.systemPackages = with pkgs; [
     bat fd lsof netcat ncdu ripgrep tree vim cardano-cli
     cardanoDbPkgs.haskellPackages.cardano-db.components.exes.cardano-db-tool
   ];
+  services.cardano-postgres.enable = true;
   services.postgresql = {
-    package = postgresql12;
     ensureDatabases = [ "cexplorer" ];
     ensureUsers = [
       {
@@ -100,25 +102,17 @@ in {
         enableACME = true;
         forceSSL = globals.explorerForceSSL;
         locations = {
-          "/" = {
-            root = explorerFrontend;
+          "/" = lib.mkForce {
+            root = cardano-explorer-app.static.override {
+              graphqlApiHost = "${globals.explorerHostName}.${globals.domain}";
+              cardanoNetwork = globals.environmentName;
+            };
+            tryFiles = "$uri /index.html";
           };
-          #"/socket.io/" = {
-          #   proxyPass = "http://127.0.0.1:8110";
-          #   extraConfig = ''
-          #     proxy_http_version 1.1;
-          #     proxy_set_header Upgrade $http_upgrade;
-          #     proxy_set_header Connection "upgrade";
-          #     proxy_read_timeout 86400;
-          #   '';
-          #};
           "/api" = {
             proxyPass = "http://127.0.0.1:8100/api";
           };
         };
-        #locations."/graphiql" = {
-        #  proxyPass = "http://127.0.0.1:3100/graphiql";
-        #};
         locations."/graphql" = {
           proxyPass = "http://127.0.0.1:3100/graphql";
         };
