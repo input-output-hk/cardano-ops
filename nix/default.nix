@@ -1,9 +1,17 @@
-{ sourcePaths ? import ./sources.nix
-, system ? builtins.currentSystem
+{ system ? builtins.currentSystem
 , crossSystem ? null
 , config ? {} }:
-
 let
+  sourcePaths = import ./sources.nix { inherit pkgs; };
+
+  iohkNix = import sourcePaths.iohk-nix {};
+
+  # use our own nixpkgs if it exists in our sources,
+  # otherwise use iohkNix default nixpkgs.
+  nixpkgs = if (sourcePaths ? nixpkgs)
+    then sourcePaths.nixpkgs
+    else iohkNix.nixpkgs;
+
   # overlays from ops-lib (include ops-lib sourcePaths):
   ops-lib-overlays = (import sourcePaths.ops-lib {}).overlays;
   nginx-explorer-overlay = self: super: let
@@ -42,7 +50,7 @@ let
 
   # merge upstream sources with our own:
   upstream-overlay = _: super: {
-    iohkNix = import sourcePaths.iohk-nix {};
+      inherit iohkNix;
 
     cardano-ops-overlays = overlays;
     sourcePaths = (super.sourcePaths or {}) // sourcePaths;
@@ -56,7 +64,9 @@ let
       upstream-overlay
       nginx-explorer-overlay
     ];
-in
-  import sourcePaths.nixpkgs {
+
+  pkgs = import nixpkgs {
     inherit overlays system crossSystem config;
-  }
+  };
+in
+  pkgs
