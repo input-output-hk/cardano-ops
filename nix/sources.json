@@ -12,15 +12,27 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync": {
-        "branch": "tags/1.4.0",
+        "branch": "master",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "be2fb8ae73c3ad872de0ad80621bca4718b64b25",
-        "sha256": "1yvy4628bn8a12cx6id4rq2srwgf18z39pbvhg71kfng5wbpx9ys",
+        "rev": "8842aa6c14e258942419a1853b0d98f1415bfafc",
+        "sha256": "05xpck7a0a2vkannyipqwpxqi3n62h6ipl3z056z74hl3xgfiq92",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/be2fb8ae73c3ad872de0ad80621bca4718b64b25.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/8842aa6c14e258942419a1853b0d98f1415bfafc.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "cardano-explorer-app": {
+        "branch": "SRE-66_iohk_ci",
+        "description": "Cardano Explorer App",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "cardano-explorer-app",
+        "rev": "32e9fa27a3fbe42d19569e7358ac474f2cc00d26",
+        "sha256": "0cinv9b6xd3nw8b7pw1qyiyvxg24z7l33h5jh48v1p60gq2mvvd3",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/32e9fa27a3fbe42d19569e7358ac474f2cc00d26.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
@@ -48,15 +60,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
-        "branch": "tags/1.9.3",
+        "branch": "tags/1.10.1",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "b0c7d4457704a46167687f519f2e0f315ab5abd4",
-        "sha256": "1mkaxx92fc8hi3bpsazlqs6nc89g0bz3rg6wrlkrlrqnwn1xkdj8",
+        "rev": "99e1a85b4a3f6d13ddf89e6ea471df18b65fd31a",
+        "sha256": "0gsv06hzrlqziaxdaj925gd15y6yhc4zw90r9818qvz6nvsym2y1",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/b0c7d4457704a46167687f519f2e0f315ab5abd4.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/99e1a85b4a3f6d13ddf89e6ea471df18b65fd31a.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rest": {
@@ -113,10 +125,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "5193306abf61cc902cd4e71501b35daf0703373e",
-        "sha256": "0cfj35wpahxp0kjwcz1nl6vl1pkdz7g19vcid093kq0lnp721nsi",
+        "rev": "dfce0e88fee7d5c29fd6f128d02be3594ae39c88",
+        "sha256": "0z9wn2j2ss03w83n298fcapdw9w3cs13w5hrlp3apwjr9iq7x720",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/5193306abf61cc902cd4e71501b35daf0703373e.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/dfce0e88fee7d5c29fd6f128d02be3594ae39c88.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
@@ -144,15 +156,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
-        "branch": "master",
+        "branch": "deployers-merge",
         "description": "NixOps deployment configuration library for IOHK devops ",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "77bfb55573c269ae631bd88d94902759318667f8",
-        "sha256": "09jb03lpx09y00qis35b2hh4mlz0i6cpfqm8m70pi491ijp5xrr7",
+        "rev": "4ed410d2b9eb0355a64fba6e9703ca970f6462dd",
+        "sha256": "0i05zgd6g6hnpqwf6lmzcyy9vxsw7vhx6qjggsq9sdkyglsdqv94",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/77bfb55573c269ae631bd88d94902759318667f8.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/4ed410d2b9eb0355a64fba6e9703ca970f6462dd.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

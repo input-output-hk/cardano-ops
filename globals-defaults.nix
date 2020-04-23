@@ -22,7 +22,7 @@ in {
 
   withMonitoring = true;
   withExplorer = true;
-  withLegacyExplorer = true;
+  withLegacyExplorer = false;
   withFaucet = false;
 
   withHighCapacityMonitoring = false;
