@@ -74,6 +74,11 @@ in
       nodeConfig = globals.environmentConfig.nodeConfig // {
         hasPrometheus = [ hostAddr globals.cardanoNodePrometheusExporterPort ];
         # Use Journald output:
+        setupScribes = [{
+          scKind = "JournalSK";
+          scName = "cardano";
+          scFormat = "ScText";
+        }];
         defaultScribes = [
           [
             "JournalSK"
