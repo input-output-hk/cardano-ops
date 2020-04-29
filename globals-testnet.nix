@@ -10,6 +10,8 @@ pkgs: {
   withFaucet = true;
   faucetHostname = "faucet2";
 
+  initialPythonExplorerDBSyncDone = true;
+
   environmentName = "testnet";
 
   topology = import ./topologies/testnet.nix;

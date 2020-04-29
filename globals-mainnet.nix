@@ -14,6 +14,8 @@ pkgs: {
   withHighCapacityMonitoring = true;
   withHighLoadRelays = true;
 
+  initialPythonExplorerDBSyncDone = true;
+
   environmentName = "mainnet";
 
   topology = import ./topologies/mainnet.nix;

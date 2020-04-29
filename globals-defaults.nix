@@ -26,6 +26,8 @@ in {
   withCardanoDBExtended = true;
   withFaucet = false;
 
+  initialPythonExplorerDBSyncDone = false;
+
   withHighCapacityMonitoring = false;
   withHighLoadRelays = false;
 
