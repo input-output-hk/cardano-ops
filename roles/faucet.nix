@@ -11,11 +11,13 @@ in {
     ../modules/common.nix
 
     # Cardano faucet needs to pair a compatible version of wallet with node
-    # The following service import will do this
+    # The following service import will do this:
     (sourcePaths.cardano-faucet + "/nix/nixos/cardano-faucet-service-with-node.nix")
 
     # To instead use this deployments own native cardano node niv pin,
     # switch to the following two imports.  This may break the faucet wallet!
+    # A compatible wallet package may be specified with the cardano-faucet
+    # walletPackage option.
     #(sourcePaths.cardano-faucet + "/nix/nixos/cardano-faucet-service.nix")
     #(sourcePaths.cardano-node + "/nix/nixos")
   ];
