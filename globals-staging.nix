@@ -8,7 +8,7 @@ pkgs: {
 
   environmentName = "staging";
 
-  explorerAliases = [];
+  explorerAliases = [ "cardano-explorer.awstest.iohkdev.io" ];
   withHighLoadRelays = true;
 
   topology = import ./topologies/staging.nix;

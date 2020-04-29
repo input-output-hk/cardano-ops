@@ -23,7 +23,10 @@ in {
   withMonitoring = true;
   withExplorer = true;
   withLegacyExplorer = false;
+  withCardanoDBExtended = true;
   withFaucet = false;
+
+  initialPythonExplorerDBSyncDone = false;
 
   withHighCapacityMonitoring = false;
   withHighLoadRelays = false;

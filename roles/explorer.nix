@@ -69,7 +69,7 @@ in {
     socketPath = nodeCfg.socketPath;
     logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { hasPrometheus = [ hostAddr 12698 ]; };
     user = "cexplorer";
-    extended = true;
+    extended = globals.withCardanoDBExtended;
     postgres = {
       database = "cexplorer";
     };

@@ -41,12 +41,12 @@ in {
     services.nginx = mkIf config.services.nginx.enable {
       virtualHosts = {
         "${globals.explorerHostName}.${globals.domain}" = mkForce {
-          locations = {
-            # Use the main explorer API
+          locations = if (globals.initialPythonExplorerDBSyncDone) then {
+            # Pass to python API once the initial DB dump sync has completed
+            "/api/addresses/summary/".proxyPass = "http://127.0.0.1:${toString cfg.pythonApiProxyPort}";
+          } else {
+            # Otherwise use the main explorer API
             "/api/addresses/summary/".proxyPass = "http://127.0.0.1:${toString cfg.legacyProxyPort}";
-            # Pass to python API; switch to this line and redeploy once
-            # the initial DB dump sync has completed
-            # "/api/addresses/summary/".proxyPass = "http://127.0.0.1:${toString cfg.pythonApiProxyPort}";
           };
         };
         "explorer-ip" = {
