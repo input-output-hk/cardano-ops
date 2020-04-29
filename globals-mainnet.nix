@@ -10,6 +10,7 @@ pkgs: {
   explorerForceSSL = true;
   explorerAliases = [ "explorer.mainnet.cardano.org" "explorer.cardano.org" ];
 
+  withCardanoDBExtended = false;
   withHighCapacityMonitoring = true;
   withHighLoadRelays = true;
 

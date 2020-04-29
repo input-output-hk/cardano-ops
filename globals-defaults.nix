@@ -23,6 +23,7 @@ in {
   withMonitoring = true;
   withExplorer = true;
   withLegacyExplorer = false;
+  withCardanoDBExtended = true;
   withFaucet = false;
 
   withHighCapacityMonitoring = false;
