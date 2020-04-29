@@ -9,7 +9,17 @@ in {
 
   imports = [
     ../modules/common.nix
-    (sourcePaths.cardano-faucet + "/nix/nixos")
+
+    # Cardano faucet needs to pair a compatible version of wallet with node
+    # The following service import will do this:
+    (sourcePaths.cardano-faucet + "/nix/nixos/cardano-faucet-service-with-node.nix")
+
+    # To instead use this deployments own native cardano node niv pin,
+    # switch to the following two imports.  This may break the faucet wallet!
+    # A compatible wallet package may be specified with the cardano-faucet
+    # walletPackage option.
+    #(sourcePaths.cardano-faucet + "/nix/nixos/cardano-faucet-service.nix")
+    #(sourcePaths.cardano-node + "/nix/nixos")
   ];
 
   environment.systemPackages = with pkgs; [
@@ -89,12 +99,10 @@ in {
 
       map $http_origin $origin_allowed {
         default 0;
-        https://webdevc.iohk.io 1;
-        http://webdevc.iohk.io 1;
-        https://webdevr.iohk.io 1;
-        http://webdevr.iohk.io 1;
         https://testnet.iohkdev.io 1;
-        http://127.0.0.1:4000 1;
+        https://testnets.cardano.org 1;
+        https://staging-testnets-cardano.netlify.com 1;
+        https://staging-testnets-cardano.netlify.app 1;
       }
 
       map $origin_allowed $origin {
