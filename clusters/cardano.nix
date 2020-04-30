@@ -39,7 +39,7 @@ let
       };
 
       services.prometheus = {
-        scrapeConfigs = (lib.optional globals.withExplorer (
+        scrapeConfigs = (lib.optionals globals.withExplorer ([
           # TODO: remove once explorer exports metrics at path `/metrics`
           {
             job_name = "explorer-exporter";
@@ -49,7 +49,17 @@ let
               targets = [ "explorer-ip" ];
               labels = { alias = "explorer-exporter"; };
             }];
-          })) ++ (lib.optional globals.withLegacyExplorer (
+          }
+          {
+            job_name = "cardano-graphql-exporter";
+            scrape_interval = "10s";
+            metrics_path = "/metrics2/cardano-graphql";
+            static_configs = [{
+              targets = [ "explorer-ip" ];
+              labels = { alias = "cardano-graphql-exporter"; };
+            }];
+          }
+          ])) ++ (lib.optional globals.withLegacyExplorer (
           # TODO: remove once explorer python api is deprecated
           {
             job_name = "explorer-python-api";

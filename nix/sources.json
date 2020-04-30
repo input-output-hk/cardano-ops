@@ -17,10 +17,10 @@
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "8842aa6c14e258942419a1853b0d98f1415bfafc",
-        "sha256": "05xpck7a0a2vkannyipqwpxqi3n62h6ipl3z056z74hl3xgfiq92",
+        "rev": "8fe44c55940470d061a279eaa3976f5b9d0be65e",
+        "sha256": "0kr436dn2xzc47czpp0hd6yn4d1qzaxzssm4ns0b48xwz1y6gppa",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/8842aa6c14e258942419a1853b0d98f1415bfafc.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/8fe44c55940470d061a279eaa3976f5b9d0be65e.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer-app": {
@@ -29,10 +29,10 @@
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-explorer-app",
-        "rev": "e3119e7a10ea4916dd224aaf9b6510139402a747",
-        "sha256": "15vvl1r77x4k6xsxi4wwnk7xvxbb8hhhd9d7k63cxznm6wy33zhm",
+        "rev": "c271e6b7814daa4c3ca55cc6dbb68705af836f52",
+        "sha256": "0a4lbl545mj0dxa8ca3rrfk3av6r91imclxq5za673fz6mh88ri8",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/e3119e7a10ea4916dd224aaf9b6510139402a747.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/c271e6b7814daa4c3ca55cc6dbb68705af836f52.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
@@ -53,10 +53,10 @@
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "5ba435197818e86ead1422c5b31881b2a4e90c34",
-        "sha256": "1srplhrwrpssgpzk40x9s8cf1rkbbnv8prpd1nhyfl8qkhvnkqy7",
+        "rev": "b3431ee7762d3160edfafc5489d41a6e7a01eeb1",
+        "sha256": "1wmdp7irbhwvk9a9ymgzrkkrr9smhgjl8iyrbjcdcrp8qr3qa388",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/5ba435197818e86ead1422c5b31881b2a4e90c34.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/b3431ee7762d3160edfafc5489d41a6e7a01eeb1.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
