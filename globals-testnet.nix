@@ -8,7 +8,6 @@ pkgs: {
 
   withExplorer = true;
   withLegacyExplorer = true;
-  explorerAliases = [];
   withFaucet = true;
   faucetHostname = "faucet2";
 
