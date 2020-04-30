@@ -122,8 +122,8 @@ in {
             };
             tryFiles = "$uri $uri/index.html /index.html";
             extraConfig = ''
-              rewrite /tx/(.*) /$lang/transaction?id=$1 redirect;
-              rewrite /address/(.*) /$lang/address?address=$1 redirect;
+              rewrite /tx/([0-9a-f]+) /$lang/transaction?id=$1 redirect;
+              rewrite /address/([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+) /$lang/address?address=$1 redirect;
             '';
           };
           "/api" = {
