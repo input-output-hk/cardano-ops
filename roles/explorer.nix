@@ -139,6 +139,9 @@ in {
           "/metrics2/exporter" = {
             proxyPass = "http://127.0.0.1:8080/";
           };
+          "/metrics2/cardano-graphql" = {
+            proxyPass = "http://127.0.0.1:3100/metrics";
+          };
         };
       };
     };
