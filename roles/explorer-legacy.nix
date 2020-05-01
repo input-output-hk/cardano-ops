@@ -44,12 +44,12 @@ in {
     enable = true;
 
     # Enable goaccess compatible logging config to journald
-    commonHttpConfig = ''
-      log_format x-fwd '$remote_addr - $remote_user [$time_local] '
-                       '"$request" $status $body_bytes_sent '
-                       '"$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
-      access_log syslog:server=unix:/dev/log x-fwd;
-    '';
+    #commonHttpConfig = ''
+    #  log_format x-fwd '$remote_addr - $remote_user [$time_local] '
+    #                   '"$request" $status $body_bytes_sent '
+    #                   '"$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
+    #  access_log syslog:server=unix:/dev/log x-fwd;
+    #'';
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;

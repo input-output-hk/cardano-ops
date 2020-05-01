@@ -8,9 +8,11 @@ pkgs: {
 
   explorerHostName = "explorer";
   explorerForceSSL = true;
+  withExplorer = true;
+  withLegacyExplorer = true;
   explorerAliases = [ "explorer.mainnet.cardano.org" "explorer.cardano.org" ];
 
-  withCardanoDBExtended = false;
+  withCardanoDBExtended = true;
   withHighCapacityMonitoring = true;
   withHighLoadRelays = true;
 

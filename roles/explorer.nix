@@ -115,7 +115,7 @@ in {
         enableACME = true;
         forceSSL = globals.explorerForceSSL;
         locations = {
-          "/" = lib.mkForce {
+          "/" = {
             root = cardano-explorer-app.static.override {
               graphqlApiHost = "${globals.explorerHostName}.${globals.domain}";
               cardanoNetwork = globals.environmentName;

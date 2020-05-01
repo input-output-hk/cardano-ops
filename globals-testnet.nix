@@ -6,6 +6,8 @@ pkgs: {
 
   domain = "cardano-testnet.iohkdev.io";
 
+  withExplorer = true;
+  withLegacyExplorer = true;
   explorerAliases = [];
   withFaucet = true;
   faucetHostname = "faucet2";
