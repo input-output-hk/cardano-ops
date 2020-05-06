@@ -16,6 +16,43 @@ in {
   services.cardano-node = {
     signingKey = "/var/lib/keys/cardano-node-signing";
     delegationCertificate = "/var/lib/keys/cardano-node-delegation-cert";
+    nodeConfig = globals.environmentConfig.nodeConfig // {
+      defaultScribes = [
+        [ "StdoutSK" "stdout" ]
+        [ "FileSK"   "/var/lib/cardano-node/logs/node.json" ]
+      ];
+      setupScribes = [
+        { scKind = "StdoutSK"; scName = "stdout"; scFormat = "ScJson"; }
+        { scKind = "FileSK"; scName = "/var/lib/cardano-node/logs/node.json"; scFormat = "ScJson"; "scRotation" = null; }
+      ];
+      minSeverity = "Debug";
+
+      TraceBlockFetchClient = true;
+      TraceBlockFetchDecisions = false;
+      TraceBlockFetchProtocol = false;
+      TraceBlockFetchProtocolSerialised = false;
+      TraceBlockFetchServer = false;
+      TraceChainDb = true;
+      TraceChainSyncClient = false;
+      TraceChainSyncBlockServer = false;
+      TraceChainSyncHeaderServer = false;
+      TraceChainSyncProtocol = false;
+      TraceDNSResolver = false;
+      TraceDNSSubscription = false;
+      TraceErrorPolicy = false;
+      TraceForge = false;
+      TraceIpSubscription = false;
+      TraceLocalChainSyncProtocol = false;
+      TraceLocalTxSubmissionProtocol = false;
+      TraceLocalTxSubmissionServer = false;
+      TraceMempool = true;
+      TraceMux = false;
+      TraceTxInbound = true;
+      TraceTxOutbound = true;
+      TraceTxSubmissionProtocol = true;
+
+      TurnOnLogMetrics = false;
+    };
   };
 
   systemd.services."cardano-node" = {
