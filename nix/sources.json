@@ -131,18 +131,6 @@
         "url": "https://github.com/input-output-hk/iohk-nix/archive/dfce0e88fee7d5c29fd6f128d02be3594ae39c88.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "nixpkgs": {
-        "branch": "nixos-19.09",
-        "description": "A read-only mirror of NixOS/nixpkgs tracking the released channels. Send issues and PRs to",
-        "homepage": "https://github.com/NixOS/nixpkgs",
-        "owner": "NixOS",
-        "repo": "nixpkgs-channels",
-        "rev": "e1843646b04fb564abf6330a9432a76df3269d2f",
-        "sha256": "1h1nv7bb6j0ccx8v0sz3gcwl1jqz3v2bb13ham0ky0rg9cvdv91h",
-        "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs-channels/archive/e1843646b04fb564abf6330a9432a76df3269d2f.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "nixpkgs-postgresql12": {
         "branch": "nixpkgs-unstable",
         "description": "Nix Packages collection",
@@ -156,15 +144,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
-        "branch": "deployers-merge",
+        "branch": "master",
         "description": "NixOps deployment configuration library for IOHK devops ",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "4ed410d2b9eb0355a64fba6e9703ca970f6462dd",
-        "sha256": "0i05zgd6g6hnpqwf6lmzcyy9vxsw7vhx6qjggsq9sdkyglsdqv94",
+        "rev": "3574986bdab872c6c0d23a7b16f075405328ecf9",
+        "sha256": "0d2cj0b20ngrfcslnajr8ns78maxrq50bbknj0acl6vjp3k5dkkk",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/4ed410d2b9eb0355a64fba6e9703ca970f6462dd.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/3574986bdab872c6c0d23a7b16f075405328ecf9.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
