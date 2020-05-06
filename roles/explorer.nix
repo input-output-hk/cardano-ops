@@ -3,11 +3,22 @@ with pkgs;
 
 let
   nodeCfg = config.services.cardano-node;
+  iohkNix = import sourcePaths.iohk-nix {};
   cardano-explorer-app = import sourcePaths.cardano-explorer-app {};
   explorerFrontend = cardano-sl-pkgs.explorerFrontend;
   postgresql12 = (import sourcePaths.nixpkgs-postgresql12 {}).postgresql_12;
-  nodeId = config.node.nodeId;
+  nodePort = globals.cardanoNodePort;
+  nodeId = 99;
   hostAddr = getListenIp nodes.${name};
+  hostName = name: "${name}.cardano";
+  cardanoNodes = lib.filterAttrs
+    (_: node: node.config.services.cardano-node.enable
+           or node.config.services.byron-proxy.enable or false)
+    nodes;
+  cardanoHostList = lib.mapAttrsToList (nodeName: node: {
+    name = hostName nodeName;
+    ip = getStaticRouteIp resources nodes nodeName;
+  }) cardanoNodes;
   cardanoDbPkgs = import sourcePaths.cardano-db-sync {};
 in {
   imports = [
@@ -18,6 +29,10 @@ in {
     cardano-ops.modules.base-service
     cardano-ops.modules.cardano-postgres
   ];
+
+  networking.extraHosts = ''
+    ${lib.concatStringsSep "\n" (map (host: "${host.ip} ${host.name}") cardanoHostList)}
+  '';
 
   environment.systemPackages = with pkgs; [
     bat fd lsof netcat ncdu ripgrep tree vim cardano-cli
@@ -54,6 +69,7 @@ in {
     inherit nodeId;
     extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
     environment = globals.environmentName;
+    # extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
     environments = {
       "${globals.environmentName}" = globals.environmentConfig;
     };

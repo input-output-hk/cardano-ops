@@ -25,6 +25,10 @@ pkgs: rec {
       GenesisHash = genesisHash;
       NumCoreNodes = builtins.length topology.coreNodes;
     };
+    txSubmitConfig = {
+      inherit (networkConfig) RequiresNetworkMagic;
+      GenesisHash = genesisHash;
+    } // pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig;
   };
 
   topology = import ./topologies/shelley-dev.nix;
