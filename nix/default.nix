@@ -36,6 +36,7 @@ let
   # our own overlays:
   local-overlays = [
     (import ./cardano.nix)
+    (import ./benchmarking.nix)
     (import ./packages.nix)
   ];
 
