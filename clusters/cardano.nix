@@ -232,6 +232,7 @@ let
         imports = args.imports ++ (def.imports or []);
         deployment.targetEnv = targetEnv;
         nixpkgs.overlays = pkgs.cardano-ops-overlays;
+        _module.args.cardanoNodePkgs = lib.mkDefault cardanoNodePkgs;
       } args)
       (builtins.removeAttrs def [
         "imports"
