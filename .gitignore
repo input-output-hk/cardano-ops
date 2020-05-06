@@ -3,5 +3,11 @@ static
 keys
 .envrc
 genesis-keys
+*~
+\#*
+\.#*
 *.swp
 result*
+
+/*.json
+/*.split
