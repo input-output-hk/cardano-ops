@@ -1,4 +1,16 @@
 {
+    "cardano-benchmarking": {
+        "branch": "cad-918-generator-service+infra",
+        "description": "Epic win",
+        "homepage": null,
+        "owner": "input-output-hk",
+        "repo": "cardano-benchmarking",
+        "rev": "522ad677bd56799487e34afb1c36e1b8f1000fba",
+        "sha256": "05z4iylv935lqy2wri2926kjdzywqiqs8s916si0x2j2dpb91pdk",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-benchmarking/archive/522ad677bd56799487e34afb1c36e1b8f1000fba.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-byron-proxy": {
         "branch": "tags/1.0.5",
         "description": "A bydirectional proxy between the Shelly and Byron versions of the Cardano network",
