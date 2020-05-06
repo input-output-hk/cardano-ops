@@ -94,6 +94,7 @@ let
         xlarge
         ../roles/explorer.nix
       ]
+      ++ lib.optional (globals.withTxGenerator) ../roles/tx-generator.nix
       # TODO: remove module when the new explorer is available
       ++ lib.optional (globals.withLegacyExplorer) ../roles/explorer-legacy.nix;
 

@@ -24,6 +24,7 @@ in {
   withMonitoring = true;
   withExplorer = true;
   withLegacyExplorer = false;
+  withTxGenerator = false;
   withCardanoDBExtended = true;
   withFaucet = false;
 
