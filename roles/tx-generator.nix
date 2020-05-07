@@ -21,11 +21,6 @@ in {
     (benchmarking-src + "/nix/nixos/tx-generator-service.nix")
   ];
 
-  services.dnsmasq = {
-    enable = true;
-    servers = [ "127.0.0.1" ];
-  };
-
   services.tx-generator = {
     enable = true;
     targetNodes = __mapAttrs

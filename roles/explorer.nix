@@ -19,6 +19,14 @@ let
     name = hostName nodeName;
     ip = getStaticRouteIp resources nodes nodeName;
   }) cardanoNodes;
+    producers = map (n: {
+    addr = if (nodes ? ${n}) then hostName n else n;
+    port = nodePort;
+    valency = 1;
+  }) (map (x: x.name) globals.topology.coreNodes);
+  topology =  builtins.toFile "topology.yaml" (builtins.toJSON {
+    Producers = producers;
+  });
   cardanoDbPkgs = import sourcePaths.cardano-db-sync {};
 in {
   imports = [
@@ -73,13 +81,14 @@ in {
     environments = {
       "${globals.environmentName}" = globals.environmentConfig;
     };
-
     nodeConfig = globals.environmentConfig.nodeConfig // {
       hasPrometheus = [ hostAddr globals.cardanoNodePrometheusExporterPort ];
     };
   } // (lib.optionalAttrs (options.services.cardano-node ? cardanoNodePkgs) {
       inherit cardanoNodePkgs;
   });
+
+>>>>>>> b775d64... fix merge removals
   services.cardano-db-sync = {
     enable = true;
     cluster = globals.environmentName;
@@ -106,7 +115,13 @@ in {
     '';
   };
 
-  services.cardano-explorer-api.enable = true;
+  services.cardano-explorer-api = {
+    enable = true;
+  };
+  services.cardano-submit-api = {
+    environment = globals.environmentConfig;
+    socketPath = nodeCfg.socketPath;
+  };
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
   services.nginx = {

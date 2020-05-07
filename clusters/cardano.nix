@@ -1,5 +1,7 @@
 { pkgs
 , targetEnv
+, nano
+, small
 , medium               # Standard relay
 , xlarge               # Standard explorer
 , t3-xlarge            # High load relay
