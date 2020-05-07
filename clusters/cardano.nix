@@ -1,4 +1,6 @@
 { targetEnv
+, nano
+, small
 , medium               # Standard relay
 , xlarge               # Standard explorer
 , t3-xlarge            # High load relay
@@ -157,7 +159,8 @@ let
       imports = if globals.withHighLoadRelays then [
         t3-xlarge ../roles/relay-high-load.nix
       ] else [
-        medium ../roles/relay.nix
+        ../roles/relay.nix
+        (if (builtins.length def.producers > 1) then small else nano)
       ];
     } def;
   };
