@@ -71,7 +71,8 @@ deploy_list=("${cluster_member_list[@]}")
 
 local_jq_opts=()
 wait_nodes=25
-wait_txs=85
+wait_txs=90
+self="$(realpath "$0")"
 
 main() {
         local deploy=
@@ -280,8 +281,11 @@ op_bench_start() {
         echo "--( Stopping generator.."
         nixops ssh explorer "systemctl stop tx-generator"
 
-        echo "--( Stopping nodes.."
-        nixops ssh-for-each --parallel "systemctl stop cardano-node; systemctl stop systemd-journald 2>/dev/null"
+        local SVCS_ALL=(systemd-journald cardano-node)
+        local SVCS_EXPLORER=(cardano-explorer-node cardano-db-sync)
+        echo "--( Stopping nodes & explorer.."
+        nixops ssh-for-each --parallel "systemctl stop ${SVCS_ALL[*]} 2>/dev/null"
+        nixops ssh explorer "systemctl stop ${SVCS_EXPLORER[*]} 2>/dev/null"
 
         echo "--( Cleaning explorer DB.."
         nixops ssh explorer -- sh -c "'PGPASSFILE=/var/lib/cexplorer/pgpass psql cexplorer cexplorer --command \"delete from tx_in *; delete from tx_out *; delete from tx *; delete from block; delete from slot_leader *;\"'"
@@ -290,7 +294,8 @@ op_bench_start() {
         nixops ssh-for-each --parallel "rm -rf /var/lib/cardano-node/db* /var/lib/cardano-node/logs/* /var/log/journal/*"
 
         echo "--( Restarting nodes.."
-        nixops ssh-for-each --parallel "systemctl start systemd-journald; systemctl start cardano-node"
+        nixops ssh-for-each --parallel "systemctl start ${SVCS_ALL[*]}"
+        nixops ssh explorer "systemctl start ${SVCS_EXPLORER[*]} 2>/dev/null"
 
         echo "--( Waiting for the nodes to establish business.."
         sleep ${wait_nodes}s
@@ -323,7 +328,7 @@ op_bench_results() {
         rm logs.tar.gz
 
         echo "--( Fetching analyser from 'cardano-benchmarking'.."
-        local benchmarking="$(nix-build --no-out-link ../nix/sources.nix -A cardano-benchmarking --no-build-output)"
+        local benchmarking="$(nix-instantiate --eval -E "(import $(dirname "${self}")/../nix/sources.nix).cardano-benchmarking.outPath" | tr -d '"' )"
         test -n "${benchmarking}" ||
                 fail "couldn't fetch 'cardano-benchmarking'"
         cp -f "${benchmarking}"/scripts/{analyse,xsends,xrecvs}.sh .

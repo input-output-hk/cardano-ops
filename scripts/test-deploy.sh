@@ -9,7 +9,7 @@ at_exit() {
 }
 trap at_exit EXIT
 
-nixpkgs="$(nix-build nix/sources.nix -A nixpkgs \
+nixpkgs="$(nix-build ./nix \
                      --no-out-link )"
 ## TODO: make the following work -- that'll improve caching:
 # nixpkgs=./nix
