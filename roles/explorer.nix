@@ -37,6 +37,7 @@ in {
     (sourcePaths.cardano-rest + "/nix/nixos")
     (sourcePaths.cardano-db-sync + "/nix/nixos")
     ../modules/common.nix
+    ../modules/base-service.nix
     ../modules/cardano-postgres.nix
   ];
 
@@ -90,7 +91,6 @@ in {
     servers = [ "127.0.0.1" ];
   };
 
-  systemd.services.cardano-node.serviceConfig.MemoryMax = "3.5G";
   services.cardano-db-sync = {
     enable = true;
     cluster = globals.environmentName;
