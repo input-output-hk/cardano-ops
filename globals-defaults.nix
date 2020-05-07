@@ -19,6 +19,7 @@ in {
 
   explorerHostName = "explorer";
   explorerForceSSL = true;
+  explorerAliases = [];
 
   withMonitoring = true;
   withExplorer = true;
