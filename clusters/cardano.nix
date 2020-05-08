@@ -86,6 +86,7 @@ let
     } def;
   }) // (lib.optionalAttrs globals.withExplorer {
     explorer = let def = (topology.explorer or {}); in mkNode {
+      _file = ./cardano.nix;
       deployment.ec2 = {
         region = def.region or "eu-central-1";
         ebsInitialRootDiskSize = 100;
@@ -93,6 +94,7 @@ let
       imports = [
         xlarge
         ../roles/explorer.nix
+        ../modules/base-service.nix
       ]
       # TODO: remove module when the new explorer is available
       ++ lib.optional (globals.withLegacyExplorer) ../roles/explorer-legacy.nix;
@@ -130,6 +132,7 @@ let
   mkCoreNode =  def: {
     inherit (def) name;
     value = mkNode {
+      _file = ./cardano.nix;
       node = {
         roles.isCardanoCore = true;
         inherit (def) org nodeId;
@@ -145,6 +148,7 @@ let
   mkRelayNode = def: {
     inherit (def) name;
     value = mkNode {
+      _file = ./cardano.nix;
       node = {
         roles.isCardanoRelay = true;
         inherit (def) org nodeId;
