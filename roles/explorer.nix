@@ -47,7 +47,10 @@ in {
   };
 
   services.graphql-engine.enable = true;
-  services.cardano-graphql.enable = true;
+  services.cardano-graphql = {
+    enable = true;
+    whitelistPath = cardano-explorer-app.whitelist;
+  };
   services.cardano-node = {
     enable = true;
     inherit nodeId;
