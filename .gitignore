@@ -11,3 +11,6 @@ result*
 
 /*.json
 /*.split
+
+/last-run
+/runs

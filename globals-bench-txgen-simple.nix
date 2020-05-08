@@ -28,6 +28,17 @@ pkgs: rec {
       GenesisFile = genesisFile;
       GenesisHash = genesisHash;
     } // pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig;
+
+    ## This is overlaid atop the defaults in the tx-generator service,
+    ## as specified in the 'cardano-benchmarking' repository.
+    ##
+    ## Note, that this only affects the Tx generation options:
+    ##   txCount addTxSize inputsPerTx outputsPerTx txFee tps
+    generatorConfig =
+      if __pathExists ./generator-params.json
+      then __trace "Generator:  using ${./generator-params.json}"
+        (__fromJSON (__readFile ./generator-params.json))
+      else {};
   };
 
   topology = import ./topologies/bench-txgen-simple.nix;
