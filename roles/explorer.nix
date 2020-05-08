@@ -64,7 +64,6 @@ in {
       hasPrometheus = [ hostAddr globals.cardanoNodePrometheusExporterPort ];
     };
   };
-  systemd.services.cardano-node.serviceConfig.MemoryMax = "3.5G";
   services.cardano-db-sync = {
     enable = true;
     cluster = globals.environmentName;
