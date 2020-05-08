@@ -35,8 +35,10 @@ USAGE:  $(basename "$0") OPTIONS.. OP OP-ARGS..
   OP is one of:
 
     bench-start           Cycle explorer & all nodes, and start the generator.
-    bench-results         Fetch & analyse logs from explorer.
-    bench-simple          Same as 'bench-start' & 'bench-results'.
+    bench-fetch           Fetch cluster logs.
+    bench-analyse         Analyse cluster logs & prepare results.
+    bench-results         Same as bench-fetch/-analyse.
+    bench-simple          Same as bench-start/-fetch/-analyse.
     split-log FILE        Decompose a logfile into a directory named FILE.trace
 
     start-generator       Start the 'tx-generator' systemd service on explorer.
@@ -66,7 +68,8 @@ goggles_fn='cat'
 remote_jq_opts=(--compact-output)
 
 ## Default is to deploy the entire cluster:
-cluster_member_list=(a b c explorer)
+cluster_producer_list=(a b c)
+cluster_member_list=(explorer "${cluster_producer_list[@]}")
 deploy_list=("${cluster_member_list[@]}")
 deploy=false
 mnemonic=
@@ -115,13 +118,21 @@ main() {
         local op="${1:-${default_op}}"; shift || true
         case "${op}" in
                 bench-simple | bench | go )
-                                      op_bench_simple "$@";;
-                bench-start )         op_bench_start "$@";;
+                                      op_bench_start
+                                      op_bench_fetch
+                                      op_bench_analsyse "$@";;
                 bench-results | results | r )
-                                      op_bench_results "$@";;
+                                      op_bench_fetch
+                                      op_bench_analyse "$@";;
+                bench-start | start )
+                                      op_bench_start "$@";;
+                bench-fetch | fetch | f )
+                                      op_bench_fetch "$@";;
+                bench-analyse | analyse | a )
+                                      op_bench_analyse "$@";;
                 bench-losses | losses | lost | l )
                                       op_analyse_losses "$@";;
-                split-log | split | s )
+                split-log | split )
                                       op_split_log "$@";;
 
                 start-generator )     op_start_generator "$@";;
@@ -307,11 +318,6 @@ op_blocks() {
         nixops ssh explorer "jq --compact-output 'select (.data.kind == \"Recv\" and .data.msg.kind == \"MsgBlock\") | .data.msg' /var/lib/cardano-node/logs/*.json"
 }
 
-op_bench_simple() {
-        op_bench_start
-        op_bench_results
-}
-
 generate_run_id() {
         local node="$(jq --raw-output '.["cardano-node"].rev' nix/sources.json | cut -c-8)"
         local params=./generator-params.json
@@ -419,8 +425,7 @@ op_bench_start() {
         # op_stop
 }
 
-op_bench_results() {
-        echo "--( cardano-ops analyser, rev $(git rev-parse HEAD | cut -c-8)"
+op_bench_fetch() {
         # echo "--( Fetching results:  part 1, {explorer,generator}.json"
         # op_jq_generator   > generator.json
         # op_jq 'explorer'  > explorer.json
@@ -447,27 +452,49 @@ op_bench_results() {
         cp "${meta}" "${dir}"/meta.json
         cd           "${dir}"
 
-        echo "--( Fetching results:  ${dir}"
+        echo "--( Run directory:  ${dir}"
+
+        echo "--( Fetching logs:  explorer"
         nixops ssh explorer "cd /var/lib/cardano-node; rm -f logs-${tag}.tar.xz; tar cf logs-${tag}.tar.xz --xz logs/*.json"
-        nixops scp --from explorer "/var/lib/cardano-node/logs-${tag}.tar.xz" .
-        tar xaf "logs-${tag}.tar.xz" --strip-components='1'
+        nixops scp --from explorer "/var/lib/cardano-node/logs-${tag}.tar.xz" \
+          'logs-explorer-generator.tar.xz'
+        tar xaf 'logs-explorer-generator.tar.xz' --strip-components='1'
         if test -L node.json
         then rm node.json
              cat node-[0-9]*.json > node-explorer.json
              rm -f node-[0-9]*.json
         fi
-        ln -s "logs-${tag}.tar.xz" logs.tar.xz
+
+        echo "--( Fetching logs:  producers"
+        nixops ssh-for-each --parallel --include "${cluster_producer_list[@]}" \
+           -- "cd /var/lib/cardano-node; rm -f logs-${tag}.tar.xz; tar cf node-\${HOSTNAME}-logs-${tag}.tar.xz --xz logs/*.json"
+
+        for node in "${cluster_producer_list[@]}"
+        do nixops scp --from "${node}" \
+             "/var/lib/cardano-node/node-${node}-logs-${tag}.tar.xz" \
+             "logs-node-${node}.tar.xz"
+        done
+}
+
+op_bench_analyse() {
+        echo "--( cardano-ops rev $(git rev-parse HEAD | cut -c-8)"
 
         echo "--( Fetching analyser from 'cardano-benchmarking' $(nix-instantiate --eval -E "(import $(dirname "${self}")/../nix/sources.nix).cardano-benchmarking.rev" | tr -d '"' | cut -c-8) .."
         local benchmarking="$(nix-instantiate --eval -E "(import $(dirname "${self}")/../nix/sources.nix).cardano-benchmarking.outPath" | tr -d '"' )"
         test -n "${benchmarking}" ||
                 fail "couldn't fetch 'cardano-benchmarking'"
-        cp -f "${benchmarking}"/scripts/{analyse,xsends,xrecvs}.sh .
+        cp -f "${benchmarking}"/scripts/{{analyse,xsends,xrecvs}.sh,analyse.sql} .
         chmod +x {analyse,xsends,xrecvs}.sh
+
         ls -l
 
-        echo "--( Running analyser.."
+        echo "--( Running log analyser.."
         ./analyse.sh ./generator ./node "last-run"
+        cp analysis/timetoblock.csv .
+
+        echo "--( Running SQL analyser.."
+        nixops scp --to explorer ./analyse.sql /root
+        nixops ssh explorer -- PGPASSFILE=/var/lib/cexplorer/pgpass psql cexplorer cexplorer --file ./analyse.sql > db-analysis.log
 
         if test -n "$(ls analysis/*missing* 2>/dev/null || true)"
         then echo "--( Losses found, analysing.."
