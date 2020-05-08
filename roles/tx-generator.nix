@@ -51,16 +51,16 @@ in {
       TraceChainSyncBlockServer         = false;
       TraceChainSyncHeaderServer        = false;
       TraceChainSyncProtocol            = true;
-      TraceDNSResolver                  = true;
-      TraceDNSSubscription              = true;
+      TraceDNSResolver                  = false;
+      TraceDNSSubscription              = false;
       TraceErrorPolicy                  = true;
       TraceForge                        = false;
-      TraceIpSubscription               = true;
+      TraceIpSubscription               = false;
       TraceLocalChainSyncProtocol       = true;
       TraceLocalTxSubmissionProtocol    = true;
       TraceLocalTxSubmissionServer      = true;
       TraceMempool                      = true;
-      TraceMux                          = true;
+      TraceMux                          = false;
       TraceTxInbound                    = true;
       TraceTxOutbound                   = true;
       TraceTxSubmissionProtocol         = true;
@@ -79,7 +79,12 @@ in {
       ];
       setupScribes = [
         { scKind = "StdoutSK"; scName = "stdout"; scFormat = "ScJson"; }
-        { scKind = "FileSK"; scName = "/var/lib/cardano-node/logs/node.json"; scFormat = "ScJson"; "scRotation" = null; }
+        { scKind = "FileSK"; scName = "/var/lib/cardano-node/logs/node.json"; scFormat = "ScJson";
+          scRotation = {
+            rpLogLimitBytes = 200000000;
+            rpMaxAgeHours   = 24;
+            rpKeepFilesNum  = 2;
+          }; }
       ];
       minSeverity = "Debug";
       TracingVerbosity = "MaximalVerbosity";
@@ -90,20 +95,20 @@ in {
       TraceBlockFetchProtocolSerialised = false;
       TraceBlockFetchServer             = false;
       TraceChainDb                      = true;
-      TraceChainSyncClient              = false;
+      TraceChainSyncClient              = true;
       TraceChainSyncBlockServer         = false;
       TraceChainSyncHeaderServer        = false;
       TraceChainSyncProtocol            = false;
-      TraceDNSResolver                  = true;
-      TraceDNSSubscription              = true;
+      TraceDNSResolver                  = false;
+      TraceDNSSubscription              = false;
       TraceErrorPolicy                  = true;
       TraceForge                        = false;
-      TraceIpSubscription               = true;
-      TraceLocalChainSyncProtocol       = true;
-      TraceLocalTxSubmissionProtocol    = true;
+      TraceIpSubscription               = false;
+      TraceLocalChainSyncProtocol       = false; ## This is horribly noisy!
+      TraceLocalTxSubmissionProtocol    = false; ## ..too!
       TraceLocalTxSubmissionServer      = true;
-      TraceMempool                      = true;
-      TraceMux                          = true;
+      TraceMempool                      = false; ## Too!
+      TraceMux                          = false;
       TraceTxInbound                    = true;
       TraceTxOutbound                   = true;
       TraceTxSubmissionProtocol         = true;

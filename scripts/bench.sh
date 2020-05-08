@@ -415,8 +415,8 @@ op_bench_start() {
            current=$((current + 1))
            done
         echo
-        echo "--( Stopping the cluster.."
-        op_stop
+        echo "--( Termination criteria triggered at $(date)"
+        # op_stop
 }
 
 op_bench_results() {
