@@ -13,7 +13,6 @@ in {
   ];
 
   services.cardano-node = {
-    consensusProtocol = globals.environmentConfig.consensusProtocol;
     kesKey = "/var/lib/keys/cardano-node-kes-signing";
     vrfKey = "/var/lib/keys/cardano-node-vrf-signing";
     operationalCertificate = "/var/lib/keys/cardano-node-operational-cert";

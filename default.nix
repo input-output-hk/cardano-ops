@@ -35,17 +35,17 @@
      '';
     create-shelley-genesis-and-keys =
       let nbCoreNodes = builtins.length globals.topology.coreNodes;
-          maxSupply = 10000000000 * nbCoreNodes;
+          maxSupply = 20000000000000000 * nbCoreNodes;
       in writeShellScriptBin "create-shelley-genesis-and-keys" ''
         set -euxo pipefail
 
         cd ${toString ./keys}
-        cardano-cli shelley genesis create-genesis --genesis-dir . --supply ${toString maxSupply} --genesis-delegates ${toString nbCoreNodes}
+        cardano-cli shelley genesis create-genesis --genesis-dir . --supply ${toString maxSupply} --gen-genesis-keys ${toString nbCoreNodes} --gen-utxo-keys 2
         mkdir -p node-keys
         cd node-keys
         for i in {1..${toString nbCoreNodes}}; do
           cardano-cli shelley node key-gen-VRF --verification-key-file node-vrf$i.vkey --signing-key-file node-vrf$i.skey
-          cardano-cli shelley node key-gen-KES --verification-key-file node-kes$i.vkey --signing-key-file node-kes$i.skey --kes-duration 30
+          cardano-cli shelley node key-gen-KES --verification-key-file node-kes$i.vkey --signing-key-file node-kes$i.skey
           cardano-cli shelley node issue-op-cert --hot-kes-verification-key-file node-kes$i.vkey --cold-signing-key-file ../delegate-keys/delegate$i.skey --operational-certificate-issue-counter ../delegate-keys/delegate-opcert$i.counter --kes-period 0 --out-file delegate$i.opcert
         done
      '';

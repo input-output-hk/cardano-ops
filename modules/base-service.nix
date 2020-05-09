@@ -52,6 +52,7 @@ in
 
   config = {
 
+    environment.systemPackages = [ pkgs.cardano-cli ];
     services.monitoring-exporters.extraPrometheusExportersPorts = [ monitoringPort ];
 
     networking.firewall = {
