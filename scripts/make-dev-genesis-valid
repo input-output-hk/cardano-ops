@@ -19,12 +19,12 @@ if [ "$OS" = "Darwin" ]; then
 fi
 start_future_offset="1 minute"
 start_time="$(${DATE} -d "now + ${start_future_offset}" +%s)"
-protocol_params="/home/dev/remote-dev-cluster-3/scripts/protocol-params.json"
+protocol_params="scripts/protocol-params.json"
 
 parameter_k=2160
 protocol_magic=459045235
 n_poors=128
-n_delegates=3
+n_delegates=$(jq .meta.nodeCount "$(dirname $0)/../benchmarking-cluster-params.json")
 total_balance=8000000000000000
 delegate_share=0.9
 avvm_entries=128
@@ -54,7 +54,7 @@ RUNNER=${RUNNER:-cabal new-run -v0 --}
 
 # move new genesis to configuration
 GENHASH=` cardano-cli "${common[@]}" print-genesis-hash --genesis-json "${tmpdir}/genesis.json" | tail -1`
-TARGETDIR="/home/dev/remote-dev-cluster-3/keys"
+TARGETDIR='keys'
 mkdir -vp "${TARGETDIR}"
 cp -iav ${tmpdir}/genesis.json ${TARGETDIR}/
 cp -iav ${tmpdir}/delegate-keys.*.key ${TARGETDIR}/
