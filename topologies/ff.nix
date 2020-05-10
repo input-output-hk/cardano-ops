@@ -28,9 +28,6 @@
       org = "IOHK";
       nodeId = 3;
     }
-  ];
-
-  relayNodes = [
     # stake pools
     {
       name = "c-a-2";
@@ -53,6 +50,9 @@
       org = "IOHK";
       nodeId = 6;
     }
+  ];
+
+  relayNodes = [
     # relays
     {
       name = "e-a-1";

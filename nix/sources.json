@@ -125,10 +125,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "012521e702e2bfa74ce5096a5d711c97ba0a3686",
-        "sha256": "1w1m6zryz25zfh5c7wxanlpx7l4dv1pj4mi5ja5dpxyibyhxn9aa",
+        "rev": "ead9e9c9f9054d3f10b2dc7d0f4f9a17745a731c",
+        "sha256": "1s310b07q4ikk9id1qlcn9vbvg9gc3i78pa7mala5g6fryapfysx",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/012521e702e2bfa74ce5096a5d711c97ba0a3686.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/ead9e9c9f9054d3f10b2dc7d0f4f9a17745a731c.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs-postgresql12": {

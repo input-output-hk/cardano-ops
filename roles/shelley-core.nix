@@ -5,7 +5,7 @@ let
   nodeId = toString config.node.nodeId;
   vrfKey = ../keys/node-keys/node-vrf + "${nodeId}.skey";
   kesKey = ../keys/node-keys/node-kes + "${nodeId}.skey";
-  operationalCertificate = ../keys/node-keys/delegate + "${nodeId}.opcert";
+  operationalCertificate = ../keys/node-keys/node + "${nodeId}.opcert";
 in {
 
   imports = [
