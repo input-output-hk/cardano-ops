@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
+# shellcheck disable=2207,2155,1007,1090
 set -euo pipefail
 
+clusterfile=
+. "$(dirname "$0")"/lib.sh
+. "$(dirname "$0")"/lib-nixops.sh
+. "$(dirname "$0")"/lib-cardano.sh
+. "$(dirname "$0")"/lib-cluster.sh
+. "$(dirname "$0")"/lib-benchrun.sh
 ###
 ### TODO
 ###
 ##  1. Automate genesis using cardano-node's Nix code. Param details are key.
-##  2. Refactor into a less ugly thing.
-##  3. Debug why kill -9 on the tx-generator removes _node's_ socket.
-##  4. Make tx-generator exit on completion.
-##  5. Refactor into a less ugly thing.
-##  6. Did I mention?  Refactor the ugly away.
-##  7. TODOs in 'cardano-benchmarking'
+##  2. Debug why kill -9 on the tx-generator removes _node's_ socket.
+##  3. Make tx-generator exit on completion.
+##  4. TODOs in 'cardano-benchmarking'
 
 usage() {
         cat >&2 <<EOF
@@ -18,35 +22,37 @@ USAGE:  $(basename "$0") OPTIONS.. OP OP-ARGS..
 
   Options:
 
-    --deploy              Before further business, deploy the full cluster.
-    --deploy-fast         Before further business, deploy just the explorer.
-    --include HOST        Deploy only to this host.
-    --select JQEXPR       JQ log commands:  subset entries with select(JQEXPR).
-    --goggles-ip          Log commands:  Replace IP addresses with "HOST-name".
-                            Requires 'setup-goggles' subcommand to be run first.
+    --fast-unsafe         Ignore safety, go fast.  Deploys won't be made,
+                            unprocessed logs will be lost.
 
-    --wait-nodes [SEC=${wait_nodes}] Delay between forging nodes and generator startups.
-    --wait-txs   [SEC=${wait_txs}] Delay between forging nodes and generator startups.
-
-    --cls
-    --trace
-    --help
+    --cls                 Clear screen.
+    --trace               set -x
+    --help                ...
 
   OP is one of:
+
+    init-cluster N        Make a default ${clusterfile}
+                            for a cluster with N nodes.
+
+    check-genesis-age NODE SLOTLEN K
+                          Test genesis of a deployed NODE, given SLOTLEN and K.
+
+    bench                 Run benchmark across all profiles in ${clusterfile}.
+    bench-profile         Run benchmark for a single profile.
 
     bench-start           Cycle explorer & all nodes, and start the generator.
     bench-fetch           Fetch cluster logs.
     bench-analyse         Analyse cluster logs & prepare results.
+    bench-losses          Analyse Tx losses (use inside a bench run dir).
     bench-results         Same as bench-fetch/-analyse.
-    bench-simple          Same as bench-start/-fetch/-analyse.
-    split-log FILE        Decompose a logfile into a directory named FILE.trace
 
-    start-generator       Start the 'tx-generator' systemd service on explorer.
-    restart-node          Restart the explorer's 'cardano-node'.
+    stop                  Stop the cluster, including all journald instances.
 
-    get-cluster-params-raw
-                          Query nodes for volatile parameters, like IP addresses.
-    fetch-cluster-params  Cache cluster volatile parameters in ./.cluster.json
+    list-runs | ls        List accumulated benchmark runs.
+
+    split-bench-log FILE  Decompose a combined generator + explorer node logfile
+                            into message-classified streams, putting the result
+                            into a directory named FILE.trace
 
     nodes CMD..           Run CMD either on forging nodes or the explorer.
     explorer CMD..
@@ -57,40 +63,30 @@ USAGE:  $(basename "$0") OPTIONS.. OP OP-ARGS..
                             explorer+generator or just the generator.
                             Log entries are sorted by timestamp.
 
-    pgrep STR..           Run 'pgrep -fal "STR.."' across the cluster.
-    hash PATH..           Run 'md5sum PATH..' across the cluster & sort on hash.
-
     blocks                'MsgBlock' messages seen by the explorer, incl. TxIds.
 EOF
 }
 
-goggles_fn='cat'
-remote_jq_opts=(--compact-output)
+no_deploy_producers=
+no_deploy_explorer=
+clobber_deploy_logs=
 
-## Default is to deploy the entire cluster:
-cluster_producer_list=(a b c)
-cluster_member_list=(explorer "${cluster_producer_list[@]}")
-deploy_list=("${cluster_member_list[@]}")
-deploy=false
-mnemonic=
+## If a freshly-restarted cluster with valid genesis allows the explorer to see
+## no blocks, for this long -- something must be wrong.
+cluster_improductivity_patience=60
 
-local_jq_opts=()
-wait_nodes=25
-wait_txs=600
-self="$(realpath "$0")"
+self=$(realpath "$0")
 
 main() {
         local jq_select='cat'
 
         while test $# -ge 1
         do case "$1" in
-           --deploy )             deploy='true';;
-           --deploy-fast )        deploy='true'; deploy_list=(explorer);;
-           --include )            deploy_list=("$2"); shift;;
+           --fast-unsafe | --fu )
+                   no_deploy_producers=t
+                   no_deploy_explorer=t
+                   clobber_deploy_logs=t;;
            --select )             jq_select="jq 'select ($2)'"; shift;;
-           --goggles-ip )         goggles_fn=goggles_ip;;
-           --wait-nodes )         wait_nodes="$2"; shift;;
-           --wait-txs )           wait_txs="$2"; shift;;
 
            --cls )                echo -en "\ec">&2;;
            --quiet )              verbose=;;
@@ -98,289 +94,121 @@ main() {
            --debug )              debug=t; verbose=t;;
            --trace )              debug=t; verbose=t; trace=t; set -x;;
 
+           --goggles-ip )         goggles_fn=goggles_ip;;
+
            --help )               usage; exit 1;;
            * ) break;; esac; shift; done
 
-        export goggles_fn remote_jq_opts local_jq_opts
+        export goggles_fn remote_jq_opts
 
-        if test "${deploy_list[*]}" = "${cluster_member_list[*]}"
-        then nixops_include=
-        else nixops_include="--include ${deploy_list[*]}"
-        fi
-        if test "${deploy}" = 'true'
-        then echo "--( Deploying node $(jq --raw-output '.["cardano-node"].rev' nix/sources.json | cut -c-8) / ops $(git rev-parse HEAD | cut -c-8) / $(git symbolic-ref --short HEAD) ($(if git diff --quiet --exit-code
-                         then echo pristine
-                         else echo modified
-                         fi)) to ${deploy_list[*]}"
-             nixops deploy --max-concurrent-copy 50 -j 4 ${nixops_include}; fi
-
-        local default_op='bench-simple'
+        local default_op='bench'
         local op="${1:-${default_op}}"; shift || true
+
         case "${op}" in
-                bench-simple | bench | go )
-                                      op_bench_start
-                                      op_bench_fetch
-                                      op_bench_analsyse "$@";;
-                bench-results | results | r )
-                                      op_bench_fetch
-                                      op_bench_analyse "$@";;
+                init-cluster | init ) true;;
+                * ) clusterfile_init;; esac
+
+        case "${op}" in
+                init-cluster | init )
+                                      op_init_cluster "$@";;
+                check-genesis-age | check-genesis | genesis-age | age )
+                                      op_check_genesis_age "$@";;
+
+                deploy-cluster | full-deploy | deploy )
+                                      nixops_deploy "" \
+                                        "runs/$(date +%s).full-deploy";;
                 bench-start | start )
                                       op_bench_start "$@";;
                 bench-fetch | fetch | f )
                                       op_bench_fetch "$@";;
                 bench-analyse | analyse | a )
                                       op_bench_analyse "$@";;
+                bench-results | results | r )
+                                      op_bench_fetch
+                                      op_bench_analyse "$@";;
                 bench-losses | losses | lost | l )
                                       op_analyse_losses "$@";;
-                split-log | split )
-                                      op_split_log "$@";;
 
-                start-generator )     op_start_generator "$@";;
-                restart-node )        op_restart_node "$@";;
+                bench-profile | profile | p )
+                                      op_bench_profile "$@";;
+
+                bench | all )
+                                      op_bench "$@";;
+
+                list-runs | runs | ls )
+                                      ls -1 runs/*.json |
+                                      sed 's_^runs/\(.*\).json$'_\\1_;;
+
+                wait-for-empty-blocks | wait-empty | wait )
+                                      op_wait_for_empty_blocks "$@";;
                 stop )                op_stop "$@";;
 
-                get-cluster-params-raw | params-raw )
-                                      op_get_cluster_params_raw;;
-                fetch-cluster-params | params )
-                                      op_fetch_cluster_params;;
+                split-bench-log | split )
+                                      op_split_benchmarking_log "$@";;
 
                 nodes | n )           op_nodes       "$@";;
                 explorer | e )        op_on 'explorer'    "$@";;
-                jq-nodes | jqn )      op_jq_nodes    "$@" | ${jq_select};;
+
                 jq-explorer | jqe )   op_jq 'explorer' "$@" | ${jq_select};;
                 jq-generator | jqg )  op_jq_generator "$@" | ${jq_select};;
+                jq-nodes | jqn )      op_jq_nodes    "$@" | ${jq_select};;
 
                 pgrep )               op_pgrep "$@";;
                 md5sum | md5 | hash ) op_hash "$@";;
 
                 blocks )              op_blocks;;
 
-                ls-run )              op_ls_run;;
                 eval )                eval "${@@Q}";;
                 * ) usage; exit 1;; esac
 }
 
-fail() {
-	echo -e "ERROR:  $1" >&2
-	exit 1
+###
+### Top-level operations
+###
+
+op_bench() {
+        local all_profiles=($(cluster_sh profiles))
+        local benchmark_schedule=("${all_profiles[@]}")
+
+        echo "--( Benchmark across profiles:  ${benchmark_schedule[*]}"
+
+        mkdir -p 'runs'
+
+        if test -n "${no_deploy_producers}"
+        then echo "--( Not deploying producers, --no-deploy-producers passed."
+        else nixops_deploy "--include $(cluster_sh producers)" \
+               "runs/$(date +%s).deploy-producers.log"; fi
+
+        clobber_deploy_logs=t ## Allow the full runs to proceed regardless.
+        for p in ${benchmark_schedule[*]}
+        do op_bench_profile "${p}"
+        done
 }
 
-generate_mnemonic()
-{
-        local mnemonic="$(nix-shell -p diceware --run 'diceware --no-caps --num 2 --wordlist en_eff -d-')"
-        local timestamp="$(date +%s)"
-        local commit="$(git rev-parse HEAD | cut -c-8)"
-        local status=''
+op_bench_profile() {
+        local spec="${1:-default}"
+        local prof=$(cluster_sh resolve-profile "$spec")
+        local deploylog='./last-explorer-deploy.log'
 
-        if git diff --quiet --exit-code
-        then status=pristine
-        else status=modified
-        fi
-
-        echo "${timestamp}.${commit}.${status}.${mnemonic}"
-}
-
-op_start_generator() {
-        nixops ssh explorer "ls /run/cardano-node; systemctl start tx-generator"
-}
-
-op_restart_node() {
-        nixops ssh explorer "systemctl restart cardano-node"
-}
-
-op_ls_run() {
-        nixops ssh explorer "ls /run/cardano-node"
-}
-
-op_get_cluster_params_raw() {
-        local tag="$1"
-        local cmd=(
-                eval echo
-                '\"$(hostname)\": { \"local_ip\": \"$(ip addr show dev eth0 | sed -n "/^    inet / s_.*inet \([0-9\.]*\)/.*_\1_; T skip; p; :skip")\", \"public_ip\": \"$(curl --silent http://169.254.169.254/latest/meta-data/public-ipv4)\", \"account\": $(curl --silent http://169.254.169.254/latest/meta-data/identity-credentials/ec2/info | jq .AccountId), \"placement\": $(curl --silent http://169.254.169.254/latest/meta-data/placement/availability-zone | jq --raw-input), \"sgs\": $(curl --silent http://169.254.169.254/latest/meta-data/security-groups | jq --raw-input | jq --slurp), \"timestamp\": $(date +%s), \"timestamp_readable\": \"$(date)\" }'
-        )
-        nixops ssh-for-each --parallel -- "${cmd[@]@Q}" 2>&1 | cut -d'>' -f2-
-}
-
-goggles_ip() {
-        sed "$(jq --raw-output '.
-              | .local_ip  as $local_ip
-              | .public_ip as $public_ip
-              | ($local_ip  | map ("s_\(.local_ip  | gsub ("\\."; "."; "x"))_HOST-\(.hostname)_g")) +
-                ($public_ip | map ("s_\(.public_ip | gsub ("\\."; "."; "x"))_HOST-\(.hostname)_g"))
-              | join("; ")
-              ' last-run.json)"
-}
-
-goggles() {
-        ${goggles_fn}
-}
-export -f goggles goggles_ip
-
-op_on() {
-        local on="$1"; shift
-        nixops ssh "${on}" -- "${@}" 2>&1 |
-                goggles
-}
-
-op_nodes() {
-        nixops ssh-for-each --parallel --include a b c -- "${@}" 2>&1 |
-                cut -d'>' -f2- |
-                goggles
-}
-
-op_jq_nodes() {
-        local final_jq_opts=(
-                "${remote_jq_opts[@]}"
-                "'${1:-.}'"
-                "/var/lib/cardano-node/logs/*.json"
-        )
-        op_nodes    jq "${final_jq_opts[@]}" |
-                jq --compact-output --slurp 'sort_by(.at) | .[]'
-}
-
-op_jq() {
-        local on="$1"; shift
-        local final_jq_opts=(
-                "${remote_jq_opts[@]}"
-                "'${1:-.}'"
-                "/var/lib/cardano-node/logs/*.json"
-        )
-        op_on "${on}" jq "${final_jq_opts[@]}" |
-                jq --compact-output --slurp 'sort_by(.at) | .[]'
-}
-
-op_jq_generator() {
-        local final_jq_opts=(
-                "${remote_jq_opts[@]}"
-                "'${1:-.}'"
-                "/var/lib/cardano-node/logs/generato*.json"
-        )
-        if ! op_on 'explorer' ls '/var/lib/cardano-node/logs/generato*.json' >/dev/null
-        then fail "no generator logs on explorer."; fi
-        op_on 'explorer' jq "${final_jq_opts[@]}" |
-                jq --compact-output --slurp 'sort_by(.at) | .[]'
-}
-
-op_pgrep() {
-        nixops ssh-for-each -- pgrep -fal "'$*'" 2>&1 |
-                cut -d'>' -f2- | cut -c2-
-}
-
-op_hash() {
-        nixops ssh-for-each -- md5sum "$@" 2>&1 |
-                sort -k2 -t' '
-}
-
-op_split_log() {
-        local log="$1"
-        local dir="${log/.json/.split}"
-
-        test -f "${log}" -a "${log}" != "${dir}" -a -n "${dir}" ||
-                fail "The log (${log}) file must exist, and must end with '.json'"
-
-        mkdir -p "${dir}"
-        rm -rf ./"${dir}"/*
-        cd       "${dir}"
-        set +e ## otherwise grep will trigger exit
-
-        cat                      > stage00.json              < "../${log}"
-
-        grep -v ' MsgSubmitTx '  > stage01.json              < stage00.json
-        grep    ' MsgSubmitTx '  > e-fro-g.MsgSubmitTx.json  < stage00.json
-
-        grep -v '"MsgRe\(quest\|ply\)Txs"\|"TraceTxSubmissionOutbound\(SendMsgReply\|RecvMsgRequest\)Txs"' \
-                < stage01.json   > stage02.json
-        grep    '"MsgRe\(quest\|ply\)Txs"\|"TraceTxSubmissionOutbound\(SendMsgReply\|RecvMsgRequest\)Txs"' \
-                < stage01.json   > e-and-a.MsgRRTxs.TraceTxSubmissionOutboundSRMRRTxs.json
-
-        grep -v '"TraceMempool\(AddedTx\|RemoveTxs\)"' \
-                < stage02.json   > stage03.json
-        grep    '"TraceMempool\(AddedTx\|RemoveTxs\)"' \
-                < stage02.json   > e.TraceMempoolARTxs.json
-
-        grep -v '"TraceBenchTxSubRecv"' \
-                < stage03.json   > stage04.json
-        grep    '"TraceBenchTxSubRecv"' \
-                < stage03.json   > g-to-e.TraceBenchTxSubRecv.json
-
-        ## Extra processing
-        jq .data.message         < e-fro-g.MsgSubmitTx.json |
-                sed 's_.*Recv MsgSubmitTx tx: Tx \([0-9a-f]*\) .*_\1_' |
-                sort -u          > txs-init
-        # grep -vFf txs-init       > noInitTxs.json      < orig.json
-
-        cd ..
-        for f in "${dir}"/*
-        do wc -l "${f}"; done
-}
-
-op_blocks() {
-        nixops ssh explorer "jq --compact-output 'select (.data.kind == \"Recv\" and .data.msg.kind == \"MsgBlock\") | .data.msg' /var/lib/cardano-node/logs/*.json"
-}
-
-generate_run_id() {
-        local node="$(jq --raw-output '.["cardano-node"].rev' nix/sources.json | cut -c-8)"
-        local params=./generator-params.json
-        local tx="$(jq  .txCount      ${params})"
-        local l="$(jq   .addTxSize    ${params})"
-        local i="$(jq   .inputsPerTx  ${params})"
-        local o="$(jq   .outputsPerTx ${params})"
-        local tps="$(jq .tps          ${params})"
-        echo "$(generate_mnemonic).node-${node}.tx${tx}.l${l}.i${i}.o${o}.tps${tps}"
-}
-
-op_fetch_cluster_params() {
-        local tag="$1"
-        cat > .cluster.raw.json <<EOF
-{$(op_get_cluster_params_raw "${tag}" | sed ':b; N; s_\n_,_; b b' | sed 's_,_\n,_g')
-}
-EOF
-        mkdir -p runs
-        ln -sf runs/"${tag}".json last-run.json
-        cat > runs/"${tag}".json <<EOF
-{ "meta": {
-    "timestamp": $(date +%s),
-    "timestamp_readable": "$(date)",
-    "node": $(jq '.["cardano-node"].rev' nix/sources.json),
-    "tag": "${tag}",
-    "generator_params": $(sed 's_^_      _' generator-params.json),
-    "ops": "$(git rev-parse HEAD)",
-    "modified": $(if git diff --quiet --exit-code
-                  then echo false; else echo true; fi),
-    "deployed": ${deploy},
-    "deployed_to": "${deploy:+${deploy_list[*]}}"
-  }
-, "hostname":
-  $(jq 'to_entries
-   | map ({ "key":   .key
-          , "value": (.value + { "hostname": .key })
-          })
-   | from_entries' .cluster.raw.json)
-, "local_ip":
-  $(jq  'to_entries
-   | map ({ "key":   .value.local_ip
-          , "value": (.value + { "hostname": .key })
-          })
-   | from_entries' .cluster.raw.json)
-, "public_ip":
-  $(jq  'to_entries
-   | map ({ "key":   .value.public_ip
-          , "value": (.value + { "hostname": .key })
-          })
-   | from_entries' .cluster.raw.json)
-}
-EOF
-}
-
-op_stop() {
-        nixops ssh-for-each --parallel "systemctl stop cardano-node 2>/dev/null"
-        nixops ssh explorer            "systemctl stop cardano-explorer-node cardano-db-sync 2>/dev/null"
-        nixops ssh-for-each --parallel "systemctl stop systemd-journald 2>/dev/null"
+        echo "--( Benchmarking profile ${prof:?Unknown profile $spec, see ${clusterfile}}.."
+        if ! test -f "${deploylog}" -a -n "${no_deploy_explorer}"
+        then nixops_deploy '--include explorer' "${deploylog}"; fi
+        op_bench_start "${prof}" "${deploylog}"
+        op_bench_fetch
+        op_bench_analyse
 }
 
 op_bench_start() {
+        local prof="$1" deploylog="$2"
+
+        if ! cluster_sh has-profile "${prof}"
+        then fail "Unknown profile '${prof}': check ${clusterfile}"; fi
+
+        test -f "${deploylog}" ||
+                fail "deployment required, but no log found in:  ${deploylog}"
+
         echo "--( Stopping generator.."
-        nixops ssh explorer "systemctl stop tx-generator"
+        nixops ssh explorer "systemctl stop tx-generator || true"
 
         echo "--( Stopping nodes & explorer.."
         op_stop
@@ -391,38 +219,134 @@ op_bench_start() {
         echo "--( Resetting node states: node DBs & logs.."
         nixops ssh-for-each --parallel "rm -rf /var/lib/cardano-node/db* /var/lib/cardano-node/logs/* /var/log/journal/*"
 
-        echo "--( Restarting nodes.."
+        echo "--( $(date), restarting nodes.."
         nixops ssh-for-each --parallel "systemctl start systemd-journald"
         sleep 3s
         nixops ssh-for-each --parallel "systemctl start cardano-node"
         nixops ssh explorer "systemctl start cardano-explorer-node cardano-db-sync 2>/dev/null"
 
-        local id="$(generate_run_id)"
-        echo "--( $(date), creating new run:  ${id}"
-        op_fetch_cluster_params "${id}"
-        export goggles_fn=goggles_ip
+        op_check_genesis_age
 
-        echo "--( Waiting for the nodes to establish business.."
-        sleep ${wait_nodes}s
+        op_wait_for_any_blocks
 
-        echo "--( Starting generator.."
+        local tag=$(generate_run_id "${prof}")
+        echo "--( creating new run:  ${tag}"
+        op_register_new_run "${prof}" "${tag}" "${deploylog}"
+
+        echo "--( $(date), starting generator.."
         nixops ssh explorer "systemctl start tx-generator"
-        sleep 60s
 
-        echo -n "--( Waiting for a sequence of empty blocks on the explorer node:  "
-        local patience=7 current=0
-        while test ${current} -le ${patience}
-        do while test "[]" != "$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | head -n1 | jq .data.msg.txids'")"
-           do current=0
-              echo -n '.'
-              sleep 21
-           done
-           echo -n '+'
-           current=$((current + 1))
-           done
+        op_wait_for_empty_blocks 4
+
+        echo "--( $(date), termination criteria satisfied, stopping cluster."
+        op_stop
+}
+
+op_register_new_run() {
+        local prof="$1" tag="$2" deploylog="$3"
+
+        test -f "${deploylog}" ||
+                fail "no deployment log found, but is required for registering a new benchmarking run."
+
+        mkdir -p runs
+
+        mv "${deploylog}" runs/"${tag}".deploy.log
+        local nixops_meta=$(grep DEPLOYMENT_METADATA= runs/"${tag}".deploy.log |
+                                    head -n1 | cut -d= -f2)
+
+        local date=$(date) stamp=$(date +%s)
+        ln -sf runs/"${tag}".json       last-run.json
+
+        cat > .cluster.raw.json <<EOF
+{$(nixops_query_cluster_state | sed ':b; N; s_\n_,_; b b' | sed 's_,_\n,_g')
+}
+EOF
+        jq . > runs/"${tag}".json <<EOF
+{ "meta": {
+    "timestamp": ${stamp},
+    "date": "${date}",
+    "node": $(jq '.["cardano-node"].rev' nix/sources.json),
+    "db-sync": $(jq '.["cardano-db-sync"].rev' nix/sources.json),
+    "tag": "${tag}",
+    "profile": "${prof}",
+    "generator_params": $(jq ."[\"${prof}\"]" "${clusterfile}" |
+                          sed 's_^_      _'),
+    "ops": "$(git rev-parse HEAD)",
+    "modified": $(if git diff --quiet --exit-code
+                  then echo false; else echo true; fi)
+  }
+, "nixops_metafile": "${nixops_meta}"
+, "nixops": $(jq . "${nixops_meta}")
+, "hostname":
+  $(jq 'to_entries
+   | map ({ key:   .key
+          , value: (.value + { "hostname": .key })
+          })
+   | from_entries' .cluster.raw.json)
+, "local_ip":
+  $(jq  'to_entries
+   | map ({ key:   .value.local_ip
+          , value: (.value + { "hostname": .key })
+          })
+   | from_entries' .cluster.raw.json)
+, "public_ip":
+  $(jq  'to_entries
+   | map ({ key:   .value.public_ip
+          , value: (.value + { "hostname": .key })
+          })
+   | from_entries' .cluster.raw.json)
+}
+EOF
+}
+
+op_wait_for_any_blocks() {
+        local start=$(date +%s)
+        local patience_until=$((start + cluster_improductivity_patience))
+        local now=
+
+        echo -n "--( Waiting for blocks to appear on explorer (patience for ${cluster_improductivity_patience}s): "
+        while now=$(date +%s); test "${now}" -lt ${patience_until}
+        do local r=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | head -n1 | wc -l'")
+           if test "$r" -ne 0
+           then echo "$r block(s) appeared after $((now - start)) seconds"
+                return 0; fi
+           sleep 1; done
+        echo "none."
+        fail "\nno blocks reached the explorer in ${cluster_improductivity_patience} seconds -- is cluster dead?"
+}
+
+op_wait_for_empty_blocks() {
+        local slot_length=20
+        local block_propagation_tolerance=1
+        local full_patience="${1:-4}"
+        local patience=${full_patience}
+
+        echo -n "--( Waiting for empty blocks (txcounts): "
+        local last_blk='0000000000'
+        while test ${patience} -gt 0
+        do local news=
+           while news=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq --compact-output \".data.msg | { blkid: .blkid, tx_count: (.txids | length) } \"'" |
+                        sed -n '0,/'${last_blk}'/ p' |
+                        if test "${last_blk}" = '0000000000'
+                        then cat; else head -n-1; fi |
+                        jq --slurp 'reverse | ## undo order inversion..
+                          { blks_txs: map (.tx_count)
+                          , last_blk: (.[-1] // { blkid: "'${last_blk}'"}
+                                      | .blkid)
+                          }')
+                 echo -n " "
+                 ## A reasonable delay to see a new block.
+                 sleep $((slot_length + block_propagation_tolerance))
+                 jqtest '.blks_txs
+                        | length == 0
+                        or (all (. == 0) | not)' <<<${news}
+           do patience=${full_patience}
+              jq -cj '.blks_txs' <<<${news}
+              last_blk=$(jq --raw-output .last_blk <<<${news}); done
+           echo -n '[0]'
+           patience=$((patience - 1))
+        done
         echo
-        echo "--( Termination criteria triggered at $(date)"
-        # op_stop
 }
 
 op_bench_fetch() {
@@ -439,106 +363,121 @@ op_bench_fetch() {
         local meta=./last-run.json
         jq . "${meta}" >/dev/null || fail "invalid run metadata: ${meta}"
 
-        local tag="$(jq --raw-output .meta.tag "${meta}")"
+        local tag=$(jq --raw-output .meta.tag "${meta}")
         if test -z "${tag}"
         then fail "cannot determine tag for last run"; fi
         local dir="./runs/${tag}"
         if test "$(realpath "${dir}")" = "$(realpath ./runs)"
         then fail "bad, bad tag"; fi
-        mkdir -p     "${dir}"
-        rm -f                 ./last-run
-        ln -s        "${dir}" ./last-run
-        rm -rf     ./"${dir}"/*
-        cp "${meta}" "${dir}"/meta.json
-        cd           "${dir}"
+        deploylog="./runs/${tag}.deploy.log"
+        test -f "${deploylog}" ||
+                fail "deployment required, but no log found in:  ${deploylog}"
+
+        rm -f                        ./runs-last
+        ln -s               "${dir}" ./runs-last
+        rm -rf            ./"${dir}"/*
+        mkdir -p            "${dir}/logs"
+        cp "${clusterfile}" "${dir}"
+        cp "${meta}"        "${dir}"/profile-run-metadata.json
+        cp "${deploylog}"   "${dir}"/logs/deploy.log
+        pushd               "${dir}" >/dev/null
+        touch "$(jq --raw-output .meta.date ./profile-run-metadata.json)"
 
         echo "--( Run directory:  ${dir}"
 
+        echo "--( Fetching tools from 'cardano-benchmarking' $(nix-instantiate --eval -E "(import $(dirname "${self}")/../nix/sources.nix).cardano-benchmarking.rev" | tr -d '"' | cut -c-8) .."
+        local benchmarking=$(nix-instantiate --eval -E "(import $(dirname "${self}")/../nix/sources.nix).cardano-benchmarking.outPath" | tr -d '"' )
+        test -n "${benchmarking}" ||
+                fail "couldn't fetch 'cardano-benchmarking'"
+        mkdir -p 'tools'
+        cp -a "${benchmarking}"/scripts/*.{sh,sql} 'tools'
+
+        echo "--( Fetching the SQL extraction from explorer.."
+        local components=($(ls tools/*.sql | cut -d/ -f2))
+        cat >'tools/db-analyser.sh' <<EOF
+        set -e
+        tag="\$1"
+
+        files=()
+        for query in ${components[*]}
+        do files+=(\${query} \${query}.txt \${query}.csv)
+
+           PGPASSFILE=/var/lib/cexplorer/pgpass psql cexplorer cexplorer \
+             --file \${query} > \${query}.csv --csv
+           PGPASSFILE=/var/lib/cexplorer/pgpass psql cexplorer cexplorer \
+             --file \${query} > \${query}.txt
+        done
+
+        tar=${tag}.db-analysis.tar.xz
+        tar cf \${tar} "\${files[@]}" --xz
+        rm -f ${components[*]/%/.csv} ${components[*]/%/.txt}
+EOF
+        tar c 'tools/db-analyser.sh' "${components[@]/#/tools\/}" |
+                nixops ssh explorer -- tar x --strip-components='1'
+        nixops ssh explorer -- sh -c "ls; chmod +x 'db-analyser.sh';
+                                      ./db-analyser.sh ${tag}" > 'logs/db-analysis.log'
+        nixops scp --from explorer "${tag}.db-analysis.tar.xz" 'logs/db-analysis.tar.xz'
+
         echo "--( Fetching logs:  explorer"
-        nixops ssh explorer "cd /var/lib/cardano-node; rm -f logs-${tag}.tar.xz; tar cf logs-${tag}.tar.xz --xz logs/*.json"
+        mkdir -p 'logs'
+        while ! nixops ssh explorer "cd /var/lib/cardano-node; rm -f logs-${tag}.tar.xz; tar cf logs-${tag}.tar.xz --xz logs/*.json"
+        do echo "retrying log packing in 20s.."; sleep 20; done
         nixops scp --from explorer "/var/lib/cardano-node/logs-${tag}.tar.xz" \
-          'logs-explorer-generator.tar.xz'
-        tar xaf 'logs-explorer-generator.tar.xz' --strip-components='1'
+          'logs/logs-explorer-generator.tar.xz'
+
+        echo "--( Fetching logs:  producers"
+        while ! nixops ssh-for-each --parallel \
+                --include $(cluster_sh producers) \
+                -- "cd /var/lib/cardano-node; rm -f logs-${tag}.tar.xz; tar cf node-\${HOSTNAME}-logs-${tag}.tar.xz --xz logs/*.json"
+        do echo "retrying log packing in 20s.."; sleep 20s; done
+
+        for node in $(cluster_sh producers)
+        do nixops scp --from "${node}" \
+             "/var/lib/cardano-node/node-${node}-logs-${tag}.tar.xz" \
+             "logs/logs-node-${node}.tar.xz"
+        done
+
+        popd >/dev/null
+}
+
+op_bench_analyse() {
+        echo "--( cardano-ops rev $(git rev-parse HEAD | cut -c-8)"
+
+        local meta=./last-run.json
+        jq . "${meta}" >/dev/null || fail "invalid run metadata: ${meta}"
+
+        local tag=$(jq --raw-output .meta.tag "${meta}")
+        if test -z "${tag}"
+        then fail "cannot determine tag for last run"; fi
+        local dir="./runs/${tag}"
+        if test "$(realpath "${dir}")" = "$(realpath ./runs)" -a -d "${dir}"
+        then fail "bad, bad tag"; fi
+
+        pushd "${dir}" >/dev/null || return 1
+        rm -rf 'analysis'
+        mkdir  'analysis'
+        cd     'analysis'
+
+        echo "--( Consolidating explorer logs.."
+        tar xaf '../logs/logs-explorer-generator.tar.xz' --strip-components='1'
         if test -L node.json
         then rm node.json
              cat node-[0-9]*.json > node-explorer.json
              rm -f node-[0-9]*.json
         fi
 
-        echo "--( Fetching logs:  producers"
-        nixops ssh-for-each --parallel --include "${cluster_producer_list[@]}" \
-           -- "cd /var/lib/cardano-node; rm -f logs-${tag}.tar.xz; tar cf node-\${HOSTNAME}-logs-${tag}.tar.xz --xz logs/*.json"
-
-        for node in "${cluster_producer_list[@]}"
-        do nixops scp --from "${node}" \
-             "/var/lib/cardano-node/node-${node}-logs-${tag}.tar.xz" \
-             "logs-node-${node}.tar.xz"
-        done
-}
-
-op_bench_analyse() {
-        echo "--( cardano-ops rev $(git rev-parse HEAD | cut -c-8)"
-
-        echo "--( Fetching analyser from 'cardano-benchmarking' $(nix-instantiate --eval -E "(import $(dirname "${self}")/../nix/sources.nix).cardano-benchmarking.rev" | tr -d '"' | cut -c-8) .."
-        local benchmarking="$(nix-instantiate --eval -E "(import $(dirname "${self}")/../nix/sources.nix).cardano-benchmarking.outPath" | tr -d '"' )"
-        test -n "${benchmarking}" ||
-                fail "couldn't fetch 'cardano-benchmarking'"
-        cp -f "${benchmarking}"/scripts/{{analyse,xsends,xrecvs}.sh,analyse.sql} .
-        chmod +x {analyse,xsends,xrecvs}.sh
-
+        echo "--( Running log analysis.."
         ls -l
+        ../tools/analyse.sh generator node "run-last/analysis"
+        cp analysis/{timetoblock.csv,tx-stats.json} .
 
-        echo "--( Running log analyser.."
-        ./analyse.sh ./generator ./node "last-run"
-        cp analysis/timetoblock.csv .
+        tar xaf '../logs/db-analysis.tar.xz' --wildcards '*.csv' '*.txt'
 
-        echo "--( Running SQL analyser.."
-        nixops scp --to explorer ./analyse.sql /root
-        nixops ssh explorer -- PGPASSFILE=/var/lib/cexplorer/pgpass psql cexplorer cexplorer --file ./analyse.sql > db-analysis.log
-
-        if test -n "$(ls analysis/*missing* 2>/dev/null || true)"
+        if jqtest '(.tx_missing != 0)' tx-stats.json
         then echo "--( Losses found, analysing.."
              op_analyse_losses
         fi
-}
-
-op_grep_msgtypes() {
-        local needle="$1"; shift
-        grep -hi "${needle}" "$@" | jq --slurp -c 'map (.data | if (. | has("msg")) and (.msg | has("kind")) then "\(.kind).\(.msg.kind)" else .kind end) | unique'
-}
-
-op_msgtype_timespan() {
-        local type="$(echo $1 | sed 's_^.*\([^\.]*\)$_\1_')"; shift
-        local first=$(grep -Fhi "${type}" "$@" | sort | head -n1 | jq .at | sed 's_^.*T\(.*\)Z.*$_\1_')
-        local last=$(grep  -Fhi "${type}" "$@" | sort | tail -n1 | jq .at | sed 's_^.*T\(.*\)Z.*$_\1_')
-        echo "${first} - ${last}"
-}
-
-op_analyse_losses() {
-        local sfrom=$(head -n1 analysis/stx_stime.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
-        local sto=$(tail -n1 analysis/stx_stime.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
-        local lfrom=$(head -n1 analysis/rtx_stime-missing.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
-        local lto=$(tail -n1 analysis/rtx_stime-missing.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
-        local rfrom=$(head -n1 analysis/rtx_rtime.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
-        local rto=$(tail -n1 analysis/rtx_rtime.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
-
-        local txids_explorer="$(op_grep_msgtypes  txid ./node*.json | tr -d '"[]' | sed 's_,_ _g' )"
-        local txids_generator="$(op_grep_msgtypes txid ./generato*.json | tr -d '"[]' | sed 's_,_ _g')"
-        cat <<EOF
-  sends:   ${sfrom} - ${sto}
-  losses:  ${lfrom} - ${lto}
-  recvs:   ${rfrom} - ${rto}
-
-Message kinds mentioning 'txid':
-
-  explorer node:  ${txids_explorer}
-$(for ty in ${txids_explorer}
-  do echo -e "    ${ty}:  $(op_msgtype_timespan ${ty} ./node*.json)"; done)
-
-  generator:      ${txids_generator}
-$(for ty in ${txids_generator}
-  do echo -e "    ${ty}:  $(op_msgtype_timespan ${ty} ./generato*.json)"; done)
-EOF
+        popd >/dev/null
 }
 
 # Keep this at the very end, so bash read the entire file before execution starts.
