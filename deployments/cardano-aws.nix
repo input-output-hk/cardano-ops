@@ -3,7 +3,8 @@ let
   inherit (pkgs.lib)
     attrValues attrNames filter filterAttrs flatten foldl' hasAttrByPath listToAttrs
     mapAttrs' mapAttrs nameValuePair recursiveUpdate unique optional any concatMap
-    getAttrs optionalString hasPrefix;
+    getAttrs optionalString hasPrefix groupBy' concatLists mapAttrsToList zipListsWith
+    partition optionals head;
 
   inherit (globals.topology) legacyCoreNodes legacyRelayNodes byronProxies coreNodes relayNodes;
   privateRelayNodes = globals.topology.privateRelayNodes or [];
@@ -35,67 +36,120 @@ let
   orgs =
     unique (map (node: node.node.org) (attrValues nodes));
 
-  securityGroups = with aws.security-groups; [
-    {
-      nodes = getAttrs (map (n: n.name) (legacyCoreNodes ++ byronProxies)) nodes;
-      groups = [ (import ../physical/aws/security-groups/allow-legacy-peers.nix) ];
-    }
-    {
-      nodes = getAttrs (map (n: n.name) legacyRelayNodes) nodes;
-      groups = [ (import ../physical/aws/security-groups/allow-legacy-public.nix) ];
-    }
-    {
-      nodes = getAttrs (map (n: n.name) (coreNodes ++ byronProxies ++ privateRelayNodes)) nodes;
-      groups = [ (import ../physical/aws/security-groups/allow-peers.nix) ];
-    }
-    {
-      nodes = getAttrs (map (n: n.name) relayNodes) nodes;
-      groups = [ (import ../physical/aws/security-groups/allow-public.nix) ];
-    }
-    {
-      nodes = filterAttrs (_: n: n.node.roles.isMonitor or false) nodes;
-      groups = [
-        allow-public-www-https
-        allow-graylog
-      ];
-    }
-    {
-      nodes = (filterAttrs (_: n: n.node.roles.isExplorer or false) nodes);
-      groups = [ allow-public-www-https ];
-    }
-    {
-      nodes = (filterAttrs (_: n: n.node.roles.isFaucet or false) nodes);
-      groups = [ allow-public-www-https ];
-    }
-    {
-      inherit nodes;
-      groups = [ allow-deployer-ssh ]
-               ++ optional doMonitoring
-               allow-monitoring-collection;
-    }
-  ];
+  securityGroups = {
 
-  importSecurityGroup =  node: securityGroup:
-    securityGroup {
-      inherit pkgs lib nodes;
-      region = node.deployment.ec2.region;
-      org = node.node.org;
-      accessKeyId = pkgs.globals.ec2.credentials.accessKeyIds.${node.node.org};
+    all-nodes = {
+      inherit nodes;
+      rules = [{
+          protocol = "tcp"; # TCP
+          fromPort = 22;
+          toPort = 22;
+          sourceIp = pkgs.globals.deployerIp + "/32";
+        }] ++ optionals doMonitoring (map (p:
+        {
+          protocol = "tcp";
+          fromPort = p;
+          toPort = p;
+          sourceGroup = "monitoring";
+        }) ([
+          9100  # prometheus exporters
+          9102  # statd exporter
+          9113  # nginx exporter
+        ] ++ (pkgs.globals.extraPrometheusExportersPorts or [])));
     };
 
+    core-nodes = {
+      nodes = filterAttrs (_: n: n.node.roles.isCardanoCore or false) nodes;
+      rules = [{
+        protocol = "tcp";
+        fromPort = pkgs.globals.cardanoNodePort;
+        toPort = pkgs.globals.cardanoNodePort;
+        sourceGroup = "relay-nodes";
+      }];
+    };
 
-  importSecurityGroups = {nodes, groups}:
-    mapAttrs
-      (_: n: foldl' recursiveUpdate {} (map (importSecurityGroup n) groups))
-      nodes;
+    relay-nodes = {
+      nodes = filterAttrs (_: n: n.node.roles.isCardanoRelay or false) nodes;
+      rules = [{
+        protocol = "tcp";
+        fromPort = pkgs.globals.cardanoNodePort;
+        toPort = pkgs.globals.cardanoNodePort;
+        sourceIp = "0.0.0.0/0";
+      }];
+    };
 
-  securityGroupsByNode =
-    foldl' recursiveUpdate {} (map importSecurityGroups securityGroups);
+    monitoring = {
+      nodes = filterAttrs (_: n: n.node.roles.isMonitor or false) nodes;
+      rules = [{
+        protocol = "tcp";
+        fromPort = 5044; # graylog
+        toPort = 5044;
+        sourceIp = "0.0.0.0/0";
+      }];
+    };
+
+    public-https = {
+      nodes = filterAttrs (_: n:
+        n.node.roles.isMonitor or
+        n.node.roles.isExplorer or
+        n.node.roles.isFaucet or false) nodes;
+      rules = [
+        {
+          protocol = "tcp";
+          fromPort = 80;
+          toPort = 80;
+          sourceIp = "0.0.0.0/0";
+        }
+        {
+          protocol = "tcp";
+          fromPort = 443;
+          toPort = 443;
+          sourceIp = "0.0.0.0/0";
+        }
+      ];
+    };
+  };
+
+  groupsByLogicalName = mapAttrs (name: { nodes, rules ? [], ... }@group:
+    let
+      orgs = unique (mapAttrsToList (_: n: n.node.org) nodes);
+      regions = unique (mapAttrsToList (_: n: n.deployment.ec2.region) nodes);
+      splitRulesWithSg = partition (r: r ? sourceGroup) rules;
+    in
+      concatMap (org: map (region: nameValuePair "${name}-${org}-${region}" ({
+        nodes = filterAttrs (_: n: n.node.org == org && n.deployment.ec2.region == region) nodes;
+        securityGroup = { resources, ... }@args:
+          let
+            accessKeyId = pkgs.globals.ec2.credentials.accessKeyIds.${org};
+            appliedGroup = (group.func or (_:{})) args;
+            enrichedSgRules = concatMap (r: concatMap (sg: optional (sg.value.nodes != []) (r // { sourceGroup = {
+                ownerId = resources.ec2SecurityGroups.${sg.name}.accessKeyId;
+                groupName = resources.ec2SecurityGroups.${sg.name}.name;
+              }; })) groupsByLogicalName.${r.sourceGroup}) splitRulesWithSg.right;
+
+          in (removeAttrs group ["func"]) // appliedGroup // {
+            inherit region accessKeyId;
+            rules = enrichedSgRules ++ splitRulesWithSg.wrong ++ (appliedGroup.rules or []);
+          };
+      })) regions) orgs
+    ) securityGroups;
+
+  securityGroupsWithNodes = concatMap (filter (sg: sg.value.nodes != [])) (attrValues groupsByLogicalName);
+
+  ec2SecurityGroups = listToAttrs (map
+    ({name, value}: nameValuePair name value.securityGroup) # remove nodes, bump actual securityGroup
+    securityGroupsWithNodes);
+
+  securityGroupNodePairs = concatMap
+    ({name, value}: map (nodeName: {inherit name nodeName;}) (attrNames value.nodes))
+    securityGroupsWithNodes;
+
+  securityGroupsByNode = groupBy' (sgs: sgNodePair: [sgNodePair.name] ++ sgs) []
+    (sgNodePair: sgNodePair.nodeName) securityGroupNodePairs;
 
   settings = {
     resources = {
-      ec2SecurityGroups =
-        foldl' recursiveUpdate {} (attrValues securityGroupsByNode);
+      inherit ec2SecurityGroups;
 
       elasticIPs = mapAttrs' (name: node:
         nameValuePair "${name}-ip" {
@@ -133,8 +187,8 @@ let
     defaults = { name, resources, config, ... }: {
       deployment.ec2 = {
         keyPair = resources.ec2KeyPairs."cardano-keypair-${config.node.org}-${config.deployment.ec2.region}";
-        securityGroups = map (sgName: resources.ec2SecurityGroups.${sgName})
-          (attrNames (securityGroupsByNode.${name} or {}));
+        securityGroups = lib.mkIf (securityGroupsByNode ? ${name})
+          (map (sgName: resources.ec2SecurityGroups.${sgName}) securityGroupsByNode.${name});
       };
     };
   };
