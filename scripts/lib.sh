@@ -44,5 +44,5 @@ generate_mnemonic()
         else status=modified
         fi
 
-        echo "${timestamp}.${commit}.${status}.${mnemonic}"
+        echo "${timestamp}.${commit}.${mnemonic}.${status}"
 }

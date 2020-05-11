@@ -29,7 +29,7 @@ let
     if __hasAttr benchmarkingProfileName benchmarkingParams
     then __trace "Using profile:  ${benchmarkingProfileName}"
          benchmarkingParams."${benchmarkingProfileName}"
-    else abort "./benchmarking-params.json does not define benchmarking profile '${benchmarkingProfileName}'.";
+    else abort "${benchmarkingParamsFile} does not define benchmarking profile '${benchmarkingProfileName}'.";
   metadata = {
     inherit benchmarkingProfileName benchmarkingProfile benchmarkingTopology;
   };

@@ -15,7 +15,7 @@ cluster_sh() {
                 producers )    rrjq "${clusterfile}" ' .
                                      | (.meta.nodeNames | join(" "))';;
                 profiles )     rrjq "${clusterfile}" ' .
-                                     | del (.meta)
+                                     | del (.meta) | del (.["smoke-test"])
                                      | keys_unsorted
                                      | join(" ")';;
                 has-profile )  rjqtest "${clusterfile}" '
@@ -66,6 +66,14 @@ op_init_cluster() {
     , "nodeNames": ($default | .nodes | .[:'${node_count}'])
     ## The first entry is the default default.
     , "defaultProfile": (.[0] | (. | keys) | .[0])
+    }
+  , "smoke-test":
+    { "txCount":         100
+    , "addTxSize":       1
+    , "inputsPerTx":     1
+    , "outputsPerTx":    1
+    , "txFee":           ($default | .tx_fee)
+    , "tps":             100
     }}
-  + (. | add)' > ./${clusterfile}
+  + (. | add)' > ${clusterfile}
 }

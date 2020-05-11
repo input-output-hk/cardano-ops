@@ -30,22 +30,24 @@ op_grep_msgtypes() {
 }
 
 op_msgtype_timespan() {
-        local type=$(echo $1 | sed 's_^.*\([^\.]*\)$_\1_'); shift
-        local first=$(grep -Fhi "${type}" "$@" | sort | head -n1 | jq .at | sed 's_^.*T\(.*\)Z.*$_\1_')
-        local last=$(grep  -Fhi "${type}" "$@" | sort | tail -n1 | jq .at | sed 's_^.*T\(.*\)Z.*$_\1_')
+        local type first last
+        type=$(echo $1 | sed 's_^.*\([^\.]*\)$_\1_'); shift
+        first=$(grep -Fhi "${type}" "$@" | sort | head -n1 | jq .at | sed 's_^.*T\(.*\)Z.*$_\1_')
+        last=$(grep  -Fhi "${type}" "$@" | sort | tail -n1 | jq .at | sed 's_^.*T\(.*\)Z.*$_\1_')
         echo "${first} - ${last}"
 }
 
 op_analyse_losses() {
-        local sfrom=$(head -n1 analysis/stx_stime.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
-        local sto=$(tail   -n1 analysis/stx_stime.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
-        local lfrom=$(head -n1 analysis/rtx_stime-missing.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
-        local lto=$(tail   -n1 analysis/rtx_stime-missing.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
-        local rfrom=$(head -n1 analysis/rtx_rtime.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
-        local rto=$(tail   -n1 analysis/rtx_rtime.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
+        local sfrom sto lfrom lto rfrom rto txids_explorer txids_generator
+        sfrom=$(head -n1 analysis/stx_stime.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
+        sto=$(tail   -n1 analysis/stx_stime.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
+        lfrom=$(head -n1 analysis/rtx_stime-missing.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
+        lto=$(tail   -n1 analysis/rtx_stime-missing.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
+        rfrom=$(head -n1 analysis/rtx_rtime.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
+        rto=$(tail   -n1 analysis/rtx_rtime.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
 
-        local txids_explorer=$(op_grep_msgtypes  txid ./node*.json | tr -d '"[]' | sed 's_,_ _g' )
-        local txids_generator=$(op_grep_msgtypes txid ./generato*.json | tr -d '"[]' | sed 's_,_ _g')
+        txids_explorer=$(op_grep_msgtypes  txid ./node*.json | tr -d '"[]' | sed 's_,_ _g' )
+        txids_generator=$(op_grep_msgtypes txid ./generato*.json | tr -d '"[]' | sed 's_,_ _g')
         cat <<EOF
   sends:   ${sfrom} - ${sto}
   losses:  ${lfrom} - ${lto}
