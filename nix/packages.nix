@@ -14,4 +14,29 @@ self: super: {
   getListenIp = node:
     let ip = node.config.networking.privateIPv4;
     in if (node.options.networking.privateIPv4.isDefined && ip != null) then ip else "0.0.0.0";
+
+  # this function import all nix files of the given directory,
+  # returned in a attribute set indexed by name (with .nix suffix removed)
+  # Furthermore, if the imported file is a function with an opaque argument,
+  # that argument is assumed to be pkgs and is applied.
+  # This allows to easliy inject a lazy pkgs to functions that return modules:
+  # using pkgs in modules arg as limitation; due to modules args being strictly evaluated
+  # they cannot be used for shaping the module structure (like in imports), otherwise
+  # "infinite recursions" occurs.
+  # This can greatly improve nixops eval perf /memory usage
+  # when pkgs is the same for all machines (common case).
+  importWithPkgs = with self.lib; dir:
+    mapAttrs' (n: v:
+      let l = stringLength n;
+        nix = import (dir + "/${n}");
+      in nameValuePair
+        (substring 0 (l - 4) n)
+        (if (isFunction nix && functionArgs nix == {})
+          then nix self
+          else nix)
+    ) (filterAttrs (n: v:
+        let l = stringLength n;
+        in v == "regular" && (substring (l - 4) l n) == ".nix")
+        (builtins.readDir dir));
+
 }

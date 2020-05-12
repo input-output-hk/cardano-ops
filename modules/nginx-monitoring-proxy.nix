@@ -1,7 +1,7 @@
-{ config, ... }:
+pkgs: { config, ... }:
 let
   cfg = config.services.nginx-monitoring-proxy;
-in with import ../nix {}; {
+in with pkgs; {
   options = {
     services.nginx-monitoring-proxy = {
       proxyName = lib.mkOption {

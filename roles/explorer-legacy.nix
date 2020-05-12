@@ -1,16 +1,14 @@
-{ config, lib, ... }:
-with import ../nix {};
+pkgs: { config, ... }:
+with pkgs;
 
 let
   inherit (lib) mkForce;
-  cardano-sl-pkgs = import sourcePaths.cardano-sl { gitrev = sourcePaths.cardano-sl.rev; };
   explorerFrontend = (import sourcePaths.cardano-sl-explorer { gitrev = sourcePaths.cardano-sl-explorer.rev; }).explorerFrontend;
   explorerLegacy = cardano-sl-pkgs.nix-tools.cexes.cardano-sl-explorer.cardano-explorer;
 in {
   imports = [
-    ./legacy-relay.nix
-    ../modules/common.nix
-    ../modules/cardano-explorer-python.nix
+    cardano-ops.roles.legacy-relay
+    cardano-ops.modules.cardano-explorer-python
   ];
 
   # goaccess package assists in analysis of live nginx logs, ex: during DoS

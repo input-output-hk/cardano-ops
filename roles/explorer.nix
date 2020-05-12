@@ -1,12 +1,10 @@
-{ config, options, lib, name, nodes, cardanoNodePkgs, ... }:
-with import ../nix {};
+pkgs: { config, options, name, nodes, ... }:
+with pkgs;
 
 let
   nodeCfg = config.services.cardano-node;
-  iohkNix = import sourcePaths.iohk-nix {};
-  cardano-sl = import sourcePaths.cardano-sl { gitrev = sourcePaths.cardano-sl.rev; };
   cardano-explorer-app = import sourcePaths.cardano-explorer-app {};
-  explorerFrontend = cardano-sl.explorerFrontend;
+  explorerFrontend = cardano-sl-pkgs.explorerFrontend;
   postgresql12 = (import sourcePaths.nixpkgs-postgresql12 {}).postgresql_12;
   nodeId = config.node.nodeId;
   hostAddr = getListenIp nodes.${name};
@@ -17,8 +15,8 @@ in {
     (sourcePaths.cardano-graphql + "/nix/nixos")
     (sourcePaths.cardano-rest + "/nix/nixos")
     (sourcePaths.cardano-db-sync + "/nix/nixos")
-    ../modules/common.nix
-    ../modules/cardano-postgres.nix
+    cardano-ops.modules.common
+    cardano-ops.modules.cardano-postgres
   ];
 
   environment.systemPackages = with pkgs; [
@@ -53,7 +51,6 @@ in {
   };
   services.cardano-node = {
     enable = true;
-    cardanoNodePkgs = lib.mkIf (options.services.cardano-node ? cardanoNodePkgs) cardanoNodePkgs;
     inherit nodeId;
     extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
     environment = globals.environmentName;
@@ -64,7 +61,9 @@ in {
     nodeConfig = globals.environmentConfig.nodeConfig // {
       hasPrometheus = [ hostAddr globals.cardanoNodePrometheusExporterPort ];
     };
-  };
+  } // (lib.optionalAttrs (options.services.cardano-node ? cardanoNodePkgs) {
+      inherit cardanoNodePkgs;
+  });
   services.cardano-db-sync = {
     enable = true;
     cluster = globals.environmentName;

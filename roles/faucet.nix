@@ -1,5 +1,5 @@
-{ name, config, nodes, resources, ... }:
-with import ../nix {};
+pkgs: { name, config, nodes, resources, ... }:
+with pkgs;
 let
   faucetPkgs = (import (sourcePaths.cardano-faucet + "/nix") {}).pkgs;
   hostAddr = getListenIp nodes.${name};
@@ -8,7 +8,7 @@ let
 in {
 
   imports = [
-    ../modules/common.nix
+    cardano-ops.modules.common
 
     # Cardano faucet needs to pair a compatible version of wallet with node
     # The following service import will do this:

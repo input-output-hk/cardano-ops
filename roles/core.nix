@@ -1,6 +1,6 @@
 
-{config, name, lib, ...}:
-with import ../nix {};
+pkgs: {config, name, ...}:
+with pkgs;
 let
   nodeId = config.node.nodeId;
   signingKey = ../keys/delegate-keys + ".${leftPad nodeId 3}.key";
@@ -9,7 +9,7 @@ let
 in {
 
   imports = [
-    ../modules/base-service.nix
+    cardano-ops.modules.base-service
   ];
 
   services.cardano-node = {

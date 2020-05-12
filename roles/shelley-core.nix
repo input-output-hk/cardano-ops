@@ -1,6 +1,6 @@
 
-{config, name, lib, ...}:
-with import ../nix {};
+pkgs: {config, name, ...}:
+with pkgs;
 let
   nodeId = toString config.node.nodeId;
   vrfKey = ../keys/node-keys/node-vrf + "${nodeId}.skey";
@@ -9,7 +9,7 @@ let
 in {
 
   imports = [
-    ../modules/base-service.nix
+    cardano-ops.modules.base-service
   ];
 
   services.cardano-node = {

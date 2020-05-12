@@ -5,8 +5,7 @@
 }@args: with import ./nix args; {
 
   shell = let
-    cardanoSL = import sourcePaths.cardano-sl {};
-    genesisFile = (import sourcePaths.iohk-nix {}).cardanoLib.environments.${globals.environmentName}.genesisFile or "please/set/globals.environmentName";
+    genesisFile = iohkNix.cardanoLib.environments.${globals.environmentName}.genesisFile or "please/set/globals.environmentName";
 
     mkDevGenesis = writeShellScriptBin "make-dev-genesis" (builtins.replaceStrings
       [ "\${RUNNER}"
@@ -63,7 +62,7 @@
   in  mkShell {
     buildInputs = [ niv nixops nix cardano-cli telnet dnsutils mkDevGenesis nix-diff migrate-keys
       renew-kes-keys create-shelley-genesis-and-keys
-    ] ++ (with cardanoSL.nix-tools.exes; [ cardano-sl-auxx cardano-sl-tools ]);
+    ] ++ (with cardano-sl-pkgs.nix-tools.exes; [ cardano-sl-auxx cardano-sl-tools ]);
     NIX_PATH = "nixpkgs=${path}";
     NIXOPS_DEPLOYMENT = "${globals.deploymentName}";
     passthru = {

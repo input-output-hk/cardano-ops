@@ -1,8 +1,8 @@
-{ options, config, nodes, resources,  ... }:
+pkgs: { options, config, nodes, resources,  ... }:
 {
 
   imports = [
-    ../modules/base-legacy-service.nix
+    pkgs.cardano-ops.modules.base-legacy-service
   ];
 
   services.cardano-node-legacy.nodeType = "relay";

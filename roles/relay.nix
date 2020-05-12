@@ -1,8 +1,8 @@
 
-{
+pkgs: {
 
   imports = [
-    ../modules/base-service.nix
+    pkgs.cardano-ops.modules.base-service
   ];
 
 }
