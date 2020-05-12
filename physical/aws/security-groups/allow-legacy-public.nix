@@ -1,3 +1,4 @@
-with import ../../../nix {};
+{ pkgs, ... }@args:
+with pkgs;
 iohk-ops-lib.physical.aws.security-groups.allow-all-to-tcp-port
-  "cardano-legacy" globals.cardanoNodeLegacyPort
+  "cardano-legacy" globals.cardanoNodeLegacyPort args

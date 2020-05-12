@@ -49,10 +49,13 @@ let
     })];
 
   # merge upstream sources with our own:
-  upstream-overlay = _: super: {
+  upstream-overlay = self: super: {
       inherit iohkNix;
-
-    cardano-ops-overlays = overlays;
+    cardano-ops = {
+      inherit overlays;
+      modules = self.importWithPkgs ../modules;
+      roles = self.importWithPkgs ../roles;
+    };
     sourcePaths = (super.sourcePaths or {}) // sourcePaths;
   };
 

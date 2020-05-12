@@ -1,7 +1,6 @@
-{ pkgs, lib, options, config, name, nodes, resources,  ... }:
-with (import ../nix {}); with lib;
+pkgs: { options, config, name, nodes, resources,  ... }:
+with pkgs; with lib;
 let
-  iohkNix = import sourcePaths.iohk-nix {};
 
   nodeId = config.node.nodeId;
   cfg = config.services.cardano-node;
@@ -29,13 +28,13 @@ let
     valency = 1;
   }) cfg.producers;
 
-  topology =  builtins.toFile "topology.yaml" (builtins.toJSON {
+  topology = builtins.toFile "topology.yaml" (builtins.toJSON {
     Producers = producers;
   });
 in
 {
   imports = [
-    ./common.nix
+    cardano-ops.modules.common
     (sourcePaths.cardano-node + "/nix/nixos")
   ];
 
@@ -86,7 +85,9 @@ in
           ]
         ];
       };
-    };
+    } // (optionalAttrs (options.services.cardano-node ? cardanoNodePkgs) {
+      inherit cardanoNodePkgs;
+    });
     systemd.services.cardano-node.serviceConfig.MemoryMax = "3.5G";
     # TODO remove next two line for next release cardano-node 1.7 release:
     systemd.services.cardano-node.scriptArgs = toString cfg.nodeId;

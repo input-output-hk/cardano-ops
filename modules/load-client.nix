@@ -1,5 +1,5 @@
-{ pkgs, config, lib, nodes, name, ... }:
-with (import ../nix {}); with lib;
+pkgs: { config, options, nodes, name, ... }:
+with pkgs; with lib;
 let
   cfg = config.services.cardano-node;
   nodePort = globals.cardanoNodePort;
@@ -8,7 +8,7 @@ let
 in
 {
   imports = [
-    ./common.nix
+    cardano-ops.modules.common
     (sourcePaths.cardano-node + "/nix/nixos")
   ];
 
@@ -43,7 +43,9 @@ in
       edgeHost = iohkNix.cardanoLib.environments."${globals.environmentName}".relaysNew;
       edgeNodes = [];
     };
-  };
+  } // (optionalAttrs (options.services.cardano-node ? cardanoNodePkgs) {
+      inherit cardanoNodePkgs;
+  });
   systemd.services.cardano-node.serviceConfig.MemoryMax = "3.5G";
   # TODO remove next two line for next release cardano-node 1.7 release:
   systemd.services.cardano-node.preStart = ''

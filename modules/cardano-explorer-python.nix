@@ -1,9 +1,8 @@
-{ config, lib, ... }:
-with import ../nix {};
+pkgs: { config,  ... }:
+with pkgs;
 
 let
   inherit (lib) mkForce mkIf mkEnableOption mkOption types;
-  cardano-sl-pkgs = import sourcePaths.cardano-sl { gitrev = sourcePaths.cardano-sl.rev; };
   explorerPythonAPI = cardano-sl-pkgs.explorerPythonAPI;
   cfg = config.services.explorer-python-api;
 in {

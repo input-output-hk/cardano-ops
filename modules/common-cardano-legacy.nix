@@ -1,5 +1,5 @@
-{ pkgs, name, nodes, config, options, resources, ... }:
-with (import ../nix {}); with lib;
+pkgs: { name, nodes, config, options, resources, ... }:
+with pkgs; with lib;
 let
   cfg = config.services.cardano-node-legacy;
   port = globals.cardanoNodeLegacyPort;
@@ -35,7 +35,7 @@ let
 in {
 
   imports = [
-    ./common.nix
+    cardano-ops.modules.common
   ];
 
   options = {

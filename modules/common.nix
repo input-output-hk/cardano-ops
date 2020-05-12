@@ -1,5 +1,5 @@
-with (import ../nix {});
-{ ... }:
+pkgs:
+with pkgs;
 let
   boolOption = lib.mkOption {
     type = lib.types.bool;

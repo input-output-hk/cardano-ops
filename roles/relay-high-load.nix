@@ -1,8 +1,8 @@
-{ lib, config, ... }:
+pkgs: with pkgs; with lib;
 {
 
   imports = [
-    ../modules/base-service.nix
+    cardano-ops.modules.base-service
   ];
 
   # Performance testing temporary changes; suitable for vertical scaling with

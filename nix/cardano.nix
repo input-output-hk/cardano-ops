@@ -6,7 +6,7 @@ let
 in rec {
   cardanoNodePkgs = import (self.sourcePaths.cardano-node + "/nix") {};
   inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.cardano-cli.components.exes) cardano-cli;
-
+  inherit cardano-sl-pkgs;
   cardano-node-legacy = cardano-sl-pkgs.nix-tools.cexes.cardano-sl-node.cardano-node-simple;
   cardano-node-legacy-config = cardano-sl-pkgs.cardanoConfig; # FIXME: use iohk-nix
 }

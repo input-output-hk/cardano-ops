@@ -1,5 +1,5 @@
-{ pkgs, name, nodes, config, options, resources, ... }:
-with (import ../nix {}); with lib;
+pkgs: { name, nodes, config, options, resources, ... }:
+with pkgs; with lib;
 let
   inherit (iohkNix.cardanoLib) cardanoConfig;
   cfg = config.services.cardano-node-legacy;
@@ -24,7 +24,7 @@ let
 in {
 
   imports = [
-    ./common-cardano-legacy.nix
+    cardano-ops.modules.common-cardano-legacy
   ];
 
   options = {

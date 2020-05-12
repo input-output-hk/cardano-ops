@@ -1,5 +1,5 @@
-{ config, pkgs, lib, ... }:
-with import ../nix {};
+pkgs: { config, ... }:
+with pkgs;
 
 let
   inherit (lib) mkForce mkIf mkEnableOption mkOption types;
