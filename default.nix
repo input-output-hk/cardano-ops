@@ -40,18 +40,30 @@
         set -euxo pipefail
 
         cd ${toString ./keys}
-        cardano-cli shelley genesis create-genesis --genesis-dir . --supply ${toString maxSupply} --gen-genesis-keys ${toString nbCoreNodes} --gen-utxo-keys 2
+        cardano-cli shelley genesis create --genesis-dir . --supply ${toString maxSupply} --gen-genesis-keys ${toString nbCoreNodes} --gen-utxo-keys 2
         mkdir -p node-keys
         cd node-keys
         for i in {1..${toString nbCoreNodes}}; do
           cardano-cli shelley node key-gen-VRF --verification-key-file node-vrf$i.vkey --signing-key-file node-vrf$i.skey
           cardano-cli shelley node key-gen-KES --verification-key-file node-kes$i.vkey --signing-key-file node-kes$i.skey
-          cardano-cli shelley node issue-op-cert --hot-kes-verification-key-file node-kes$i.vkey --cold-signing-key-file ../delegate-keys/delegate$i.skey --operational-certificate-issue-counter ../delegate-keys/delegate-opcert$i.counter --kes-period 0 --out-file delegate$i.opcert
+          cardano-cli shelley node issue-op-cert --hot-kes-verification-key-file node-kes$i.vkey --cold-signing-key-file ../delegate-keys/delegate$i.skey --operational-certificate-issue-counter ../delegate-keys/delegate-opcert$i.counter --kes-period 0 --out-file node$i.opcert
+        done
+     '';
+     renew-kes-keys =
+      let nbCoreNodes = builtins.length globals.topology.coreNodes;
+      in writeShellScriptBin "new-KES-keys-at-period" ''
+        set -euxo pipefail
+        PERIOD=$1
+        cd ${toString ./keys}/node-keys
+        for i in {1..${toString nbCoreNodes}}; do
+          cardano-cli shelley node key-gen-KES --verification-key-file node-kes$i.vkey --signing-key-file node-kes$i.skey
+          cardano-cli shelley node issue-op-cert --hot-kes-verification-key-file node-kes$i.vkey --cold-signing-key-file ../delegate-keys/delegate$i.skey --operational-certificate-issue-counter ../delegate-keys/delegate-opcert$i.counter --kes-period $PERIOD --out-file node$i.opcert
         done
      '';
   in  mkShell {
-    buildInputs = [ niv nixops nix cardano-cli telnet dnsutils mkDevGenesis nix-diff migrate-keys create-shelley-genesis-and-keys ] ++
-                  (with cardanoSL.nix-tools.exes; [ cardano-sl-auxx cardano-sl-tools ]);
+    buildInputs = [ niv nixops nix cardano-cli telnet dnsutils mkDevGenesis nix-diff migrate-keys
+      renew-kes-keys create-shelley-genesis-and-keys
+    ] ++ (with cardanoSL.nix-tools.exes; [ cardano-sl-auxx cardano-sl-tools ]);
     NIX_PATH = "nixpkgs=${path}";
     NIXOPS_DEPLOYMENT = "${globals.deploymentName}";
     passthru = {
