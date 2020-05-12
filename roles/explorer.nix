@@ -1,4 +1,4 @@
-{ config, lib, name, nodes, ... }:
+{ config, options, lib, name, nodes, cardanoNodePkgs, ... }:
 with import ../nix {};
 
 let
@@ -53,6 +53,7 @@ in {
   };
   services.cardano-node = {
     enable = true;
+    cardanoNodePkgs = lib.mkIf (options.services.cardano-node ? cardanoNodePkgs) cardanoNodePkgs;
     inherit nodeId;
     extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
     environment = globals.environmentName;

@@ -1,4 +1,4 @@
-{ pkgs, lib, options, config, name, nodes, resources,  ... }:
+{ pkgs, cardanoNodePkgs, lib, options, config, name, nodes, resources,  ... }:
 with (import ../nix {}); with lib;
 let
   iohkNix = import sourcePaths.iohk-nix {};
@@ -65,6 +65,7 @@ in
 
     services.cardano-node = {
       enable = true;
+      cardanoNodePkgs = lib.mkIf (options.services.cardano-node ? cardanoNodePkgs) cardanoNodePkgs;
       extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
       environment = globals.environmentName;
       inherit hostAddr nodeId topology;

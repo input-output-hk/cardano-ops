@@ -1,4 +1,4 @@
-{ pkgs, config, lib, nodes, name, ... }:
+{ pkgs, cardanoNodePkgs, config, lib, nodes, name, ... }:
 with (import ../nix {}); with lib;
 let
   cfg = config.services.cardano-node;
@@ -22,6 +22,7 @@ in
 
   services.cardano-node = {
     enable = true;
+    cardanoNodePkgs = lib.mkIf (options.services.cardano-node ? cardanoNodePkgs) cardanoNodePkgs;
     extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
     environment = globals.environmentName;
     port = nodePort;
