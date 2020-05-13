@@ -1,4 +1,5 @@
 {
+  services.monitoring-services.publicGrafana = true;
   services.monitoring-services.applicationDashboards = ./grafana/cardano;
   services.monitoring-services.applicationRules = [
     {

@@ -65,10 +65,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "fb3482a97b73ff7af7a28eb13a107df2636cc29c",
-        "sha256": "0i91qcwmavw1c46pj430bm9jspji0ckly3ldc0vl7w2pd8qy0hal",
+        "rev": "339efbe8b5306a042c3f3806aef0dc73044de3b2",
+        "sha256": "199yw0g4r7shr8qilsbacxyzzrzj5zjibdfw0qddkmwd6w7mrhv0",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/fb3482a97b73ff7af7a28eb13a107df2636cc29c.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/339efbe8b5306a042c3f3806aef0dc73044de3b2.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rest": {
@@ -125,10 +125,17 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
+<<<<<<< Updated upstream
         "rev": "ead9e9c9f9054d3f10b2dc7d0f4f9a17745a731c",
         "sha256": "1s310b07q4ikk9id1qlcn9vbvg9gc3i78pa7mala5g6fryapfysx",
         "type": "tarball",
         "url": "https://github.com/input-output-hk/iohk-nix/archive/ead9e9c9f9054d3f10b2dc7d0f4f9a17745a731c.tar.gz",
+=======
+        "rev": "e2f89acb1b765f2ade4ad6fd8c5f4a8886af5e3d",
+        "sha256": "1gd9xcgxppprblw3430w0ipywxb5h0x1bxr2vq9c550kv2ppbwxp",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/e2f89acb1b765f2ade4ad6fd8c5f4a8886af5e3d.tar.gz",
+>>>>>>> Stashed changes
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs-postgresql12": {
@@ -144,15 +151,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
-        "branch": "master",
+        "branch": "public-grafana",
         "description": "NixOps deployment configuration library for IOHK devops ",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "3574986bdab872c6c0d23a7b16f075405328ecf9",
-        "sha256": "0d2cj0b20ngrfcslnajr8ns78maxrq50bbknj0acl6vjp3k5dkkk",
+        "rev": "37e5690c0d29b3fb01d2ff0428e31bb94b1a7e87",
+        "sha256": "18j71hpywphj42ikaqmkj94b36xymsn3q4q84jc3iv10mg0vlpxj",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/3574986bdab872c6c0d23a7b16f075405328ecf9.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/37e5690c0d29b3fb01d2ff0428e31bb94b1a7e87.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
