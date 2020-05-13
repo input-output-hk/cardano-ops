@@ -9,71 +9,126 @@ clusterfile_init() {
                 fail "missing cluster benchmark parameters, consider running:  $(basename "${self}") init NODECOUNT"
 }
 
+## Clusterfile JQ
+cjq() {
+        jq "$1" "${clusterfile}"
+}
+
+## Raw Clusterfile JQ
+rcjq() {
+        jq "$1" "${clusterfile}" --raw-output
+}
+
+## Clusterfile JQ TEST
+cjqtest() {
+        jq "$1" "${clusterfile}" --exit-status >/dev/null
+}
+
 cluster_sh() {
+        dprint "cluster_sh:  ${*@Q}"
+
         local cmd="$1"; shift
         case "$cmd" in
-                producers )    rrjq "${clusterfile}" ' .
-                                     | (.meta.nodeNames | join(" "))';;
-                profiles )     rrjq "${clusterfile}" ' .
-                                     | del (.meta) | del (.["smoke-test"])
-                                     | keys_unsorted
-                                     | join(" ")';;
-                has-profile )  rjqtest "${clusterfile}" '
-                                     .["'$1'"] != null';;
+                producers )    rcjq ' .
+                                      | (.meta.node_names | join(" "))';;
+                profiles )     rcjq ' .
+                                      | del (.meta) | del (.["smoke-test"])
+                                      | keys_unsorted
+                                      | join(" ")';;
+                has-profile )  cjqtest '.["'$1'"] != null';;
                 resolve-profile )
-                               rrjq "${clusterfile}" '.
-                                     | if "'$1'" == "default"
-                                       then .meta.defaultProfile
-                                       else if . | has("'$1'") then "'$1'"
-                                       else error("Unknown profile: '$1'")
-                                       end end' || fail "profile unknown";;
+                               rcjq ' .
+                                      | if "'$1'" == "default"
+                                        then .meta.default_profile
+                                        else if . | has("'$1'") then "'$1'"
+                                        else error("Unknown profile: '$1'")
+                                        end end' || fail "profile unknown";;
                 * ) fail "unknown query: $1";;
         esac
 }
 
+## This sets up the cluster configuration file,
+## 'benchmarking-cluster-params.json', for:
+##   1. a given protocol era, and
+##   2. a given number of nodes.
+##
+## The schema is:
+##   1. keys (except "meta") map to tx generator profiles,
+##   2. the "meta" key maps to common cluster configuration,
+##      including, but not limited to:
+##      - default tx generator profile name
+##      - count and the names of producer nodes
+##      - genesis parameters
 op_init_cluster() {
-        local node_count="${1:-3}"
+        local node_count="${1?USAGE:  init-cluster NODECOUNT [PROTOCOL-ERA=byron]}"
+        local era="${2:-byron}"
         if test $((node_count + 0)) -ne ${node_count}
         then fail "this operation requires a node count as an integer argument."
         fi
         jq --null-input ' .
-| { "txs":            50000
-  , "payload":        100
-  , "tx_io_arities":  [1, 2, 4, 8, 16]
-  , "tx_fee":         10000000
-  , "tps":            100
+| { slot_length:           20
+  , parameter_k:           2160
+  , protocol_magic:        459045235
+  , secret:                2718281828
+  , total_balance:         8000000000000000
+  } as $common_genesis_params
 
-  ## WARNING:  this is a little ridiculous, but better than hard-coding.
+| { byron:
+    { n_poors:               128
+    , n_delegates:           '${node_count}'
+      ## Note, that the delegate count doesnt have to match cluster size.
+    , delegate_share:        0.9
+    , avvm_entries:          128
+    , avvm_entry_balance:    10000000000000
+    }
+  } as $era_genesis_params
+
+| { txs:                   50000
+  , payload:               100
+  , tx_io_arities:         [1, 2, 4, 8, 16]
+  , tx_fee:                10000000
+  , tps:                   100
+  , init_cooldown:         100
+  , nodes:                 [ "a", "b", "c", "d"
+                           , "e", "f", "g", "h"
+                           , "i", "j", "k", "l"]
+  ## Note:  the above is a little ridiculous, but better than hard-coding.
   ##  The alternative is quite esoteric -- we have to evaluate the Nixops
   ##  deployment in a highly non-trivial manner and query that.
-  , "nodes":          [ "a", "b", "c", "d"
-                      , "e", "f", "g", "h"
-                      , "i", "j", "k", "l"]
-  } as $default
-| ($default | .tx_io_arities)
+
+  } as $defprof
+| ($defprof | .tx_io_arities)
 | map
   ( . as $io_arity
-  | { "distrib'${node_count}'-\($default | .txs)tx-\($default | .payload)b-\($io_arity)i-\($io_arity)o-\($default | .tps)tps":
-      { "txCount":         ($default | .txs)
-      , "addTxSize":       ($default | .payload)
-      , "inputsPerTx":     $io_arity
-      , "outputsPerTx":    $io_arity
-      , "txFee":           ($default | .tx_fee)
-      , "tps":             ($default | .tps)
+  | { "distrib'${node_count}'-\($defprof | .txs)tx-\($defprof | .payload)b-\($io_arity)i-\($io_arity)o-\($defprof | .tps)tps":
+      { tx_count:          ($defprof | .txs)
+      , add_tx_size:       ($defprof | .payload)
+      , inputs_per_tx:     $io_arity
+      , outputs_per_tx:    $io_arity
+      , tx_fee:            ($defprof | .tx_fee)
+      , tps:               ($defprof | .tps)
       }})
-| { "meta":
-    { "nodeCount": '${node_count}'
-    , "nodeNames": ($default | .nodes | .[:'${node_count}'])
-    ## The first entry is the default default.
-    , "defaultProfile": (.[0] | (. | keys) | .[0])
+
+| { meta:
+    { node_names:          ($defprof | .nodes | .[:'${node_count}'])
+    ## The first entry is the defprof defprof.
+    , default_profile:     (.[0] | (. | keys) | .[0])
+    , genesis_params:      ($common_genesis_params
+                            + (if $era_genesis_params | has("'${era}'")
+                               then $era_genesis_params | .["'${era}'"]
+                               else error("Unknown protocol era: '${era}'")
+                               end))
     }
+
+  ## A special profile for quick testing.
   , "smoke-test":
-    { "txCount":         100
-    , "addTxSize":       1
-    , "inputsPerTx":     1
-    , "outputsPerTx":    1
-    , "txFee":           ($default | .tx_fee)
-    , "tps":             100
+    { tx_count:            100
+    , add_tx_size:         1
+    , inputs_per_tx:       1
+    , outputs_per_tx:      1
+    , tx_fee:              ($defprof | .tx_fee)
+    , tps:                 100
+    , init_cooldown:       0
     }}
   + (. | add)' > ${clusterfile}
 }

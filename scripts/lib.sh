@@ -10,23 +10,54 @@ failusage() {
         exit 1
 }
 
+oprint() {
+        echo "--( $*" >&2
+}
+export -f oprint
+oprint_top() {
+        ## This only prints if ran from the top-level shell process.
+        if test -z "${lib_recursing}"; then oprint "$@"; fi
+}
+export -f oprint_top
+
+vprint() {
+        if test -n "${verbose}${debug}"; then echo "-- $*" >&2; fi
+}
+export -f vprint
+vprint_top() {
+        ## This only prints if either in debug mode,
+        ## or ran from the top-level shell process.
+        if test -z "${lib_recursing}" -o -n "${debug}"; then vprint "$@"; fi
+}
+export -f vprint_top
+
+dprint() {
+        if test -n "${debug}"; then echo "-- $*" >&2; fi
+}
+export -f dprint
+
+fprint() {
+        echo "-- FATAL:  $*" >&2
+}
+export -f fprint
+
 jqtest() {
         jq --exit-status "$@" > /dev/null
 }
 
-## AKA "reverse jq", -- essentially flips its two first args
+## Reverse JQ -- essentially flips its two first args
 rjq() {
         local f="$1"; q="$2"; shift 2
         jq "$q" "$f" "$@"
 }
 
-## AKA "raw reverse jq", as "rjq", but also --raw-output, for shell.
+## Raw Reverse JQ -- as "rjq", but also --raw-output, for shell convenience.
 rrjq() {
         local f="$1"; q="$2"; shift 2
         jq "$q" "$f" --raw-output "$@"
 }
 
-## AKA "reverse jq test", as "rjq", but with --exit-status, for shell
+## Reverse JQ TEST -- as "rjq", but with --exit-status, for shell convenience.
 rjqtest() {
         local f="$1"; q="$2"; shift 2
         jq --exit-status "$q" "$f" "$@" >/dev/null

@@ -5,17 +5,17 @@ let
     if __pathExists benchmarkingParamsFile
     then let r = __fromJSON (__readFile benchmarkingParamsFile);
          in if __hasAttr "meta" r
-            then if __hasAttr "defaultProfile" r.meta then r
-                 else abort "${benchmarkingParamsFile} must define 'meta.defaultProfile'"
+            then if __hasAttr "default_profile" r.meta then r
+                 else abort "${benchmarkingParamsFile} must define 'meta.default_profile'"
             else abort "${benchmarkingParamsFile} must defined the 'meta' section"
     else abort "Benchmarking requires ${benchmarkingParamsFile} to exist.  Please, refer to documentation.";
   benchmarkingTopologyFile =
-    ./topologies + "/bench-txgen-simple-${toString benchmarkingParams.meta.nodeCount}.nix";
+    ./topologies + "/bench-txgen-simple-${toString (__length benchmarkingParams.meta.node_names)}.nix";
   benchmarkingTopology =
     if __pathExists benchmarkingTopologyFile
     then __trace "Using topology:  ${benchmarkingTopologyFile}"
          (import benchmarkingTopologyFile)
-    else abort "Benchmarking topology file implied by configured node count ${benchmarkingParams.meta.nodeCount} does not exist: ${benchmarkingTopologyFile}";
+    else abort "Benchmarking topology file implied by configured node count ${__length benchmarkingParams.meta.node_names} does not exist: ${benchmarkingTopologyFile}";
 
   ### Benchmarking profiles are, currently, essentially name-tagger
   ### generator configs.
@@ -23,7 +23,7 @@ let
   ## WARNING: this logic must correspond to select_benchmarking_profile
   ##          in bench.sh.
   benchmarkingProfileName = if benchmarkingProfileNameEnv == ""
-                            then benchmarkingParams.meta.defaultProfile
+                            then benchmarkingParams.meta.default_profile
                             else benchmarkingProfileNameEnv;
   benchmarkingProfile =
     if __hasAttr benchmarkingProfileName benchmarkingParams
@@ -68,9 +68,6 @@ in reportDeployment (rec {
 
     ## This is overlaid atop the defaults in the tx-generator service,
     ## as specified in the 'cardano-benchmarking' repository.
-    ##
-    ## Note, that this only affects the Tx generation options:
-    ##   txCount addTxSize inputsPerTx outputsPerTx txFee tps
     generatorConfig = benchmarkingProfile;
   };
 

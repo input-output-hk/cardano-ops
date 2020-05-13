@@ -24,11 +24,6 @@ EOF
         fi
 }
 
-op_grep_msgtypes() {
-        local needle="$1"; shift
-        grep -hi "${needle}" "$@" | jq --slurp -c 'map (.data | if (. | has("msg")) and (.msg | has("kind")) then "\(.kind).\(.msg.kind)" else .kind end) | unique'
-}
-
 op_msgtype_timespan() {
         local type first last
         type=$(echo $1 | sed 's_^.*\([^\.]*\)$_\1_'); shift
@@ -38,7 +33,7 @@ op_msgtype_timespan() {
 }
 
 op_analyse_losses() {
-        local sfrom sto lfrom lto rfrom rto txids_explorer txids_generator
+        local sfrom sto lfrom lto rfrom rto tys_explorer tys_generator
         sfrom=$(head -n1 analysis/stx_stime.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
         sto=$(tail   -n1 analysis/stx_stime.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
         lfrom=$(head -n1 analysis/rtx_stime-missing.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
@@ -46,8 +41,12 @@ op_analyse_losses() {
         rfrom=$(head -n1 analysis/rtx_rtime.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
         rto=$(tail   -n1 analysis/rtx_rtime.2 | sed 's_^.*T\(.*\)Z.*$_\1_')
 
-        txids_explorer=$(op_grep_msgtypes  txid ./node*.json | tr -d '"[]' | sed 's_,_ _g' )
-        txids_generator=$(op_grep_msgtypes txid ./generato*.json | tr -d '"[]' | sed 's_,_ _g')
+        tys_explorer=$(grep -F 'txid'  ./log-node-explorer.json |
+                       ../tools/msgtypes.sh |
+                       jq 'map (.kind) | join (" ")' --raw-output --slurp)
+        tys_generator=$(grep -F 'txid' ./generator.json |
+                       ../tools/msgtypes.sh |
+                       jq 'map (.kind) | join (" ")' --raw-output --slurp)
         cat <<EOF
   sends:   ${sfrom} - ${sto}
   losses:  ${lfrom} - ${lto}
@@ -55,13 +54,13 @@ op_analyse_losses() {
 
 Message kinds mentioning 'txid':
 
-  explorer node:  ${txids_explorer}
-$(for ty in ${txids_explorer}
-  do echo -e "    ${ty}:  $(op_msgtype_timespan ${ty} ./node*.json)"; done)
+  explorer node:  ${tys_explorer}
+$(for ty in ${tys_explorer}
+  do echo -e "    ${ty}:  $(op_msgtype_timespan ${ty} ./log-node-*.json)"; done)
 
-  generator:      ${txids_generator}
-$(for ty in ${txids_generator}
-  do echo -e "    ${ty}:  $(op_msgtype_timespan ${ty} ./generato*.json)"; done)
+  generator:      ${tys_generator}
+$(for ty in ${tys_generator}
+  do echo -e "    ${ty}:  $(op_msgtype_timespan ${ty} ./generator.json)"; done)
 EOF
 }
 

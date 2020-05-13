@@ -24,7 +24,8 @@ protocol_params="scripts/protocol-params.json"
 parameter_k=2160
 protocol_magic=459045235
 n_poors=128
-n_delegates=$(jq .meta.nodeCount "$(dirname $0)/../benchmarking-cluster-params.json")
+n_delegates=$(jq '(.meta.node_names | length)' \
+              "$(dirname "$0")/../benchmarking-cluster-params.json")
 total_balance=8000000000000000
 delegate_share=0.9
 avvm_entries=128

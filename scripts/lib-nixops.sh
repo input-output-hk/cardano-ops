@@ -12,20 +12,35 @@ nixops_query_cluster_state() {
         nixops ssh-for-each --parallel -- "${cmd[@]@Q}" 2>&1 | cut -d'>' -f2-
 }
 
+maybe_local_repo_branch() {
+        local local_repo_path=$1 rev=$2
+        git -C "$local_repo_path" describe --all "$rev" |
+                sed 's_^\(.*/\|\)\([^/]*\)$_\2_'
+        ## This needs a shallow clone to be practical.
+}
+
 nixops_deploy() {
-        local include="$1" deploylog="$2" prof="${3:-default}"
-        local node_rev dbsync_rev ops_rev ops_branch ops_checkout_state
-        node_rev=$(jq --raw-output '.["cardano-node"].rev' nix/sources.json | cut -c-8)
-        dbsync_rev=$(jq --raw-output '.["cardano-db-sync"].rev' nix/sources.json | cut -c-8)
-        ops_rev=$(git rev-parse HEAD | cut -c-8)
-        ops_branch=$(git symbolic-ref --short HEAD)
-        ops_checkout_state=$(if git diff --quiet --exit-code
-                                    then echo pristine; else echo modified; fi)
+        local include="${1:-}" deploylog="${2:-}" prof="${3:-default}"
+        local node_rev benchmarking_rev ops_rev ops_checkout_state
+        if test -z "${include}${deploylog}"
+        then deploylog=runs/$(date +%s).full-deploy; fi
+
+        node_rev=$(jq --raw-output '.["cardano-node"].rev' nix/sources.json)
+        benchmarking_rev=$(jq --raw-output '.["cardano-benchmarking"].rev' nix/sources.json)
+        ops_rev=$(git rev-parse HEAD)
+        ops_branch=$(maybe_local_repo_branch . ${ops_rev})
+        ops_checkout_state=$(git diff --quiet --exit-code || echo '(modified)')
         ! test -f "${deploylog}" -a -z "${clobber_deploy_logs}" ||
                 fail "refusing to clobber un-processed deployment log:  ${deploylog}.  To continue, please remove it explicitly."
         prof=$(cluster_sh resolve-profile "${prof}")
+        to=${include:-the entire cluster}
 
-        echo "--( Deploying node ${node_rev} / db-sync ${dbsync_rev} / ops ${ops_rev} / ${ops_branch} (${ops_checkout_state}) to:  ${include:-entire cluster}"
+        cat <<EOF
+--( Deploying to:  ${to#--include }
+--(   node:          ${node_rev}
+--(   benchmarking:  ${benchmarking_rev}
+--(   ops:           ${ops_rev} / ${ops_branch}  ${ops_checkout_state}
+EOF
         if export BENCHMARKING_PROFILE=${prof}; ! nixops deploy --max-concurrent-copy 50 -j 4 ${include} \
                  >"${deploylog}" 2>&1
         then echo "FATAL:  deployment failed, full log in ${deploylog}"
