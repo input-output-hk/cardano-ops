@@ -94,7 +94,6 @@ let
       imports = [
         xlarge
         cardano-ops.roles.explorer
-        cardano-ops.modules.base-service
       ]
       # TODO: remove module when the new explorer is available
       ++ lib.optional (globals.withLegacyExplorer) cardano-ops.roles.explorer-legacy;

@@ -15,7 +15,7 @@ in {
     (sourcePaths.cardano-graphql + "/nix/nixos")
     (sourcePaths.cardano-rest + "/nix/nixos")
     (sourcePaths.cardano-db-sync + "/nix/nixos")
-    cardano-ops.modules.common
+    cardano-ops.modules.base-service
     cardano-ops.modules.cardano-postgres
   ];
 
