@@ -12,10 +12,6 @@ in {
 
   options = {
     node = {
-      org = lib.mkOption {
-        type = lib.types.enum [ "IOHK" "Emurgo" "CF" ];
-        default = "IOHK";
-      };
       coreIndex = lib.mkOption {
         type = lib.types.int;
       };
