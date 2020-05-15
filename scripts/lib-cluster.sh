@@ -175,6 +175,56 @@ EOF
         fi
 }
 
+op_genesis_byron() {
+        local target_dir="${1:-./keys}"
+
+        local start_future_offset='1 minute' start_time
+        start_time="$(${DATE} -d "now + ${start_future_offset}" +%s)"
+
+        local protocol_params parameter_k protocol_magic n_poors n_delegates
+        local total_balance delegate_share avvm_entries avvm_entry_balance
+        local not_so_secret
+
+        protocol_params='scripts/protocol-params.json'
+        parameter_k=2160
+        protocol_magic=459045235
+        n_poors=128
+        n_delegates=$(jq '(.meta.node_names | length)' \
+                      "$(dirname "$0")/../benchmarking-cluster-params.json")
+        total_balance=8000000000000000
+        delegate_share=0.9
+        avvm_entries=128
+        avvm_entry_balance=10000000000000
+        not_so_secret=2718281828
+
+        args=(
+                --genesis-output-dir           "${tmpdir}"
+                --start-time                   "${start_time}"
+                --protocol-parameters-file     "${protocol_params}"
+                --k                            ${parameter_k}
+                --protocol-magic               ${protocol_magic}
+                --n-poor-addresses             ${n_poors}
+                --n-delegate-addresses         ${n_delegates}
+                --total-balance                ${total_balance}
+                --delegate-share               ${delegate_share}
+                --avvm-entry-count             ${avvm_entries}
+                --avvm-entry-balance           ${avvm_entry_balance}
+                --secret-seed                  ${not_so_secret}
+        )
+
+        mkdir -p "${target_dir}"
+        target_files=(
+                "${target_dir}"/genesis.json
+                "${target_dir}"/delegate-keys.*.key
+                "${target_dir}"/delegation-cert.*.json
+        )
+        rm -f -- ${target_files[*]}
+        cardano-cli genesis --real-pbft "${args[@]}" "$@"
+        cardano-cli print-genesis-hash \
+                --genesis-json "${target_dir}/genesis.json" |
+                tail -1 > "${target_dir}"/GENHASH
+}
+
 ###
 ### Aux
 ###
