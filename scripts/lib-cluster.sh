@@ -47,6 +47,25 @@ cluster_sh() {
         esac
 }
 
+cluster_last_meta_tag() {
+        local meta=./last-meta.json tag dir meta2
+        jq . "${meta}" >/dev/null || fail "malformed run metadata: ${meta}"
+
+        tag=$(jq --raw-output .meta.tag "${meta}")
+        test -n "${tag}" || fail "bad tag in run metadata: ${meta}"
+
+        dir="./runs/${tag}"
+        test -d "${dir}" ||
+                fail "bad tag in run metadata: ${meta} -- ${dir} is not a directory"
+        meta2=${dir}/meta.json
+        jq --exit-status . "${meta2}" >/dev/null ||
+                fail "bad tag in run metadata: ${meta} -- ${meta2} is not valid JSON"
+
+        test "$(realpath ./last-meta.json)" = "$(realpath "${meta2}")" ||
+                fail "bad tag in run metadata: ${meta} -- ${meta2} is different from ${meta}"
+        echo "${tag}"
+}
+
 ## This sets up the cluster configuration file,
 ## 'benchmarking-cluster-params.json', for:
 ##   1. a given protocol era, and
@@ -132,3 +151,46 @@ op_init_cluster() {
     }}
   + (. | add)' > ${clusterfile}
 }
+
+op_check_genesis_age() {
+        # test $# = 3 || failusage "check-genesis-age HOST SLOTLEN K"
+        local core="${1:-a}" slotlen="${2:-20}" k="${3:-2160}" startTime now
+        startTime=$(nixops ssh ${core} \
+          jq .startTime $(nixops ssh ${core} \
+                  jq .GenesisFile $(nixops ssh ${core} -- \
+                          pgrep -al cardano-node |
+                                  sed 's_.* --config \([^ ]*\) .*_\1_')))
+        now=$(date +%s)
+        local age_t=$((now - startTime))
+        local age_slots=$((age_t / slotlen))
+        local remaining=$((k * 2 - age_slots))
+        cat <<EOF
+---| Genesis:  .startTime=${startTime}  now=${now}  age=${age_t}s  slotlen=${slotlen}
+---|           slot age=${age_slots}  k=${k}  remaining=${remaining}
+EOF
+        if   test "${age_slots}" -ge $((k * 2))
+        then fail "genesis is too old"
+        elif test "${age_slots}" -ge $((k * 38 / 20))
+        then fail "genesis is dangerously old, slots remaining: ${remaining}"
+        fi
+}
+
+###
+### Aux
+###
+goggles_fn='cat'
+
+goggles_ip() {
+        sed "$(jq --raw-output '.
+              | .local_ip  as $local_ip
+              | .public_ip as $public_ip
+              | ($local_ip  | map ("s_\(.local_ip  | gsub ("\\."; "."; "x"))_HOST-\(.hostname)_g")) +
+                ($public_ip | map ("s_\(.public_ip | gsub ("\\."; "."; "x"))_HOST-\(.hostname)_g"))
+              | join("; ")
+              ' last-meta.json)"
+}
+
+goggles() {
+        ${goggles_fn}
+}
+export -f goggles goggles_ip

@@ -5,7 +5,6 @@ set -euo pipefail
 clusterfile=
 . "$(dirname "$0")"/lib.sh
 . "$(dirname "$0")"/lib-nixops.sh
-. "$(dirname "$0")"/lib-cardano.sh
 . "$(dirname "$0")"/lib-cluster.sh
 . "$(dirname "$0")"/lib-benchrun.sh
 ###
@@ -45,9 +44,6 @@ USAGE:  $(basename "$0") OPTIONS.. OP OP-ARGS..
 
     bench-start           Cycle explorer & all nodes, and start the generator.
     bench-fetch           Fetch cluster logs.
-    bench-analyse         Analyse cluster logs & prepare results.
-    bench-losses          Analyse Tx losses (use inside a bench run dir).
-    bench-results         Same as bench-fetch/-analyse.
 
     stop                  Stop the cluster, including all journald instances.
 
@@ -134,13 +130,6 @@ main() {
                                       op_bench_start "$@";;
                 bench-fetch | fetch | f )
                                       op_bench_fetch "$@";;
-                bench-analyse | analyse | a )
-                                      op_bench_analyse "$@";;
-                bench-results | results | r )
-                                      op_bench_fetch
-                                      op_bench_analyse "$@";;
-                bench-losses | losses | lost | l )
-                                      op_analyse_losses "$@";;
 
                 bench-profile | profile | p )
                                       test -z "${force_deploy}" ||
@@ -221,7 +210,6 @@ op_bench_profile() {
         then nixops_deploy '--include explorer' "${deploylog}" "${prof}"; fi
         op_bench_start "${prof}" "${deploylog}"
         op_bench_fetch
-        op_bench_analyse
 }
 
 op_bench_start() {
@@ -273,7 +261,7 @@ op_bench_start() {
 
 fetch_systemd_unit_startup_logs() {
         local tag dir
-        tag=$(get_last_meta_tag)
+        tag=$(cluster_last_meta_tag)
         dir="./runs/${tag}"
 
         pushd "${dir}" >/dev/null || return 1
@@ -362,11 +350,6 @@ EOF
 
       "tools/*.sql",
       "tools/*.sh",
-
-      "analysis.json",
-      "analysis/generator.submission-thread-trace.*.json",
-      "analysis/*.csv",
-      "analysis/*.txt"
     ]
     , "nixops_metafile": "${nixops_meta}"
     , "nixops": $(jq . "${nixops_meta}")
@@ -452,40 +435,9 @@ op_wait_for_empty_blocks() {
         echo
 }
 
-get_last_meta_tag() {
-        local meta=./last-meta.json tag dir meta2
-        jq . "${meta}" >/dev/null || fail "malformed run metadata: ${meta}"
-
-        tag=$(jq --raw-output .meta.tag "${meta}")
-        test -n "${tag}" || fail "bad tag in run metadata: ${meta}"
-
-        dir="./runs/${tag}"
-        test -d "${dir}" ||
-                fail "bad tag in run metadata: ${meta} -- ${dir} is not a directory"
-        meta2=${dir}/meta.json
-        jq --exit-status . "${meta2}" >/dev/null ||
-                fail "bad tag in run metadata: ${meta} -- ${meta2} is not valid JSON"
-
-        test "$(realpath ./last-meta.json)" = "$(realpath "${meta2}")" ||
-                fail "bad tag in run metadata: ${meta} -- ${meta2} is different from ${meta}"
-        echo "${tag}"
-}
-
-export nix_store_benchmarking=
-run_fetch_benchmarking() {
-        local target=$1
-        if test -z "${nix_store_benchmarking}"
-        then echo "--( Fetching tools from 'cardano-benchmarking' $(nix-instantiate --eval -E "(import $(dirname "${self}")/../nix/sources.nix).cardano-benchmarking.rev" | tr -d '"' | cut -c-8) .."
-             export nix_store_benchmarking=$(nix-instantiate --eval -E "(import $(dirname "${self}")/../nix/sources.nix).cardano-benchmarking.outPath" | tr -d '"' )
-             test -n "${nix_store_benchmarking}" ||
-                     fail "couldn't fetch 'cardano-benchmarking'"
-             mkdir -p 'tools'
-             cp -fa "${nix_store_benchmarking}"/scripts/*.{sh,sql} "$target"; fi
-}
-
 op_bench_fetch() {
         local tag dir components
-        tag=$(get_last_meta_tag)
+        tag=$(cluster_last_meta_tag)
         dir="./runs/${tag}"
 
         echo "--( Run directory:  ${dir}"
@@ -549,84 +501,6 @@ EOF
         popd >/dev/null
 
         echo "--( logs collected from run:  ${tag}"
-}
-
-op_bench_analyse() {
-        echo "--( cardano-ops rev $(git rev-parse HEAD | cut -c-8)"
-
-        local tag dir
-        tag=$(get_last_meta_tag)
-        dir="runs/${tag}"
-
-        pushd "${dir}" >/dev/null || return 1
-        rm -rf 'analysis'
-        mkdir  'analysis'
-        cd     'analysis'
-
-        run_fetch_benchmarking '../tools'
-
-        echo "--( Running log analyses:  extract"
-        tar xaf '../logs/log-explorer-generator.tar.xz'
-        tar xaf '../logs/log-nodes.tar.xz'
-        ls -l *.json *.log ../tools/*
-
-        echo " timetoblock.csv"
-        ../tools/analyse.sh generator log-node-explorer "runs-last/analysis/"
-        cp analysis/timetoblock.csv .
-
-        local blocks
-        echo "--( Running log analyses:  blocksizes"
-        blocks="$(../tools/blocksizes.sh log-node-explorer.json |
-                               jq . --slurp)"
-
-        declare -A msgtys
-        local mach msgtys=() producers tid msgtys_generator sub_tids
-        producers=($(cluster_sh producers))
-
-        for mach in explorer ${producers[*]}
-        do echo -n " msgtys:${mach}"
-           msgtys[${mach}]="$(../tools/msgtypes.sh log-node-explorer.json |
-                              jq . --slurp)"; done
-        echo -n " msgtys:generator"
-        msgtys_generator="$(../tools/msgtypes.sh generator.json |
-                               jq . --slurp)"
-
-        echo -n " node-to-node-submission-tids"
-        sub_tids="$(../tools/generator-logs.sh log-tids generator.json)"
-        for tid in $sub_tids
-        do echo -n " node-to-node-submission:${tid}"
-           ../tools/generator-logs.sh tid-trace "${tid}" generator.json \
-             > generator.submission-thread-trace."${tid}".json; done
-
-        echo -n " added-to-current-chain"
-        ../tools/added-to-current-chain.sh log-node-explorer.json \
-             > explorer.added-to-current-chain.csv
-
-        jq '{ tx_stats: $txstats[0]
-            , submission_tids: '"$(jq --slurp <<<$sub_tids)"'
-            , MsgBlock:    '"${blocks}"'
-            , message_kinds:
-              ({ generator: '"${msgtys_generator}"'
-               }'"$(for mach in ${!msgtys[*]}
-                    do echo " + { $mach: $(jq --slurp <<<${msgtys[$mach]}) }"
-                    done)"')
-            }' --null-input \
-               --slurpfile txstats 'analysis/tx-stats.json' \
-               > ../analysis.json
-
-        echo -n " adding db-analysis"
-        tar xaf '../logs/db-analysis.tar.xz' --wildcards '*.csv' '*.txt'
-
-        if jqtest '(.tx_stats.tx_missing != 0)' ../analysis.json
-        then echo " missing-txs"
-             op_analyse_losses
-        else echo
-        fi
-        popd >/dev/null
-
-        ln -sf "${dir}/analysis.json" .
-
-        echo "--( analysed run:  ${tag}"
 }
 
 # Keep this at the very end, so bash read the entire file before execution starts.
