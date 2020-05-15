@@ -19,6 +19,16 @@ rcjq() {
         jq "$1" "${clusterfile}" --raw-output
 }
 
+mcjq() {
+        rcjq ".meta | $1"
+}
+
+pcjq() {
+        rcjq "del(.meta)
+             | if has(\"$1\") then .[\"$1\"] $2
+               else error(\"Can't query unknown profile $1 using $2\") end"
+}
+
 ## Clusterfile JQ TEST
 cjqtest() {
         jq "$1" "${clusterfile}" --exit-status >/dev/null
@@ -78,18 +88,39 @@ cluster_last_meta_tag() {
 ##      - default tx generator profile name
 ##      - count and the names of producer nodes
 ##      - genesis parameters
-op_init_cluster() {
+op_init_params() {
         local node_count="${1?USAGE:  init-cluster NODECOUNT [PROTOCOL-ERA=byron]}"
         local era="${2:-byron}"
         if test $((node_count + 0)) -ne ${node_count}
         then fail "this operation requires a node count as an integer argument."
         fi
-        jq --null-input ' .
-| { slot_length:           20
-  , parameter_k:           2160
-  , protocol_magic:        459045235
-  , secret:                2718281828
-  , total_balance:         8000000000000000
+        jq --null-input '
+def profile_name($prof):
+  [ "dist'${node_count}'"
+  , ($prof.txs      | tostring) + "tx"
+  , ($prof.payload  | tostring) + "b"
+  , ($prof.io_arity | tostring) + "i"
+  , ($prof.io_arity | tostring) + "o"
+  , ($prof.tps      | tostring) + "tps"
+  ] | join("-");
+
+  [ { txs: 50000, payload: 100, io_arity: 1,  tps: 100 }
+  , { txs: 50000, payload: 100, io_arity: 2,  tps: 100 }
+  , { txs: 50000, payload: 100, io_arity: 4,  tps: 100 }
+  , { txs: 50000, payload: 100, io_arity: 8,  tps: 100 }
+  , { txs: 50000, payload: 100, io_arity: 16, tps: 100 }
+  , { txs: 10000, payload: 100, io_arity: 1,  tps: 100, name: "short" }
+  , { txs: 100,   payload: 100, io_arity: 1,  tps: 100, name: "smoke-test"
+    , init_cooldown: 0, finish_patience: 3 }
+  ] as $profile_specs
+
+| [ { max_block_size: 2000000 }
+  ] as $max_block_sizes
+
+| { parameter_k:             2160
+  , protocol_magic:          459045235
+  , secret:                  2718281828
+  , total_balance:           8000000000000000
   } as $common_genesis_params
 
 | { byron:
@@ -102,34 +133,48 @@ op_init_cluster() {
     }
   } as $era_genesis_params
 
-| { txs:                   50000
-  , payload:               100
-  , tx_io_arities:         [1, 2, 4, 8, 16]
+  ## The profile-invariant part.
+| { init_cooldown:         100
+  , finish_patience:       5
+  , slot_duration:         20000
   , tx_fee:                10000000
-  , tps:                   100
-  , init_cooldown:         100
-  , nodes:                 [ "a", "b", "c", "d"
-                           , "e", "f", "g", "h"
-                           , "i", "j", "k", "l"]
+  , nodes:                 [range(0; 16)] | map ("node-\(.)")
   ## Note:  the above is a little ridiculous, but better than hard-coding.
   ##  The alternative is quite esoteric -- we have to evaluate the Nixops
   ##  deployment in a highly non-trivial manner and query that.
 
-  } as $defprof
-| ($defprof | .tx_io_arities)
-| map
-  ( . as $io_arity
-  | { "distrib'${node_count}'-\($defprof | .txs)tx-\($defprof | .payload)b-\($io_arity)i-\($io_arity)o-\($defprof | .tps)tps":
-      { tx_count:          ($defprof | .txs)
-      , add_tx_size:       ($defprof | .payload)
-      , inputs_per_tx:     $io_arity
-      , outputs_per_tx:    $io_arity
-      , tx_fee:            ($defprof | .tx_fee)
-      , tps:               ($defprof | .tps)
-      }})
+  } as $common
 
+## For all IO arities and block sizes:
+| [[ $profile_specs
+   , $max_block_sizes
+   ]
+   | combinations
+   | add                   ## Combine layers:  generic and blksizes
+   ]
+| map
+  ( . as $prof
+  | { "\($prof.name // profile_name($prof))":
+      { generator:
+        { tx_count:        $prof.txs
+        , add_tx_size:     $prof.payload
+        , inputs_per_tx:   $prof.io_arity
+        , outputs_per_tx:  $prof.io_arity
+        , tx_fee:          $common.tx_fee
+        , tps:             $prof.tps
+        , init_cooldown:   ($prof.init_cooldown   // $common.init_cooldown)
+        }
+      , run_params:
+        { finish_patience: ($prof.finish_patience // $common.finish_patience)
+        }
+      , genesis_params:
+        { max_block_size:  $prof.max_block_size
+        , slot_duration:   $common.slot_duration
+        }
+      }}
+  )
 | { meta:
-    { node_names:          ($defprof | .nodes | .[:'${node_count}'])
+    { node_names:          $common.nodes[:'${node_count}']
     ## The first entry is the defprof defprof.
     , default_profile:     (.[0] | (. | keys) | .[0])
     , genesis_params:      ($common_genesis_params
@@ -137,24 +182,14 @@ op_init_cluster() {
                                then $era_genesis_params | .["'${era}'"]
                                else error("Unknown protocol era: '${era}'")
                                end))
-    }
-
-  ## A special profile for quick testing.
-  , "smoke-test":
-    { tx_count:            100
-    , add_tx_size:         1
-    , inputs_per_tx:       1
-    , outputs_per_tx:      1
-    , tx_fee:              ($defprof | .tx_fee)
-    , tps:                 100
-    , init_cooldown:       0
     }}
-  + (. | add)' > ${clusterfile}
+  + (. | add)
+' > ${clusterfile}
 }
 
 op_check_genesis_age() {
         # test $# = 3 || failusage "check-genesis-age HOST SLOTLEN K"
-        local core="${1:-a}" slotlen="${2:-20}" k="${3:-2160}" startTime now
+        local core="${1:-node-0}" slotlen="${2:-20}" k="${3:-2160}" startTime now
         startTime=$(nixops ssh ${core} \
           jq .startTime $(nixops ssh ${core} \
                   jq .GenesisFile $(nixops ssh ${core} -- \
@@ -175,54 +210,80 @@ EOF
         fi
 }
 
+## Genesis Clusterfile JQ
+gcjq() {
+        rcjq ".meta.genesis_params | $1"
+}
+
+byron_protocol_params() {
+        local prof=$1
+        jq <<<'{
+    "heavyDelThd": "300000000000",
+    "maxBlockSize": "'"$(pcjq "${prof}" .genesis_params.max_block_size)"'",
+    "maxHeaderSize": "2000000",
+    "maxProposalSize": "700",
+    "maxTxSize": "4096",
+    "mpcThd": "20000000000000",
+    "scriptVersion": 0,
+    "slotDuration": "'"$(pcjq "${prof}" .genesis_params.slot_duration)"'",
+    "softforkRule": {
+        "initThd": "900000000000000",
+        "minThd": "600000000000000",
+        "thdDecrement": "50000000000000"
+    },
+    "txFeePolicy": {
+        "multiplier": "43946000000",
+        "summand": "155381000000000"
+    },
+    "unlockStakeEpoch": "18446744073709551615",
+    "updateImplicit": "10000",
+    "updateProposalThd": "100000000000000",
+    "updateVoteThd": "1000000000000"
+}'
+}
+
 op_genesis_byron() {
+        local prof="${1:-default}"
+        prof=$(cluster_sh resolve-profile "$prof")
         local target_dir="${1:-./keys}"
 
         local start_future_offset='1 minute' start_time
-        start_time="$(${DATE} -d "now + ${start_future_offset}" +%s)"
+        start_time="$(date +%s -d "now + ${start_future_offset}")"
 
-        local protocol_params parameter_k protocol_magic n_poors n_delegates
-        local total_balance delegate_share avvm_entries avvm_entry_balance
-        local not_so_secret
+        local byron_params_tmpfile
 
-        protocol_params='scripts/protocol-params.json'
-        parameter_k=2160
-        protocol_magic=459045235
-        n_poors=128
-        n_delegates=$(jq '(.meta.node_names | length)' \
-                      "$(dirname "$0")/../benchmarking-cluster-params.json")
-        total_balance=8000000000000000
-        delegate_share=0.9
-        avvm_entries=128
-        avvm_entry_balance=10000000000000
-        not_so_secret=2718281828
+        byron_params_tmpfile=$(mktemp --tmpdir)
+        byron_protocol_params "$prof" >"$byron_params_tmpfile"
 
         args=(
-                --genesis-output-dir           "${tmpdir}"
-                --start-time                   "${start_time}"
-                --protocol-parameters-file     "${protocol_params}"
-                --k                            ${parameter_k}
-                --protocol-magic               ${protocol_magic}
-                --n-poor-addresses             ${n_poors}
-                --n-delegate-addresses         ${n_delegates}
-                --total-balance                ${total_balance}
-                --delegate-share               ${delegate_share}
-                --avvm-entry-count             ${avvm_entries}
-                --avvm-entry-balance           ${avvm_entry_balance}
-                --secret-seed                  ${not_so_secret}
+        --genesis-output-dir           "$target_dir"
+        --start-time                   "$start_time"
+        --protocol-parameters-file     "$byron_params_tmpfile"
+
+        --k                            $(mcjq .genesis_params.parameter_k)
+        --protocol-magic               $(mcjq .genesis_params.protocol_magic)
+        --secret-seed                  $(mcjq .genesis_params.secret)
+        --total-balance                $(mcjq .genesis_params.total_balance)
+
+        --n-poor-addresses             $(mcjq .genesis_params.n_poors)
+        --n-delegate-addresses         $(mcjq '(.node_names | length)')
+        --delegate-share               $(mcjq .genesis_params.delegate_share)
+        --avvm-entry-count             $(mcjq .genesis_params.avvm_entries)
+        --avvm-entry-balance           $(mcjq .genesis_params.avvm_entry_balance)
         )
 
-        mkdir -p "${target_dir}"
+        mkdir -p "$target_dir"
         target_files=(
-                "${target_dir}"/genesis.json
-                "${target_dir}"/delegate-keys.*.key
-                "${target_dir}"/delegation-cert.*.json
+                "$target_dir"/genesis.json
+                "$target_dir"/delegate-keys.*.key
+                "$target_dir"/delegation-cert.*.json
         )
-        rm -f -- ${target_files[*]}
+        rm -rf -- ./"$target_dir"
         cardano-cli genesis --real-pbft "${args[@]}" "$@"
+        rm -f "$byron_params_tmpfile"
         cardano-cli print-genesis-hash \
-                --genesis-json "${target_dir}/genesis.json" |
-                tail -1 > "${target_dir}"/GENHASH
+                --genesis-json "$target_dir/genesis.json" |
+                tail -1 > "$target_dir"/GENHASH
 }
 
 ###

@@ -1,46 +1,46 @@
 {
   coreNodes = [
     {
-      name = "a";
+      name = "node-0";
       nodeId = 0;
       org = "IOHK";
       region = "eu-central-1";
-      producers = ["b" "c" "d" "e" "f"];
+      producers = ["node-1" "node-2" "node-4" "node-5" "node-6"];
     }
     {
-      name = "b";
+      name = "node-1";
       nodeId = 1;
       org = "IOHK";
       region = "eu-central-1";
-      producers = ["a" "c" "d" "e" "f"];
+      producers = ["node-0" "node-2" "node-4" "node-5" "node-6"];
     }
     {
-      name = "c";
+      name = "node-2";
       nodeId = 2;
       org = "IOHK";
       region = "ap-southeast-2";
-      producers = ["a" "b" "d" "e" "f"];
+      producers = ["node-0" "node-1" "node-4" "node-5" "node-6"];
     }
     {
-      name = "d";
+      name = "node-4";
       nodeId = 3;
       org = "IOHK";
       region = "ap-southeast-2";
-      producers = ["a" "b" "c" "e" "f"];
+      producers = ["node-0" "node-1" "node-2" "node-5" "node-6"];
     }
     {
-      name = "e";
+      name = "node-5";
       nodeId = 4;
       org = "IOHK";
       region = "us-east-1";
-      producers = ["a" "b" "c" "d" "f"];
+      producers = ["node-0" "node-1" "node-2" "node-4" "node-6"];
     }
     {
-      name = "f";
+      name = "node-6";
       nodeId = 5;
       org = "IOHK";
       region = "us-east-1";
-      producers = ["a" "b" "c" "d" "e"];
+      producers = ["node-0" "node-1" "node-2" "node-4" "node-5"];
     }
   ];
 

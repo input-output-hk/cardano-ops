@@ -20,7 +20,7 @@ maybe_local_repo_branch() {
 }
 
 nixops_deploy() {
-        local include="${1:-}" deploylog="${2:-}" prof="${3:-default}"
+        local prof="${1:-default}" include="${2:-}" deploylog="${3:-}"
         local node_rev benchmarking_rev ops_rev ops_checkout_state
         if test -z "${include}${deploylog}"
         then deploylog=runs/$(date +%s).full-deploy; fi
@@ -30,8 +30,6 @@ nixops_deploy() {
         ops_rev=$(git rev-parse HEAD)
         ops_branch=$(maybe_local_repo_branch . ${ops_rev})
         ops_checkout_state=$(git diff --quiet --exit-code || echo '(modified)')
-        ! test -f "${deploylog}" -a -z "${clobber_deploy_logs}" ||
-                fail "refusing to clobber un-processed deployment log:  ${deploylog}.  To continue, please remove it explicitly."
         prof=$(cluster_sh resolve-profile "${prof}")
         to=${include:-the entire cluster}
 
@@ -41,6 +39,7 @@ nixops_deploy() {
 --(   benchmarking:  ${benchmarking_rev}
 --(   ops:           ${ops_rev} / ${ops_branch}  ${ops_checkout_state}
 EOF
+        ln -sf "${deploylog}" 'last-deploy.log'
         if export BENCHMARKING_PROFILE=${prof}; ! nixops deploy --max-concurrent-copy 50 -j 4 ${include} \
                  >"${deploylog}" 2>&1
         then echo "FATAL:  deployment failed, full log in ${deploylog}"

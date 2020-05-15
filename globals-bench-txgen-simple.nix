@@ -68,7 +68,7 @@ in reportDeployment (rec {
 
     ## This is overlaid atop the defaults in the tx-generator service,
     ## as specified in the 'cardano-benchmarking' repository.
-    generatorConfig = benchmarkingProfile;
+    generatorConfig = benchmarkingProfile.generator;
   };
 
   topology = benchmarkingTopology;

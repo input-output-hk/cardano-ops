@@ -3,11 +3,11 @@
 generate_run_id() {
         local prof="$1" node tx l i o tps
         node=$(jq --raw-output '.["cardano-node"].rev' nix/sources.json | cut -c-8)
-        tx=$(jq  .[\"${prof}\"].tx_count       ${clusterfile})
-        l=$(jq   .[\"${prof}\"].add_tx_size    ${clusterfile})
-        i=$(jq   .[\"${prof}\"].inputs_per_tx  ${clusterfile})
-        o=$(jq   .[\"${prof}\"].outputs_per_tx ${clusterfile})
-        tps=$(jq .[\"${prof}\"].tps            ${clusterfile})
+        tx=$(jq  .[\"${prof}\"].generator.tx_count       ${clusterfile})
+        l=$(jq   .[\"${prof}\"].generator.add_tx_size    ${clusterfile})
+        i=$(jq   .[\"${prof}\"].generator.inputs_per_tx  ${clusterfile})
+        o=$(jq   .[\"${prof}\"].generator.outputs_per_tx ${clusterfile})
+        tps=$(jq .[\"${prof}\"].generator.tps            ${clusterfile})
         echo "$(generate_mnemonic).node-${node}.tx${tx}.l${l}.i${i}.o${o}.tps${tps}"
 }
 

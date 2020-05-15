@@ -26,6 +26,7 @@ in {
         { scKind = "FileSK"; scName = "/var/lib/cardano-node/logs/node.json"; scFormat = "ScJson"; "scRotation" = null; }
       ];
       minSeverity = "Debug";
+      TracingVerbosity = "MaximalVerbosity";
 
       # TraceBlockFetchClient = true;
       # TraceBlockFetchDecisions = false;
