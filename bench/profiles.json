@@ -1,0 +1,20 @@
+{ profile_specss:
+  [ { txs: 50000, payload: 100, io_arity: 1,  tps: 100 }
+  , { txs: 50000, payload: 100, io_arity: 2,  tps: 100 }
+  , { txs: 50000, payload: 100, io_arity: 4,  tps: 100 }
+  , { txs: 50000, payload: 100, io_arity: 8,  tps: 100 }
+  , { txs: 50000, payload: 100, io_arity: 16, tps: 100 }
+  , { txs: 10000, payload: 100, io_arity: 1,  tps: 100, name: "short" }
+  , { txs: 100,   payload: 100, io_arity: 1,  tps: 100, name: "smoke-test"
+    , init_cooldown: 0, finish_patience: 3 }
+  ]
+, max_block_sizes:
+  [ { max_block_size: 2000000 }
+  ]
+, common_genesis_params:
+  { parameter_k:             2160
+  , protocol_magic:          459045235
+  , secret:                  2718281828
+  , total_balance:           8000000000000000
+  }
+}
