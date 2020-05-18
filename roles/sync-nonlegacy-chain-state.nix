@@ -3,10 +3,10 @@
 # to coreNode.  The relay allows a sync to the tip of the
 # nonlegacy chain state without having to stop the legacy core
 # function during the sync
-{ pkgs, ... }:
+pkgs:
 {
   imports = [
-    ./relay.nix
+    pkgs.cardano-ops.roles.relay
   ];
 
   node.roles.isCardanoRelay = true;

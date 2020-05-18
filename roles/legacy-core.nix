@@ -1,11 +1,11 @@
-{ resources, config, ... }:
+pkgs: { resources, config, ... }:
 let
   assetLockFile = if (builtins.pathExists ../static/asset-locked-addresses.txt) then ../static/asset-locked-addresses.txt else null;
 
 in {
 
   imports = [
-    ../modules/base-legacy-service.nix
+    pkgs.cardano-ops.modules.base-legacy-service
   ];
 
   services.cardano-node-legacy.nodeType = "core";

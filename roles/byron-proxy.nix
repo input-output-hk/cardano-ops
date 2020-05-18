@@ -1,13 +1,13 @@
+pkgs:
 { name
 , config
 , nodes
 , resources
 , ...
 }:
-with import ../nix {};
+with pkgs;
 let
   cfg = config.services.byron-proxy;
-  iohkNix = import sourcePaths.iohk-nix {};
   inherit (iohkNix) cardanoLib;
   legacyCardanoCfg = config.services.cardano-node-legacy;
   hostAddr = getListenIp nodes.${name};
@@ -28,7 +28,7 @@ let
 in {
 
   imports = [
-    ../modules/common-cardano-legacy.nix
+    cardano-ops.modules.common-cardano-legacy
     (sourcePaths.cardano-byron-proxy + "/nix/nixos")
   ];
 

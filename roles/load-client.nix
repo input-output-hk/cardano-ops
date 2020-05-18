@@ -1,7 +1,7 @@
-{ config, pkgs, ... }:
+pkgs: { config, ... }:
 {
   imports = [
-    ../modules/load-client.nix
+    pkgs.cardano-ops.modules.load-client
   ];
 
   systemd.services.cardano-node.after = [ "ephemeral.service" ];

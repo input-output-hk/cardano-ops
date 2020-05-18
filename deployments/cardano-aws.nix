@@ -10,6 +10,7 @@ let
   inherit (iohk-ops-lib.physical) aws;
 
   cluster = import ../clusters/cardano.nix {
+    inherit pkgs;
     inherit (aws) targetEnv;
     medium = aws.t3a-medium;                     # Standard relay
     xlarge = aws.t3a-xlarge;                     # Standard explorer

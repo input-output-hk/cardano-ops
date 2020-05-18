@@ -1,4 +1,5 @@
-{ targetEnv
+{ pkgs
+, targetEnv
 , medium               # Standard relay
 , xlarge               # Standard explorer
 , t3-xlarge            # High load relay
@@ -7,13 +8,12 @@
 , t3-2xlarge-monitor   # High capacity monitor
 , ...
 }:
-with (import ../nix {});
+with pkgs;
 let
 
   inherit (globals) topology byronProxyPort;
   inherit (topology) legacyCoreNodes legacyRelayNodes byronProxies coreNodes relayNodes;
   inherit (lib) recursiveUpdate mapAttrs listToAttrs imap1 concatLists;
-  inherit (iohk-ops-lib) roles modules;
 
   # for now, keys need to be generated for each core nodes with:
   # for i in {1..2}; do cardano-cli --byron-legacy keygen --secret ./keys/$i.sk --no-password; done
@@ -32,8 +32,8 @@ let
       deployment.ec2.region = def.region or "eu-central-1";
       imports = [
         (if globals.withHighCapacityMonitoring then t3-2xlarge-monitor else xlarge-monitor)
-        roles.monitor
-        ../modules/monitoring-cardano.nix
+        iohk-ops-lib.roles.monitor
+        cardano-ops.modules.monitoring-cardano
       ];
       node = {
         roles.isMonitor = true;
@@ -93,11 +93,10 @@ let
       };
       imports = [
         xlarge
-        ../roles/explorer.nix
-        ../modules/base-service.nix
+        cardano-ops.roles.explorer
       ]
       # TODO: remove module when the new explorer is available
-      ++ lib.optional (globals.withLegacyExplorer) ../roles/explorer-legacy.nix;
+      ++ lib.optional (globals.withLegacyExplorer) cardano-ops.roles.explorer-legacy;
 
       services.monitoring-exporters.extraPrometheusExportersPorts =
         [ globals.cardanoNodePrometheusExporterPort ];
@@ -118,7 +117,7 @@ let
       };
       imports = [
         medium
-        ../roles/faucet.nix
+        cardano-ops.roles.faucet
       ];
       node = {
         roles.isFaucet = true;
@@ -139,9 +138,9 @@ let
       };
       deployment.ec2.region = def.region;
       imports = [ medium ] ++ (if (globals.environmentConfig.consensusProtocol == "TPraos") then [
-        ../roles/shelley-core.nix
+        cardano-ops.roles.shelley-core
       ] else [
-        ../roles/core.nix
+        cardano-ops.roles.core
       ]);
       services.cardano-node = {
         inherit (def) producers;
@@ -162,9 +161,9 @@ let
       };
       deployment.ec2.region = def.region;
       imports = if globals.withHighLoadRelays then [
-        t3-xlarge ../roles/relay-high-load.nix
+        t3-xlarge cardano-ops.roles.relay-high-load
       ] else [
-        medium ../roles/relay.nix
+        medium cardano-ops.roles.relay
       ];
     } def;
   };
@@ -182,7 +181,7 @@ let
       deployment.ec2.region = def.region;
       imports = [
         medium
-        ../roles/byron-proxy.nix
+        cardano-ops.roles.byron-proxy
       ];
       services.cardano-node-legacy.staticRoutes = def.staticRoutes or [];
       services.cardano-node-legacy.dynamicSubscribe = def.dynamicSubscribe or [];
@@ -200,10 +199,10 @@ let
         inherit (def) org nodeId;
       };
       deployment.ec2.region = def.region;
-      imports = [ medium ../roles/legacy-core.nix ];
+      imports = [ medium cardano-ops.roles.legacy-core ];
       # Temporary for legacy migration:
-      #imports = [ medium ../roles/legacy-core.nix;
-      # ../roles/sync-nonlegacy-chain-state.nix ];
+      #imports = [ medium cardano-ops.roles.legacy-core
+      # cardano-ops.roles.sync-nonlegacy-chain-state ];
       services.cardano-node-legacy.staticRoutes = def.staticRoutes;
     } def;
   };
@@ -216,7 +215,7 @@ let
         inherit (def) org;
       };
       deployment.ec2.region = def.region;
-      imports = [ medium ../roles/legacy-relay.nix ];
+      imports = [ medium cardano-ops.roles.legacy-relay ];
       services.cardano-node-legacy.staticRoutes = def.staticRoutes or [];
       services.cardano-node-legacy.dynamicSubscribe = def.dynamicSubscribe or [];
     } def;
@@ -230,7 +229,7 @@ let
         inherit (def) org;
       };
       deployment.ec2.region = def.region;
-      imports = [ m5ad-xlarge ../roles/load-client.nix ];
+      imports = [ m5ad-xlarge cardano-ops.roles.load-client ];
     } def;
   };
 
@@ -239,8 +238,7 @@ let
       recursiveUpdate {
         imports = args.imports ++ (def.imports or []);
         deployment.targetEnv = targetEnv;
-        nixpkgs.overlays = pkgs.cardano-ops-overlays;
-        _module.args.cardanoNodePkgs = lib.mkDefault cardanoNodePkgs;
+        nixpkgs.overlays = pkgs.cardano-ops.overlays;
       } args)
       (builtins.removeAttrs def [
         "imports"
