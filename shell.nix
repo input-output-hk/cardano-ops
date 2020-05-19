@@ -42,6 +42,9 @@ let
       set -euxo pipefail
 
       cd ${toString ./keys}
+      if [ ! -f genesis.spec.json ]; then
+        cp ../scripts/genesis.spec.json ./
+      fi
       cardano-cli shelley genesis create-genesis --genesis-dir . --supply ${toString maxSupply} --genesis-delegates ${toString nbCoreNodes}
       mkdir -p node-keys
       cd node-keys
