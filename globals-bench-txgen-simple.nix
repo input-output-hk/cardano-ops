@@ -8,7 +8,7 @@ let
             then if __hasAttr "default_profile" r.meta then r
                  else abort "${benchmarkingParamsFile} must define 'meta.default_profile'"
             else abort "${benchmarkingParamsFile} must defined the 'meta' section"
-    else abort "Benchmarking requires ${benchmarkingParamsFile} to exist.  Please, refer to documentation.";
+    else abort "Benchmarking requires ${toString benchmarkingParamsFile} to exist.  Please, refer to documentation.";
   benchmarkingTopologyFile =
     ./topologies + "/bench-txgen-simple-${toString (__length benchmarkingParams.meta.node_names)}.nix";
   benchmarkingTopology =
@@ -42,6 +42,7 @@ in reportDeployment (rec {
   withTxGenerator = true;
 
   environmentName = "bench-txgen-simple-${benchmarkingProfileName}";
+  sourcesJsonOverride = ./nix/sources.bench-txgen-simple.json;
 
   environmentConfig = rec {
     consensusProtocol = ""; ## We're not at Shelley stage yet.

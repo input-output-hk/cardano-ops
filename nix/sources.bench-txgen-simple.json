@@ -1,0 +1,38 @@
+{
+    "cardano-db-sync": {
+        "branch": "master",
+        "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "cardano-db-sync",
+        "rev": "a6e99db3e79036526933aced48c1915b924496c0",
+        "sha256": "03gas4bn7vn3fgkzrblr7ahl22gxv3q5vj3vz3wkgggzms11i833",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/a6e99db3e79036526933aced48c1915b924496c0.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "cardano-graphql": {
+        "branch": "master",
+        "description": "GraphQL API for Cardano",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "cardano-graphql",
+        "rev": "7fdfc8826ebaf9eb35c32f3042e9fefcfb250c94",
+        "sha256": "0vn43wiynavaqgjfdpid3xb8xwmjdkp15g83d1wqwz9wni5w5sgf",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/7fdfc8826ebaf9eb35c32f3042e9fefcfb250c94.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "cardano-node": {
+        "branch": "master",
+        "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
+        "homepage": "https://cardano.org",
+        "owner": "input-output-hk",
+        "repo": "cardano-node",
+        "rev": "522b4f4fb3bf1abcab28c905b70ff751cd71bde2",
+        "sha256": "10ppxdyll0vd0k4jb223md94594r9l03sqgjd59jh791rzvhwfrv",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/522b4f4fb3bf1abcab28c905b70ff751cd71bde2.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    }
+}
