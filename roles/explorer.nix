@@ -70,7 +70,6 @@ in {
   services.graphql-engine.enable = true;
   services.cardano-graphql = {
     enable = true;
-    whitelistPath = cardano-explorer-app.whitelist;
   };
   services.cardano-node = {
     enable = true;
@@ -88,7 +87,6 @@ in {
       inherit cardanoNodePkgs;
   });
 
->>>>>>> b775d64... fix merge removals
   services.cardano-db-sync = {
     enable = true;
     cluster = globals.environmentName;

@@ -44,6 +44,8 @@ in reportDeployment (rec {
   environmentName = "bench-txgen-simple-${benchmarkingProfileName}";
 
   environmentConfig = rec {
+    consensusProtocol = ""; ## We're not at Shelley stage yet.
+
     relays = "relays.${pkgs.globals.domain}";
     edgePort = pkgs.globals.cardanoNodePort;
     confKey = abort "legacy nodes not supported by benchmarking environment";
