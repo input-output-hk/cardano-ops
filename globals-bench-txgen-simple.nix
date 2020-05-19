@@ -76,6 +76,8 @@ in reportDeployment (rec {
   topology = benchmarkingTopology // {
     explorer = {
       imports = [ pkgs.cardano-ops.roles.tx-generator ];
+      services.cardano-graphql.enable = pkgs.lib.mkForce false;
+      services.graphql-engine.enable = pkgs.lib.mkForce false;
     };
   };
 
