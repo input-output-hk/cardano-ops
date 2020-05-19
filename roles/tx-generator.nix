@@ -1,5 +1,5 @@
-{ config, name, lib, nodes, resources, ... }:
-with import ../nix {};
+pkgs: { config, name, lib, nodes, resources, ... }:
+with pkgs;
 
 let
   # We need first 3 signing keys and delegation certificate
