@@ -47,6 +47,7 @@ in {
   services.graphql-engine.enable = true;
   services.cardano-graphql = {
     enable = true;
+    whitelistPath = cardano-explorer-app.whitelist;
   };
   services.cardano-node = {
     enable = true;
@@ -95,13 +96,7 @@ in {
     script = "true";
   };
 
-  services.cardano-explorer-api = {
-    enable = true;
-  };
-  services.cardano-submit-api = {
-    environment = globals.environmentConfig;
-    socketPath = nodeCfg.socketPath;
-  };
+  services.cardano-explorer-api.enable = true;
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
   services.nginx = {

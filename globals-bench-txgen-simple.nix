@@ -75,10 +75,33 @@ in reportDeployment (rec {
 
   topology = benchmarkingTopology // {
     explorer = {
-      imports = [ pkgs.cardano-ops.roles.tx-generator ];
+      imports = [
+        pkgs.cardano-ops.roles.tx-generator
+        ({ config, ...}: {
+          services.cardano-submit-api = {
+            environment = pkgs.globals.environmentConfig;
+            socketPath = config.services.cardano-node.socketPath;
+          };
+        })
+      ];
       services.cardano-graphql.enable = pkgs.lib.mkForce false;
       services.graphql-engine.enable = pkgs.lib.mkForce false;
     };
+    coreNodes = map (n : n // {
+      services.cardano-node.nodeConfig = pkgs.globals.environmentConfig.nodeConfig // {
+        defaultScribes = [
+          [ "StdoutSK" "stdout" ]
+          [ "FileSK"   "/var/lib/cardano-node/logs/node.json" ]
+        ];
+        setupScribes = [
+          { scKind = "StdoutSK"; scName = "stdout"; scFormat = "ScJson"; }
+          { scKind = "FileSK"; scName = "/var/lib/cardano-node/logs/node.json"; scFormat = "ScJson"; "scRotation" = null; }
+        ];
+        minSeverity = "Debug";
+        TracingVerbosity = "MaximalVerbosity";
+        TurnOnLogMetrics = false;
+      };
+    }) (benchmarkingTopology.coreNodes or []);
   };
 
   ec2 = {
