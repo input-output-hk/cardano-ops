@@ -24,15 +24,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer-app": {
-        "branch": "develop",
+        "branch": "tags/1.0.0-rc.2",
         "description": "Cardano Explorer App",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-explorer-app",
-        "rev": "61add535d11bbd8b17a773ac192d96df4100394a",
-        "sha256": "0bgrq5y8hq2vswqnpxgx001mpf2vm9jmdmgb98lkgflxahin1nv7",
+        "rev": "85d8625d403959c2083fb02dcb65a712079497c4",
+        "sha256": "17qy2k0a3962fw9qd81dd8w1dl6x4l8nh5yj5mq0sy862bbw4npx",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/61add535d11bbd8b17a773ac192d96df4100394a.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/85d8625d403959c2083fb02dcb65a712079497c4.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
@@ -48,15 +48,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
-        "branch": "master",
+        "branch": "tags/v1.0.0-rc.10",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "cb00b560c4d1c4aeed78833a0990cdb9747330fe",
-        "sha256": "1hh1qh29v6yqhif4v0n5v86kqpdr682m4n7zh1k8riixq2pc8ns3",
+        "rev": "8c88993d5557f1a8dc25a7bda529c0f153b6cd3b",
+        "sha256": "155p29b347gkmr6m2xbnc7a4wvaz5kl6azdsw9m6zma4a3xksbgq",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/cb00b560c4d1c4aeed78833a0990cdb9747330fe.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/8c88993d5557f1a8dc25a7bda529c0f153b6cd3b.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
