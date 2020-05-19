@@ -2,6 +2,8 @@ with import ../nix {};
 
 import ../clusters/cardano.nix (with iohk-ops-lib.physical.libvirtd; {
   inherit targetEnv medium pkgs;
+  nano = tiny;
+  small = tiny;
   xlarge = large;
   xlarge-monitor = large;
   m5ad-xlarge = large;
