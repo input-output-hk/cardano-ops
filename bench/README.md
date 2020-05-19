@@ -2,14 +2,17 @@
 
 ### Contents
 
-1.  *Overview*
-2.  *Clusters*
-3.  *The =bench= command*
-4.  *Quick action: running a benchmark without much ado:*
-5.  *Profiles and the benchmarking cluster parameters file*
-6.  *Benchmark run results*
+1.  *Bird's eye overview*
+2.  *Quick action: running a benchmark without much ado:*
+3.  *Benchmarking pipeline in depth*
+    1.  *Overview*
+    2.  <Parametrisation: source pins and and benchmarking profiles>
+    3.  *Deployment state handling*
+    4.  *The benchmarking process*
+    5.  *The capture process*
+    6.  *Benchmark results*
 
-### Overview
+### Bird's eye overview
 
 The benchmarking infrastructure consists of the following components:
 
@@ -29,30 +32,35 @@ The benchmarking infrastructure consists of the following components:
     each of them, in the form of `benchmarking-cluster-params.json`
     files.
 
-### Clusters
+<!-- end list -->
 
-Benchmarking clusters are available on the development deployer, and
-currently include:
+1.  Clusters
+    
+    Benchmarking clusters are available on the development deployer, and
+    currently include:
+    
+      - remote-dev-cluster-3
+      - remote-dev-cluster-6
+      - remote-dev-cluster-9
+      - remote-dev-cluster-12
 
-  - remote-dev-cluster-3
-  - remote-dev-cluster-6
-  - remote-dev-cluster-9
-  - remote-dev-cluster-12
-
-### The `bench` command
-
-Benchmarking clusters are controlled using the `bench` command, which is
-equivalent to an alias of `./scripts/bench.sh` in the current
-development checkout.
-
-The command automates a significant part of the benchmarking workflow:
-
-  - definition of multiple benchmarking profiles
-  - generating genesis
-  - deploying the cluster
-  - running the benchmark profiles
-  - collecting & doing basic analysis on the logs
-  - packaging the profile run data
+2.  The `bench` command
+    
+    Benchmarking clusters are controlled using the `bench` command,
+    which is equivalent to an alias of `./scripts/bench.sh` in the
+    current development checkout.
+    
+    The command automates a significant part of the benchmarking
+    workflow:
+    
+      - definition of multiple benchmarking profiles
+      - generating genesis
+      - deploying the cluster
+      - running the benchmark profiles
+      - collecting & doing basic analysis on the logs
+      - packaging the profile run data
+    
+    The command has a fairly helpful `--help` & `--help-full` flags.
 
 ### Quick action: running a benchmark without much ado:
 
@@ -73,19 +81,30 @@ The command automates a significant part of the benchmarking workflow:
     This step is only necessary when `cardano-ops` is updated in a major
     way, which is rarely the case.
 
-3.  Deploy the full cluster:
+3.  The easiest way to run the full suite of benchmark profiles is to
+    issue:
+    
+    ``` example
+    bench all
+    ```
+    
+    That's it\!
+
+4.  Otherwise, if willing to benchmark just a single profile, we might
+    need to redeploy the cluster:
     
     ``` example
     bench deploy
     ```
     
-    This is only generally necessary in the following situations:
+    This is, generally speaking, only necessary in the following
+    situations:
     
       - after genesis update (which is performed by `bench genesis`),
         and
-      - after `cardano-node` version changes.
+      - after `cardano-node` pin changes.
 
-4.  At this point you are prepared to run a benchmark – either for a
+5.  At this point you are prepared to run a benchmark – either for a
     single profile:
     
     ``` example
@@ -97,103 +116,192 @@ The command automates a significant part of the benchmarking workflow:
     `.meta.default_profile` JSON key).
     
     Normally, the default profile is the first one listed.
-    
-    Or, alternatively, the benchmark could be run for all profiles
-    specified in the cluster params file:
-    
-    ``` example
-    bench bench-all
-    ```
 
-5.  Every benchmark cycle provides an archive at the root of the
-    cluster's deployment checkout, f.e.:
+6.  Every benchmark run provides an archive at the root of the cluster's
+    deployment checkout, f.e.:
     
     ``` example
-    2020-05-18.dist3-50000tx-100b-1i-1o-100tps.tar.xz
+    2020-05-19-22.21.dist6-50000tx-100b-1i-1o-100tps.tar.xz
     ```
 
-### Profiles and the benchmarking cluster parameters file
+### Benchmarking pipeline in depth
 
-Each benchmarking cluster obtains its profile definitions and other
-metadata from a local file called `./benchmarking-cluster-params.json`.
-
-This cluster parameterisation file is generated, and the generator
-accepts a single parameter – cluster size:
-
-``` example
-bench init-params 3
-```
-
-This produces a JSON object, that defines benchmarking profiles (except
-for its `meta` component, which carries things like node names and
-genesis configuration).
-
-Benchmarking profiles serve as named sets of parameters for benchmarking
-runs, and can be listed with:
-
-``` example
-bench list-profiles                                   # ..or just 'bench ps'
-```
-
-As mentioned in the *Quick action* section, we can run benchmarks
-per-profile:
-
-``` example
-bench bench-profile dist3-50000tx-100b-1i-1o-100tps   # defaults to 'default'
-```
-
-..or for all defined profiles:
-
-``` example
-bench bench-all
-```
-
-1.  Changing the set of available profiles
+1.  Overview
     
-    It's not advised to edit the cluster parameters file directly –
-    because doing so would force us to update this file manually,
-    whenever the `bench` script changes – we should, instead, change the
-    definition of its generator.
+    The pipeline can be described in terms of the following concepts,
+    which we enumerate here shortly, but will also revisit in depth
+    later:
     
-    Note that this is still currently a bit ad-hoc, but will improve,
-    once the declarative definition for the profile specs is
-    implemented.
+    1.  **Source pins** for the components (`cardano-node`,
+        `cardano-db-sync` and `cardano-benchmarking` repositories).
+    
+    2.  **Benchmarking parameters**, maintained in
+        `benchmarking-cluster-params.json`, carry the *benchmarking
+        profiles*.
+    
+    3.  **Benchmarking profiles** are contained in *benchmarking
+        parameters*, and parametrise the cluster genesis and transaction
+        generator.
+    
+    4.  Cluster components: the **producers** hosts, which mint blocks,
+        and the **explorer** host, which generates transactions and
+        serves as a point of observation.
+    
+    5.  The **deployment state**, which is implicit in the *cluster
+        component* states, but also summarised in the **deployment state
+        files** – `deployment-explorer.json` and
+        `deployment-producers.json`.
+    
+    6.  The **genesis** is parametrised by the *benchmarking profile*,
+        and, once changed (perhaps due to *benchmarking profile*
+        selection), necessitates redeployment of all *cluster
+        components*.
+    
+    7.  The **deployment process**, which affects the *deployment
+        state*, and updates its summaries in the *deployment state
+        files*.
+    
+    8.  The **benchmarking process**, which is defined by the
+        *deployment state*, and so, indirectly, by the *source pins* and
+        the chosen *benchmarking profile*.
+        
+        It consists of several phases: **cleanup**, **initialisation**,
+        **registration**, **generation** and **termination**.
+        
+        **Benchmarking run** is a closely related concept that denotes a
+        particular, parametrised instance of the *benchmarking process*,
+        that was executed at a certain time.
+    
+    9.  The **benchmarking batch** is a set of **benchmarking runs** for
+        all *benchmarking profiles* defined by the *benchmarking
+        parameters* of the particular cluster..
+    
+    10. The **capture process**, that follows the *benchmarking
+        process*, collects and processes the post-benchmarking cluster
+        state, and ultimately provides the **benchmark results**.
+        
+        It consists of: **log fetching**, **analysis** and
+        **packaging**.
+    
+    11. **Benchmark results**, consist of the *logs* and results of
+        their *analysis*.
 
-### Benchmark run results
+2.  Parametrisation: source pins and and benchmarking profiles
+    
+    TODO
+    
+    1.  Profiles and the benchmarking cluster parameters file
+        
+        Each benchmarking cluster obtains its profile definitions and
+        other metadata from a local file called
+        `./benchmarking-cluster-params.json`.
+        
+        This cluster parameterisation file is generated, and the
+        generator accepts a single parameter – cluster size:
+        
+        ``` example
+        bench init-params 3
+        ```
+        
+        This produces a JSON object, that defines benchmarking profiles
+        (except for its `meta` component, which carries things like node
+        names and genesis configuration).
+        
+        Benchmarking profiles serve as named sets of parameters for
+        benchmarking runs, and can be listed with:
+        
+        ``` example
+        bench list-profiles                                   # ..or just 'bench ps'
+        ```
+        
+        As mentioned in the *Quick action* section, we can run
+        benchmarks per-profile:
+        
+        ``` example
+        bench bench-profile dist3-50000tx-100b-1i-1o-100tps   # defaults to 'default'
+        ```
+        
+        ..or for all defined profiles:
+        
+        ``` example
+        bench bench-all
+        ```
+        
+        1.  Changing the set of available profiles
+            
+            It's not advised to edit the cluster parameters file
+            directly – because doing so would force us to update this
+            file manually, whenever the `bench` script changes – we
+            should, instead, change the definition of its generator.
+            
+            Note that this is still currently a bit ad-hoc, but will
+            improve, once the declarative definition for the profile
+            specs is implemented.
 
-Each successful benchmark run produces the following results:
+3.  Deployment state handling
+    
+    There is an ongoing effor to handle deployment state transparently,
+    on a minimal, as-needed basis – as implied by the *benchmarking
+    process*.
+    
+    We'll only cover this shortly, therefore:
+    
+    1.  genesis can be generated for a particular profile by:
+        
+        ``` example
+        bench genesis [PROFILE=default]
+        ```
+    
+    2.  deployment can be initiated by:
+        
+        ``` example
+        bench deploy [PROFILE=default]
+        ```
 
-1.  A run output directory, such as:
+4.  The benchmarking process
     
-    ``` example
-    ./runs/1589819135.27a0a9dc.refinery-manager.pristine.node-66f0e6d4.tx50000.l100.i1.o1.tps100
-    ```
-    
-    This directory (also called "tag", internally), contains:
-    
-    1.  `meta.json` – the run's metadata, a key piece in its processing,
-    
-    2.  a copy of `benchmarking-cluster-params.json`, taken at the
-        benchmark execution time,
-    
-    3.  `meta/*` – some run metadata: cluster parameters fetched from
-        its machines & the `niv` pins,
-    
-    4.  `logs/*` – various logs, both deployment, service startup and
-        runtime, for all the nodes (including explorer) and the Tx
-        generator. This also includes an extraction from the
-        `cardano-db-sync` database.
-    
-    5.  `analysis/*` – some light extraction based on the available
-        logs.
-    
-    6.  `tools/*` – the tools used to perform the above extraction,
-        fetched from the `cardano-benchmarking` repo.
+    TODO
 
-2.  An archive in the deployment checkout, that contains the exact
-    *content* of that directory, but placed in a directory with a
-    user-friendly name:
+5.  The capture process
     
-    ``` example
-    ./YYYY-MM-DD.$PROFILE_NAME.tar.xz
-    ```
+    TODO
+
+6.  Benchmark results
+    
+    Each successful benchmark run produces the following results:
+    
+    1.  A run output directory, such as:
+        
+        ``` example
+        ./runs/1589819135.27a0a9dc.refinery-manager.pristine.node-66f0e6d4.tx50000.l100.i1.o1.tps100
+        ```
+        
+        This directory (also called "tag", internally), contains:
+        
+        1.  `meta.json` – the run's metadata, a key piece in its
+            processing,
+        
+        2.  a copy of `benchmarking-cluster-params.json`, taken at the
+            benchmark execution time,
+        
+        3.  `meta/*` – some run metadata: cluster parameters fetched
+            from its machines & the `niv` pins,
+        
+        4.  `logs/*` – various logs, both deployment, service startup
+            and runtime, for all the nodes (including explorer) and the
+            Tx generator. This also includes an extraction from the
+            `cardano-db-sync` database.
+        
+        5.  `analysis/*` – some light extraction based on the available
+            logs.
+        
+        6.  `tools/*` – the tools used to perform the above extraction,
+            fetched from the `cardano-benchmarking` repo.
+    
+    2.  An archive in the deployment checkout, that contains the exact
+        *content* of that directory, but placed in a directory with a
+        user-friendly name:
+        
+        ``` example
+        ./YYYY-MM-DD.$PROFILE_NAME.tar.xz
+        ```
