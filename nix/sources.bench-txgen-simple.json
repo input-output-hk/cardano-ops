@@ -13,14 +13,14 @@
     },
     "cardano-node": {
         "branch": "master",
-        "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
-        "homepage": "https://cardano.org",
+        "description": null,
+        "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "522b4f4fb3bf1abcab28c905b70ff751cd71bde2",
-        "sha256": "10ppxdyll0vd0k4jb223md94594r9l03sqgjd59jh791rzvhwfrv",
+        "rev": "f7c56548c05b7a3b544acb2c30f28803ff7524b2",
+        "sha256": "1nlz2n5yyv38rqmw54rcvyy9nxqp3vrqx1alqdlypi4r19015ppb",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/522b4f4fb3bf1abcab28c905b70ff751cd71bde2.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/f7c56548c05b7a3b544acb2c30f28803ff7524b2.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
