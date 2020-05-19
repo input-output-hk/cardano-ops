@@ -39,7 +39,6 @@ in reportDeployment (rec {
 
   withMonitoring = false;
   withLegacyExplorer = false;
-  withTxGenerator = true;
 
   environmentName = "bench-txgen-simple-${benchmarkingProfileName}";
   sourcesJsonOverride = ./nix/sources.bench-txgen-simple.json;
@@ -74,7 +73,11 @@ in reportDeployment (rec {
     generatorConfig = benchmarkingProfile.generator;
   };
 
-  topology = benchmarkingTopology;
+  topology = benchmarkingTopology // {
+    explorer = {
+      imports = [ pkgs.cardano-ops.roles.tx-generator ];
+    };
+  };
 
   ec2 = {
     credentials = {

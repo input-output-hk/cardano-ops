@@ -97,7 +97,6 @@ let
         xlarge
         cardano-ops.roles.explorer
       ]
-      ++ lib.optional (globals.withTxGenerator) cardano-ops.roles.tx-generator
       # TODO: remove module when the new explorer is available
       ++ lib.optional (globals.withLegacyExplorer) cardano-ops.roles.explorer-legacy;
 
