@@ -4,8 +4,9 @@ set -euo pipefail
 
 clusterfile=
 . "$(dirname "$0")"/lib.sh
-. "$(dirname "$0")"/lib-nixops.sh
-. "$(dirname "$0")"/lib-cluster.sh
+. "$(dirname "$0")"/lib-deploy.sh
+. "$(dirname "$0")"/lib-params.sh
+. "$(dirname "$0")"/lib-profile.sh
 . "$(dirname "$0")"/lib-benchrun.sh
 . "$(dirname "$0")"/lib-analysis.sh
 ###
@@ -134,10 +135,10 @@ main() {
 
         case "${op}" in
                 init-params | init | reinit-params | reinit ) true;;
-                * ) clusterfile_init;; esac
+                * ) params_check;; esac
 
         case "${op}" in
-                init-params | init ) op_init_params "$@";;
+                init-params | init ) params_init "$@";;
                 reinit-params | reinit )
                                       local node_count
                                       node_count=$(rcjq '
@@ -147,13 +148,15 @@ main() {
                                         ')
                                       if test -z "$node_count"
                                       then fail "reinit:  cannot get node count from cluste file -- use init instead."; fi
-                                      op_init_params "$node_count" "$@";;
+                                      params_init "$node_count" "$@";;
                 check-genesis-age | check-genesis | genesis-age | age )
-                                      op_check_genesis_age "$@";;
-                genesis )             op_genesis_byron "$@";;
+                                      genesis_check_deployed_age "$@";;
+                genesis )             profile_genesis_byron "$@";;
 
                 deploy-cluster | full-deploy | deploy )
                                       nixops_deploy "$@";;
+                update-deployfiles | update )
+                                      update_deployfiles "$@";;
                 bench-start | start )
                                       op_bench_start "$@";;
                 bench-fetch | fetch | f )
@@ -224,9 +227,11 @@ op_bench() {
 
         mkdir -p 'runs'
 
+        profile_genesis_byron "${benchmark_schedule[0]}"
+
         if test -n "${no_deploy_producers}"
         then echo "--( Not deploying producers, --no-deploy-producers passed."
-        else nixops_deploy 'default' "--include $(cluster_sh producers)" \
+        else nixops_deploy 'default' "" \
                "runs/$(date +%s).deploy-producers.log"; fi
 
         for p in ${benchmark_schedule[*]}
@@ -279,7 +284,7 @@ op_bench_start() {
         nixops ssh-for-each --parallel "systemctl start cardano-node"
         nixops ssh explorer "systemctl start cardano-explorer-node cardano-db-sync 2>/dev/null"
 
-        op_check_genesis_age
+        genesis_check_deployed_age
 
         tag=$(generate_run_id "${prof}")
         dir="./runs/${tag}"
@@ -343,7 +348,8 @@ op_register_new_run() {
         mkdir -p              "${dir}/meta"
 
         cp "${clusterfile}"   "${dir}"
-        cp 'nix/sources.json' "${dir}"/meta/sources.json
+        touch "${deployfile[@]}"
+        cp "${deployfile[@]}" "${dir}"
         cat                 > "${dir}"/meta/cluster.raw.json <<EOF
 {$(nixops_query_cluster_state | sed ':b; N; s_\n_,_; b b' | sed 's_,_\n,_g')
 }
@@ -364,9 +370,9 @@ EOF
 { meta: {
     timestamp:         ${stamp},
     date:              \"${date}\",
-    node:              $(jq '.["cardano-node"].rev'         nix/sources.json),
     benchmarking:      $(jq '.["cardano-benchmarking"].rev' nix/sources.json),
-    \"db-sync\":       $(jq '.["cardano-db-sync"].rev'      nix/sources.json),
+    node:              $(jq '.["cardano-node"].rev'         nix/sources.bench-txgen-simple.json),
+    \"db-sync\":       $(jq '.["cardano-db-sync"].rev'      nix/sources.bench-txgen-simple.json),
     tag:               \"${tag}\",
     profile:           \"${prof}\",
     generator_params:  $(jq ."[\"${prof}\"]" "${clusterfile}" |
@@ -377,10 +383,11 @@ EOF
     manifest: [
       \"${date}\",
       \"${clusterfilename}\",
+      \"${deployfilename[0]}\",
+      \"${deployfilename[1]}\",
       \"meta.json\",
 
       \"meta/cluster.raw.json\",
-      \"meta/sources.json\",
 
       \"logs/deploy.log\",
       \"logs/block-arrivals.gauge\",

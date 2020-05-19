@@ -10,7 +10,7 @@ tag_report_name() {
         local metafile=${archive}/$tag/meta.json
         meta=$(jq .meta "$metafile" --raw-output)
         prof=$(jq .profile --raw-output <<<$meta)
-        date=$(date +'%Y'-'%m'-'%d' --date=@"$(jq .timestamp <<<$meta)")
+        date=$(date +'%Y'-'%m'-'%d'-'%H.%S' --date=@"$(jq .timestamp <<<$meta)")
 
         test -n "$meta" -a -n "$prof" ||
                 fail "Bad tag meta.json format:  $metafile"
