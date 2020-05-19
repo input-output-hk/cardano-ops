@@ -3,30 +3,11 @@ with pkgs;
 
 let
   nodeCfg = config.services.cardano-node;
-  iohkNix = import sourcePaths.iohk-nix {};
   cardano-explorer-app = import sourcePaths.cardano-explorer-app {};
   explorerFrontend = cardano-sl-pkgs.explorerFrontend;
   postgresql12 = (import sourcePaths.nixpkgs-postgresql12 {}).postgresql_12;
-  nodePort = globals.cardanoNodePort;
-  nodeId = 99;
+  nodeId = config.node.nodeId;
   hostAddr = getListenIp nodes.${name};
-  hostName = name: "${name}.cardano";
-  cardanoNodes = lib.filterAttrs
-    (_: node: node.config.services.cardano-node.enable
-           or node.config.services.byron-proxy.enable or false)
-    nodes;
-  cardanoHostList = lib.mapAttrsToList (nodeName: node: {
-    name = hostName nodeName;
-    ip = getStaticRouteIp resources nodes nodeName;
-  }) cardanoNodes;
-    producers = map (n: {
-    addr = if (nodes ? ${n}) then hostName n else n;
-    port = nodePort;
-    valency = 1;
-  }) (map (x: x.name) globals.topology.coreNodes);
-  topology =  builtins.toFile "topology.yaml" (builtins.toJSON {
-    Producers = producers;
-  });
   cardanoDbPkgs = import sourcePaths.cardano-db-sync {};
 in {
   imports = [
@@ -37,10 +18,6 @@ in {
     cardano-ops.modules.base-service
     cardano-ops.modules.cardano-postgres
   ];
-
-  networking.extraHosts = ''
-    ${lib.concatStringsSep "\n" (map (host: "${host.ip} ${host.name}") cardanoHostList)}
-  '';
 
   environment.systemPackages = with pkgs; [
     bat fd lsof netcat ncdu ripgrep tree vim cardano-cli
@@ -70,14 +47,12 @@ in {
   services.graphql-engine.enable = true;
   services.cardano-graphql = {
     enable = true;
-    whitelistPath = cardano-explorer-app.whitelist;
   };
   services.cardano-node = {
     enable = true;
     inherit nodeId;
     extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
     environment = globals.environmentName;
-    # extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
     environments = {
       "${globals.environmentName}" = globals.environmentConfig;
     };
@@ -88,7 +63,6 @@ in {
       inherit cardanoNodePkgs;
   });
 
->>>>>>> b775d64... fix merge removals
   services.cardano-db-sync = {
     enable = true;
     cluster = globals.environmentName;
