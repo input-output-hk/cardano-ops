@@ -238,10 +238,11 @@ let
   mkNode = args: def:
     recursiveUpdate (
       recursiveUpdate {
-        imports = args.imports ++ (def.imports or []);
         deployment.targetEnv = targetEnv;
         nixpkgs.overlays = pkgs.cardano-ops.overlays;
-      } args)
+      } (args // {
+        imports = args.imports ++ (def.imports or []);
+      }))
       (builtins.removeAttrs def [
         "imports"
         "name"
