@@ -99,3 +99,7 @@ op_jq_generator() {
         op_on 'explorer' jq "${final_jq_opts[@]}" |
                 jq --compact-output --slurp 'sort_by(.at) | .[]'
 }
+
+op_blocks() {
+        nixops ssh explorer 'jq --compact-output "select (.data.kind == \"Recv\" and .data.msg.kind == \"MsgBlock\") | .data.msg" /var/lib/cardano-node/logs/node-*.json'
+}

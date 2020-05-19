@@ -15,6 +15,8 @@ clusterfile=
 ##  2. Debug why kill -9 on the tx-generator removes _node's_ socket.
 ##  3. Make tx-generator exit on completion (DONE in WIP generator).
 ##  4. Maintain a local representation of deployed cluster state.
+##  5. Sanity checks:
+##     - genesis on explorer matches that of the producers
 
 usage() {
         cat >&2 <<EOF
@@ -22,6 +24,7 @@ USAGE:  $(basename "$0") OPTIONS.. [OP=bench-profile] OP-ARGS..
 
   Options:
 
+    --verbose             Print slightly more diagnostics.
     --trace               set -x
     --help                This short help.
     --help-full           Extended help.
@@ -36,7 +39,7 @@ USAGE:  $(basename "$0") OPTIONS.. [OP=bench-profile] OP-ARGS..
                           Generate new genesis, according to ${clusterfile},
                             for a specific profile.
 
-    bench                 Run benchmark across all profiles in ${clusterfile}.
+    bench-all             Run benchmark across all profiles in ${clusterfile}.
     bench-profile [PROF=default]
                           Run benchmark for a single profile.
 
@@ -173,7 +176,7 @@ main() {
                                       cluster_txbench_trailing_empty_blocks=3
                                       op_bench_profile 'smoke-test';;
 
-                bench | all )
+                bench-all | all )
                                       op_bench "$@";;
 
                 list-runs | runs | ls )
@@ -278,8 +281,6 @@ op_bench_start() {
 
         op_check_genesis_age
 
-        op_wait_for_blocks 1 60
-
         tag=$(generate_run_id "${prof}")
         dir="./runs/${tag}"
         echo "--( creating new run:  ${tag}"
@@ -287,6 +288,8 @@ op_bench_start() {
 
         echo "--( $(date), starting generator.."
         nixops ssh explorer "systemctl start tx-generator"
+
+        op_wait_for_nonempty_block 200
 
         time op_wait_for_empty_blocks \
                "$(jq ".[\"${prof}\"].run_params.finish_patience" <${clusterfile})" \
@@ -412,23 +415,25 @@ EOF
 }" --null-input
 }
 
-op_wait_for_blocks() {
-        local block_count="$1" patience="$2" date patience_until now r prev=0
+op_wait_for_nonempty_block() {
+        local patience="$1" date patience_until now r prev=0
         start=$(date +%s)
         patience_until=$((start + patience))
 
-        echo "--( Waiting for ${block_count} block(s) on explorer (patience for ${patience}s):"
+        echo -n "--( Waiting for a non-empty block on explorer (patience for ${patience}s).  Seen empty: 00"
         while now=$(date +%s); test "${now}" -lt ${patience_until}
-        do r=$(nixops ssh explorer -- sh -c \
-                "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | head -n1 | wc -l'")
-           if test $r -ne $prev
-           then prev=$r
-                echo "  - $r block(s) available after $((now - start)) seconds"; fi
-           if test $r -ge $block_count
-           then return 0; fi
-           sleep 1; done
-        echo "none."
-        fail "\nLess than ${block_count} block(s) reached the explorer in ${patience} seconds -- is cluster dead?"
+        do r=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq \"select(.data.msg.txids != [])\" | wc -l'")
+           if test "$r" -ne 0
+           then l=$(nixops ssh explorer -- sh -c \
+                   "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq \".data.msg.txids | select(. != []) | length\"'")
+                echo ", got [$l], after $((now - start)) seconds"
+                return 0; fi
+           e=$(nixops ssh explorer -- sh -c \
+                   "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq --slurp \"map (.data.msg.txids | select(. == [])) | length\"'")
+           echo -ne "\b\b"; printf "%02d" "$e"
+           sleep 5; done
+        echo " patience ran out."
+        fail "\nNo non-empty blocks reached the explorer in ${patience} seconds -- is the cluster dead (genesis mismatch?)?"
 }
 
 op_wait_for_empty_blocks() {
@@ -440,9 +445,9 @@ op_wait_for_empty_blocks() {
 
         echo -n "--( Waiting for empty blocks (txcounts): "
         local last_blkid='absolut4ly_n=wher'
+        local news=
         while test ${patience} -gt 0
-        do local news=
-           while news=$(nixops ssh explorer -- sh -c "'set -euo pipefail; { echo \"{ data: { msg: { blkid: 0, txids: [] }}}\"; tac /var/lib/cardano-node/logs/node.json; } | grep -F MsgBlock | jq --compact-output \".data.msg | { blkid: .blkid, tx_count: (.txids | length) } \"'" |
+        do while news=$(nixops ssh explorer -- sh -c "'set -euo pipefail; { echo \"{ data: { msg: { blkid: 0, txids: [] }}}\"; tac /var/lib/cardano-node/logs/node.json; } | grep -F MsgBlock | jq --compact-output \".data.msg | { blkid: .blkid, tx_count: (.txids | length) } \"'" |
                         sed -n '0,/'$last_blkid'/ p' |
                         head -n-1 |
                         jq --slurp 'reverse | ## undo order inversion..
@@ -451,6 +456,7 @@ op_wait_for_empty_blocks() {
                           , last_blkid: (.[-1] // { blkid: "'${last_blkid}'"}
                                         | .blkid)
                           }')
+                 last_blkid=$(jq --raw-output .last_blkid <<<$news)
                  if test -n "${oneshot_action}"
                  then $oneshot_action; oneshot_action=; fi
                  echo -n " "
@@ -466,9 +472,7 @@ op_wait_for_empty_blocks() {
                           or (all (. == 0) | not)' <<<$news
            do if jqtest '.txcounts | length != 0' <<<$news
               then patience=${full_patience}
-                   test -z "${verbose}" || echo -n "=${patience}"
-              fi
-              last_blkid=$(jq --raw-output .last_blkid <<<$news); done
+                   test -z "${verbose}" || echo -n "=${patience}"; fi; done
            patience=$((patience - 1))
            test -z "${verbose}" || echo -n "p${patience}"
         done | tee "runs-last/logs/block-arrivals.gauge"

@@ -5,10 +5,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-benchmarking",
-        "rev": "86ab54bd84678ef436be2265acee2f05700e82c6",
-        "sha256": "0r73cxw9azb5fr8d1rbcg5bs7p7cx4bzmbhfwqhg2d7scwnav37m",
+        "rev": "912bcf3689655e2d7c0417b93ffe5e7b832bb5fa",
+        "sha256": "072qz9dz6j4abaag5x3v513spq4ykwdqayczj7qs6bsyshnxnr2k",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-benchmarking/archive/86ab54bd84678ef436be2265acee2f05700e82c6.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-benchmarking/archive/912bcf3689655e2d7c0417b93ffe5e7b832bb5fa.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-byron-proxy": {

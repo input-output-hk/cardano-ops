@@ -40,10 +40,9 @@ analyse_tag() {
         cd     'analysis'
         meta=$(tmjq "$tag" .)
 
-        echo "--( Running log analyses:  extract"
+        echo "--( Running log analyses: "
         tar xaf '../logs/log-explorer-generator.tar.xz'
         tar xaf '../logs/log-nodes.tar.xz'
-        ls -l *.json *.log ../tools/*
 
         echo " timetoblock.csv"
         ../tools/analyse.sh generator log-explorer "runs-last/analysis/"
@@ -55,7 +54,7 @@ analyse_tag() {
                                jq . --slurp)"
 
         declare -A msgtys
-        local mach msgtys=() producers tid msgtys_generator sub_tids
+        local mach msgtys=() producers tnum msgtys_generator sub_tids
         producers=($(jq '.nixops.benchmarkingTopology.coreNodes
                         | map(.name) | join(" ")' --raw-output <<<$meta))
 
@@ -69,10 +68,10 @@ analyse_tag() {
 
         echo -n " node-to-node-submission-tids"
         sub_tids="$(../tools/generator-logs.sh log-tids generator.json)"
-        for tid in $sub_tids
-        do echo -n " node-to-node-submission:${tid}"
-           ../tools/generator-logs.sh tid-trace "${tid}" generator.json \
-             > generator.submission-thread-trace."${tid}".json; done
+        for tnum in $(seq 0 $(($(echo "$sub_tids" | wc -w) - 1)))
+        do echo -n " node-to-node-submission:${tnum}"
+           ../tools/generator-logs.sh tid-trace "${tnum}" generator.json \
+             > generator.submission-thread-trace."${tnum}".json; done
 
         echo -n " added-to-current-chain"
         ../tools/added-to-current-chain.sh log-explorer.json \

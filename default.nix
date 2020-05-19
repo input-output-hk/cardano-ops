@@ -49,7 +49,7 @@
         done
      '';
   in  mkShell {
-    buildInputs = [ niv nixops nix cardano-cli telnet dnsutils mkDevGenesis nix-diff migrate-keys create-shelley-genesis-and-keys ] ++
+    buildInputs = [ niv nixops nix cardano-cli telnet dnsutils mkDevGenesis nix-diff migrate-keys pandoc create-shelley-genesis-and-keys ] ++
                   (with cardano-sl-pkgs.nix-tools.exes; [ cardano-sl-auxx cardano-sl-tools ]);
     NIX_PATH = "nixpkgs=${path}";
     NIXOPS_DEPLOYMENT = "${globals.deploymentName}";

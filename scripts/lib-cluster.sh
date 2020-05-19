@@ -110,6 +110,8 @@ def profile_name($prof):
   , { txs: 50000, payload: 100, io_arity: 8,  tps: 100 }
   , { txs: 50000, payload: 100, io_arity: 16, tps: 100 }
   , { txs: 10000, payload: 100, io_arity: 1,  tps: 100, name: "short" }
+  , { txs: 1000,  payload: 100, io_arity: 1,  tps: 100, name: "small"
+    , init_cooldown: 20, finish_patience: 3 }
   , { txs: 100,   payload: 100, io_arity: 1,  tps: 100, name: "smoke-test"
     , init_cooldown: 0, finish_patience: 3 }
   ] as $profile_specs
