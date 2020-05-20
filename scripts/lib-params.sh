@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-clusterfilename='benchmarking-cluster-params.json'
-clusterfile=$(realpath "$(dirname "$0")/../${clusterfilename}")
+paramsfilename='benchmarking-cluster-params.json'
+paramsfile=$(realpath "$(dirname "$0")/../${paramsfilename}")
 
 params_check() {
-        test -f "${clusterfile}" ||
+        test -f "${paramsfile}" ||
                 fail "missing cluster benchmark parameters, consider running:  $(basename "${self}") init NODECOUNT"
 }
 
@@ -27,13 +27,14 @@ params_init() {
         then fail "this operation requires a node count as an integer argument."
         fi
         jq --null-input '
-def profile_name($prof):
+def profile_name($gtor; $gsis):
   [ "dist'${node_count}'"
-  , ($prof.txs         | tostring) + "tx"
-  , ($prof.add_tx_size | tostring) + "b"
-  , ($prof.io_arity    | tostring) + "i"
-  , ($prof.io_arity    | tostring) + "o"
-  , ($prof.tps         | tostring) + "tps"
+  , ($gtor.txs         | tostring) + "tx"
+  , ($gtor.add_tx_size | tostring) + "b"
+  , ($gtor.tps         | tostring) + "tps"
+  , ($gtor.io_arity    | tostring) + "io"
+  , ($gsis.max_block_size | . / 1000
+                       | tostring) + "kblk"
   ] | join("-");
 
   [ { txs: 50000, add_tx_size: 100, io_arity: 1,  tps: 100 }
@@ -41,15 +42,32 @@ def profile_name($prof):
   , { txs: 50000, add_tx_size: 100, io_arity: 4,  tps: 100 }
   , { txs: 50000, add_tx_size: 100, io_arity: 8,  tps: 100 }
   , { txs: 50000, add_tx_size: 100, io_arity: 16, tps: 100 }
-  , { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100, name: "short" }
-  , { txs: 1000,  add_tx_size: 100, io_arity: 1,  tps: 100, name: "small"
+  ] as $generator_profiles
+
+| [ { name: "short"
+    , txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100
+    }
+  , { name: "small"
+    , txs: 1000,  add_tx_size: 100, io_arity: 1,  tps: 100
     , init_cooldown: 20, finish_patience: 3 }
-  , { txs: 100,   add_tx_size: 100, io_arity: 1,  tps: 100, name: "smoke-test"
+  , { name: "small-32k"
+    , txs: 1000,  add_tx_size: 100, io_arity: 1,  tps: 100
+    , init_cooldown: 20, finish_patience: 3
+    , genesis_profile: 6
+    }
+  , { name: "smoke"
+    , txs: 100,   add_tx_size: 100, io_arity: 1,  tps: 100
     , init_cooldown: 0, finish_patience: 3 }
-  ] as $profile_specs
+  ] as $generator_aux_profiles
 
 | [ { max_block_size: 2000000 }
-  ] as $max_block_sizes
+  , { max_block_size: 1000000 }
+  , { max_block_size:  500000 }
+  , { max_block_size:  250000 }
+  , { max_block_size:  128000 }
+  , { max_block_size:   64000 }
+  , { max_block_size:   32000 }
+  ] as $genesis_profiles
 
 | { parameter_k:             2160
   , protocol_magic:          459045235
@@ -79,31 +97,41 @@ def profile_name($prof):
   } as $run_defaults
 
 ## For all IO arities and block sizes:
-| [[ $profile_specs
-   , $max_block_sizes
+| [[ ($generator_profiles
+     | ( $generator_aux_profiles | map(.name | {key: ., value: null})
+       | from_entries) as $aux_names
+     | map (select ((.name // "") | in($aux_names) | not)))
+   , $genesis_profiles
    ]
    | combinations
-   | add                   ## Combine layers:  generic and blksizes
    ]
+  + ($generator_aux_profiles
+    | map ([ . | del(.genesis_profile)
+           , $genesis_profiles[.genesis_profile // 0]
+             // error("in aux profile \(.name):  no genesis profile with index \(.genesis_profile)")]))
 | map
-  ( . as $prof
-  | { "\($prof.name // profile_name($prof))":
+  ( .[0] as $generator
+  | .[1] as $genesis
+  | { "\($generator.name // profile_name($generator; $genesis))":
       { generator:
         ($generator_defaults +
-         ($prof | del(.finish_patience) | del(.io_arity) | del(.max_block_size)
-                | del(.name) | del(.txs)) +
-        { tx_count:        $prof.txs
-        , inputs_per_tx:   $prof.io_arity
-        , outputs_per_tx:  $prof.io_arity
+         ($generator | del(.name) | del(.txs) | del(.io_arity)
+                     | del(.finish_patience)) +
+        { tx_count:        $generator.txs
+        , inputs_per_tx:   $generator.io_arity
+        , outputs_per_tx:  $generator.io_arity
         })
       , run_params:
         ($run_defaults +
-        {
+        { finish_patience:
+            ## TODO:  fix ugly
+            ($generator.finish_patience // $run_defaults.finish_patience)
         })
       , genesis_params:
-        ($genesis_defaults +
-        { max_block_size:  $prof.max_block_size
-        })
+        ($common_genesis_params +
+         ($era_genesis_params."'"$era"'" // error("era is null")) +
+         $genesis_defaults +
+         $genesis)
       }}
   )
 | { meta:
@@ -116,52 +144,72 @@ def profile_name($prof):
 
     ## The first entry is the defprof defprof.
     , default_profile:     (.[0] | (. | keys) | .[0])
-    , genesis_params:      ($common_genesis_params
-                            + (if $era_genesis_params | has("'${era}'")
-                               then $era_genesis_params | .["'${era}'"]
-                               else error("Unknown protocol era: '${era}'")
-                               end))
+    , aux_profiles:        ($generator_aux_profiles | map(.name))
     }}
   + (. | add)
-' > ${clusterfile}
+' > ${paramsfile}
 }
 
-## Clusterfile JQ
-cjq() {
-        jq "$1" "${clusterfile}"
+## Paramsfile JQ
+parmjq() {
+        local q=$1; shift
+        jq "$q" "${paramsfile}" "$@"
 }
 
-## Raw Clusterfile JQ
-rcjq() {
-        jq "$1" "${clusterfile}" --raw-output
+## Raw Paramsfile JQ
+rparmjq() {
+        local q=$1; shift
+        parmjq "$q" --raw-output "$@"
 }
 
-mcjq() {
-        rcjq ".meta | $1"
+## Raw Paramsfile .meta JQ
+parmetajq() {
+        local q=$1; shift
+        rparmjq ".meta | $q" "$@"
 }
 
-## Clusterfile JQ TEST
-cjqtest() {
-        jq "$1" "${clusterfile}" --exit-status >/dev/null
+## Raw Paramsfile .meta.genesis JQ
+parmgenjq() {
+        local q=$1; shift
+        rparmjq ".meta.genesis | $q" "$@"
 }
 
-cluster_sh() {
-        dprint "cluster_sh:  ${*@Q}"
+## Paramsfile JQ TEST
+parmjqtest() {
+        parmjq "$1" --exit-status >/dev/null
+}
+
+query_profiles() {
+        params profiles | sed 's_ _\n_g' |
+        jq . --raw-input |
+        jq '( map ({key: ., value: 1}) | from_entries) as $profs
+            | $params[0] | to_entries
+            | map( select(.key | in($profs))
+                 | . + { value: (.value + { name: .key }) }
+                 | .value)
+            | map( select('"$1"')
+                 | .name)
+            | join(" ")
+           ' --slurp --slurpfile params "${paramsfile}" --raw-output
+}
+
+params() {
+        dprint "params:  ${*@Q}"
 
         local cmd="$1"; shift
         case "$cmd" in
-                producers )    rcjq ' .
+                producers )    rparmjq ' .
                                       | (.meta.node_names | join(" "))';;
-                profiles )     rcjq ' .
+                profiles )     rparmjq ' .
+                                      | delpaths (.meta.aux_profiles | map([.]))
                                       | del (.meta)
-                                      | del (."smoke-test")
-                                      | del (."small")
-                                      | del (."short")
                                       | keys_unsorted
                                       | join(" ")';;
-                has-profile )  cjqtest '.["'$1'"] != null';;
+                query-profiles )
+                               query_profiles "$1";;
+                has-profile )  parmjqtest '.["'$1'"] != null';;
                 resolve-profile )
-                               rcjq ' .
+                               rparmjq ' .
                                       | if "'$1'" == "default"
                                         then .meta.default_profile
                                         else if . | has("'$1'") then "'$1'"

@@ -1,46 +1,66 @@
 #!/usr/bin/env bash
 # shellcheck disable=2155
 
+remote_jq_opts=(--compact-output)
+
+declare -A deployfilename deployfile
 deployfilename=(
-        'deployment-explorer.json'
-        'deployment-producers.json')
+        [explorer]='deployment-explorer.json'
+        [producers]='deployment-producers.json')
 deployfile=(
-        $(realpath "$(dirname "$0")/../${deployfilename[0]}")
-        $(realpath "$(dirname "$0")/../${deployfilename[1]}"))
+        [explorer]=$(realpath "$(dirname "$0")/../${deployfilename[explorer]}")
+        [producers]=$(realpath "$(dirname "$0")/../${deployfilename[producers]}"))
+
+## Deployfile JQ
+depljq() {
+        local comp=$1 q=$2; shift 2
+        jq "$q" "${deployfilename[$comp]}" "$@"
+}
 
 update_deployfiles() {
-        local prof=$1 deploylog=$2 include=${3##--include } file
+        local prof=$1 deploylog=$2 include=${3##--include }
         local date=$(date "+%Y-%m-%d-%H.%M.%S") stamp=$(date +%s)
-        local nixops_meta node_info full cores files targets
+        local nixops_meta machine_info cores files targets
 
         echo "--( collecting NixOps metadata.."
         nixops_meta=$(grep DEPLOYMENT_METADATA= "$deploylog" |
                               head -n1 | cut -d= -f2 | xargs jq .)
-        cores=($(nixopsfile_producers <<<$nixops_meta))
+        cores=($(params producers))
         case "$include" in
                 '' | "explorer ${cores[*]}" | "${cores[*]} explorer" )
-                                files=(${deployfile[*]}); targets=(explorer ${cores[*]});;
-                'explorer' )    files=(${deployfile[0]}); targets=(explorer);;
-                "${cores[*]}" ) files=(${deployfile[1]}); targets=(${cores[*]});;
+                                files=(${deployfile[*]})
+                                targets=(explorer ${cores[*]});;
+
+                'explorer' )    files=(${deployfile[explorer]})
+                                targets=(explorer);;
+
+                "${cores[*]}" ) files=(${deployfile[producers]})
+                                targets=(${cores[*]});;
+
                 * ) fail "include didn't match: '$include'";; esac
 
+        local targetlist
+        targetlist=$(jq . --raw-input <<<"${targets[*]}" | jq 'split(" ")' -c)
+        dprint "target list: $targetlist"
+
         echo "--( collecting live machine state.."
-        node_info=$(jq . <<<"{ $(nixops_query_cluster_state | sed ':b; N; s_\n_,_; b b' | sed 's_,_\n,_g') }")
+        machine_info=$(jq . <<<"{ $(deploystate_collect_machine_info | sed ':b; N; s_\n_,_; b b' | sed 's_,_\n,_g') }")
         jq >"${files[0]}" "
           { profile:           \"$prof\"
           , timestamp:         ${stamp}
           , date:              \"${date}\"
-          , targets:           $(jq . --raw-input <<<"${targets[*]}" | jq --slurp -c)
+          , targets:           $targetlist
           , genesis_hash:      \"$(cat ./keys/GENHASH)\"
-          , profile_content:   $(jq ."[\"${prof}\"]" "${clusterfile}" |
-                                 sed 's_^_      _')
-          , benchmarking:      $(jq '.["cardano-benchmarking"].rev' nix/sources.json)
-          , node:              $(jq '.["cardano-node"].rev'         nix/sources.bench-txgen-simple.json)
-          , \"db-sync\":       $(jq '.["cardano-db-sync"].rev'      nix/sources.bench-txgen-simple.json)
-          , ops:               \"$(git rev-parse HEAD)\"
-          , modified:          $(if git diff --quiet --exit-code
+          , profile_content:   $(profjq "${prof}" .)
+          , pins:
+            { benchmarking:    $(jq '.["cardano-benchmarking"].rev' nix/sources.json)
+            , node:            $(jq '.["cardano-node"].rev'         nix/sources.bench-txgen-simple.json)
+            , \"db-sync\":     $(jq '.["cardano-db-sync"].rev'      nix/sources.bench-txgen-simple.json)
+            , ops:             \"$(git rev-parse HEAD)\"
+            }
+          , ops_modified:      $(if git diff --quiet --exit-code
                                  then echo false; else echo true; fi)
-          , node_info:         $node_info
+          , machine_info:      $machine_info
           , nixops:            $nixops_meta
           }
           " --null-input
@@ -49,52 +69,63 @@ update_deployfiles() {
         echo "--( updated deployment state:  ${files[*]}"
 }
 
-nixopsfile_producers() {
-        jq '.benchmarkingTopology.coreNodes
-            | map(.name)
-            | join(" ")' --raw-output "$@"
+deploystate_node_process_genesis_startTime() {
+        local core="${1:-node-0}"
+        nixops ssh ${core} \
+          jq .startTime $(nixops ssh ${core} \
+                  jq .GenesisFile $(nixops ssh ${core} -- \
+                          pgrep -al cardano-node |
+                                  sed 's_.* --config \([^ ]*\) .*_\1_'))
 }
 
-remote_jq_opts=(--compact-output)
-
-nixops_query_cluster_state() {
-        local cmd
-        cmd=(
-                eval echo
-                '\"$(hostname)\": { \"local_ip\": \"$(ip addr show dev eth0 | sed -n "/^    inet / s_.*inet \([0-9\.]*\)/.*_\1_; T skip; p; :skip")\", \"public_ip\": \"$(curl --silent http://169.254.169.254/latest/meta-data/public-ipv4)\", \"account\": $(curl --silent http://169.254.169.254/latest/meta-data/identity-credentials/ec2/info | jq .AccountId), \"placement\": $(curl --silent http://169.254.169.254/latest/meta-data/placement/availability-zone | jq --raw-input), \"sgs\": $(curl --silent http://169.254.169.254/latest/meta-data/security-groups | jq --raw-input | jq --slurp), \"timestamp\": $(date +%s), \"timestamp_readable\": \"$(date)\" }'
-        )
-        nixops ssh-for-each --parallel -- "${cmd[@]@Q}" 2>&1 | cut -d'>' -f2-
+deploystate_local_genesis_startTime() {
+        genesisjq '.start_time'
 }
 
-maybe_local_repo_branch() {
-        local local_repo_path=$1 rev=$2
-        git -C "$local_repo_path" describe --all "$rev" |
-                sed 's_^\(.*/\|\)\([^/]*\)$_\2_'
-        ## This needs a shallow clone to be practical.
+deploystate_check_deployed_genesis_age() {
+        if ! check_genesis_age "$(deploystate_node_process_genesis_startTime 'node-0')"
+        then fail "genesis needs update"; fi
+}
+
+check_genesis_age() {
+        # test $# = 3 || failusage "check-genesis-age HOST SLOTLEN K"
+        local startTime=$1 slotlen="${2:-20}" k="${3:-2160}" now
+        now=$(date +%s)
+        local age_t=$((now - startTime))
+        local age_slots=$((age_t / slotlen))
+        local remaining=$((k * 2 - age_slots))
+        cat <<EOF
+---| Genesis:  .startTime=${startTime}  now=${now}  age=${age_t}s  slotlen=${slotlen}
+---|           slot age=${age_slots}  k=${k}  remaining=${remaining}
+EOF
+        if   test "${age_slots}" -ge $((k * 2))
+        then fprint "genesis is too old"
+             return 1
+        elif test "${age_slots}" -ge $((k * 38 / 20))
+        then fprint "genesis is dangerously old, slots remaining: ${remaining}"
+             return 1
+        fi
 }
 
 nixops_deploy() {
-        local prof="${1:-default}" include="${2:-}" deploylog="${3:-}"
+        local prof=$1 include=$2 deploylog=$3
         local node_rev benchmarking_rev ops_rev ops_checkout_state
-        if test -z "${include}${deploylog}"
-        then deploylog=runs/$(date +%s).full-deploy; fi
 
         benchmarking_rev=$(jq --raw-output '.["cardano-benchmarking"].rev' nix/sources.json)
         node_rev=$(jq --raw-output '.["cardano-node"].rev' nix/sources.bench-txgen-simple.json)
         ops_rev=$(git rev-parse HEAD)
         ops_branch=$(maybe_local_repo_branch . ${ops_rev})
         ops_checkout_state=$(git diff --quiet --exit-code || echo '(modified)')
-        prof=$(cluster_sh resolve-profile "${prof}")
         to=${include:-the entire cluster}
 
         cat <<EOF
---( Deploying to:  ${to#--include }
+--( Deploying profile ${prof} to:  ${to#--include }
 --(   node:          ${node_rev}
 --(   benchmarking:  ${benchmarking_rev}
 --(   ops:           ${ops_rev} / ${ops_branch}  ${ops_checkout_state}
 EOF
         ln -sf "$deploylog" 'last-deploy.log'
-        if export BENCHMARKING_PROFILE=${prof}; ! nixops deploy --max-concurrent-copy 50 -j 4 ${include} \
+        if export BENCHMARKING_PROFILE=${prof}; ! nixops deploy --max-concurrent-copy 50 -j 4 ${include:+--include $include} \
                  >"$deploylog" 2>&1
         then echo "FATAL:  deployment failed, full log in ${deploylog}"
              echo -e "FATAL:  here are the last 200 lines:\n"
@@ -103,6 +134,21 @@ EOF
         fi >&2
 
         update_deployfiles "$prof" "$deploylog" "$include"
+}
+
+deploystate_collect_machine_info() {
+        local cmd
+        cmd=(
+                eval echo
+                '\"$(hostname)\": { \"local_ip\": \"$(ip addr show dev eth0 | sed -n "/^    inet / s_.*inet \([0-9\.]*\)/.*_\1_; T skip; p; :skip")\", \"public_ip\": \"$(curl --silent http://169.254.169.254/latest/meta-data/public-ipv4)\", \"account\": $(curl --silent http://169.254.169.254/latest/meta-data/identity-credentials/ec2/info | jq .AccountId), \"placement\": $(curl --silent http://169.254.169.254/latest/meta-data/placement/availability-zone | jq --raw-input), \"sgs\": $(curl --silent http://169.254.169.254/latest/meta-data/security-groups | jq --raw-input | jq --slurp), \"timestamp\": $(date +%s), \"timestamp_readable\": \"$(date)\" }'
+        )
+        nixops ssh-for-each --parallel -- "${cmd[@]@Q}" 2>&1 | cut -d'>' -f2-
+}
+
+nixopsfile_producers() {
+        jq '.benchmarkingTopology.coreNodes
+            | map(.name)
+            | join(" ")' --raw-output "$@"
 }
 
 op_stop() {

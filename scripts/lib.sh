@@ -45,6 +45,11 @@ jqtest() {
         jq --exit-status "$@" > /dev/null
 }
 
+## Null input jq test
+njqtest() {
+        jqtest --null-input "$@"
+}
+
 ## Reverse JQ -- essentially flips its two first args
 rjq() {
         local f="$1"; q="$2"; shift 2
@@ -63,17 +68,30 @@ rjqtest() {
         jq --exit-status "$q" "$f" "$@" >/dev/null
 }
 
+timestamp() {
+        date +'%Y''%m''%d''%H''%S'
+}
+
 generate_mnemonic()
 {
-        local mnemonic=$(nix-shell -p diceware --run 'diceware --no-caps --num 2 --wordlist en_eff -d-')
-        local timestamp=$(date +%s)
-        local commit=$(git rev-parse HEAD | cut -c-8)
-        local status=''
+        local mnemonic timestamp commit status
+        mnemonic=$(nix-shell -p diceware --run 'diceware --no-caps --num 2 --wordlist en_eff -d-')
+        # local timestamp=$(date +%s)
+        timestamp=$(timestamp)
+        commit=$(git rev-parse HEAD | cut -c-8)
+        status=''
 
         if git diff --quiet --exit-code
-        then status=pristine
-        else status=modified
+        then status=
+        else status=+
         fi
 
-        echo "${timestamp}.${commit}.${mnemonic}.${status}"
+        echo "${timestamp}.${commit}${status}.${mnemonic}"
+}
+
+maybe_local_repo_branch() {
+        local local_repo_path=$1 rev=$2
+        git -C "$local_repo_path" describe --all "$rev" |
+                sed 's_^\(.*/\|\)\([^/]*\)$_\2_'
+        ## This needs a shallow clone to be practical.
 }
