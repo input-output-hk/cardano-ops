@@ -4,8 +4,6 @@ with pkgs;
 let
   inherit (lib) mkForce mkIf mkEnableOption mkOption types;
   cfg = config.services.cardano-postgres;
-  # TODO: remove when 20.03
-  postgresql12 = (import sourcePaths.nixpkgs-postgresql12 {}).postgresql_12;
 in {
   options = {
     services.cardano-postgres = {
@@ -25,7 +23,7 @@ in {
   config = mkIf cfg.enable {
     services.postgresql = {
       enable = true;
-      package = postgresql12;
+      package = postgresql_12;
       dataDir = mkIf (cfg.postgresqlDataDir != null) cfg.postgresqlDataDir;
       enableTCPIP = false;
       extraConfig = ''

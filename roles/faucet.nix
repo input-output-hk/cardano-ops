@@ -1,7 +1,7 @@
 pkgs: { name, config, nodes, resources, ... }:
 with pkgs;
 let
-  faucetPkgs = (import (sourcePaths.cardano-faucet + "/nix") {}).pkgs;
+  faucetPkgs = (import (sourcePaths.cardano-faucet + "/nix") {});
   hostAddr = getListenIp nodes.${name};
   nodePort = globals.cardanoNodePort;
   monitoringPort = globals.cardanoNodePrometheusExporterPort;
@@ -39,6 +39,8 @@ in {
   services.cardano-faucet = {
     enable = true;
     cardanoEnv = globals.environmentName;
+    package = faucetPkgs.packages.cardano-faucet-cr;
+    walletPackage = faucetPkgs.cardano-wallet-byron;
 
     # Defaults to 1000 ADA per request
     #lovelacesToGive = 1000000000;

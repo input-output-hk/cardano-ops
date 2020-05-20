@@ -77,12 +77,6 @@ in reportDeployment (rec {
     explorer = {
       imports = [
         pkgs.cardano-ops.roles.tx-generator
-        ({ config, ...}: {
-          services.cardano-submit-api = {
-            environment = pkgs.globals.environmentConfig;
-            socketPath = config.services.cardano-node.socketPath;
-          };
-        })
       ];
       services.cardano-graphql.enable = pkgs.lib.mkForce false;
       services.graphql-engine.enable = pkgs.lib.mkForce false;
