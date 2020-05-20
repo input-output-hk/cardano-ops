@@ -144,40 +144,50 @@ we enumerate here shortly, but will also revisit in depth later:
     the **explorer** host, which generates transactions and serves as a
     point of observation.
 
-5.  The **deployment state**, which is implicit in the *cluster
+5.  **Deployment checkout** is a per-cluster checkout of the
+    `cardano-ops` repository, that is situated in the home directory of
+    the `dev` user on the development deployer. After **checkout
+    initialisation** (see: `bench init N`) it is extended by the
+    *benchmarking parameters* file, `benchmarking-cluster-params.json`.
+
+6.  The **deployment state**, which is implicit in the *cluster
     component* states, but also summarised in the **deployment state
     files** – `deployment-explorer.json` and
     `deployment-producers.json`.
 
-6.  The **genesis** is parametrised by the *benchmarking profile*, and,
+7.  The **genesis** is parametrised by the *benchmarking profile*, and,
     once changed (perhaps due to *benchmarking profile* selection),
     necessitates redeployment of all *cluster components*.
 
-7.  The **deployment process**, which affects the *deployment state*,
+8.  The **deployment process**, which affects the *deployment state*,
     and updates its summaries in the *deployment state files*.
 
-8.  The **benchmarking process**, which is defined by the *deployment
+9.  The **benchmarking process**, which is defined by the *deployment
     state*, and so, indirectly, by the *source pins* and the chosen
     *benchmarking profile*.
     
     It consists of several phases: **cleanup**, **initialisation**,
     **registration**, **generation** and **termination**.
-    
-    **Benchmarking run** is a closely related concept that denotes a
+
+10. **Benchmarking run** is a closely related concept that denotes a
     particular, parametrised instance of the *benchmarking process*,
     that was executed at a certain time.
+    
+    Each *benchmarking run* is assigned a unique **tag**, that coincides
+    with the name of a subdirectory under `./runs` in the deployment
+    checkout.
 
-9.  The **benchmarking batch** is a set of **benchmarking runs** for all
+11. The **benchmarking batch** is a set of **benchmarking runs** for all
     *benchmarking profiles* defined by the *benchmarking parameters* of
     the particular cluster..
 
-10. The **capture process**, that follows the *benchmarking process*,
+12. The **capture process**, that follows the *benchmarking process*,
     collects and processes the post-benchmarking cluster state, and
     ultimately provides the **benchmark results**.
     
     It consists of: **log fetching**, **analysis** and **packaging**.
 
-11. **Benchmark results**, consist of the *logs* and results of their
+13. **Benchmark results**, consist of the *logs* and results of their
     *analysis*.
 
 ### Benchmark operation
