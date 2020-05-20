@@ -81,7 +81,7 @@ in {
         { scKind = "StdoutSK"; scName = "stdout"; scFormat = "ScJson"; }
         { scKind = "FileSK"; scName = "/var/lib/cardano-node/logs/node.json"; scFormat = "ScJson";
           scRotation = {
-            rpLogLimitBytes = 200000000;
+            rpLogLimitBytes = 300000000;
             rpMaxAgeHours   = 24;
             rpKeepFilesNum  = 2;
           }; }

@@ -88,8 +88,19 @@ in reportDeployment (rec {
           [ "FileSK"   "/var/lib/cardano-node/logs/node.json" ]
         ];
         setupScribes = [
-          { scKind = "StdoutSK"; scName = "stdout"; scFormat = "ScJson"; }
-          { scKind = "FileSK"; scName = "/var/lib/cardano-node/logs/node.json"; scFormat = "ScJson"; "scRotation" = null; }
+          {
+            scKind     = "StdoutSK";
+            scName     = "stdout";
+            scFormat   = "ScJson"; }
+          {
+            scKind     = "FileSK";
+            scName     = "/var/lib/cardano-node/logs/node.json";
+            scFormat   = "ScJson";
+            scRotation = {
+              rpLogLimitBytes = 300000000;
+              rpMaxAgeHours   = 24;
+              rpKeepFilesNum  = 20;
+            }; }
         ];
         minSeverity = "Debug";
         TracingVerbosity = "MaximalVerbosity";
