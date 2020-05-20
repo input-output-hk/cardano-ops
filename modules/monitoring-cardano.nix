@@ -52,26 +52,26 @@
   ] ++ (builtins.concatMap ({region, regionLetter}: [
     {
       alert = "high_tcp_connections_${region}";
-      expr = "avg(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*\"}) - count(count(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*\"}) by (alias)) > 80";
+      expr = "avg(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*\"}) - count(count(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*\"}) by (alias)) > 120";
       for = "5m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "${region}: Average connection per nodes higher than 80 for more than 5 minutes.";
-        description = "${region}: Average connection per nodes higher than 80 for more than 5 minutes. Adding new nodes to that region might soon be required.";
+        summary = "${region}: Average connection per nodes higher than 120 for more than 5 minutes.";
+        description = "${region}: Average connection per nodes higher than 120 for more than 5 minutes. Adding new nodes to that region might soon be required.";
       };
     }
     {
       alert = "critical_tcp_connections_${region}";
-      expr = "avg(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*\"}) - count(count(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*\"}) by (alias)) > 100";
+      expr = "avg(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*\"}) - count(count(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*\"}) by (alias)) > 150";
       for = "15m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "${region}: Average connection per nodes higher than 100 for more than 15 minutes.";
-        description = "${region}: Average connection per nodes higher than 100 for more than 15 minutes. Adding new nodes to that region IS required.";
+        summary = "${region}: Average connection per nodes higher than 150 for more than 15 minutes.";
+        description = "${region}: Average connection per nodes higher than 150 for more than 15 minutes. Adding new nodes to that region IS required.";
       };
     }
     {
