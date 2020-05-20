@@ -41,41 +41,49 @@ analyse_tag() {
         meta=$(tmjq "$tag" .)
 
         oprint "running log analyses: "
-        tar xaf '../logs/log-explorer-generator.tar.xz'
-        tar xaf '../logs/log-nodes.tar.xz'
+        tar xaf '../logs/logs-explorer.tar.xz'
+        tar xaf '../logs/logs-nodes.tar.xz'
 
         echo " timetoblock.csv"
-        ../tools/analyse.sh generator log-explorer "last-run/analysis/"
+        ../tools/analyse.sh         \
+          'logs-explorer/generator' \
+          'logs-explorer/node'      \
+          'last-run/analysis/'
         cp analysis/timetoblock.csv .
 
         local blocks
-        blocks="$(../tools/blocksizes.sh log-explorer.json |
         echo -n "--( running log analyses:  blocksizes"
+        blocks="$(../tools/blocksizes.sh logs-explorer/node-*.json |
                                jq . --slurp)"
 
         declare -A msgtys
-        local mach msgtys=() producers tnum msgtys_generator sub_tids
+        local mach msgtys=() producers tnum sub_tids
         producers=($(jq '.nixops.benchmarkingTopology.coreNodes
                         | map(.name) | join(" ")' --raw-output <<<$meta))
 
         for mach in explorer ${producers[*]}
         do echo -n " msgtys:${mach}"
-           msgtys[${mach}]="$(../tools/msgtypes.sh log-explorer.json |
+           msgtys[${mach}]="$(../tools/msgtypes.sh logs-explorer/node-*.json |
                               jq . --slurp)"; done
-        echo -n " msgtys:generator"
-        msgtys_generator="$(../tools/msgtypes.sh generator.json |
-                               jq . --slurp)"
+        ## NOTE: This is a bit too costly, and we know the generator pretty well.
+        # echo -n " msgtys:generator"
+        # msgtys_generator="$(../tools/msgtypes.sh logs-explorer/generator.json |
+        #                        jq . --slurp)"
+        msgtys_generator='[]'
 
         echo -n " node-to-node-submission-tids"
-        sub_tids="$(../tools/generator-logs.sh log-tids generator.json)"
+        sub_tids="$(../tools/generator-logs.sh log-tids \
+                      logs-explorer/generator.json)"
         for tnum in $(seq 0 $(($(echo "$sub_tids" | wc -w) - 1)))
         do echo -n " node-to-node-submission:${tnum}"
-           ../tools/generator-logs.sh tid-trace "${tnum}" generator.json \
+           ../tools/generator-logs.sh tid-trace "${tnum}" \
+             logs-explorer/generator.json \
              > generator.submission-thread-trace."${tnum}".json; done
 
-        echo -n " added-to-current-chain"
-        ../tools/added-to-current-chain.sh log-explorer.json \
-             > explorer.added-to-current-chain.csv
+        for p in ${producers[*]}
+        do echo -n " added-to-current-chain:$p"
+           ../tools/added-to-current-chain.sh logs-node-*/node-*.json \
+             > $p.added-to-current-chain.csv; done
 
         jq '{ tx_stats: $txstats[0]
             , submission_tids: '"$(jq --slurp <<<$sub_tids)"'
@@ -100,7 +108,7 @@ analyse_tag() {
         fi
         patch_local_tag "$tag"
 
-        rm -rf analysis log-node-*.json log-explorer.json generator.json
+        rm -rf analysis/ logs-node-*/ logs-explorer/
 
         popd >/dev/null
 

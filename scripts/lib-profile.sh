@@ -107,6 +107,9 @@ profile_deploy() {
         ## 2. profile incompatible?
         regenesis_causes=()
 
+        if test -n "${force_genesis}"
+        then regenesis_causes+=('--genesis'); fi
+
         if   ! genesisjq . >/dev/null 2>&1
         then regenesis_causes+=('missing-or-malformed-genesis-metadata')
         else
@@ -146,6 +149,7 @@ profile_deploy() {
         then redeploy_causes+=(genesis-hash-explorer)
              include+=('explorer'); fi
 
+
         if test ! -f "${deployfile['producers']}"
         then redeploy_causes+=(missing-producers-deployfile)
              include+=($(params producers))
@@ -162,6 +166,10 @@ profile_deploy() {
              $(depljq 'producers' .genesis_hash)"
         then redeploy_causes+=(genesis-hash-producers)
              include+=($(params producers)); fi
+
+        if test -n "${force_deploy}"
+        then redeploy_causes+=('--deploy')
+             include=('explorer' $(params producers)); fi
 
         local final_include
         if test "${include[0]}" = "${include[1]:-}"

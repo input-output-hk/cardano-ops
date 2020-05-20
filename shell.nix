@@ -55,8 +55,21 @@ let
       done
     '';
 in  mkShell {
-  buildInputs = [ iohkNix.niv nivOverrides nixops nix cardano-cli telnet dnsutils mkDevGenesis nix-diff migrate-keys pandoc create-shelley-genesis-and-keys ] ++
-                (with cardano-sl-pkgs.nix-tools.exes; [ cardano-sl-auxx cardano-sl-tools ]);
+  buildInputs = [
+    cardano-cli
+    create-shelley-genesis-and-keys
+    dnsutils
+    iohkNix.niv
+    migrate-keys
+    mkDevGenesis
+    nivOverrides
+    nix
+    nix-diff
+    nixops
+    pandoc
+    pstree
+    telnet
+  ] ++ (with cardano-sl-pkgs.nix-tools.exes; [ cardano-sl-auxx cardano-sl-tools ]);
   NIX_PATH = "nixpkgs=${path}";
   NIXOPS_DEPLOYMENT = "${globals.deploymentName}";
   passthru = {

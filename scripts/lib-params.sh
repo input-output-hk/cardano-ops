@@ -49,15 +49,18 @@ def profile_name($gtor; $gsis):
     }
   , { name: "small"
     , txs: 1000,  add_tx_size: 100, io_arity: 1,  tps: 100
-    , init_cooldown: 20, finish_patience: 3 }
+    , init_cooldown: 25, finish_patience: 5 }
   , { name: "small-32k"
     , txs: 1000,  add_tx_size: 100, io_arity: 1,  tps: 100
-    , init_cooldown: 20, finish_patience: 3
+    , init_cooldown: 25, finish_patience: 5
     , genesis_profile: 6
     }
+  , { name: "edgesmoke"
+    , txs: 100,   add_tx_size: 100, io_arity: 1,  tps: 100
+    , init_cooldown: 25, finish_patience: 2 }
   , { name: "smoke"
     , txs: 100,   add_tx_size: 100, io_arity: 1,  tps: 100
-    , init_cooldown: 0, finish_patience: 3 }
+    , init_cooldown: 25, finish_patience: 5 }
   ] as $generator_aux_profiles
 
 | [ { max_block_size: 2000000 }
