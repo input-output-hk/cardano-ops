@@ -63,6 +63,7 @@ in {
       logger.configFile = __toFile "log-config.json" (__toJSON (cardanoLib.defaultProxyLogConfig // {
         hasPrometheus = [ hostAddr 12799 ];
       }));
+      package = cardano-byron-proxy-pkgs.haskellPackages.cardano-byron-proxy.components.exes.cardano-byron-proxy;
     };
     systemd.services.byron-proxy.serviceConfig.MemoryMax = "3.5G";
 

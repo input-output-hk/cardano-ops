@@ -3,12 +3,8 @@ with pkgs;
 
 let
   nodeCfg = config.services.cardano-node;
-  cardano-explorer-app = import sourcePaths.cardano-explorer-app {};
-  explorerFrontend = cardano-sl-pkgs.explorerFrontend;
-  postgresql12 = (import sourcePaths.nixpkgs-postgresql12 {}).postgresql_12;
   nodeId = config.node.nodeId;
   hostAddr = getListenIp nodes.${name};
-  cardanoDbPkgs = import sourcePaths.cardano-db-sync {};
 in {
   imports = [
     (sourcePaths.cardano-node + "/nix/nixos")
@@ -21,7 +17,7 @@ in {
 
   environment.systemPackages = with pkgs; [
     bat fd lsof netcat ncdu ripgrep tree vim cardano-cli
-    cardanoDbPkgs.haskellPackages.cardano-db.components.exes.cardano-db-tool
+    cardano-db-sync-pkgs.haskellPackages.cardano-db.components.exes.cardano-db-tool
   ];
   services.cardano-postgres.enable = true;
   services.postgresql = {
@@ -47,7 +43,7 @@ in {
   services.graphql-engine.enable = true;
   services.cardano-graphql = {
     enable = true;
-    whitelistPath = cardano-explorer-app.whitelist;
+    whitelistPath = cardano-explorer-app-pkgs.whitelist;
   };
   services.cardano-node = {
     enable = true;
@@ -72,9 +68,13 @@ in {
     logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { hasPrometheus = [ hostAddr 12698 ]; };
     user = "cexplorer";
     extended = globals.withCardanoDBExtended;
+    package = if globals.withCardanoDBExtended
+      then cardano-db-sync-pkgs.cardano-db-sync-extended
+      else cardano-db-sync-pkgs.cardano-db-sync;
     postgres = {
       database = "cexplorer";
     };
+
   };
   systemd.services.cardano-db-sync = {
     serviceConfig = {
@@ -96,7 +96,17 @@ in {
     script = "true";
   };
 
-  services.cardano-explorer-api.enable = true;
+  services.cardano-explorer-api = {
+    enable = true;
+    package = cardano-rest-pkgs.cardanoRestHaskellPackages.cardano-explorer-api.components.exes.cardano-explorer-api;
+  };
+
+  services.cardano-submit-api = {
+    environment = pkgs.globals.environmentConfig;
+    socketPath = config.services.cardano-node.socketPath;
+    package = cardano-rest-pkgs.cardanoRestHaskellPackages.cardano-submit-api.components.exes.cardano-submit-api;
+  };
+
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
   services.nginx = {
@@ -124,7 +134,7 @@ in {
         forceSSL = globals.explorerForceSSL;
         locations = {
           "/" = {
-            root = cardano-explorer-app.static.override {
+            root = cardano-explorer-app-pkgs.static.override {
               graphqlApiHost = "${globals.explorerHostName}.${globals.domain}";
               cardanoNetwork = globals.environmentName;
             };
