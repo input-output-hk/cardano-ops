@@ -8,7 +8,7 @@ let
   nivOverrides = writeShellScriptBin "niv-overrides" ''
     niv --sources-file ${toString globals.sourcesJsonOverride} $@
   '';
-  genesisFile = iohkNix.cardanoLib.environments.${globals.environmentName}.genesisFile or "please/set/globals.environmentName";
+  genesisFile = globals.environmentConfig.genesisFile or "please set globals.environmentName or globals.environmentConfig.genesisFile";
 
   mkDevGenesis = writeShellScriptBin "make-dev-genesis" (builtins.replaceStrings
     [ "\${RUNNER}"
