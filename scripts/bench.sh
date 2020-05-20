@@ -2,7 +2,6 @@
 # shellcheck disable=2207,2155,1007,1090
 set -euo pipefail
 
-clusterfile=
 . "$(dirname "$0")"/lib.sh
 . "$(dirname "$0")"/lib-deploy.sh
 . "$(dirname "$0")"/lib-params.sh
@@ -32,19 +31,20 @@ USAGE:  $(basename "$0") OPTIONS.. [OP=bench-profile] OP-ARGS..
 
   Main OPs:
 
-    init-params N         Make a default ${clusterfile}
+    init-params N         Make a default ${paramsfile}
                             for a cluster with N nodes.
-    reinit-params         Update ${clusterfile} for current 'cardano-ops'.
+    reinit-params         Update ${paramsfile} for current 'cardano-ops'.
 
-    genesis [PROF=default]
-                          Generate new genesis, according to ${clusterfile},
-                            for a specific profile.
+    deploy [PROF=default] Deploy the profile on the entire cluster.
 
-    bench-all             Run benchmark across all profiles in ${clusterfile}.
-    bench-profile [PROF=default]
+    profiles [PROF=default]..
+                          Run benchmark for a list of profiles.
+    profiles 'jq(JQEXP)'  Run benchmark across all profiles matching JQEXP.
                           Run benchmark for a single profile.
+    profiles all          Run benchmark across all profiles in ${paramsfile}.
 
     list-profiles | ps    List available benchmark profiles.
+    query-profiles JQEXP  Query profiles using 'jq'.
     list-runs | ls        List accumulated benchmark runs.
 
 EOF
@@ -61,12 +61,6 @@ usage_extra() {
     --cls                 Clear screen.
 
   Other OPs:
-
-    check-genesis-age [NODE=node-0] [SLOTLEN=20] [K=2160]
-                          Test genesis of a deployed NODE, given SLOTLEN and K.
-                            WARNING:  won't work with stopped nodes!
-    deploy-cluster        Deploy the full cluster.
-
 
     bench-start           Cycle explorer & all nodes, and start the generator.
     bench-fetch           Fetch cluster logs.
@@ -94,11 +88,8 @@ EOF
 }
 
 verbose= debug= trace=
-no_deploy_producers=
-no_deploy_explorer=
+no_deploy=
 force_deploy=
-
-cluster_txbench_trailing_empty_blocks=5
 
 self=$(realpath "$0")
 
@@ -107,9 +98,7 @@ main() {
 
         while test $# -ge 1
         do case "$1" in
-           --fast-unsafe | --fu )
-                   no_deploy_producers=t
-                   no_deploy_explorer=t;;
+           --fast-unsafe | --fu ) no_deploy=t;;
            --deploy )             force_deploy=t;;
            --select )             jq_select="jq 'select ($2)'"; shift;;
 
@@ -141,20 +130,15 @@ main() {
                 init-params | init ) params_init "$@";;
                 reinit-params | reinit )
                                       local node_count
-                                      node_count=$(rcjq '
-                                        (   .meta.node_names
-                                         // .meta.nodeNames) # backward compat
-                                        | length
-                                        ')
+                                      node_count=$(parmetajq '.node_names | length')
                                       if test -z "$node_count"
-                                      then fail "reinit:  cannot get node count from cluste file -- use init instead."; fi
+                                      then fail "reinit:  cannot get node count from params file -- use init instead."; fi
                                       params_init "$node_count" "$@";;
                 check-genesis-age | check-genesis | genesis-age | age )
-                                      genesis_check_deployed_age "$@";;
+                                      deploystate_check_deployed_genesis_age "$@";;
                 genesis )             profile_genesis_byron "$@";;
 
-                deploy-cluster | full-deploy | deploy )
-                                      nixops_deploy "$@";;
+                deploy )              profile_deploy "$@";;
                 update-deployfiles | update )
                                       update_deployfiles "$@";;
                 bench-start | start )
@@ -168,19 +152,16 @@ main() {
                                       export archive=$(realpath ./runs)
                                       package_tag "$@";;
 
-                list-profiles | ps )
-                                      rcjq 'del(.meta) | keys';;
-                bench-profile | profile | p )
-                                      test -z "${force_deploy}" ||
-                                              nixops_deploy "$@"
-                                      op_bench_profile "$@";;
-                smoke-test | smoke | s )
-                                      no_deploy_explorer=t
-                                      cluster_txbench_trailing_empty_blocks=3
-                                      op_bench_profile 'smoke-test';;
+                list-profiles | ps )  rparmjq 'del(.meta) | keys';;
+                query-profiles | query | qps )
+                                      params query-profiles "$@";;
 
-                bench-all | all )
+                bench-all | all )     op_bench 'all';;
+                bench-profile | profiles | profile | p )
                                       op_bench "$@";;
+                smoke-test | smoke | s )
+                                      no_deploy=t
+                                      op_bench 'smoke';;
 
                 list-runs | runs | ls )
                                       ls -1 runs/*/meta.json | cut -d/ -f2;;
@@ -207,10 +188,6 @@ main() {
 
                 blocks )              op_blocks;;
 
-                ## Query ./benchmarking-cluster-params.json, aka the "clusterfile".
-                cjq )                 cjq "$@";;
-                rcjq )                rcjq "$@";;
-                cjqtest )             cjqtest "$@";;
                 eval )                eval "${@@Q}";;
                 * ) usage; exit 1;; esac
 }
@@ -220,33 +197,35 @@ main() {
 ###
 
 op_bench() {
-        local all_profiles=($(cluster_sh profiles))
-        local benchmark_schedule=("${all_profiles[@]}")
+        local benchmark_schedule
 
-        echo "--( Benchmark across profiles:  ${benchmark_schedule[*]}"
+        if   test "$1" = 'all'
+        then benchmark_schedule=($(params profiles))
+        elif case "$1" in jq\(*\) ) true;; * ) false;; esac
+        then local query=$(sed 's_^jq(\(.*\))$_\1_' <<<$1)
+             oprint "selecting profiles with:  $query"
+             benchmark_schedule=($(query_profiles "$query"))
+        elif test $# -eq 1
+        then benchmark_schedule=("$1")
+        else benchmark_schedule=("$@")
+        fi
 
-        mkdir -p 'runs'
-
-        profile_genesis_byron "${benchmark_schedule[0]}"
-
-        if test -n "${no_deploy_producers}"
-        then echo "--( Not deploying producers, --no-deploy-producers passed."
-        else nixops_deploy 'default' "" \
-               "runs/$(date +%s).deploy-producers.log"; fi
+        if test ${#benchmark_schedule[*]} -gt 1
+        then oprint "benchmark across profiles:  ${benchmark_schedule[*]}"; fi
 
         for p in ${benchmark_schedule[*]}
-        do op_bench_profile "${p}"
+        do bench_profile "${p}"
         done
 }
 
-op_bench_profile() {
+bench_profile() {
         local profspec="${1:-default}" prof deploylog
-        deploylog='./last-explorer-deploy.log'
-        prof=$(cluster_sh resolve-profile "$profspec")
+        prof=$(params resolve-profile "$profspec")
 
-        echo "--( Benchmarking profile:  ${prof:?Unknown profile $profspec, see ${clusterfile}}"
-        if ! test -f "${deploylog}" -a -n "${no_deploy_explorer}"
-        then nixops_deploy "${prof}" '--include explorer' "${deploylog}"; fi
+        oprint "benchmarking profile:  ${prof:?Unknown profile $profspec, see ${paramsfile}}"
+        deploylog='./last-deploy.log'
+        if ! test -f "${deploylog}" -a -n "${no_deploy}"
+        then profile_deploy "${prof}"; fi
         op_bench_start "${prof}" "${deploylog}"
         op_bench_fetch
 
@@ -260,49 +239,51 @@ op_bench_profile() {
 op_bench_start() {
         local prof="$1" deploylog="$2" tag dir
 
-        if ! cluster_sh has-profile "${prof}"
-        then fail "Unknown profile '${prof}': check ${clusterfile}"; fi
+        if ! params has-profile "${prof}"
+        then fail "Unknown profile '${prof}': check ${paramsfile}"; fi
 
         test -f "${deploylog}" ||
                 fail "deployment required, but no log found in:  ${deploylog}"
 
-        echo "--( Stopping generator.."
+        oprint "stopping generator.."
         nixops ssh explorer "systemctl stop tx-generator || true"
 
-        echo "--( Stopping nodes & explorer.."
+        oprint "stopping nodes & explorer.."
         op_stop
 
-        echo "--( Cleaning explorer DB.."
+        oprint "cleaning explorer DB.."
         nixops ssh explorer -- sh -c "'PGPASSFILE=/var/lib/cexplorer/pgpass psql cexplorer cexplorer --command \"delete from tx_in *; delete from tx_out *; delete from tx *; delete from block; delete from slot_leader *; delete from epoch *; delete from meta *; delete from schema_version *;\"'"
 
-        echo "--( Resetting node states: node DBs & logs.."
+        oprint "resetting node states: node DBs & logs.."
         nixops ssh-for-each --parallel "rm -rf /var/lib/cardano-node/db* /var/lib/cardano-node/logs/* /var/log/journal/*"
 
-        echo "--( $(date), restarting nodes.."
+        oprint "$(date), restarting nodes.."
         nixops ssh-for-each --parallel "systemctl start systemd-journald"
         sleep 3s
         nixops ssh-for-each --parallel "systemctl start cardano-node"
         nixops ssh explorer "systemctl start cardano-explorer-node cardano-db-sync 2>/dev/null"
 
-        genesis_check_deployed_age
+        deploystate_check_deployed_genesis_age
 
         tag=$(generate_run_id "${prof}")
         dir="./runs/${tag}"
-        echo "--( creating new run:  ${tag}"
+        oprint "creating new run:  ${tag}"
         op_register_new_run "${prof}" "${tag}" "${deploylog}"
 
-        echo "--( $(date), starting generator.."
-        nixops ssh explorer "systemctl start tx-generator"
+        time {
+          oprint "$(date), starting generator.."
+          nixops ssh explorer "systemctl start tx-generator"
 
-        op_wait_for_nonempty_block 200
+          op_wait_for_nonempty_block 200
 
-        time op_wait_for_empty_blocks \
-               "$(jq ".[\"${prof}\"].run_params.finish_patience" <${clusterfile})" \
-               fetch_systemd_unit_startup_logs
+          op_wait_for_empty_blocks \
+            "$(jq ".[\"${prof}\"].run_params.finish_patience" <${paramsfile})" \
+            fetch_systemd_unit_startup_logs
+        }
 
-        echo "--( $(date), termination criteria satisfied, stopping cluster."
+        oprint "$(date), termination condition satisfied, stopping cluster."
         op_stop
-        echo "--( concluded run:  ${tag}"
+        oprint "concluded run:  ${tag}"
 }
 
 fetch_systemd_unit_startup_logs() {
@@ -320,7 +301,7 @@ fetch_systemd_unit_startup_logs() {
         nixops ssh explorer "journalctl --boot 0 -u cardano-db-sync | head -n 100" \
           > 'logs/log-unit-startup-db-sync.log'
 
-        for node in $(cluster_sh producers)
+        for node in $(params producers)
         do nixops ssh "${node}" "journalctl --boot 0 -u cardano-node | head -n 100" \
              > "logs/log-unit-startup-${node}.log"
         done
@@ -341,17 +322,17 @@ op_register_new_run() {
         if test "$(realpath "${dir}")" = "$(realpath ./runs)" -o "${tag}" = '.'
         then fail "bad, bad tag"; fi
 
-        rm -f                          ./runs-last
-        ln -s                 "${dir}" ./runs-last
+        rm -f                          ./last-run
+        ln -s                 "${dir}" ./last-run
         rm -rf              ./"${dir}"/*
         mkdir -p              "${dir}/logs"
         mkdir -p              "${dir}/meta"
 
-        cp "${clusterfile}"   "${dir}"
+        cp "${paramsfile}"   "${dir}"
         touch "${deployfile[@]}"
         cp "${deployfile[@]}" "${dir}"
         cat                 > "${dir}"/meta/cluster.raw.json <<EOF
-{$(nixops_query_cluster_state | sed ':b; N; s_\n_,_; b b' | sed 's_,_\n,_g')
+{$(deploystate_collect_machine_info | sed ':b; N; s_\n_,_; b b' | sed 's_,_\n,_g')
 }
 EOF
         cp "${deploylog}"     "${dir}"/logs/deploy.log
@@ -375,16 +356,16 @@ EOF
     \"db-sync\":       $(jq '.["cardano-db-sync"].rev'      nix/sources.bench-txgen-simple.json),
     tag:               \"${tag}\",
     profile:           \"${prof}\",
-    generator_params:  $(jq ."[\"${prof}\"]" "${clusterfile}" |
+    generator_params:  $(jq ."[\"${prof}\"]" "${paramsfile}" |
                          sed 's_^_      _'),
     ops:               \"$(git rev-parse HEAD)\",
     modified:          $(if git diff --quiet --exit-code
                        then echo false; else echo true; fi),
     manifest: [
       \"${date}\",
-      \"${clusterfilename}\",
-      \"${deployfilename[0]}\",
-      \"${deployfilename[1]}\",
+      \"${paramsfilename}\",
+      \"${deployfilename[explorer]}\",
+      \"${deployfilename[producers]}\",
       \"meta.json\",
 
       \"meta/cluster.raw.json\",
@@ -482,7 +463,7 @@ op_wait_for_empty_blocks() {
                    test -z "${verbose}" || echo -n "=${patience}"; fi; done
            patience=$((patience - 1))
            test -z "${verbose}" || echo -n "p${patience}"
-        done | tee "runs-last/logs/block-arrivals.gauge"
+        done | tee "last-run/logs/block-arrivals.gauge"
         echo
 }
 
@@ -491,12 +472,12 @@ op_bench_fetch() {
         tag=$(cluster_last_meta_tag)
         dir="./runs/${tag}"
 
-        echo "--( Run directory:  ${dir}"
+        oprint "run directory:  ${dir}"
         pushd "${dir}" >/dev/null || return 1
 
         run_fetch_benchmarking 'tools'
 
-        echo "--( Fetching the SQL extraction from explorer.."
+        oprint "fetching the SQL extraction from explorer.."
         components=($(ls tools/*.sql | cut -d/ -f2))
         cat >'tools/db-analyser.sh' <<EOF
         set -e
@@ -523,8 +504,8 @@ EOF
         nixops scp --from explorer "${tag}.db-analysis.tar.xz" 'logs/db-analysis.tar.xz'
 
         local producers
-        producers=($(cluster_sh producers))
-        echo "--( Fetching logs from:  explorer ${producers[*]}"
+        producers=($(params producers))
+        oprint "fetching logs from:  explorer ${producers[*]}"
         mkdir -p 'logs'
         cd       'logs'
 
@@ -555,4 +536,7 @@ EOF
 }
 
 # Keep this at the very end, so bash read the entire file before execution starts.
-main "$@"
+batch_log=runs/$(timestamp).batch.log
+ln -sf "${batch_log}" last-batch.log
+main "$@" 2>&1 |
+  tee "${batch_log}"

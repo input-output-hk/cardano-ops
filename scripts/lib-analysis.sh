@@ -23,7 +23,7 @@ package_tag() {
         report_name=$(tag_report_name "$tag")
         package=$report_name.tar.xz
 
-        echo "--( Packaging $tag as:  $package"
+        oprint "Packaging $tag as:  $package"
         ln -sf "./runs/$tag" "$report_name"
         tar cf "$package"    "$report_name" --xz --dereference
         rm -f                "$report_name"
@@ -40,17 +40,17 @@ analyse_tag() {
         cd     'analysis'
         meta=$(tmjq "$tag" .)
 
-        echo "--( Running log analyses: "
+        oprint "running log analyses: "
         tar xaf '../logs/log-explorer-generator.tar.xz'
         tar xaf '../logs/log-nodes.tar.xz'
 
         echo " timetoblock.csv"
-        ../tools/analyse.sh generator log-explorer "runs-last/analysis/"
+        ../tools/analyse.sh generator log-explorer "last-run/analysis/"
         cp analysis/timetoblock.csv .
 
         local blocks
-        echo "--( Running log analyses:  blocksizes"
         blocks="$(../tools/blocksizes.sh log-explorer.json |
+        echo -n "--( running log analyses:  blocksizes"
                                jq . --slurp)"
 
         declare -A msgtys
@@ -104,7 +104,7 @@ analyse_tag() {
 
         popd >/dev/null
 
-        echo "--( analysed tag:  ${tag}"
+        oprint "analysed tag:  ${tag}"
 }
 
 tag_format_timetoblock_header="tx id,tx time,block time,block no,delta t"

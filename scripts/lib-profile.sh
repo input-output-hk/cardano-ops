@@ -1,24 +1,38 @@
 #!/usr/bin/env bash
 # shellcheck disable=2086
 
-## Profile Cluster
-pjq() {
-        rcjq "del(.meta)
-             | if has(\"$1\") then .[\"$1\"] $2
-               else error(\"Can't query unknown profile $1 using $2\") end"
+## Profile JQ
+profjq() {
+        local prof=$1 q=$2; shift 2
+        rparmjq "del(.meta)
+                | if has(\"$prof\") then (.\"$prof\" | $q)
+                  else error(\"Can't query unknown profile $prof using $q\") end
+                " "$@"
+}
+
+profgenjq()
+{
+        local prof=$1 q=$2; shift 2
+        profjq "$prof" ".genesis_params | ($q)" "$@"
+}
+
+genesisjq()
+{
+        local q=$1; shift
+        jq "$q" ./keys/genesis-meta.json "$@"
 }
 
 profile_byron_protocol_params() {
         local prof=$1
         jq <<<'{
     "heavyDelThd": "300000000000",
-    "maxBlockSize": "'"$(pjq "${prof}" .genesis_params.max_block_size)"'",
+    "maxBlockSize": "'"$(profgenjq "${prof}" .max_block_size)"'",
     "maxHeaderSize": "2000000",
     "maxProposalSize": "700",
     "maxTxSize": "4096",
     "mpcThd": "20000000000000",
     "scriptVersion": 0,
-    "slotDuration": "'"$(pjq "${prof}" .genesis_params.slot_duration)"'",
+    "slotDuration": "'"$(profgenjq "${prof}" .slot_duration)"'",
     "softforkRule": {
         "initThd": "900000000000000",
         "minThd": "600000000000000",
@@ -36,9 +50,9 @@ profile_byron_protocol_params() {
 }
 
 profile_genesis_byron() {
-        local prof="${1:-default}"; shift
-        local target_dir="${1:-./keys}"
-        prof=$(cluster_sh resolve-profile "$prof")
+        local prof="${1:-default}"
+        local target_dir="${2:-./keys}"
+        prof=$(params resolve-profile "$prof")
 
         local start_future_offset='1 minute' start_time
         start_time="$(date +%s -d "now + ${start_future_offset}")"
@@ -49,59 +63,122 @@ profile_genesis_byron() {
         profile_byron_protocol_params "$prof" >"$byron_params_tmpfile"
 
         args=(
-        --genesis-output-dir           "$target_dir"
-        --start-time                   "$start_time"
-        --protocol-parameters-file     "$byron_params_tmpfile"
+        --genesis-output-dir         "$target_dir"
+        --start-time                 "$start_time"
+        --protocol-parameters-file   "$byron_params_tmpfile"
 
-        --k                            $(mcjq .genesis_params.parameter_k)
-        --protocol-magic               $(mcjq .genesis_params.protocol_magic)
-        --secret-seed                  $(mcjq .genesis_params.secret)
-        --total-balance                $(mcjq .genesis_params.total_balance)
+        --k                          $(profgenjq "$prof" .parameter_k)
+        --protocol-magic             $(profgenjq "$prof" .protocol_magic)
+        --secret-seed                $(profgenjq "$prof" .secret)
+        --total-balance              $(profgenjq "$prof" .total_balance)
 
-        --n-poor-addresses             $(mcjq .genesis_params.n_poors)
-        --n-delegate-addresses         $(mcjq '(.node_names | length)')
-        --delegate-share               $(mcjq .genesis_params.delegate_share)
-        --avvm-entry-count             $(mcjq .genesis_params.avvm_entries)
-        --avvm-entry-balance           $(mcjq .genesis_params.avvm_entry_balance)
+        --n-poor-addresses           $(profgenjq "$prof" .n_poors)
+        --n-delegate-addresses       $(profgenjq "$prof" .n_delegates)
+        --delegate-share             $(profgenjq "$prof" .delegate_share)
+        --avvm-entry-count           $(profgenjq "$prof" .avvm_entries)
+        --avvm-entry-balance         $(profgenjq "$prof" .avvm_entry_balance)
         )
 
         mkdir -p "$target_dir"
-        target_files=(
-                "$target_dir"/genesis.json
-                "$target_dir"/delegate-keys.*.key
-                "$target_dir"/delegation-cert.*.json
-        )
         rm -rf -- ./"$target_dir"
-        cardano-cli genesis --real-pbft "${args[@]}" "$@"
+        cardano-cli genesis --real-pbft "${args[@]}"
         rm -f "$byron_params_tmpfile"
+
         cardano-cli print-genesis-hash \
                 --genesis-json "$target_dir/genesis.json" |
                 tail -1 > "$target_dir"/GENHASH
 
-        echo "--( generated genesis for $prof in:  $target_dir"
+        profgenjq "$prof" . | jq > "$target_dir"/genesis-meta.json "
+          { profile:    \"$prof\"
+          , hash:       \"$(cat "$target_dir"/GENHASH)\"
+          , start_time: $start_time
+          , params: ($(profgenjq "$prof" .))
+          }"
+
+        oprint "generated genesis for $prof in:  $target_dir"
 }
 
-genesis_check_deployed_age() {
-        # test $# = 3 || failusage "check-genesis-age HOST SLOTLEN K"
-        local core="${1:-node-0}" slotlen="${2:-20}" k="${3:-2160}" startTime now
-        startTime=$(nixops ssh ${core} \
-          jq .startTime $(nixops ssh ${core} \
-                  jq .GenesisFile $(nixops ssh ${core} -- \
-                          pgrep -al cardano-node |
-                                  sed 's_.* --config \([^ ]*\) .*_\1_')))
-        now=$(date +%s)
-        local age_t=$((now - startTime))
-        local age_slots=$((age_t / slotlen))
-        local remaining=$((k * 2 - age_slots))
-        cat <<EOF
----| Genesis:  .startTime=${startTime}  now=${now}  age=${age_t}s  slotlen=${slotlen}
----|           slot age=${age_slots}  k=${k}  remaining=${remaining}
-EOF
-        if   test "${age_slots}" -ge $((k * 2))
-        then fail "genesis is too old"
-        elif test "${age_slots}" -ge $((k * 38 / 20))
-        then fail "genesis is dangerously old, slots remaining: ${remaining}"
-        fi
+profile_deploy() {
+        local prof="${1:-default}" include=()
+        prof=$(params resolve-profile "$prof")
+
+        ## Determine if genesis update is necessary:
+        ## 1. old enough?
+        ## 2. profile incompatible?
+        regenesis_causes=()
+
+        if   ! genesisjq . >/dev/null 2>&1
+        then regenesis_causes+=('missing-or-malformed-genesis-metadata')
+        else
+             if ! check_genesis_age "$(genesisjq .start_time)"
+             then regenesis_causes+=('local-genesis-old-age'); fi
+             if   njqtest "
+                  $(genesisjq .params) !=
+                  $(profjq "${prof}" .genesis_params)"
+             then regenesis_causes+=('profile-requires-new-genesis'); fi; fi
+
+        if test -n "${regenesis_causes[*]}"
+        then oprint "regenerating genesis, because:  ${regenesis_causes[*]}"
+             profile_genesis_byron "$prof"; fi
+
+        redeploy_causes=(mandatory)
+        include=('explorer')
+
+        if   test ! -f "${deployfile['explorer']}"
+        then redeploy_causes+=(missing-explorer-deployfile)
+             include+=('explorer')
+        elif ! jq . "${deployfile['explorer']}" >/dev/null
+        then redeploy_causes+=(malformed-explorer-deployfile)
+             include+=('explorer')
+        elif njqtest "
+             ($(depljq 'explorer' .profile)         != \"$prof\") or
+             ($(depljq 'explorer' .profile_content) != $(profjq "$prof" .))"
+        then redeploy_causes+=(new-profile)
+             include+=('explorer')
+        elif njqtest "
+             $(genesisjq .params 2>/dev/null || echo '"missing"') !=
+             $(depljq 'explorer' .profile_content.genesis_params)"
+        then redeploy_causes+=(genesis-params-explorer)
+             include+=('explorer')
+        elif njqtest "
+             $(genesisjq .hash 2>/dev/null || echo '"missing"') !=
+             $(depljq 'explorer' .genesis_hash)"
+        then redeploy_causes+=(genesis-hash-explorer)
+             include+=('explorer'); fi
+
+        if test ! -f "${deployfile['producers']}"
+        then redeploy_causes+=(missing-producers-deployfile)
+             include+=($(params producers))
+        elif ! jq . "${deployfile['producers']}" >/dev/null
+        then redeploy_causes+=(malformed-producers-deployfile)
+             include+=($(params producers))
+        elif njqtest "
+             $(genesisjq .params 2>/dev/null || echo '"missing"') !=
+             $(depljq 'producers' .profile_content.genesis_params)"
+        then redeploy_causes+=(genesis-params-producers)
+             include+=($(params producers))
+        elif njqtest "
+             $(genesisjq .hash 2>/dev/null || echo '"missing"') !=
+             $(depljq 'producers' .genesis_hash)"
+        then redeploy_causes+=(genesis-hash-producers)
+             include+=($(params producers)); fi
+
+        local final_include
+        if test "${include[0]}" = "${include[1]:-}"
+        then final_include=$(echo "${include[*]}" | sed 's/explorer explorer/explorer/g')
+        else final_include="${include[*]}"; fi
+
+        if test "$final_include" = "explorer $(params producers)"
+        then qualifier='full'
+        elif test "$final_include" = "$(params producers)"
+        then qualifier='producers'
+        else qualifier='explorer'; fi
+
+        if test -n "${redeploy_causes[*]}" &&
+           test -z "${no_deploy}"
+        then oprint "redeploying, because:  ${redeploy_causes[*]}"
+             deploylog=runs/$(date +%s).deploy.$qualifier.$prof.log
+             nixops_deploy "$prof" "$final_include" "$deploylog"; fi
 }
 
 ###
