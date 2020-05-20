@@ -124,14 +124,30 @@ nixops_deploy() {
 --(   benchmarking:  ${benchmarking_rev}
 --(   ops:           ${ops_rev} / ${ops_branch}  ${ops_checkout_state}
 EOF
+        local cmd=( nixops deploy
+                    --max-concurrent-copy 50 --cores 0 -j 4
+                    ${include:+--include $include}
+                  )
+
+        local watcher_pid=
+        if test -n "${watch_deploy}"
+        then oprint "nixops deploy log:"
+             { sleep 0.3; tail -f "$deploylog"; } &
+             watcher_pid=$!; fi
+
         ln -sf "$deploylog" 'last-deploy.log'
-        if export BENCHMARKING_PROFILE=${prof}; ! nixops deploy --max-concurrent-copy 50 -j 4 ${include:+--include $include} \
+        if export BENCHMARKING_PROFILE=${prof}; ! "${cmd[@]}" \
                  >"$deploylog" 2>&1
         then echo "FATAL:  deployment failed, full log in ${deploylog}"
-             echo -e "FATAL:  here are the last 200 lines:\n"
-             tail -n200 "$deploylog"
+             if test -n "$watcher_pid"
+             then kill "$watcher_pid" >/dev/null 2>&1 || true
+             else echo -e "FATAL:  here are the last 200 lines:\n"
+                  tail -n200 "$deploylog"; fi
              return 1
         fi >&2
+
+        if test -n "$watcher_pid"
+        then kill "$watcher_pid" >/dev/null 2>&1 || true; fi
 
         update_deployfiles "$prof" "$deploylog" "$include"
 }

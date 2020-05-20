@@ -56,9 +56,12 @@ usage_extra() {
 
     --fast-unsafe         Ignore safety, go fast.  Deploys won't be made,
                             unprocessed logs will be lost.
-    --deploy              Force redeployment, event if benchmarking
+    --force-deploy        Force redeployment, event if benchmarking
                             a single profile.
-    --cls                 Clear screen.
+    --force-genesis       Force genesis regeneration, event if not required
+                            by profile settings and deployment state.
+    --watch-deploy        Do not hide the Nixops deploy log.
+    --cls                 Clear screen, before acting further.
 
   Other OPs:
 
@@ -90,6 +93,8 @@ EOF
 verbose= debug= trace=
 no_deploy=
 force_deploy=
+force_genesis=
+watch_deploy=
 
 self=$(realpath "$0")
 
@@ -99,7 +104,12 @@ main() {
         while test $# -ge 1
         do case "$1" in
            --fast-unsafe | --fu ) no_deploy=t;;
-           --deploy )             force_deploy=t;;
+           --deploy | --force-deploy )
+                                  force_deploy=t;;
+           --genesis | --force-genesis )
+                                  force_genesis=t;;
+           --watch | --watch-deploy )
+                                  watch_deploy=t;;
            --select )             jq_select="jq 'select ($2)'"; shift;;
 
            --cls )                echo -en "\ec">&2;;
@@ -183,13 +193,23 @@ main() {
                 jq-generator | jqg )  op_jq_generator "$@" | ${jq_select};;
                 jq-nodes | jqn )      op_jq_nodes    "$@" | ${jq_select};;
 
-                pgrep )               op_pgrep "$@";;
-                md5sum | md5 | hash ) op_hash "$@";;
+                pgrep )               nixops ssh-for-each --parallel -- pgrep -fal "$@";;
+                grep )                local exp=$1; shift
+                                      nixops ssh-for-each --parallel -- grep "'$exp'" "/var/lib/cardano-node/logs/*" "$@";;
+                md5sum | md5 | hash ) nixops ssh-for-each --parallel -- md5sum "$@";;
 
                 blocks )              op_blocks;;
 
                 eval )                eval "${@@Q}";;
                 * ) usage; exit 1;; esac
+}
+trap atexit EXIT
+trap atexit SIGHUP
+trap atexit SIGINT
+trap atexit SIGTERM
+trap atexit SIGQUIT
+atexit() {
+        pkill -f   "tee ${batch_log}"
 }
 
 ###
@@ -293,18 +313,20 @@ fetch_systemd_unit_startup_logs() {
 
         pushd "${dir}" >/dev/null || return 1
 
+        mkdir -p 'logs/startup/'
         nixops ssh explorer \
           "journalctl --boot 0 -u tx-generator | head -n 100" \
-          > 'logs/log-unit-startup-generator.log'
+          > 'logs/startup/unit-startup-generator.log'
         nixops ssh explorer "journalctl --boot 0 -u cardano-node | head -n 100" \
-          > 'logs/log-unit-startup-explorer.log'
+          > 'logs/startup/unit-startup-explorer.log'
         nixops ssh explorer "journalctl --boot 0 -u cardano-db-sync | head -n 100" \
-          > 'logs/log-unit-startup-db-sync.log'
+          > 'logs/startup/unit-startup-db-sync.log'
 
         for node in $(params producers)
         do nixops ssh "${node}" "journalctl --boot 0 -u cardano-node | head -n 100" \
-             > "logs/log-unit-startup-${node}.log"
+             > "logs/startup/unit-startup-${node}.log"
         done
+
         popd >/dev/null
 }
 
@@ -374,8 +396,8 @@ EOF
       \"logs/block-arrivals.gauge\",
       \"logs/db-analysis.log\",
       \"logs/db-analysis.tar.xz\",
-      \"logs/log-explorer-generator.tar.xz\",
-      \"logs/log-nodes.tar.xz\",
+      \"logs/logs-explorer.tar.xz\",
+      \"logs/logs-nodes.tar.xz\",
 
       \"tools/*.sql\",
       \"tools/*.sh\" ]
@@ -420,13 +442,15 @@ op_wait_for_nonempty_block() {
                    "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq --slurp \"map (.data.msg.txids | select(. == [])) | length\"'")
            echo -ne "\b\b"; printf "%02d" "$e"
            sleep 5; done
-        echo " patience ran out."
+
+        echo " patience ran out, collecting logs from the botched run."
+        op_bench_fetch
+        analyse_tag "${tag}"
         fail "\nNo non-empty blocks reached the explorer in ${patience} seconds -- is the cluster dead (genesis mismatch?)?"
 }
 
 op_wait_for_empty_blocks() {
         local slot_length=20
-        local block_propagation_tolerance=1
         local full_patience="$1"
         local oneshot_action="${2:-true}"
         local patience=${full_patience}
@@ -454,7 +478,7 @@ op_wait_for_empty_blocks() {
                       jq -cj '.blks_txs | join(",") | "["+.+"]"'
                  fi <<<$news
                  ## A reasonable delay to see a new block.
-                 sleep $((slot_length + block_propagation_tolerance))
+                 sleep $slot_length
                  jqtest '.txcounts
                         | length == 0
                           or (all (. == 0) | not)' <<<$news
@@ -511,28 +535,33 @@ EOF
 
         for mach in 'explorer' ${producers[*]}
         do nixops ssh "${mach}" -- \
-             "cd /var/lib/cardano-node/logs &&
-              cat node-*.json > log-\${HOSTNAME}.json &&
-              rm  node-*.json node.json &&
-              tar c --xz                            *.json" |
-           tar x --xz; done
+             "cd /var/lib/cardano-node &&
+              { find logs -type l | xargs rm -f; } &&
+              rm -f logs-${mach} &&
+              ln -sf logs logs-${mach} &&
+              tar c --dereference --xz logs-${mach}
+           " | tar x --xz; done
 
-        echo "--( Packing logs.."
-        local explorer_logs=(
-                generator.json    log-unit-startup-generator.log
-                log-explorer.json log-unit-startup-explorer.log
-                                  log-unit-startup-db-sync.log
+        oprint "packing logs.."
+        local explorer_extra_logs=(
+                unit-startup-generator.log
+                unit-startup-explorer.log
+                unit-startup-db-sync.log
         )
-        tar cf log-explorer-generator.tar.xz --xz -- ${explorer_logs[*]}
-        rm -- ${explorer_logs[*]}
+        tar cf logs-explorer.tar.xz --xz -- \
+          logs-explorer \
+          ${explorer_extra_logs[*]/#/startup\/}
 
-        ## The rest must be node logs..
-        tar cf log-nodes.tar.xz    --xz -- *.json log-unit-startup-*.log
-        rm -f                           -- *.json log-unit-startup-*.log
+        tar cf logs-nodes.tar.xz    --xz -- \
+          logs-node-* \
+          startup/unit-startup-node-*.log
+
+        rm -f -- logs-*/* startup/*
+        rmdir -- logs-*/  startup/
 
         popd >/dev/null
 
-        echo "--( logs collected from run:  ${tag}"
+        oprint "logs collected from run:  ${tag}"
 }
 
 # Keep this at the very end, so bash read the entire file before execution starts.
