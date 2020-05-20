@@ -1,5 +1,7 @@
 { pkgs
 , targetEnv
+, nano
+, small
 , medium               # Standard relay
 , xlarge               # Standard explorer
 , t3-xlarge            # High load relay
@@ -236,10 +238,11 @@ let
   mkNode = args: def:
     recursiveUpdate (
       recursiveUpdate {
-        imports = args.imports ++ (def.imports or []);
         deployment.targetEnv = targetEnv;
         nixpkgs.overlays = pkgs.cardano-ops.overlays;
-      } args)
+      } (args // {
+        imports = args.imports ++ (def.imports or []);
+      }))
       (builtins.removeAttrs def [
         "imports"
         "name"

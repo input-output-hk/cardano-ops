@@ -11,7 +11,7 @@
 { cardano-ops ? { outPath = ./.; rev = "abcdef"; }
 
 # Function arguments to pass to the project
-, projectArgs ? { config = { allowUnfree = false; inHydra = true; }; }
+, projectArgs ? { inherit sourcesOverride; config = { allowUnfree = false; inHydra = true; }; }
 
 # The systems that the jobset will be built for.
 , supportedSystems ? [ "x86_64-linux" "x86_64-darwin" ]
@@ -23,7 +23,7 @@
 , scrubJobs ? true
 
 # Import pkgs
-, pkgs ? import ./nix {}
+, pkgs ? import ./nix { inherit sourcesOverride; }
 }:
 
 with import pkgs.iohkNix.release-lib {

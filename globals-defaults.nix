@@ -14,6 +14,8 @@ in {
 
   environmentName = pkgs.globals.deploymentName;
 
+  sourcesJsonOverride = ./nix + "/sources.${pkgs.globals.environmentName}.json";
+
   dnsZone = "dev.cardano.org";
   domain = "${pkgs.globals.deploymentName}.${pkgs.globals.dnsZone}";
 

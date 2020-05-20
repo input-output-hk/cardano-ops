@@ -12,6 +12,8 @@ let
   cluster = import ../clusters/cardano.nix {
     inherit pkgs;
     inherit (aws) targetEnv;
+    nano = aws.t3a-nano;
+    small = aws.t3a-small;
     medium = aws.t3a-medium;                     # Standard relay
     xlarge = aws.t3a-xlarge;                     # Standard explorer
     t3-xlarge = aws.t3-xlarge;                   # High load relay

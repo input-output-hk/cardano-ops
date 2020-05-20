@@ -57,13 +57,13 @@ in {
     environments = {
       "${globals.environmentName}" = globals.environmentConfig;
     };
-
     nodeConfig = globals.environmentConfig.nodeConfig // {
       hasPrometheus = [ hostAddr globals.cardanoNodePrometheusExporterPort ];
     };
   } // (lib.optionalAttrs (options.services.cardano-node ? cardanoNodePkgs) {
       inherit cardanoNodePkgs;
   });
+
   services.cardano-db-sync = {
     enable = true;
     cluster = globals.environmentName;
@@ -76,6 +76,11 @@ in {
       database = "cexplorer";
     };
   };
+  systemd.services.cardano-db-sync = {
+    serviceConfig = {
+      Group = lib.mkForce "cardano-node";
+    };
+  };
   systemd.services.cardano-explorer-node = {
     wants = [ "cardano-node.service" ];
     serviceConfig.PermissionsStartOnly = "true";
@@ -85,9 +90,10 @@ in {
         echo loop $x: waiting for "${config.services.cardano-db-sync.socketPath}" 5 sec...
       sleep 5
       done
-      chgrp cexplorer "${config.services.cardano-db-sync.socketPath}"
+      # chgrp cexplorer "${config.services.cardano-db-sync.socketPath}"
       chmod g+w "${config.services.cardano-db-sync.socketPath}"
     '';
+    script = "true";
   };
 
   services.cardano-explorer-api.enable = true;

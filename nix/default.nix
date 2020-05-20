@@ -1,16 +1,26 @@
 { system ? builtins.currentSystem
 , crossSystem ? null
-, config ? {} }:
+, config ? {}
+}:
 let
-  sourcePaths = import ./sources.nix { inherit pkgs; };
-
-  iohkNix = import sourcePaths.iohk-nix {};
+  defaultSourcePaths = import ./sources.nix { inherit pkgs; };
 
   # use our own nixpkgs if it exists in our sources,
   # otherwise use iohkNix default nixpkgs.
-  nixpkgs = if (sourcePaths ? nixpkgs)
-    then sourcePaths.nixpkgs
-    else iohkNix.nixpkgs;
+  defaultNixpkgs = if (defaultSourcePaths ? nixpkgs)
+    then defaultSourcePaths.nixpkgs
+    else (import defaultSourcePaths.iohk-nix {}).nixpkgs;
+
+  sourcesOverride = let sourcesFile = ((import defaultNixpkgs { overlays = globals; }).globals).sourcesJsonOverride; in
+    if (builtins.pathExists sourcesFile)
+    then import ./sources.nix { inherit pkgs sourcesFile; }
+    else {};
+
+  sourcePaths = defaultSourcePaths // sourcesOverride;
+
+  iohkNix = import sourcePaths.iohk-nix {};
+
+  nixpkgs = if (sourcesOverride ? nixpkgs) then sourcesOverride.nixpkgs else defaultNixpkgs;
 
   # overlays from ops-lib (include ops-lib sourcePaths):
   ops-lib-overlays = (import sourcePaths.ops-lib {}).overlays;
@@ -36,6 +46,7 @@ let
   # our own overlays:
   local-overlays = [
     (import ./cardano.nix)
+    (import ./benchmarking.nix)
     (import ./packages.nix)
   ];
 
