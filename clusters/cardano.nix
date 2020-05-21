@@ -7,7 +7,7 @@
 , t3-xlarge            # High load relay
 , m5ad-xlarge          # Test node
 , xlarge-monitor       # Standard monitor
-, t3-2xlarge-monitor   # High capacity monitor
+, t3-2xlarge-monitor   # High capacity monitor, explorer
 , ...
 }:
 with pkgs;
@@ -91,10 +91,10 @@ let
       _file = ./cardano.nix;
       deployment.ec2 = {
         region = def.region or "eu-central-1";
-        ebsInitialRootDiskSize = 100;
+        ebsInitialRootDiskSize = if globals.withHighCapacityExplorer then 1000 else 100;
       };
       imports = [
-        xlarge
+        (if globals.withHighCapacityExplorer then t3-2xlarge-monitor else xlarge)
         cardano-ops.roles.explorer
       ]
       # TODO: remove module when the new explorer is available
