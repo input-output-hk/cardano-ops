@@ -12,6 +12,7 @@ pkgs: {
 
   withCardanoDBExtended = true;
   withHighCapacityMonitoring = true;
+  withHighCapacityExplorer = true;
   withHighLoadRelays = true;
 
   initialPythonExplorerDBSyncDone = true;

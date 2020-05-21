@@ -19,7 +19,7 @@ let
     t3-xlarge = aws.t3-xlarge;                   # High load relay
     m5ad-xlarge = aws.m5ad-xlarge;               # Test node
     xlarge-monitor = aws.t3a-xlargeMonitor;      # Standard monitor
-    t3-2xlarge-monitor = aws.t3-2xlargeMonitor;  # High capacity monitor
+    t3-2xlarge-monitor = aws.t3-2xlargeMonitor;  # High capacity monitor, explorer
   };
 
   nodes = filterAttrs (name: node:

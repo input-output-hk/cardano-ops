@@ -49,6 +49,18 @@
         description = "{{$labels.alias}}: byron-proxy block divergence detected for more than 5 minutes";
       };
     }
+    {
+      alert = "explorer_node_db_block_divergence";
+      expr = "abs(cardano_node_ChainDB_metrics_blockNum_int{alias=~\"explorer.*\"} - on() db_block_height{alias=~\"explorer.*\"}) > 5";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: cardano-node db block divergence on explorer detected for more than 5 minutes";
+        description = "{{$labels.alias}}: cardano-node db block divergence detected on explorer of more than 5 blocks for more than 5 minutes";
+      };
+    }
   ] ++ (builtins.concatMap ({region, regionLetter}: [
     {
       alert = "high_tcp_connections_${region}";

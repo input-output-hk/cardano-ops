@@ -32,6 +32,7 @@ in {
   initialPythonExplorerDBSyncDone = false;
 
   withHighCapacityMonitoring = false;
+  withHighCapacityExplorer = false;
   withHighLoadRelays = false;
 
   environments = pkgs.iohkNix.cardanoLib.environments;

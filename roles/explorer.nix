@@ -48,7 +48,10 @@ in {
   services.cardano-node = {
     enable = true;
     inherit nodeId;
-    extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
+    extraArgs = lib.mkForce (if globals.withHighCapacityExplorer then
+      [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M10G" "-RTS" ]
+    else
+      [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ]);
     environment = globals.environmentName;
     environments = {
       "${globals.environmentName}" = globals.environmentConfig;
@@ -59,6 +62,9 @@ in {
   } // (lib.optionalAttrs (options.services.cardano-node ? cardanoNodePkgs) {
       inherit cardanoNodePkgs;
   });
+
+  systemd.services.cardano-node.serviceConfig.MemoryMax = lib.mkForce
+    (if globals.withHighCapacityExplorer then "14G" else "3.5G");
 
   services.cardano-db-sync = {
     enable = true;
@@ -100,6 +106,9 @@ in {
     enable = true;
     package = cardano-rest-pkgs.cardanoRestHaskellPackages.cardano-explorer-api.components.exes.cardano-explorer-api;
   };
+  systemd.services.cardano-explorer-api.startLimitIntervalSec = 0;
+  systemd.services.cardano-explorer-api.serviceConfig.Restart = "always";
+  systemd.services.cardano-explorer-api.serviceConfig.RestartSec = "10s";
 
   services.cardano-submit-api = {
     environment = pkgs.globals.environmentConfig;
@@ -112,6 +121,12 @@ in {
   services.nginx = {
     enable = true;
     package = nginxExplorer;
+    eventsConfig = ''
+      worker_connections 4096;
+    '';
+    appendConfig = ''
+      worker_rlimit_nofile 16384;
+    '';
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;
