@@ -89,6 +89,8 @@ in
       inherit cardanoNodePkgs;
     });
     systemd.services.cardano-node.serviceConfig.MemoryMax = "3.5G";
+    systemd.services.cardano-node.serviceConfig.KillSignal = "SIGINT";
+    systemd.services.cardano-node.serviceConfig.RestartKillSignal = "SIGINT";
     # TODO remove next two line for next release cardano-node 1.7 release:
     systemd.services.cardano-node.scriptArgs = toString cfg.nodeId;
     systemd.services.cardano-node.preStart = ''
