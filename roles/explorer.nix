@@ -106,6 +106,9 @@ in {
     enable = true;
     package = cardano-rest-pkgs.cardanoRestHaskellPackages.cardano-explorer-api.components.exes.cardano-explorer-api;
   };
+  systemd.services.cardano-explorer-api.startLimitIntervalSec = 0;
+  systemd.services.cardano-explorer-api.serviceConfig.Restart = "always";
+  systemd.services.cardano-explorer-api.serviceConfig.RestartSec = "10s";
 
   services.cardano-submit-api = {
     environment = pkgs.globals.environmentConfig;
