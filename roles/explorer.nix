@@ -59,6 +59,7 @@ in {
     nodeConfig = globals.environmentConfig.nodeConfig // {
       hasPrometheus = [ hostAddr globals.cardanoNodePrometheusExporterPort ];
     };
+    systemdSocketActivation = true;
   } // (lib.optionalAttrs (options.services.cardano-node ? cardanoNodePkgs) {
       inherit cardanoNodePkgs;
   });
@@ -82,25 +83,8 @@ in {
     };
 
   };
-  systemd.services.cardano-db-sync = {
-    serviceConfig = {
-      Group = lib.mkForce "cardano-node";
-    };
-  };
-  systemd.services.cardano-explorer-node = {
-    wants = [ "cardano-node.service" ];
-    serviceConfig.PermissionsStartOnly = "true";
-    preStart = ''
-      for x in {1..24}; do
-        [ -S "${config.services.cardano-db-sync.socketPath}" ] && break
-        echo loop $x: waiting for "${config.services.cardano-db-sync.socketPath}" 5 sec...
-      sleep 5
-      done
-      # chgrp cexplorer "${config.services.cardano-db-sync.socketPath}"
-      chmod g+w "${config.services.cardano-db-sync.socketPath}"
-    '';
-    script = "true";
-  };
+  # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
+  systemd.services.cardano-db-sync.serviceConfig.SupplementaryGroups = "cardano-node";
 
   services.cardano-explorer-api = {
     enable = true;
