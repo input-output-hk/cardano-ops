@@ -49,6 +49,9 @@ in
   config = {
 
     environment.systemPackages = [ pkgs.cardano-cli ];
+    environment.variables = {
+      CARDANO_NODE_SOCKET_PATH = cfg.socketPath;
+    };
     services.monitoring-exporters.extraPrometheusExportersPorts = [ monitoringPort ];
 
     networking.firewall = {
