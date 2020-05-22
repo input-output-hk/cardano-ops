@@ -48,7 +48,12 @@ in
 
   config = {
 
-    environment.systemPackages = [ pkgs.cardano-cli ];
+    environment.systemPackages =
+      let completions = pkgs.runCommand "cardano-cli-completions" {} ''
+          mkdir -p $out/etc/bash_completion.d
+          ${pkgs.cardano-cli}/bin/cardano-cli --bash-completion-script cardano-cli > $out/etc/bash_completion.d/cardano-cli
+      '';
+      in [ pkgs.cardano-cli completions ];
     environment.variables = {
       CARDANO_NODE_SOCKET_PATH = cfg.socketPath;
     };

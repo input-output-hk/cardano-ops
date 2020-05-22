@@ -16,6 +16,7 @@ in rec {
   inherit cardano-sl-pkgs cardano-db-sync-pkgs cardano-byron-proxy-pkgs cardano-explorer-app-pkgs
     cardano-rest-pkgs cardanoNodePkgs;
   inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.cardano-cli.components.exes) cardano-cli;
+  inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.cardano-node.components.exes) cardano-node;
   cardano-node-legacy = cardano-sl-pkgs.nix-tools.cexes.cardano-sl-node.cardano-node-simple;
   cardano-node-legacy-config = cardano-sl-pkgs.cardanoConfig; # FIXME: use iohk-nix
 }
