@@ -152,7 +152,7 @@ in {
             root = cardano-explorer-app-pkgs.static.override {
               graphqlApiHost = "${globals.explorerHostName}.${globals.domain}";
               cardanoNetwork = globals.environmentName;
-              gaTrackingId = lib.mkIf (globals.static ? gaTrackingId) globals.static.gaTrackingId;
+              gaTrackingId = globals.static.gaTrackingId or null;
             };
             tryFiles = "$uri $uri/index.html /index.html";
             extraConfig = ''
