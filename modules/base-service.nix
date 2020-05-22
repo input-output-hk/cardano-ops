@@ -61,9 +61,10 @@ in
 
     services.cardano-node = {
       enable = true;
-      extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
+      systemdSocketActivation = true;
+      rtsArgs = [ "-N2" "-A10m" "-qg" "-qb" "-M3G" ];
       environment = globals.environmentName;
-      inherit hostAddr nodeId topology;
+      inherit cardanoNodePkgs hostAddr nodeId topology;
       port = nodePort;
       environments = {
         "${globals.environmentName}" = globals.environmentConfig;
@@ -83,19 +84,17 @@ in
           ]
         ];
       };
-    } // (optionalAttrs (options.services.cardano-node ? cardanoNodePkgs) {
-      inherit cardanoNodePkgs;
-    });
-    systemd.services.cardano-node.serviceConfig.MemoryMax = "3.5G";
-    systemd.services.cardano-node.serviceConfig.KillSignal = "SIGINT";
-    systemd.services.cardano-node.serviceConfig.RestartKillSignal = "SIGINT";
-    # TODO remove next two line for next release cardano-node 1.7 release:
-    systemd.services.cardano-node.scriptArgs = toString cfg.nodeId;
-    systemd.services.cardano-node.preStart = ''
-      if [ -d ${cfg.databasePath}-${toString cfg.nodeId} ]; then
-        mv ${cfg.databasePath}-${toString cfg.nodeId} ${cfg.databasePath}
-      fi
-    '';
+    };
+    systemd.services.cardano-node = {
+      serviceConfig = {
+        MemoryMax = "3.5G";
+        KillSignal = "SIGINT";
+        RestartKillSignal = "SIGINT";
+      };
+    };
+
+    # FIXME: https://github.com/input-output-hk/cardano-node/issues/1023
+    systemd.sockets.cardano-node.bindsTo = [ "cardano-node.service" ];
 
     services.dnsmasq = {
       enable = true;
