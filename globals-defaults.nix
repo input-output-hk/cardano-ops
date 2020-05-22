@@ -18,6 +18,7 @@ in {
 
   dnsZone = "dev.cardano.org";
   domain = "${pkgs.globals.deploymentName}.${pkgs.globals.dnsZone}";
+  relaysNew = pkgs.globals.environmentConfig.relaysNew or "relays-new.${pkgs.globals.domain}";
 
   explorerHostName = "explorer";
   explorerForceSSL = true;
