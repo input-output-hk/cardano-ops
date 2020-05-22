@@ -110,7 +110,12 @@ in reportDeployment (rec {
         ];
         minSeverity = "Debug";
         TracingVerbosity = "MaximalVerbosity";
-        TurnOnLogMetrics = false;
+        TurnOnLogMetrics = true;
+        options = {
+          mapBackends = {
+            "cardano.node-metrics" = [ "KatipBK" ];
+          };
+        };
       };
     }) (benchmarkingTopology.coreNodes or []);
   };
