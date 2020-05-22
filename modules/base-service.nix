@@ -12,15 +12,12 @@ let
   hostName = name: "${name}.cardano";
   staticRouteIp = getStaticRouteIp resources nodes;
 
-  cardanoNodes = filterAttrs
-    (_: node: node.config.services.cardano-node.enable
-           or node.config.services.byron-proxy.enable or false)
-    nodes;
+  deployedProducers = lib.filter (n: nodes ? ${n}) cfg.producers;
 
-  cardanoHostList = lib.mapAttrsToList (nodeName: node: {
+  cardanoHostList = map (nodeName: {
     name = hostName nodeName;
     ip = staticRouteIp nodeName;
-  }) cardanoNodes;
+  }) deployedProducers;
 
   producers = map (n: {
     addr = if (nodes ? ${n}) then hostName n else n;
