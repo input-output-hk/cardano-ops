@@ -113,7 +113,12 @@ in {
       TraceTxOutbound                   = true;
       TraceTxSubmissionProtocol         = true;
 
-      TurnOnLogMetrics = false;
+      TurnOnLogMetrics = true;
+      options = {
+        mapBackends = {
+          "cardano.node-metrics" = [ "KatipBK" ];
+        };
+      };
     });
 
     signingKey = lib.mkForce "/var/lib/keys/cardano-node-signing-gen";
