@@ -5,7 +5,7 @@ let
   nodeId = toString config.node.nodeId;
   vrfKey = ../keys/node-keys/node-vrf + "${nodeId}.skey";
   kesKey = ../keys/node-keys/node-kes + "${nodeId}.skey";
-  operationalCertificate = ../keys/node-keys/delegate + "${nodeId}.opcert";
+  operationalCertificate = ../keys/node-keys/node + "${nodeId}.opcert";
 in {
 
   imports = [
@@ -13,7 +13,6 @@ in {
   ];
 
   services.cardano-node = {
-    consensusProtocol = globals.environmentConfig.consensusProtocol;
     kesKey = "/var/lib/keys/cardano-node-kes-signing";
     vrfKey = "/var/lib/keys/cardano-node-vrf-signing";
     operationalCertificate = "/var/lib/keys/cardano-node-operational-cert";
