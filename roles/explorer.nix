@@ -45,24 +45,11 @@ in {
     enable = true;
     whitelistPath = cardano-explorer-app-pkgs.whitelist;
   };
-  services.cardano-node = {
-    enable = true;
-    inherit nodeId;
-    extraArgs = lib.mkForce (if globals.withHighCapacityExplorer then
-      [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M10G" "-RTS" ]
+  services.cardano-node.rtsArgs = lib.mkForce
+    (if globals.withHighCapacityExplorer then
+      [ "-N2" "-A10m" "-qg" "-qb" "-M10G" ]
     else
-      [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ]);
-    environment = globals.environmentName;
-    environments = {
-      "${globals.environmentName}" = globals.environmentConfig;
-    };
-    nodeConfig = globals.environmentConfig.nodeConfig // {
-      hasPrometheus = [ hostAddr globals.cardanoNodePrometheusExporterPort ];
-    };
-    systemdSocketActivation = true;
-  } // (lib.optionalAttrs (options.services.cardano-node ? cardanoNodePkgs) {
-      inherit cardanoNodePkgs;
-  });
+      [ "-N2" "-A10m" "-qg" "-qb" "-M3G" ]);
 
   systemd.services.cardano-node.serviceConfig.MemoryMax = lib.mkForce
     (if globals.withHighCapacityExplorer then "14G" else "3.5G");
@@ -83,8 +70,14 @@ in {
     };
 
   };
-  # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
-  systemd.services.cardano-db-sync.serviceConfig.SupplementaryGroups = "cardano-node";
+
+  systemd.services.cardano-db-sync.serviceConfig = {
+    # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
+    SupplementaryGroups = "cardano-node";
+    # FIXME: https://github.com/input-output-hk/cardano-db-sync/issues/102
+    Restart = "always";
+    RestartSec = "30s";
+  };
 
   services.cardano-explorer-api = {
     enable = true;

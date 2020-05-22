@@ -22,7 +22,8 @@ in
 
   services.cardano-node = {
     enable = true;
-    extraArgs = [ "+RTS" "-N2" "-A10m" "-qg" "-qb" "-M3G" "-RTS" ];
+    inherit cardanoNodePkgs;
+    rtsArgs = [ "-N2" "-A10m" "-qg" "-qb" "-M3G"];
     environment = globals.environmentName;
     port = nodePort;
     environments = {
@@ -43,9 +44,7 @@ in
       edgeHost = globals.relaysNew;
       edgeNodes = [];
     };
-  } // (optionalAttrs (options.services.cardano-node ? cardanoNodePkgs) {
-      inherit cardanoNodePkgs;
-  });
+  };
   systemd.services.cardano-node.serviceConfig.MemoryMax = "3.5G";
   # TODO remove next two line for next release cardano-node 1.7 release:
   systemd.services.cardano-node.preStart = ''
