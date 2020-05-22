@@ -70,8 +70,14 @@ in {
     };
 
   };
-  # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
-  systemd.services.cardano-db-sync.serviceConfig.SupplementaryGroups = "cardano-node";
+
+  systemd.services.cardano-db-sync.serviceConfig = {
+    # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
+    SupplementaryGroups = "cardano-node";
+    # FIXME: https://github.com/input-output-hk/cardano-db-sync/issues/102
+    Restart = "always";
+    RestartSec = "30s";
+  };
 
   services.cardano-explorer-api = {
     enable = true;
