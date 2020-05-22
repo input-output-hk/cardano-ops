@@ -114,7 +114,7 @@ let
       route53RecordSets = listToAttrs (map (relay: nameValuePair "relays-new-${relay.name}" (
         { resources, ... }: {
           zoneName = "${pkgs.globals.dnsZone}.";
-          domainName = "relays-new.${pkgs.globals.domain}.";
+          domainName = "${pkgs.globals.relaysNew}.";
           recordValues = [ resources.machines.${relay.name} ];
           recordType = "A";
           setIdentifier = relay.name;

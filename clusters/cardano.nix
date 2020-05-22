@@ -103,9 +103,9 @@ let
       services.monitoring-exporters.extraPrometheusExportersPorts =
         [ globals.cardanoNodePrometheusExporterPort ];
 
-      services.cardano-node.producers = if (globals.environmentConfig ? relaysNew)
-        then [ globals.environmentConfig.relaysNew ]
-        else (map (n: n.name) (if relayNodes != [] then relayNodes else coreNodes));
+      services.cardano-node.producers = if (relayNodes != [])
+        then [ pkgs.globals.relaysNew ]
+        else (map (n: n.name) coreNodes);
 
       node = {
         roles.isExplorer = true;

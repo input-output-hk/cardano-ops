@@ -40,7 +40,7 @@ in
     };
     topology = iohkNix.cardanoLib.mkEdgeTopology {
       inherit (cfg) port;
-      edgeHost = iohkNix.cardanoLib.environments."${globals.environmentName}".relaysNew;
+      edgeHost = globals.relaysNew;
       edgeNodes = [];
     };
   } // (optionalAttrs (options.services.cardano-node ? cardanoNodePkgs) {
