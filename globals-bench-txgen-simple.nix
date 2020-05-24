@@ -37,6 +37,8 @@ let
     __trace "DEPLOYMENT_METADATA=${__toFile "nixops-metadata.json" (__toJSON metadata)}" x;
 in reportDeployment (rec {
 
+  networkName = "Benchmarking, size ${toString (__length benchmarkingTopology.coreNodes)}";
+
   withMonitoring = false;
   withLegacyExplorer = false;
 
@@ -44,7 +46,7 @@ in reportDeployment (rec {
   sourcesJsonOverride = ./nix/sources.bench-txgen-simple.json;
 
   environmentConfig = rec {
-    consensusProtocol = ""; ## We're not at Shelley stage yet.
+    consensusProtocol = "";           ## We're not at Shelley stage yet.
 
     relays = "relays.${pkgs.globals.domain}";
     edgePort = pkgs.globals.cardanoNodePort;

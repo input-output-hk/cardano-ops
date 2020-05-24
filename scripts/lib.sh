@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 fail() {
-	echo -e "ERROR:  $1" >&2
+	fprint "$*"
 	exit 1
 }
 
@@ -36,6 +36,10 @@ dprint() {
 }
 export -f dprint
 
+errprint() {
+        echo -e "***\n*** ERROR:  $*\n***" >&2
+}
+
 fprint() {
         echo "-- FATAL:  $*" >&2
 }
@@ -69,7 +73,11 @@ rjqtest() {
 }
 
 timestamp() {
-        date +'%Y''%m''%d''%H''%S'
+        date +'%Y''%m''%d''%H''%M'
+}
+
+words_to_lines() {
+        sed 's_ _\n_g'
 }
 
 generate_mnemonic()

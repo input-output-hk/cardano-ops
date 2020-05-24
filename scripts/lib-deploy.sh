@@ -107,9 +107,26 @@ EOF
         fi
 }
 
-nixops_deploy() {
-        local prof=$1 include=$2 deploylog=$3
+deploystate_destroy() {
+        local cmd=()
+
+        oprint "destroying deployment"
+        rm -f "${deployfile[@]}"
+        if nixops 'info' >/dev/null 2>&1
+        then nixops 'destroy' --confirm
+             nixops 'delete'  --confirm; fi
+}
+
+deploystate_create() {
+        nixops create ./deployments/cardano-aws.nix -I nixpkgs=./nix
+}
+
+deploystate_deploy_profile() {
+        local prof=$1 include=$2 deploylog=$3 full=
         local node_rev benchmarking_rev ops_rev ops_checkout_state
+
+        if test "$include" = "$(params all-machines)"
+        then include=; full='(full)'; fi
 
         benchmarking_rev=$(jq --raw-output '.["cardano-benchmarking"].rev' nix/sources.json)
         node_rev=$(jq --raw-output '.["cardano-node"].rev' nix/sources.bench-txgen-simple.json)
@@ -119,7 +136,7 @@ nixops_deploy() {
         to=${include:-the entire cluster}
 
         cat <<EOF
---( Deploying profile ${prof} to:  ${to#--include }
+--( deploying profile ${prof} to:  ${to#--include }
 --(   node:          ${node_rev}
 --(   benchmarking:  ${benchmarking_rev}
 --(   ops:           ${ops_rev} / ${ops_branch}  ${ops_checkout_state}

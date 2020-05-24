@@ -2,26 +2,36 @@
 # shellcheck disable=1091
 
 tmjq() {
-        jq .meta "${archive}/$1/"meta.json  --raw-output
+        jq .meta "${tagroot}/$1/"meta.json  --raw-output
 }
 
 tag_report_name() {
-        local tag=${1?missing tag} meta prof
-        local metafile=${archive}/$tag/meta.json
+        local tag metafile meta prof suffix=
+        tag=${1:-$(cluster_last_meta_tag)}
+        metafile=${tagroot}/$tag/meta.json
         meta=$(jq .meta "$metafile" --raw-output)
         prof=$(jq .profile --raw-output <<<$meta)
-        date=$(date +'%Y'-'%m'-'%d'-'%H.%S' --date=@"$(jq .timestamp <<<$meta)")
+        date=$(date +'%Y'-'%m'-'%d'-'%H.%M' --date=@"$(jq .timestamp <<<$meta)")
 
         test -n "$meta" -a -n "$prof" ||
                 fail "Bad tag meta.json format:  $metafile"
 
-        echo "$date.$prof"
+        if is_run_broken "$tag"
+        then suffix='broken'; fi
+
+        echo "$date.$prof${suffix:+.$suffix}"
 }
 
 package_tag() {
-        local tag=$1 package report_name
+        local tag package report_name
+        tag=${1:-$(cluster_last_meta_tag)}
         report_name=$(tag_report_name "$tag")
-        package=$report_name.tar.xz
+
+        if is_run_broken "$tag"
+        then resultroot=$(realpath ../bench-results-bad)
+        else resultroot=$(realpath ../bench-results); fi
+
+        package=${resultroot}/$report_name.tar.xz
 
         oprint "Packaging $tag as:  $package"
         ln -sf "./runs/$tag" "$report_name"
@@ -31,8 +41,8 @@ package_tag() {
 
 analyse_tag() {
         local tag dir meta
-        tag=${1?ERROR:  analyse_tag reqires a tag}
-        dir="${archive}/${tag}"
+        tag=${1:-$(cluster_last_meta_tag)}
+        dir="${tagroot}/${tag}"
 
         pushd "${dir}" >/dev/null || return 1
         rm -rf 'analysis'
@@ -58,8 +68,8 @@ analyse_tag() {
 
         declare -A msgtys
         local mach msgtys=() producers tnum sub_tids
-        producers=($(jq '.nixops.benchmarkingTopology.coreNodes
-                        | map(.name) | join(" ")' --raw-output <<<$meta))
+        producers=($(jq '.machine_info | keys | join(" ")
+                        ' --raw-output <'../deployment-explorer.json'))
 
         for mach in explorer ${producers[*]}
         do echo -n " msgtys:${mach}"
@@ -73,7 +83,7 @@ analyse_tag() {
 
         echo -n " node-to-node-submission-tids"
         sub_tids="$(../tools/generator-logs.sh log-tids \
-                      logs-explorer/generator.json)"
+                      logs-explorer/generator.json || true)"
         for tnum in $(seq 0 $(($(echo "$sub_tids" | wc -w) - 1)))
         do echo -n " node-to-node-submission:${tnum}"
            ../tools/generator-logs.sh tid-trace "${tnum}" \
@@ -108,7 +118,7 @@ analyse_tag() {
         fi
         patch_local_tag "$tag"
 
-        rm -rf analysis/ logs-node-*/ logs-explorer/
+        rm -rf analysis/ logs-node-*/ logs-explorer/ startup/
 
         popd >/dev/null
 
@@ -118,7 +128,7 @@ analyse_tag() {
 tag_format_timetoblock_header="tx id,tx time,block time,block no,delta t"
 patch_local_tag() {
         local tag=${1?missing tag} target
-        target=${archive}/${tag}
+        target=${tagroot}/${tag}
         cd "${target}" >/dev/null || return 1
 
         if test "$(head -n1 analysis/timetoblock.csv)" != "${tag_format_timetoblock_header}"

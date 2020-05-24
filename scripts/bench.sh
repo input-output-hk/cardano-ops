@@ -39,13 +39,18 @@ USAGE:  $(basename "$0") OPTIONS.. [OP=bench-profile] OP-ARGS..
 
     profiles [PROF=default]..
                           Run benchmark for a list of profiles.
-    profiles 'jq(JQEXP)'  Run benchmark across all profiles matching JQEXP.
-                          Run benchmark for a single profile.
     profiles all          Run benchmark across all profiles in ${paramsfile}.
+    profiles 'jq(JQEXP)'  Run benchmark across all profiles matching JQEXP.
+    profiles-jq JQEXP      ...
 
     list-profiles | ps    List available benchmark profiles.
     query-profiles JQEXP  Query profiles using 'jq'.
+
     list-runs | ls        List accumulated benchmark runs.
+    fetch TAG             Fetch benchmark run logs.
+    analyse TAG           Analyse benchmark run logs.
+    mark-run-broken TAG   Mark a benchmark run as broken.
+    package TAG           Package a benchmark run.
 
 EOF
 }
@@ -65,8 +70,9 @@ usage_extra() {
 
   Other OPs:
 
-    bench-start           Cycle explorer & all nodes, and start the generator.
-    bench-fetch           Fetch cluster logs.
+    destroy               Release all cloud resources.
+    recreate-cluster N [PROF=default]
+                          Same as destroy + init N + deploy PROF.
 
     stop                  Stop the cluster, including all journald instances.
 
@@ -86,6 +92,9 @@ usage_extra() {
                             Log entries are sorted by timestamp.
 
     blocks                'MsgBlock' messages seen by the explorer, incl. TxIds.
+    grep                  For each host:  grep "\$1" /var/lib/cardano-node/logs/*
+    pgrep                 For each host:  pgrep -fal \$*
+    time                  For each host:  date +%s
 
 EOF
 }
@@ -95,6 +104,8 @@ no_deploy=
 force_deploy=
 force_genesis=
 watch_deploy=
+
+generator_startup_delay=25
 
 self=$(realpath "$0")
 
@@ -137,39 +148,58 @@ main() {
                 * ) params_check;; esac
 
         case "${op}" in
-                init-params | init ) params_init "$@";;
+                init-params | init )  params_init "$@";;
                 reinit-params | reinit )
                                       local node_count
                                       node_count=$(parmetajq '.node_names | length')
                                       if test -z "$node_count"
                                       then fail "reinit:  cannot get node count from params file -- use init instead."; fi
                                       params_init "$node_count" "$@";;
-                check-genesis-age | check-genesis | genesis-age | age )
-                                      deploystate_check_deployed_genesis_age "$@";;
-                genesis )             profile_genesis_byron "$@";;
+                recreate-cluster | recreate )
+                                      params_recreate_cluster "$@";;
 
                 deploy )              profile_deploy "$@";;
                 update-deployfiles | update )
                                       update_deployfiles "$@";;
-                bench-start | start )
-                                      op_bench_start "$@";;
-                bench-fetch | fetch | f )
+                destroy )             deploystate_destroy;;
+
+                check-genesis-age | check-genesis | genesis-age | age )
+                                      deploystate_check_deployed_genesis_age "$@";;
+                genesis )             profile_genesis_byron "$@";;
+
+                wait-for-empty-blocks | wait-empty | wait )
+                                      op_wait_for_empty_blocks "$@";;
+                stop )                op_stop "$@";;
+                fetch | f )           op_stop
                                       op_bench_fetch "$@";;
-                bench-analyse | analyse | a )
-                                      export archive=$(realpath ./runs)
+                analyse | a )
+                                      export tagroot=$(realpath ./runs)
                                       analyse_tag "$@";;
-                bench-package | package | pkg )
-                                      export archive=$(realpath ./runs)
+                mark-run-broken | mark-broken | broken )
+                                      mark_run_broken "$@";;
+                package | pkg )
+                                      tagroot=$(realpath ./runs)
+                                      resultroot=$(realpath ../bench-results)
+                                      export tagroot resultroot
                                       package_tag "$@";;
 
                 list-profiles | ps )  rparmjq 'del(.meta) | keys';;
-                query-profiles | query | qps )
-                                      params query-profiles "$@";;
+                query-profiles | query | qps | q )
+                                      params query-profiles "${@:-.}" |
+                                        words_to_lines | jq --raw-input |
+                                        jq --slurp 'sort | .[]' -C;;
+                show-profile | show | s )
+                                      local prof=${1:-default}
+                                      prof=$(params resolve-profile "$prof")
+                                      profjq "$prof" '.';;
 
                 bench-all | all )     op_bench 'all';;
                 bench-profile | profiles | profile | p )
                                       op_bench "$@";;
-                smoke-test | smoke | s )
+                profiles-jq | pjq )
+                                      local q=$1; shift
+                                      op_bench "jq($q)" "$@";;
+                smoke-test | smoke )
                                       no_deploy=t
                                       op_bench 'smoke';;
 
@@ -178,10 +208,6 @@ main() {
                 archive-runs | archive )
                                       mkdir -p  'runs-archive'
                                       mv runs/* 'runs-archive';;
-
-                wait-for-empty-blocks | wait-empty | wait )
-                                      op_wait_for_empty_blocks "$@";;
-                stop )                op_stop "$@";;
 
                 split-bench-log | split )
                                       op_split_benchmarking_log "$@";;
@@ -194,9 +220,10 @@ main() {
                 jq-nodes | jqn )      op_jq_nodes    "$@" | ${jq_select};;
 
                 pgrep )               nixops ssh-for-each --parallel -- pgrep -fal "$@";;
-                grep )                local exp=$1; shift
+                grep )                local exp=${1?Usage:  grep EXPR}; shift
                                       nixops ssh-for-each --parallel -- grep "'$exp'" "/var/lib/cardano-node/logs/*" "$@";;
                 md5sum | md5 | hash ) nixops ssh-for-each --parallel -- md5sum "$@";;
+                time )                nixops ssh-for-each --parallel -- date +%s;;
 
                 blocks )              op_blocks;;
 
@@ -209,7 +236,7 @@ trap atexit SIGINT
 trap atexit SIGTERM
 trap atexit SIGQUIT
 atexit() {
-        pkill -f   "tee ${batch_log}"
+        true # pkill -f   "tee ${batch_log}"
 }
 
 ###
@@ -246,10 +273,22 @@ bench_profile() {
         deploylog='./last-deploy.log'
         if ! test -f "${deploylog}" -a -n "${no_deploy}"
         then profile_deploy "${prof}"; fi
-        op_bench_start "${prof}" "${deploylog}"
-        op_bench_fetch
 
-        export archive=$(realpath ./runs)
+        local tag
+        if ! op_bench_start "${prof}" "${deploylog}"
+        then tag=$(cluster_last_meta_tag)
+             process_broken_run "$tag"
+             return 1; fi
+        tag=$(cluster_last_meta_tag)
+
+        oprint "$(date), termination condition satisfied, stopping cluster."
+        op_stop
+        op_bench_fetch
+        oprint "concluded run:  ${tag}"
+
+        tagroot=$(realpath ./runs)
+        resultroot=$(realpath ../bench-results)
+        export tagroot resultroot
         local tag
         tag=$(cluster_last_meta_tag)
         analyse_tag "${tag}"
@@ -281,29 +320,31 @@ op_bench_start() {
         nixops ssh-for-each --parallel "systemctl start systemd-journald"
         sleep 3s
         nixops ssh-for-each --parallel "systemctl start cardano-node"
-        nixops ssh explorer "systemctl start cardano-explorer-node cardano-db-sync 2>/dev/null"
+        nixops ssh explorer "systemctl start cardano-explorer-node cardano-db-sync"
 
         deploystate_check_deployed_genesis_age
+
+        oprint "waiting ${generator_startup_delay}s for the nodes to establish business.."
+        sleep ${generator_startup_delay}
 
         tag=$(generate_run_id "${prof}")
         dir="./runs/${tag}"
         oprint "creating new run:  ${tag}"
         op_register_new_run "${prof}" "${tag}" "${deploylog}"
 
-        time {
-          oprint "$(date), starting generator.."
-          nixops ssh explorer "systemctl start tx-generator"
+        time { oprint "$(date), starting generator.."
+               nixops ssh explorer "systemctl start tx-generator"
 
-          op_wait_for_nonempty_block 200
+               op_wait_for_nonempty_block 200
 
-          op_wait_for_empty_blocks \
-            "$(jq ".[\"${prof}\"].run_params.finish_patience" <${paramsfile})" \
-            fetch_systemd_unit_startup_logs
-        }
-
-        oprint "$(date), termination condition satisfied, stopping cluster."
+               op_wait_for_empty_blocks \
+                 "$(profjq "${prof}" .run.finish_patience)" \
+                 fetch_systemd_unit_startup_logs
+               ret=$?
+             }
         op_stop
-        oprint "concluded run:  ${tag}"
+
+        return $ret
 }
 
 fetch_systemd_unit_startup_logs() {
@@ -370,39 +411,30 @@ EOF
         local        metafile="${dir}"/meta.json
         ln -sf    "${metafile}" last-meta.json
         jq      > "${metafile}" "
-{ meta: {
-    timestamp:         ${stamp},
-    date:              \"${date}\",
-    benchmarking:      $(jq '.["cardano-benchmarking"].rev' nix/sources.json),
-    node:              $(jq '.["cardano-node"].rev'         nix/sources.bench-txgen-simple.json),
-    \"db-sync\":       $(jq '.["cardano-db-sync"].rev'      nix/sources.bench-txgen-simple.json),
-    tag:               \"${tag}\",
-    profile:           \"${prof}\",
-    generator_params:  $(jq ."[\"${prof}\"]" "${paramsfile}" |
-                         sed 's_^_      _'),
-    ops:               \"$(git rev-parse HEAD)\",
-    modified:          $(if git diff --quiet --exit-code
-                       then echo false; else echo true; fi),
-    manifest: [
-      \"${date}\",
-      \"${paramsfilename}\",
-      \"${deployfilename[explorer]}\",
-      \"${deployfilename[producers]}\",
-      \"meta.json\",
+{ meta:
+  { tag:               \"${tag}\"
+  , profile:           \"${prof}\"
+  , timestamp:         ${stamp}
+  , date:              \"${date}\"
+  , profile_content:   $(profjq "${prof}" .)
+  , manifest:
+    [ \"${date}\"
+    , \"${paramsfilename}\"
+    , \"${deployfilename[explorer]}\"
+    , \"${deployfilename[producers]}\"
+    , \"meta.json\"
 
-      \"meta/cluster.raw.json\",
+    , \"meta/cluster.raw.json\"
 
-      \"logs/deploy.log\",
-      \"logs/block-arrivals.gauge\",
-      \"logs/db-analysis.log\",
-      \"logs/db-analysis.tar.xz\",
-      \"logs/logs-explorer.tar.xz\",
-      \"logs/logs-nodes.tar.xz\",
+    , \"logs/deploy.log\"
+    , \"logs/block-arrivals.gauge\"
+    , \"logs/db-analysis.log\"
+    , \"logs/db-analysis.tar.xz\"
+    , \"logs/logs-explorer.tar.xz\"
+    , \"logs/logs-nodes.tar.xz\"
 
-      \"tools/*.sql\",
-      \"tools/*.sh\" ]
-    , nixops_metafile: \"${nixops_meta}\"
-    , nixops:          $(jq . "${nixops_meta}")
+    , \"tools/*.sql\"
+    , \"tools/*.sh\" ]
   }
 , hostname:
   $(jq 'to_entries
@@ -430,7 +462,7 @@ op_wait_for_nonempty_block() {
         start=$(date +%s)
         patience_until=$((start + patience))
 
-        echo -n "--( Waiting for a non-empty block on explorer (patience for ${patience}s).  Seen empty: 00"
+        echo -n "--( waiting for a non-empty block on explorer (patience for ${patience}s).  Seen empty: 00"
         while now=$(date +%s); test "${now}" -lt ${patience_until}
         do r=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq \"select(.data.msg.txids != [])\" | wc -l'")
            if test "$r" -ne 0
@@ -443,22 +475,22 @@ op_wait_for_nonempty_block() {
            echo -ne "\b\b"; printf "%02d" "$e"
            sleep 5; done
 
-        echo " patience ran out, collecting logs from the botched run."
-        op_bench_fetch
-        analyse_tag "${tag}"
-        fail "\nNo non-empty blocks reached the explorer in ${patience} seconds -- is the cluster dead (genesis mismatch?)?"
+        echo " patience ran out, stopping the cluster and collecting logs from the botched run."
+        process_broken_run "$tag"
+        errprint "No non-empty blocks reached the explorer in ${patience} seconds -- is the cluster dead (genesis mismatch?)?"
 }
 
 op_wait_for_empty_blocks() {
         local slot_length=20
         local full_patience="$1"
         local oneshot_action="${2:-true}"
-        local patience=${full_patience}
+        local patience=$full_patience
+        local anyblock_patience=$full_patience
 
-        echo -n "--( Waiting for empty blocks (txcounts): "
+        echo -n "--( waiting for ${full_patience} empty blocks (txcounts): "
         local last_blkid='absolut4ly_n=wher'
         local news=
-        while test ${patience} -gt 0
+        while test $patience -gt 1 -a $anyblock_patience -gt 1
         do while news=$(nixops ssh explorer -- sh -c "'set -euo pipefail; { echo \"{ data: { msg: { blkid: 0, txids: [] }}}\"; tac /var/lib/cardano-node/logs/node.json; } | grep -F MsgBlock | jq --compact-output \".data.msg | { blkid: .blkid, tx_count: (.txids | length) } \"'" |
                         sed -n '0,/'$last_blkid'/ p' |
                         head -n-1 |
@@ -481,19 +513,27 @@ op_wait_for_empty_blocks() {
                  sleep $slot_length
                  jqtest '.txcounts
                         | length == 0
-                          or (all (. == 0) | not)' <<<$news
+                          or (all (. == 0) | not)' <<<$news &&
+                 test "$anyblock_patience" -gt 1
            do if jqtest '.txcounts | length != 0' <<<$news
               then patience=${full_patience}
-                   test -z "${verbose}" || echo -n "=${patience}"; fi; done
+                   anyblock_patience=${full_patience}
+                   test -z "${verbose}" || echo -n "=${patience}"
+              else anyblock_patience=$((anyblock_patience - 1)); fi; done
            patience=$((patience - 1))
            test -z "${verbose}" || echo -n "p${patience}"
         done | tee "last-run/logs/block-arrivals.gauge"
         echo
+
+        vprint "test termination:  patience=$patience.  anyblock_patience=$anyblock_patience"
+        if test "$anyblock_patience" -le 1
+        then errprint "No blocks reached the explorer in ${full_patience} seconds -- has the cluster died?"
+             return 1; fi
 }
 
 op_bench_fetch() {
         local tag dir components
-        tag=$(cluster_last_meta_tag)
+        tag=${1:-$(cluster_last_meta_tag)}
         dir="./runs/${tag}"
 
         oprint "run directory:  ${dir}"
@@ -542,22 +582,25 @@ EOF
               tar c --dereference --xz logs-${mach}
            " | tar x --xz; done
 
-        oprint "packing logs.."
+        oprint "repacking logs.."
         local explorer_extra_logs=(
                 unit-startup-generator.log
                 unit-startup-explorer.log
                 unit-startup-db-sync.log
         )
-        tar cf logs-explorer.tar.xz --xz -- \
-          logs-explorer \
-          ${explorer_extra_logs[*]/#/startup\/}
 
-        tar cf logs-nodes.tar.xz    --xz -- \
-          logs-node-* \
-          startup/unit-startup-node-*.log
+        { find logs-explorer/ \
+               ${explorer_extra_logs[*]/#/startup\/} \
+               -type f || true
+        } | xargs tar cf logs-explorer.tar.xz --xz --
+
+        { find logs-node-*/ \
+               startup/unit-startup-node-*.log \
+               -type f || true
+        } | xargs tar cf logs-nodes.tar.xz    --xz --
 
         rm -f -- logs-*/* startup/*
-        rmdir -- logs-*/  startup/
+        rmdir -- logs-*/  startup/ || true
 
         popd >/dev/null
 
@@ -565,7 +608,4 @@ EOF
 }
 
 # Keep this at the very end, so bash read the entire file before execution starts.
-batch_log=runs/$(timestamp).batch.log
-ln -sf "${batch_log}" last-batch.log
-main "$@" 2>&1 |
-  tee "${batch_log}"
+main "$@"

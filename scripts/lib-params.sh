@@ -8,6 +8,20 @@ params_check() {
                 fail "missing cluster benchmark parameters, consider running:  $(basename "${self}") init NODECOUNT"
 }
 
+params_recreate_cluster() {
+        local n=$1 prof=${2:-default}
+
+        oprint "reconfiguring cluster to size $n, profile $prof"
+        deploystate_destroy
+
+        params_init "$n"
+        deploystate_create
+
+        ## This can be done only after the paramsfile is updated.
+        prof=$(params resolve-profile "$prof")
+        profile_deploy "$prof"
+}
+
 ## This sets up the cluster configuration file,
 ## 'benchmarking-cluster-params.json', for:
 ##   1. a given protocol era, and
@@ -23,12 +37,13 @@ params_check() {
 params_init() {
         local node_count="${1?USAGE:  init-cluster NODECOUNT [PROTOCOL-ERA=byron]}"
         local era="${2:-byron}"
-        if test $((node_count + 0)) -ne ${node_count}
+        if test $((node_count + 0)) -ne $node_count
         then fail "this operation requires a node count as an integer argument."
         fi
-        jq --null-input '
+        oprint "re-deriving cluster parameters for size $node_count"
+        jq --null-input --argjson node_count "$node_count" '
 def profile_name($gtor; $gsis):
-  [ "dist'${node_count}'"
+  [ "dist\($node_count)"
   , ($gtor.txs         | tostring) + "tx"
   , ($gtor.add_tx_size | tostring) + "b"
   , ($gtor.tps         | tostring) + "tps"
@@ -49,18 +64,18 @@ def profile_name($gtor; $gsis):
     }
   , { name: "small"
     , txs: 1000,  add_tx_size: 100, io_arity: 1,  tps: 100
-    , init_cooldown: 25, finish_patience: 5 }
+    , init_cooldown: 25, finish_patience: 4 }
   , { name: "small-32k"
     , txs: 1000,  add_tx_size: 100, io_arity: 1,  tps: 100
-    , init_cooldown: 25, finish_patience: 5
+    , init_cooldown: 25, finish_patience: 4
     , genesis_profile: 6
     }
   , { name: "edgesmoke"
     , txs: 100,   add_tx_size: 100, io_arity: 1,  tps: 100
-    , init_cooldown: 25, finish_patience: 2 }
+    , init_cooldown: 25, finish_patience: 3 }
   , { name: "smoke"
     , txs: 100,   add_tx_size: 100, io_arity: 1,  tps: 100
-    , init_cooldown: 25, finish_patience: 5 }
+    , init_cooldown: 25, finish_patience: 4 }
   ] as $generator_aux_profiles
 
 | [ { max_block_size: 2000000 }
@@ -80,7 +95,7 @@ def profile_name($gtor; $gsis):
 
 | { byron:
     { n_poors:               128
-    , n_delegates:           '${node_count}'
+    , n_delegates:           $node_count
       ## Note, that the delegate count doesnt have to match cluster size.
     , delegate_share:        0.9
     , avvm_entries:          128
@@ -91,30 +106,32 @@ def profile_name($gtor; $gsis):
 | { slot_duration:           20000
   } as $genesis_defaults
 
-| { init_cooldown:           60
+| { init_cooldown:           120
   , single_threaded:         true
   , tx_fee:                  10000000
   } as $generator_defaults
 
-| { finish_patience:         5
+| { finish_patience:         7
   } as $run_defaults
 
 ## For all IO arities and block sizes:
-| [[ ($generator_profiles
+| [[ $genesis_profiles
+   , ($generator_profiles
      | ( $generator_aux_profiles | map(.name | {key: ., value: null})
        | from_entries) as $aux_names
      | map (select ((.name // "") | in($aux_names) | not)))
-   , $genesis_profiles
    ]
    | combinations
    ]
-  + ($generator_aux_profiles
-    | map ([ . | del(.genesis_profile)
-           , $genesis_profiles[.genesis_profile // 0]
-             // error("in aux profile \(.name):  no genesis profile with index \(.genesis_profile)")]))
+| . +
+  ( $generator_aux_profiles
+  | map ([ $genesis_profiles[.genesis_profile // 0]
+           // error("in aux profile \(.name):
+                     no genesis profile with index \(.genesis_profile)")
+         , . | del(.genesis_profile)]))
 | map
-  ( .[0] as $generator
-  | .[1] as $genesis
+  ( .[0] as $genesis
+  | .[1] as $generator
   | { "\($generator.name // profile_name($generator; $genesis))":
       { generator:
         ($generator_defaults +
@@ -124,13 +141,13 @@ def profile_name($gtor; $gsis):
         , inputs_per_tx:   $generator.io_arity
         , outputs_per_tx:  $generator.io_arity
         })
-      , run_params:
+      , run:
         ($run_defaults +
         { finish_patience:
             ## TODO:  fix ugly
             ($generator.finish_patience // $run_defaults.finish_patience)
         })
-      , genesis_params:
+      , genesis:
         ($common_genesis_params +
          ($era_genesis_params."'"$era"'" // error("era is null")) +
          $genesis_defaults +
@@ -183,9 +200,14 @@ parmjqtest() {
 }
 
 query_profiles() {
-        params profiles | sed 's_ _\n_g' |
+        params profiles | words_to_lines |
         jq . --raw-input |
-        jq '( map ({key: ., value: 1}) | from_entries) as $profs
+        jq 'def among($setarr):
+              tostring | in ($setarr | map({ key: tostring, value: 1}) | from_entries);
+            def matrix_blks_by_ios($blks; $ios):
+              (.generator.inputs_per_tx | among($blks)) and (.genesis.max_block_size | among($ios));
+
+            ( map ({key: ., value: 1}) | from_entries) as $profs
             | $params[0] | to_entries
             | map( select(.key | in($profs))
                  | . + { value: (.value + { name: .key }) }
@@ -201,6 +223,8 @@ params() {
 
         local cmd="$1"; shift
         case "$cmd" in
+                all-machines )
+                               echo "explorer $(params producers)";;
                 producers )    rparmjq ' .
                                       | (.meta.node_names | join(" "))';;
                 profiles )     rparmjq ' .
