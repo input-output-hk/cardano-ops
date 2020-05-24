@@ -13,7 +13,7 @@ profjq() {
 profgenjq()
 {
         local prof=$1 q=$2; shift 2
-        profjq "$prof" ".genesis_params | ($q)" "$@"
+        profjq "$prof" ".genesis | ($q)" "$@"
 }
 
 genesisjq()
@@ -117,7 +117,7 @@ profile_deploy() {
              then regenesis_causes+=('local-genesis-old-age'); fi
              if   njqtest "
                   $(genesisjq .params) !=
-                  $(profjq "${prof}" .genesis_params)"
+                  $(profjq "${prof}" .genesis)"
              then regenesis_causes+=('profile-requires-new-genesis'); fi; fi
 
         if test -n "${regenesis_causes[*]}"
@@ -130,7 +130,7 @@ profile_deploy() {
         if   test ! -f "${deployfile['explorer']}"
         then redeploy_causes+=(missing-explorer-deployfile)
              include+=('explorer')
-        elif ! jq . "${deployfile['explorer']}" >/dev/null
+        elif ! depljq 'explorer' . >/dev/null 2>&1
         then redeploy_causes+=(malformed-explorer-deployfile)
              include+=('explorer')
         elif njqtest "
@@ -140,7 +140,7 @@ profile_deploy() {
              include+=('explorer')
         elif njqtest "
              $(genesisjq .params 2>/dev/null || echo '"missing"') !=
-             $(depljq 'explorer' .profile_content.genesis_params)"
+             $(depljq 'explorer' .profile_content.genesis)"
         then redeploy_causes+=(genesis-params-explorer)
              include+=('explorer')
         elif njqtest "
@@ -153,12 +153,12 @@ profile_deploy() {
         if test ! -f "${deployfile['producers']}"
         then redeploy_causes+=(missing-producers-deployfile)
              include+=($(params producers))
-        elif ! jq . "${deployfile['producers']}" >/dev/null
+        elif ! depljq 'producers' . >/dev/null 2>&1
         then redeploy_causes+=(malformed-producers-deployfile)
              include+=($(params producers))
         elif njqtest "
              $(genesisjq .params 2>/dev/null || echo '"missing"') !=
-             $(depljq 'producers' .profile_content.genesis_params)"
+             $(depljq 'producers' .profile_content.genesis)"
         then redeploy_causes+=(genesis-params-producers)
              include+=($(params producers))
         elif njqtest "
@@ -182,11 +182,13 @@ profile_deploy() {
         then qualifier='producers'
         else qualifier='explorer'; fi
 
-        if test -n "${redeploy_causes[*]}" &&
-           test -z "${no_deploy}"
-        then oprint "redeploying, because:  ${redeploy_causes[*]}"
-             deploylog=runs/$(date +%s).deploy.$qualifier.$prof.log
-             nixops_deploy "$prof" "$final_include" "$deploylog"; fi
+        if test -z "${redeploy_causes[*]}" ||
+           test -n "${no_deploy}"
+        then return; fi
+
+        oprint "redeploying, because:  ${redeploy_causes[*]}"
+        deploylog=runs/$(timestamp).deploy.$qualifier.$prof.log
+        deploystate_deploy_profile "$prof" "$final_include" "$deploylog"
 }
 
 ###
