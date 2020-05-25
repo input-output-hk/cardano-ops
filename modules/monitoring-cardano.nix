@@ -27,7 +27,19 @@
     }
     {
       alert = "cardano_node_block_divergence";
-      expr = "abs(max(cardano_total_main_blocks) - ignoring(alias,instance,job,role) group_right(instance) cardano_node_ChainDB_metrics_blockNum_int) > 2";
+      expr = "abs(max(cardano_byron_proxy_ChainDB_blockNum_int) - ignoring(alias,instance,job,role) group_right(instance) cardano_node_ChainDB_metrics_blockNum_int) > 2";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: cardano-node block divergence with byron proxies detected for more than 5 minutes";
+        description = "{{$labels.alias}}: cardano-node block divergence with byron proxies detected for more than 5 minutes";
+      };
+    }
+    {
+      alert = "cardano_new_node_block_divergence";
+      expr = "abs(max(cardano_node_ChainDB_metrics_blockNum_int) - ignoring(alias,instance,job,role) group_right(instance) cardano_node_ChainDB_metrics_blockNum_int) > 2";
       for = "5m";
       labels = {
         severity = "page";
