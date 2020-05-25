@@ -11,7 +11,7 @@ pkgs: with pkgs; with lib;
 
   # Similarly, increase the max gc memory -- modify `-M` param
   # https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html
-  services.cardano-node.extraArgs = lib.mkForce [ "+RTS" "-N4" "-A10m" "-qg" "-qb" "-M10G" "-RTS" ];
+  services.cardano-node.rtsArgs = lib.mkForce [ "-N4" "-A10m" "-qg" "-qb" "-M10G" ];
 
   systemd.services.cardano-node.serviceConfig.LimitNOFILE = "65535";
 
