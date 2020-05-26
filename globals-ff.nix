@@ -2,7 +2,7 @@ pkgs: {
 
   deploymentName = "ff";
 
-  topology = import ./topologies/ff.nix;
+  topology = import ./topologies/ff.nix pkgs;
 
   withExplorer = false;
   withLegacyExplorer = false;
