@@ -12,15 +12,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-benchmarking": {
-        "branch": "cad-992-updates",
+        "branch": "cad-918-debugging-tx-generator",
         "description": "Epic win",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-benchmarking",
-        "rev": "435eb75084d2dabaf7165c359c6345b0a4d32a79",
-        "sha256": "1642gpvl3v0svva1ifvkq75xvc8ssxnkfqiszzc9ihvhlamxs25r",
+        "rev": "8926632a845a9e4e5d1af6e1f28c4d5a1c6ef45a",
+        "sha256": "02mpazqafscr9air6ny0bb0c0if3gdwjvf01jk0hgf4ygf3r7skd",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-benchmarking/archive/435eb75084d2dabaf7165c359c6345b0a4d32a79.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-benchmarking/archive/8926632a845a9e4e5d1af6e1f28c4d5a1c6ef45a.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-byron-proxy": {
