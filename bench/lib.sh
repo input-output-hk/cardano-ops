@@ -80,6 +80,32 @@ words_to_lines() {
         sed 's_ _\n_g'
 }
 
+json_file_append() {
+        local f=$1 extra=$2 tmp; shift 2
+        tmp=$(mktemp --tmpdir)
+
+        test -f "$f" || echo "{}" > "$f"
+        jq ' $origf[0] as $orig
+           | $orig + ('"$extra"')
+           ' --slurpfile origf "$f" "$@" > "$tmp"
+        mv "$tmp"  "$f"
+}
+
+json_file_prepend() {
+        local f=$1 extra=$2 tmp; shift 2
+        tmp=$(mktemp --tmpdir)
+
+        test -f "$f" || echo "{}" > "$f"
+        jq ' $origf[0] as $orig
+           | ('"$extra"') + $orig
+           ' --slurpfile origf "$f" "$@" > "$tmp"
+        mv "$tmp"  "$f"
+}
+
+shell_list_to_json() {
+        words_to_lines | jq --raw-input | jq --slurp --compact-output
+}
+
 generate_mnemonic()
 {
         local mnemonic timestamp commit status
