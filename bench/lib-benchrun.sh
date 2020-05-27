@@ -15,41 +15,38 @@ run_fetch_benchmarking() {
         local targetdir=$1
         oprint "fetching tools from 'cardano-benchmarking' $(nix-instantiate --eval -E "(import $(dirname "${self}")/../nix/sources.nix).cardano-benchmarking.rev" | tr -d '"' | cut -c-8) .."
         export nix_store_benchmarking=$(nix-instantiate --eval -E "(import $(dirname "${self}")/../nix/sources.nix).cardano-benchmarking.outPath" | tr -d '"' )
-        test -n "${nix_store_benchmarking}" ||
+        test -d "$nix_store_benchmarking" ||
                 fail "couldn't fetch 'cardano-benchmarking'"
-        mkdir -p 'tools'
-        cp -fa "${nix_store_benchmarking}"/scripts/*.{sh,sql} "$targetdir"
+        mkdir -p "$targetdir"
+        cp -fa "$nix_store_benchmarking"/{analyses/*.sh,scripts/*.{sh,sql}} "$targetdir"
 }
 
 is_run_broken() {
-        local tag=$1
-        dir="./runs/${tag}"
+        local dir=${1:-}
 
-        jqtest .broken "$dir"/meta.json
+        test -f "$dir"/analysis.json &&
+          jqtest .anomalies "$dir"/analysis.json ||
+        jqtest .broken    "$dir"/meta.json
 }
 
 mark_run_broken() {
-        local tag metatmp
-        tag=${1:-$(cluster_last_meta_tag)}
-        dir="./runs/${tag}"
+        local dir=$1 errors=$2 tag
+        tag=$(run_tag "$dir")
+
+        test -n "$2" ||
+          fail "asked to mark $tag as anomalous, but no anomalies passed"
 
         oprint "marking run as broken (results will be stored separately):  $tag"
-        metatmp=$(mktemp --tmpdir)
-        jq '{ broken: true } + .
-           ' >"$metatmp" <"$dir/meta.json"
-        mv    "$metatmp"  "$dir/meta.json"
+        json_file_prepend "$dir/analysis.json" '{ anomalies: $anomalies }' \
+          --argjson anomalies "$errors" <<<0
 }
 
 process_broken_run() {
-        local tag=$1 metatmp
-
-        tagroot=$(realpath ./runs)
-        resultroot=$(realpath ../bench-results-bad)
-        export tagroot resultroot
+        local dir=${1:-.}
 
         op_stop
-        op_bench_fetch  "$tag"
-        mark_run_broken "$tag"
-        package_tag     "$tag"
+        op_bench_fetch "$dir"
+        analyse_run    "$dir"
+        package_run    "$dir" "$(realpath ../bench-results-bad)"
 }
 

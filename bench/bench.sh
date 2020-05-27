@@ -2,12 +2,18 @@
 # shellcheck disable=2207,2155,1007,1090
 set -euo pipefail
 
-. "$(dirname "$0")"/lib.sh
-. "$(dirname "$0")"/lib-deploy.sh
-. "$(dirname "$0")"/lib-params.sh
-. "$(dirname "$0")"/lib-profile.sh
-. "$(dirname "$0")"/lib-benchrun.sh
-. "$(dirname "$0")"/lib-analysis.sh
+__BENCH_BASEPATH=$(dirname "$(realpath "$0")")
+. "$__BENCH_BASEPATH"/lib.sh
+. "$__BENCH_BASEPATH"/lib-analyses.sh
+. "$__BENCH_BASEPATH"/lib-analysis.sh
+. "$__BENCH_BASEPATH"/lib-benchrun.sh
+. "$__BENCH_BASEPATH"/lib-deploy.sh
+. "$__BENCH_BASEPATH"/lib-params.sh
+. "$__BENCH_BASEPATH"/lib-profile.sh
+. "$__BENCH_BASEPATH"/lib-sanity.sh
+. "$__BENCH_BASEPATH"/lib-sheets.sh
+. "$__BENCH_BASEPATH"/lib-report.sh
+. "$__BENCH_BASEPATH"/lib-tag.sh
 ###
 ### TODO
 ###
@@ -144,7 +150,7 @@ main() {
         local op="${1:-${default_op}}"; shift || true
 
         case "${op}" in
-                init-params | init | reinit-params | reinit ) true;;
+                init-params | init | reinit-params | reinit | analyse | a | analyse-run | arun | sanity-check | sanity | sanity-check-dir | sane-dir | srun | call | mass-analyse | mass ) true;;
                 * ) params_check;; esac
 
         case "${op}" in
@@ -175,8 +181,21 @@ main() {
                 analyse | a )
                                       export tagroot=$(realpath ./runs)
                                       analyse_tag "$@";;
-                mark-run-broken | mark-broken | broken )
-                                      mark_run_broken "$@";;
+                analyse-run | arun )
+                                      export tagroot=$(realpath ./runs)
+                                      analyse_run "$@";;
+                mass-analyse | mass )
+                                      mass_analyse "$@";;
+                sanity-check | sanity | sane | check )
+                                      export tagroot=$(realpath ./runs)
+                                      sanity_check_tag "$@";;
+                sanity-check-run | sanity-run | sane-run | check-run | srun )
+                                      sanity_check_run "$@";;
+                mark-tag-broken | mark-broken | broken )
+                                      local tag dir
+                                      tag=${1:-$(cluster_last_meta_tag)}
+                                      dir="./runs/${tag}"
+                                      mark_run_broken "$dir" "\"user-decision\"";;
                 package | pkg )
                                       tagroot=$(realpath ./runs)
                                       resultroot=$(realpath ../bench-results)
@@ -227,7 +246,7 @@ main() {
 
                 blocks )              op_blocks;;
 
-                eval )                eval "${@@Q}";;
+                call )                "$@";;
                 * ) usage; exit 1;; esac
 }
 trap atexit EXIT
@@ -274,25 +293,25 @@ bench_profile() {
         if ! test -f "${deploylog}" -a -n "${no_deploy}"
         then profile_deploy "${prof}"; fi
 
-        local tag
-        if ! op_bench_start "${prof}" "${deploylog}"
-        then tag=$(cluster_last_meta_tag)
-             process_broken_run "$tag"
-             return 1; fi
+        op_bench_start "${prof}" "${deploylog}"
+        ret=$?
+
+        local tag dir
         tag=$(cluster_last_meta_tag)
+        dir=$(realpath "./runs/$tag")
+
+        if test $ret != 0
+        then process_broken_run "$dir"
+             return 1; fi
 
         oprint "$(date), termination condition satisfied, stopping cluster."
         op_stop
-        op_bench_fetch
+        fetch_run "$dir"
         oprint "concluded run:  ${tag}"
 
-        tagroot=$(realpath ./runs)
-        resultroot=$(realpath ../bench-results)
-        export tagroot resultroot
-        local tag
-        tag=$(cluster_last_meta_tag)
-        analyse_tag "${tag}"
-        package_tag "${tag}"
+        if analyse_run "${dir}"
+        then package_run "${dir}"
+        fi
 }
 
 op_bench_start() {
@@ -530,10 +549,9 @@ op_wait_for_empty_blocks() {
              return 1; fi
 }
 
-op_bench_fetch() {
-        local tag dir components
-        tag=${1:-$(cluster_last_meta_tag)}
-        dir="./runs/${tag}"
+fetch_run() {
+        local dir=${1:-.} tag components
+        tag=$(run_tag "$dir")
 
         oprint "run directory:  ${dir}"
         pushd "${dir}" >/dev/null || return 1

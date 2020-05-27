@@ -245,22 +245,3 @@ params() {
                 * ) fail "unknown query: $1";;
         esac
 }
-
-cluster_last_meta_tag() {
-        local meta=./last-meta.json tag dir meta2
-        jq . "${meta}" >/dev/null || fail "malformed run metadata: ${meta}"
-
-        tag=$(jq --raw-output .meta.tag "${meta}")
-        test -n "${tag}" || fail "bad tag in run metadata: ${meta}"
-
-        dir="./runs/${tag}"
-        test -d "${dir}" ||
-                fail "bad tag in run metadata: ${meta} -- ${dir} is not a directory"
-        meta2=${dir}/meta.json
-        jq --exit-status . "${meta2}" >/dev/null ||
-                fail "bad tag in run metadata: ${meta} -- ${meta2} is not valid JSON"
-
-        test "$(realpath ./last-meta.json)" = "$(realpath "${meta2}")" ||
-                fail "bad tag in run metadata: ${meta} -- ${meta2} is different from ${meta}"
-        echo "${tag}"
-}
