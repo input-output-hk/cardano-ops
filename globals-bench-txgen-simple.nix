@@ -35,6 +35,37 @@ let
   };
   reportDeployment = x:
     __trace "DEPLOYMENT_METADATA=${__toFile "nixops-metadata.json" (__toJSON metadata)}" x;
+
+  benchmarkingLogConfig = {
+    defaultScribes = [
+      [ "StdoutSK" "stdout" ]
+      [ "FileSK"   "/var/lib/cardano-node/logs/node.json" ]
+    ];
+    setupScribes = [
+      {
+        scKind     = "StdoutSK";
+        scName     = "stdout";
+        scFormat   = "ScJson"; }
+      {
+        scKind     = "FileSK";
+        scName     = "/var/lib/cardano-node/logs/node.json";
+        scFormat   = "ScJson";
+        scRotation = {
+          rpLogLimitBytes = 300000000;
+          rpMaxAgeHours   = 24;
+          rpKeepFilesNum  = 20;
+        }; }
+    ];
+    minSeverity = "Debug";
+    TracingVerbosity = "MaximalVerbosity";
+    TurnOnLogMetrics = true;
+    options = {
+      mapBackends = {
+        "cardano.node-metrics" = [ "KatipBK" ];
+      };
+    };
+  };
+
 in reportDeployment (rec {
 
   networkName = "Benchmarking, size ${toString (__length benchmarkingTopology.coreNodes)}";
@@ -82,37 +113,16 @@ in reportDeployment (rec {
       ];
       services.cardano-graphql.enable = pkgs.lib.mkForce false;
       services.graphql-engine.enable = pkgs.lib.mkForce false;
+      services.cardano-db-sync = {
+        logConfig =
+          pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig
+          // benchmarkingLogConfig;
+      };
     };
     coreNodes = map (n : n // {
-      services.cardano-node.nodeConfig = pkgs.globals.environmentConfig.nodeConfig // {
-        defaultScribes = [
-          [ "StdoutSK" "stdout" ]
-          [ "FileSK"   "/var/lib/cardano-node/logs/node.json" ]
-        ];
-        setupScribes = [
-          {
-            scKind     = "StdoutSK";
-            scName     = "stdout";
-            scFormat   = "ScJson"; }
-          {
-            scKind     = "FileSK";
-            scName     = "/var/lib/cardano-node/logs/node.json";
-            scFormat   = "ScJson";
-            scRotation = {
-              rpLogLimitBytes = 300000000;
-              rpMaxAgeHours   = 24;
-              rpKeepFilesNum  = 20;
-            }; }
-        ];
-        minSeverity = "Debug";
-        TracingVerbosity = "MaximalVerbosity";
-        TurnOnLogMetrics = true;
-        options = {
-          mapBackends = {
-            "cardano.node-metrics" = [ "KatipBK" ];
-          };
-        };
-      };
+      services.cardano-node.nodeConfig =
+        pkgs.globals.environmentConfig.nodeConfig
+        // benchmarkingLogConfig;
     }) (benchmarkingTopology.coreNodes or []);
   };
 
