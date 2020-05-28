@@ -355,8 +355,7 @@ fetch_systemd_unit_startup_logs() {
         pushd "${dir}" >/dev/null || return 1
 
         mkdir -p 'logs/startup/'
-        nixops ssh explorer \
-          "journalctl --boot 0 -u tx-generator | head -n 100" \
+        nixops ssh explorer "journalctl --boot 0 -u tx-generator | head -n 100" \
           > 'logs/startup/unit-startup-generator.log'
         nixops ssh explorer "journalctl --boot 0 -u cardano-node | head -n 100" \
           > 'logs/startup/unit-startup-explorer.log'
