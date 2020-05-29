@@ -212,15 +212,14 @@ main() {
                                       prof=$(params resolve-profile "$prof")
                                       profjq "$prof" '.';;
 
-                bench-all | all )     op_bench 'all';;
-                bench-profile | profiles | profile | p )
+                profiles | profile | p )
                                       op_bench "$@";;
                 profiles-jq | pjq )
                                       local q=$1; shift
                                       op_bench "jq($q)" "$@";;
-                smoke-test | smoke )
-                                      no_deploy=t
-                                      op_bench 'smoke';;
+                rerun-profile | rerun | re )
+                                      op_bench "$(jq --raw-output .meta.profile ./last-meta.json)";;
+                smoke-test | smoke )  op_bench 'smoke';;
 
                 list-runs | runs | ls )
                                       ls -1 runs/*/meta.json | cut -d/ -f2;;

@@ -49,7 +49,7 @@ def profile_name($gtor; $gsis):
   , ($gtor.tps         | tostring) + "tps"
   , ($gtor.io_arity    | tostring) + "io"
   , ($gsis.max_block_size | . / 1000
-                       | tostring) + "kblk"
+                       | tostring) + "kb"
   ] | join("-");
 
   [ { txs: 50000, add_tx_size: 100, io_arity: 1,  tps: 100 }
