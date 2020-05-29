@@ -24,6 +24,7 @@ in {
 
   environment.systemPackages = with pkgs; [
     faucetPkgs.cardano-wallet-byron
+    faucetPkgs.cardano-wallet-shelley
     jq
   ];
 

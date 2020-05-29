@@ -82,6 +82,16 @@ in {
     services.monitoring-services.publicGrafana = true;
   };
 
+  "${globals.faucetHostname}" = {
+    services.cardano-faucet = {
+      anonymousAccess = true;
+      faucetLogLevel = "DEBUG";
+      secondsBetweenRequests = 86400;
+      lovelacesToGiveAnonymous = 1000000000;
+      lovelacesToGiveApiKeyAuth = 1000000000000;
+    };
+  };
+
   coreNodes = [
     # backup OBFT centralized nodes
     {

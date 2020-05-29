@@ -7,6 +7,9 @@ pkgs: {
   withExplorer = false;
   withLegacyExplorer = false;
 
+  withFaucet = true;
+  faucetHostname = "faucet";
+
   ec2 = {
     credentials = {
       accessKeyIds = {
