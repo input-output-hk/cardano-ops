@@ -36,10 +36,10 @@ let
   reportDeployment = x:
     __trace "DEPLOYMENT_METADATA=${__toFile "nixops-metadata.json" (__toJSON metadata)}" x;
 
-  benchmarkingLogConfig = {
+  benchmarkingLogConfig = name: {
     defaultScribes = [
       [ "StdoutSK" "stdout" ]
-      [ "FileSK"   "/var/lib/cardano-node/logs/node.json" ]
+      [ "FileSK"   "/var/lib/cardano-node/logs/${name}.json" ]
     ];
     setupScribes = [
       {
@@ -48,7 +48,7 @@ let
         scFormat   = "ScJson"; }
       {
         scKind     = "FileSK";
-        scName     = "/var/lib/cardano-node/logs/node.json";
+        scName     = "/var/lib/cardano-node/logs/${name}.json";
         scFormat   = "ScJson";
         scRotation = {
           rpLogLimitBytes = 300000000;
@@ -110,19 +110,45 @@ in reportDeployment (rec {
     explorer = {
       imports = [
         pkgs.cardano-ops.roles.tx-generator
+        ({ config, ...}: {
+          services.cardano-submit-api = {
+            environment = pkgs.globals.environmentConfig;
+            socketPath = config.services.cardano-node.socketPath;
+          };
+          systemd.services.cardano-db-sync = {
+            wantedBy = [ "multi-user.target" ];
+            requires = [ "postgresql.service" ];
+            path = [ pkgs.netcat ];
+            preStart = ''
+            '';
+            serviceConfig = {
+              ExecStartPre = pkgs.lib.mkForce
+                ("+" + pkgs.writeScript "cardano-db-sync-prestart" ''
+                          #!/bin/sh
+                          set -xe
+
+                          chmod -R g+w /var/lib/cardano-node
+                          for x in {1..10}
+                          do nc -z localhost ${toString config.services.cardano-db-sync.postgres.port} && break
+                             echo loop $x: waiting for postgresql 2 sec...
+                             sleep 2; done
+                       '');
+            };
+          };
+        })
       ];
       services.cardano-graphql.enable = pkgs.lib.mkForce false;
       services.graphql-engine.enable = pkgs.lib.mkForce false;
       services.cardano-db-sync = {
         logConfig =
           pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig
-          // benchmarkingLogConfig;
+          // benchmarkingLogConfig "db-sync";
       };
     };
     coreNodes = map (n : n // {
       services.cardano-node.nodeConfig =
         pkgs.globals.environmentConfig.nodeConfig
-        // benchmarkingLogConfig
+        // benchmarkingLogConfig "node"
         // {
           PBftSignatureThreshold =
             (1.0 / __length benchmarkingTopology.coreNodes) * 1.5;
