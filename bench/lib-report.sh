@@ -43,6 +43,7 @@ run_report_name() {
 package_run() {
         local tag report_name package
         dir=${1:-.}
+        tag=$(run_tag "$dir")
         report_name=$(run_report_name "$dir")
 
         if is_run_broken "$dir"

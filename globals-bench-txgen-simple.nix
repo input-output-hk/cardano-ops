@@ -122,7 +122,11 @@ in reportDeployment (rec {
     coreNodes = map (n : n // {
       services.cardano-node.nodeConfig =
         pkgs.globals.environmentConfig.nodeConfig
-        // benchmarkingLogConfig;
+        // benchmarkingLogConfig
+        // {
+          PBftSignatureThreshold =
+            (1.0 / __length benchmarkingTopology.coreNodes) * 1.5;
+        };
     }) (benchmarkingTopology.coreNodes or []);
   };
 
