@@ -163,7 +163,7 @@ let
         inherit (def) producers;
       };
       deployment.ec2.region = def.region;
-      imports = if globals.withHighLoadRelays then [
+      imports = if (def.withHighLoadRelays or globals.withHighLoadRelays) then [
         t3-xlarge cardano-ops.roles.relay-high-load
       ] else [
         medium cardano-ops.roles.relay
