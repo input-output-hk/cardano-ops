@@ -1,4 +1,5 @@
 pkgs:
+with pkgs.lib;
 let
   benchmarkingParamsFile = ./benchmarking-cluster-params.json;
   benchmarkingParams =
@@ -56,9 +57,6 @@ let
           rpKeepFilesNum  = 20;
         }; }
     ];
-    minSeverity = "Debug";
-    TracingVerbosity = "MaximalVerbosity";
-    TurnOnLogMetrics = true;
     options = {
       mapBackends = {
         "cardano.node-metrics" = [ "KatipBK" ];
@@ -122,7 +120,7 @@ in reportDeployment (rec {
             preStart = ''
             '';
             serviceConfig = {
-              ExecStartPre = pkgs.lib.mkForce
+              ExecStartPre = mkForce
                 ("+" + pkgs.writeScript "cardano-db-sync-prestart" ''
                           #!/bin/sh
                           set -xe
@@ -137,22 +135,36 @@ in reportDeployment (rec {
           };
         })
       ];
-      services.cardano-graphql.enable = pkgs.lib.mkForce false;
-      services.graphql-engine.enable = pkgs.lib.mkForce false;
+      services.cardano-graphql.enable = mkForce false;
+      services.graphql-engine.enable = mkForce false;
       services.cardano-db-sync = {
         logConfig =
-          pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig
-          // benchmarkingLogConfig "db-sync";
+          recursiveUpdate
+            pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig
+            (recursiveUpdate
+              (benchmarkingLogConfig "db-sync")
+              {
+                options.mapSeverity = {
+                  "db-sync-node.Subscription" = "Error";
+                  "db-sync-node.Mux" = "Error";
+                  "db-sync-node" = "Info";
+                };
+              });
       };
     };
     coreNodes = map (n : n // {
       services.cardano-node.nodeConfig =
-        pkgs.globals.environmentConfig.nodeConfig
-        // benchmarkingLogConfig "node"
-        // {
-          PBftSignatureThreshold =
-            (1.0 / __length benchmarkingTopology.coreNodes) * 1.5;
-        };
+        recursiveUpdate
+          pkgs.globals.environmentConfig.nodeConfig
+          (recursiveUpdate
+            (benchmarkingLogConfig "node")
+            {
+              TracingVerbosity = "MaximalVerbosity";
+              minSeverity = "Debug";
+              TurnOnLogMetrics = true;
+              PBftSignatureThreshold =
+                (1.0 / __length benchmarkingTopology.coreNodes) * 1.5;
+            });
     }) (benchmarkingTopology.coreNodes or []);
   };
 
