@@ -91,7 +91,8 @@ in {
     services.cardano-faucet = {
       anonymousAccess = true;
       faucetLogLevel = "DEBUG";
-      secondsBetweenRequests = 86400;
+      secondsBetweenRequestsAnonymous = 86400;
+      secondsBetweenRequestsApiKeyAuth = 86400;
       lovelacesToGiveAnonymous = 1000000000;
       lovelacesToGiveApiKeyAuth = 1000000000000;
     };
