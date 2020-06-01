@@ -248,14 +248,6 @@ main() {
                 call )                "$@";;
                 * ) usage; exit 1;; esac
 }
-trap atexit EXIT
-trap atexit SIGHUP
-trap atexit SIGINT
-trap atexit SIGTERM
-trap atexit SIGQUIT
-atexit() {
-        true # pkill -f   "tee ${batch_log}"
-}
 
 ###
 ### Top-level operations
@@ -345,7 +337,7 @@ op_bench_start() {
         oprint "waiting ${generator_startup_delay}s for the nodes to establish business.."
         sleep ${generator_startup_delay}
 
-        tag=$(generate_run_id "${prof}")
+        tag=$(generate_run_tag "${prof}")
         dir="./runs/${tag}"
         oprint "creating new run:  ${tag}"
         op_register_new_run "${prof}" "${tag}" "${deploylog}"

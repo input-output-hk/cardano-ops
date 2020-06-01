@@ -23,23 +23,6 @@ patch_run() {
         fi
 }
 
-run_report_name() {
-        local metafile meta prof suffix=
-        dir=${1:-.}
-        metafile="$dir"/meta.json
-        meta=$(jq .meta "$metafile" --raw-output)
-        prof=$(jq .profile <<<$meta --raw-output)
-        date=$(date +'%Y'-'%m'-'%d'-'%H.%M' --date=@"$(jq .timestamp <<<$meta)")
-
-        test -n "$meta" -a -n "$prof" ||
-                fail "Bad run meta.json format:  $metafile"
-
-        if is_run_broken "$dir"
-        then suffix='broken'; fi
-
-        echo "$date.$prof${suffix:+.$suffix}"
-}
-
 package_run() {
         local tag report_name package
         dir=${1:-.}
