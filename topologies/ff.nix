@@ -1,7 +1,9 @@
 pkgs: with pkgs;
 let
   withDailyRestart = def: lib.recursiveUpdate {
-    systemd.services.cardano-node.serviceConfig.RuntimeMaxSec = 24 * 60 * 60;
+    systemd.services.cardano-node.serviceConfig = {
+      RuntimeMaxSec = 24 * 60 * 60;
+    };
   } def;
   relayNodesBaseDef = [
     # relays

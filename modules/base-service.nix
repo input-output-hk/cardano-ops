@@ -102,7 +102,7 @@ in
     };
 
     # FIXME: https://github.com/input-output-hk/cardano-node/issues/1023
-    systemd.sockets.cardano-node.bindsTo = [ "cardano-node.service" ];
+    systemd.sockets.cardano-node.partOf = [ "cardano-node.service" ];
 
     services.dnsmasq = {
       enable = true;
