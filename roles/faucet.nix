@@ -22,12 +22,6 @@ in {
     #(sourcePaths.cardano-node + "/nix/nixos")
   ];
 
-  environment.systemPackages = with pkgs; [
-    faucetPkgs.cardano-wallet-byron
-    faucetPkgs.cardano-wallet-shelley
-    jq
-  ];
-
   networking.firewall.allowedTCPPorts = [
     80
     443
@@ -40,6 +34,7 @@ in {
   services.cardano-faucet = {
     enable = true;
     cardanoEnv = globals.environmentName;
+    cardanoEnvAttrs = globals.environmentConfig;
     package = faucetPkgs.packages.cardano-faucet;
   };
 
@@ -92,10 +87,9 @@ in {
 
       map $http_origin $origin_allowed {
         default 0;
-        https://testnet.iohkdev.io 1;
         https://testnets.cardano.org 1;
-        https://staging-testnets-cardano.netlify.com 1;
         https://staging-testnets-cardano.netlify.app 1;
+        http://localhost:8000 1;
       }
 
       map $origin_allowed $origin {
