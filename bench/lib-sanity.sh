@@ -21,6 +21,31 @@ sanity_check_start_log_spread() {
              } + .)
           | .[]'
 }
+sanity_check_list+=(sanity_check_slot_spread_dbsync)
+sanity_check_slot_spread_dbsync() {
+        local dir=$1 t=${2:-${default_tolerances}}
+        sanity_check "$t" "$dir" '
+          $analysis.slot_spans
+          | (.db_sync.first - .nodes.first | fabs
+            | . > $allowed.slot_spread_dbsync_first)
+          ' '$analysis.slot_spans
+          | { kind:         "slot-spread-dbsync-first"
+            , dbsync_first: .db_sync.first
+            , nodes_first:  .nodes.first
+            , delta:        (.db_sync.first - .nodes.first | fabs)
+            }'
+
+        sanity_check "$t" "$dir" '
+          $analysis.slot_spans
+          | (.db_sync.last - .nodes.last | fabs
+            | . > $allowed.slot_spread_dbsync_last)
+          ' '$analysis.slot_spans
+          | { kind:         "slot-spread-dbsync-last"
+            , dbsync_last:  .db_sync.last
+            , nodes_last:   .nodes.last
+            , delta:        (.db_sync.last - .nodes.last | fabs)
+            }'
+}
 sanity_check_list+=(sanity_check_last_log_spread)
 sanity_check_last_log_spread() {
         local dir=$1 t=${2:-${default_tolerances}}
@@ -149,6 +174,8 @@ default_tolerances='
 { "tx_loss_ratio":                  0.0
 , "start_log_spread_s":             60
 , "last_log_spread_s":              60
+, "slot_spread_dbsync_first":       5
+, "slot_spread_dbsync_last":        5
 , "silence_since_last_block_s":     40
 , "cluster_startup_overhead_s":     60
 , "minimum_chain_density":          0.9

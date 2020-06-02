@@ -27,6 +27,7 @@ analysis_unpack() {
 
         tar x -C "$dir"/analysis -af "$dir"/logs/logs-explorer.tar.xz
         tar x -C "$dir"/analysis -af "$dir"/logs/logs-nodes.tar.xz
+        tar x -C "$dir"/analysis -af "$dir"/logs/db-analysis.tar.xz '00-results-table.sql.csv'
 }
 
 analysis_list+=(analysis_log_inventory)
@@ -50,6 +51,29 @@ analysis_log_inventory()
                                        | max_by(.latest) | .latest)
            , logs:                $logs
            }' --slurpfile logs "$dir"/analysis/log-inventory.json <<<0
+}
+
+analysis_list+=(analysis_dbsync_slot_span)
+analysis_dbsync_slot_span() {
+        local dir=${1:-.}; shift
+        local machines=("$@")
+        local logs
+
+        logs=($(logs_of_nodes "$dir" "${machines[@]}"))
+
+        args=(--argjson fst_dbsync  "$(grep -E '^[0-9]+' "$dir"/analysis/00-results-table.sql.csv | head -n1 | cut -d, -f1)"
+              --argjson last_dbsync "$(grep -E '^[0-9]+' "$dir"/analysis/00-results-table.sql.csv | tail -n1 | cut -d, -f1)"
+              --argjson fst_nodes  "$(grep -Fh '"TraceStartLeadershipCheck"' "${logs[@]}" |
+                                     sort | head -n1 | jq .data.slot)"
+              --argjson last_nodes "$(grep -Fh '"TraceStartLeadershipCheck"' "${logs[@]}" |
+                                     sort | tail -n1 | jq .data.slot)"
+        )
+        json_file_prepend "$dir"/analysis.json \
+          '{ slot_spans:
+             { db_sync: { first: $fst_dbsync, last: $last_dbsync }
+             , nodes:   { first: $fst_nodes,  last: $last_nodes }
+             }
+           }' "${args[@]}" <<<0
 }
 
 analysis_list+=(analysis_timetoblock)
