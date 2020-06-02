@@ -2,6 +2,14 @@
 # shellcheck disable=1091,2016
 
 
+logs_of_nodes() {
+        local dir=$1; shift
+        local machines=("$@")
+
+        for mach in ${machines[*]}
+        do ls -- "$dir"/analysis/logs-"$mach"/node-*.json; done
+}
+
 collect_jsonlog_inventory() {
         local dir=$1; shift
         local constituents=("$@")
