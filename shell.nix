@@ -62,7 +62,7 @@ let
       cd ${toString ./keys}/node-keys
       for i in {1..${toString nbCoreNodes}}; do
         cardano-cli shelley node key-gen-KES --verification-key-file node-kes$i.vkey --signing-key-file node-kes$i.skey
-        cardano-cli shelley node issue-op-cert --hot-kes-verification-key-file node-kes$i.vkey --cold-signing-key-file ../delegate-keys/delegate$i.skey --operational-certificate-issue-counter ../delegate-keys/delegate-opcert$i.counter --kes-period $PERIOD --out-file node$i.opcert
+        cardano-cli shelley node issue-op-cert --hot-kes-verification-key-file node-kes$i.vkey --cold-signing-key-file ../delegate-keys/delegate$i.skey --operational-certificate-issue-counter ../delegate-keys/delegate$i.counter --kes-period $PERIOD --out-file node$i.opcert
       done
     '';
 in  mkShell {

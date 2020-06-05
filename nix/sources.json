@@ -24,15 +24,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync": {
-        "branch": "tags/1.5.0",
+        "branch": "erikd/shelley-32byte-address-hash",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "335424ccfe6114cb494e7e0e9694d27d4d875ebb",
-        "sha256": "11ivyixcg30baf3zl74lriz7f7bv1f9rgfk4ybyj2xkz16s2bvgk",
+        "rev": "fc671f2b79ac639de7d3fe09fb8f7527c517ad7e",
+        "sha256": "0413d67dipd1bba0bzn6j0v5smwhm3mhhdyc7wxdy564ihz9pbl6",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/335424ccfe6114cb494e7e0e9694d27d4d875ebb.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/fc671f2b79ac639de7d3fe09fb8f7527c517ad7e.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer-app": {
@@ -53,10 +53,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "01306d7faba0a7521fb46015c0d9b728ae4f8133",
-        "sha256": "1027lnr2fbh3mi56345vrw79lnsbkhbcch40lhzi1yribr3df68m",
+        "rev": "10263a1bb9fd8b470463398db8c44f1ed9b3592b",
+        "sha256": "0xdabm8w2la3nv7bqhgnk9p5l04ww4ylj0gijwdlhq3mx5zrqhzs",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/01306d7faba0a7521fb46015c0d9b728ae4f8133.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/10263a1bb9fd8b470463398db8c44f1ed9b3592b.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
@@ -72,15 +72,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
-        "branch": "tags/1.12.0",
+        "branch": "tags/1.13.0",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "f6ef186d1f7280585a245c8565d92117133cf359",
-        "sha256": "1f8n9np96as81avl9k8pb1lqlkp7anppdr3lc7qk43k69932warn",
+        "rev": "9925ef37dccbe7f423f3ceb81a5e1da3d924393b",
+        "sha256": "1yw5axs33g33znqxjkmjlrgks8ky79mc6lj2f28m2i2qfifyz12y",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/f6ef186d1f7280585a245c8565d92117133cf359.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/9925ef37dccbe7f423f3ceb81a5e1da3d924393b.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rest": {
@@ -137,10 +137,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "9ea6257cf6af90f1ebaeb29175c3e6e809e0c881",
-        "sha256": "0qlvipmq4c2jg1ankhnyfv36bmrafrsj9j0srjri1z2n12jsn7k2",
+        "rev": "8b1d65ba294708b12d7b15103ac35431d9b60819",
+        "sha256": "1z23lw28s3wa5bf5yr89i61m413ad299lyhv02i9r36p28wjl94g",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/9ea6257cf6af90f1ebaeb29175c3e6e809e0c881.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/8b1d65ba294708b12d7b15103ac35431d9b60819.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs-postgresql12": {
