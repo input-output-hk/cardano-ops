@@ -62,6 +62,58 @@
       };
     }
     {
+      alert = "cardano_new_node_KES_expiration_metric_warning";
+      expr = "cardano_node_genesis_slotLength * cardano_node_genesis_slotsPerKESPeriod * on (alias) cardano_node_Forge_metrics_remainingKESPeriods_int < (24 * 3600) + 1";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: cardano-node KES expiration warning: less than 1 day until KES expiration";
+        description = "{{$labels.alias}}: cardano-node KES expiration warning: less than 1 day until KES expiration; calculated from node metrics";
+      };
+    }
+    {
+      alert = "cardano_new_node_KES_expiration_metric_critical";
+      expr = "cardano_node_genesis_slotLength * cardano_node_genesis_slotsPerKESPeriod * on (alias) cardano_node_Forge_metrics_remainingKESPeriods_int < (4 * 3600) + 1";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: cardano-node KES expiration warning: less than 4 hours until KES expiration";
+        description = "{{$labels.alias}}: cardano-node KES expiration warning: less than 4 hours until KES expiration; calculated from node metrics";
+      };
+    }
+    {
+      alert = "cardano_new_node_KES_expiration_decoded_warning";
+      expr = "(cardano_node_genesis_slotLength * (cardano_node_genesis_slotsPerKESPeriod " +
+             "* ((cardano_node_decode_kesCreatedPeriod > -1) + cardano_node_genesis_maxKESEvolutions)) " +
+             "- on(alias) (cardano_node_genesis_slotLength * on (alias) cardano_node_ChainDB_metrics_slotNum_int)) < (24 * 3600) + 1";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: cardano-node KES expiration warning: less than 1 day until KES expiration";
+        description = "{{$labels.alias}}: cardano-node KES expiration warning: less than 1 day until KES expiration; calculated from opcert decoding";
+      };
+    }
+    {
+      alert = "cardano_new_node_KES_expiration_decoded_critical";
+      expr = "(cardano_node_genesis_slotLength * (cardano_node_genesis_slotsPerKESPeriod " +
+             "* ((cardano_node_decode_kesCreatedPeriod > -1) + cardano_node_genesis_maxKESEvolutions)) " +
+             "- on(alias) (cardano_node_genesis_slotLength * on (alias) cardano_node_ChainDB_metrics_slotNum_int)) < (4 * 3600) + 1";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: cardano-node KES expiration warning: less than 4 hours until KES expiration";
+        description = "{{$labels.alias}}: cardano-node KES expiration warning: less than 4 hours until KES expiration; calculated from opcert decoding";
+      };
+    }
+    {
       alert = "byron_proxy_block_divergence";
       expr = "abs(max(cardano_total_main_blocks) - ignoring(alias,instance,job,role) group_right(instance) cardano_byron_proxy_ChainDB_blockNum_int) > 2";
       for = "5m";

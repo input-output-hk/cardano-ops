@@ -9,6 +9,7 @@ in {
 
   imports = [
     cardano-ops.modules.common
+    cardano-ops.modules.custom-metrics
 
     # Cardano faucet needs to pair a compatible version of wallet with node
     # The following service import will do this:
@@ -30,6 +31,10 @@ in {
   ];
 
   services.monitoring-exporters.extraPrometheusExportersPorts = [ monitoringPort ];
+  services.custom-metrics = {
+    enable = true;
+    statsdExporter = "node";
+  };
 
   services.cardano-faucet = {
     enable = true;
