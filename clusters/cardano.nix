@@ -82,8 +82,17 @@ let
               targets = [ "${globals.faucetHostname}.${globals.domain}" ];
               labels = { alias = "cardano-faucet"; };
             }];
-          })
-        );
+          }));
+          #})) ++
+          #[{
+          #  job_name = "netdata";
+          #  scrape_interval = "60s";
+          #  metrics_path = "/api/v1/allmetrics?format=prometheus";
+          #  static_configs = pkgs.lib.traceValFn (x: __toJSON x) (map (n: {
+          #    targets = [ "${n.name}-ip:${toString globals.netdataExporterPort}" ];
+          #    labels = { alias = "${n.name}"; };
+          #  }) (coreNodes ++ relayNodes ++ (topology.testNodes or [])));
+          #}];
       };
     } def;
   }) // (lib.optionalAttrs globals.withExplorer {

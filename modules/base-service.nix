@@ -32,6 +32,7 @@ in
 {
   imports = [
     cardano-ops.modules.common
+    cardano-ops.modules.custom-metrics
     (sourcePaths.cardano-node + "/nix/nixos")
   ];
 
@@ -58,6 +59,10 @@ in
       CARDANO_NODE_SOCKET_PATH = cfg.socketPath;
     };
     services.monitoring-exporters.extraPrometheusExportersPorts = [ monitoringPort ];
+    services.custom-metrics = {
+      enable = true;
+      statsdExporter = "node";
+    };
 
     networking.firewall = {
       allowedTCPPorts = [ nodePort monitoringPort ];
