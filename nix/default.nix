@@ -4,6 +4,8 @@
 }:
 let
   defaultSourcePaths = import ./sources.nix { inherit pkgs; };
+  crystalPkgs = import defaultSourcePaths.nixpkgs-crystal {};
+  crystal = crystalPkgs.crystal_0_34;
 
   # use our own nixpkgs if it exists in our sources,
   # otherwise use iohkNix default nixpkgs.
@@ -59,6 +61,11 @@ let
       globals = import ../globals-defaults.nix self;
     })];
 
+  crystalEnv = self: super: {
+    inherit (crystalPkgs) crystal2nix shards;
+    inherit crystal;
+  };
+
   # merge upstream sources with our own:
   upstream-overlay = self: super: {
       inherit iohkNix;
@@ -77,6 +84,7 @@ let
     [
       upstream-overlay
       nginx-explorer-overlay
+      crystalEnv
     ];
 
   pkgs = import nixpkgs {

@@ -39,14 +39,18 @@ let
       producers = [ "c-a-1" "c-b-1" "c-c-1" "e-a-1" "e-b-1" "e-c-1" "e-d-2" ];
     })
 
-    (withDailyRestart {
+    {
       name = "e-a-2";
       region = "eu-central-1";
       org = "IOHK";
       nodeId = 12;
       producers = [ "c-a-2" "e-b-2" "e-c-2" "e-d-2" "e-a-1" ];
-      services.cardano-node.profiling = "time";
-    })
+      #services.cardano-node.profiling = "time";
+      zramSwap.enable = true;
+      swapDevices = [
+        { device = "/swapfile"; size = 1024; }
+      ];
+    }
     (withDailyRestart {
       name = "e-b-2";
       region = "ap-northeast-1";

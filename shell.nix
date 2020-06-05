@@ -65,9 +65,15 @@ let
         cardano-cli shelley node issue-op-cert --hot-kes-verification-key-file node-kes$i.vkey --cold-signing-key-file ../delegate-keys/delegate$i.skey --operational-certificate-issue-counter ../delegate-keys/delegate$i.counter --kes-period $PERIOD --out-file node$i.opcert
       done
     '';
+  test-cronjob-script = writeShellScriptBin "test-cronjob-script" ''
+      set -euxo pipefail
+      PARAM=$1
+      cd ${toString ./scripts}
+      cardano-cli --version
+    '';
 in  mkShell {
   buildInputs = [ iohkNix.niv nivOverrides nixops nix cardano-cli telnet dnsutils mkDevGenesis nix-diff migrate-keys pandoc
-    renew-kes-keys create-shelley-genesis-and-keys
+    renew-kes-keys create-shelley-genesis-and-keys crystal crystal2nix shards test-cronjob-script
   ] ++ (with cardano-sl-pkgs.nix-tools.exes; [ cardano-sl-auxx cardano-sl-tools ]);
   NIX_PATH = "nixpkgs=${path}";
   NIXOPS_DEPLOYMENT = "${globals.deploymentName}";
