@@ -50,6 +50,18 @@
       };
     }
     {
+      alert = "cardano_new_node_blockheight_unchanged";
+      expr = "rate(cardano_node_ChainDB_metrics_blockNum_int[1m]) == 0";
+      for = "2m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: cardano-node blockheight unchanged for more than 2 minutes";
+        description = "{{$labels.alias}}: cardano-node blockheight unchanged for more than 2 minutes at a 1 minute rate resolution";
+      };
+    }
+    {
       alert = "byron_proxy_block_divergence";
       expr = "abs(max(cardano_total_main_blocks) - ignoring(alias,instance,job,role) group_right(instance) cardano_byron_proxy_ChainDB_blockNum_int) > 2";
       for = "5m";
