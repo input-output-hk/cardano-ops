@@ -74,7 +74,7 @@ let
 in  mkShell {
   buildInputs = [ iohkNix.niv nivOverrides nixops nix cardano-cli telnet dnsutils mkDevGenesis nix-diff migrate-keys pandoc
     renew-kes-keys create-shelley-genesis-and-keys crystal crystal2nix shards test-cronjob-script
-  ] ++ (with cardano-sl-pkgs.nix-tools.exes; [ cardano-sl-auxx cardano-sl-tools ]);
+  ] ++ (with cardano-sl-pkgs.nix-tools.exes; lib.optionals (globals.topology.legacyCoreNodes != []) [ cardano-sl-auxx cardano-sl-tools ]);
   NIX_PATH = "nixpkgs=${path}";
   NIXOPS_DEPLOYMENT = "${globals.deploymentName}";
   passthru = {
