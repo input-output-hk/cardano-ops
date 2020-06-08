@@ -249,7 +249,7 @@ let
     recursiveUpdate (
       recursiveUpdate {
         deployment.targetEnv = targetEnv;
-        nixpkgs.overlays = pkgs.cardano-ops.overlays;
+        nixpkgs.pkgs = pkgs;
       } (args // {
         imports = args.imports ++ (def.imports or []);
       }))
