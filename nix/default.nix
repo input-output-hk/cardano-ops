@@ -62,8 +62,17 @@ let
     })];
 
   crystalEnv = self: super: {
-    inherit (crystalPkgs) crystal2nix shards;
+    inherit (crystalPkgs) crystal2nix shards pkg-config openssl;
     inherit crystal;
+    kes-rotation = (crystalPkgs.callPackage ../pkgs/kes-rotation {}).kes-rotation;
+  };
+
+  # If needed for isolated crystal binary without rust pkg overlay interference.
+  # As of now, openssl and pkg-config are also included in nix-shell from
+  # crystalEnv to be able to run crystal scripts with network and shard deps.
+  #
+  crystalEnvIsolated = self: super: {
+    kes-rotation = (self.extend crystalEnv).kes-rotation;
   };
 
   # merge upstream sources with our own:
@@ -84,11 +93,11 @@ let
     [
       upstream-overlay
       nginx-explorer-overlay
-      crystalEnv
+      crystalEnvIsolated
     ];
 
-  pkgs = import nixpkgs {
-    inherit overlays system crossSystem config;
-  };
+    pkgs = import nixpkgs {
+      inherit system crossSystem config overlays;
+    };
 in
   pkgs

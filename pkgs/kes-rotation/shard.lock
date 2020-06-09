@@ -1,0 +1,5 @@
+version: 1.0
+shards:
+  email:
+    github: arcage/crystal-email
+    version: 0.6.1
