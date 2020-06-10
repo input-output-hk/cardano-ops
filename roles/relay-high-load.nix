@@ -1,4 +1,5 @@
-pkgs: with pkgs; with lib;
+pkgs:
+with pkgs; with lib;
 {
 
   imports = [
@@ -11,21 +12,10 @@ pkgs: with pkgs; with lib;
 
   # Similarly, increase the max gc memory -- modify `-M` param
   # https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html
-  services.cardano-node.extraArgs = lib.mkForce [ "+RTS" "-N4" "-A10m" "-qg" "-qb" "-M10G" "-RTS" ];
+  services.cardano-node.rtsArgs = lib.mkForce [ "-N4" "-A10m" "-qg" "-qb" "-M10G" ];
 
   systemd.services.cardano-node.serviceConfig.LimitNOFILE = "65535";
 
   # Add host and container auto metrics and alarming
-  services.netdata = {
-    enable = true;
-    config = {
-      global = {
-        "default port" = "19999";
-        "bind to" = "*";
-        "history" = "86400";
-        "error log" = "syslog";
-        "debug log" = "syslog";
-      };
-    };
-  };
+  services.custom-metrics.enableNetdata = true;
 }

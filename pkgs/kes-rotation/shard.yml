@@ -1,0 +1,21 @@
+name: kes-rotation
+version: 0.1.0
+
+authors:
+  - John Lotoski <john.lotoski@iohk.io>
+
+description: |
+  KES key rotation script for use in crontab
+
+targets:
+  kes-rotation:
+    main: src/kes-rotation.cr
+
+dependencies:
+  email:
+    github: arcage/crystal-mail
+    version: 0.6.1
+
+crystal: 0.34.0
+
+license: MIT

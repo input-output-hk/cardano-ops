@@ -48,15 +48,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
-        "branch": "master",
+        "branch": "shelley-support",
         "description": "Faucet for Cardano",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "f63b0d6300ea48194d19cdd2632964b14328924b",
-        "sha256": "123m5ffh0nspvp6hnjcw9r9jsnbsw4vkz424nn7nnhya395mpf3a",
+        "rev": "d47a4e9b964833807416a3c2f8e596758f4e7861",
+        "sha256": "1cslg4pfys7lir38f2qp5aw0wmrivm2cm3l81gavyv7q1mb0r7l5",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/f63b0d6300ea48194d19cdd2632964b14328924b.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/d47a4e9b964833807416a3c2f8e596758f4e7861.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
@@ -72,15 +72,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
-        "branch": "tags/1.12.0",
+        "branch": "tags/1.13.0",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "f6ef186d1f7280585a245c8565d92117133cf359",
-        "sha256": "1f8n9np96as81avl9k8pb1lqlkp7anppdr3lc7qk43k69932warn",
+        "rev": "9925ef37dccbe7f423f3ceb81a5e1da3d924393b",
+        "sha256": "1yw5axs33g33znqxjkmjlrgks8ky79mc6lj2f28m2i2qfifyz12y",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/f6ef186d1f7280585a245c8565d92117133cf359.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/9925ef37dccbe7f423f3ceb81a5e1da3d924393b.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rest": {
@@ -137,10 +137,22 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "9ea6257cf6af90f1ebaeb29175c3e6e809e0c881",
-        "sha256": "0qlvipmq4c2jg1ankhnyfv36bmrafrsj9j0srjri1z2n12jsn7k2",
+        "rev": "02f4d4f0fed4dfbd5f1a89b7b78f8949ced99627",
+        "sha256": "0vz7mb2bm40bvvil159wa2l6gb8943qgs7aycn8j8dvqn726f4im",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/9ea6257cf6af90f1ebaeb29175c3e6e809e0c881.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/02f4d4f0fed4dfbd5f1a89b7b78f8949ced99627.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "nixpkgs-crystal": {
+        "branch": "nixpkgs-unstable",
+        "description": "A read-only mirror of NixOS/nixpkgs tracking the released channels. Send issues and PRs to",
+        "homepage": "https://github.com/NixOS/nixpkgs",
+        "owner": "NixOS",
+        "repo": "nixpkgs-channels",
+        "rev": "39b92f6e45534658b49e79c78154df6333af8472",
+        "sha256": "1g95hqvc8hpjijwc2nrxvgnvasfjn2hrjd8g4x9cklphcz2mz0v8",
+        "type": "tarball",
+        "url": "https://github.com/NixOS/nixpkgs-channels/archive/39b92f6e45534658b49e79c78154df6333af8472.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs-postgresql12": {
@@ -161,10 +173,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "41810645ec4de39329dbb64ef8b56ff632f64e73",
-        "sha256": "18j71hpywphj42ikaqmkj94b36xymsn3q4q84jc3iv10mg0vlpxj",
+        "rev": "a13920e3ddc442f7bfed7d000d22b11e8e2cde18",
+        "sha256": "1kcdzincrycshr78546nlx2h70pcynb0vq1v4ckcib33scbjv76j",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/41810645ec4de39329dbb64ef8b56ff632f64e73.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/a13920e3ddc442f7bfed7d000d22b11e8e2cde18.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

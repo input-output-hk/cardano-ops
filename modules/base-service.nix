@@ -12,7 +12,7 @@ let
   hostName = name: "${name}.cardano";
   staticRouteIp = getStaticRouteIp resources nodes;
 
-  deployedProducers = lib.filter (n: nodes ? ${n}) cfg.producers;
+  deployedProducers = lib.filter (n: nodes ? ${n.addr or n}) cfg.producers;
 
   cardanoHostList = map (nodeName: {
     name = hostName nodeName;
@@ -20,9 +20,9 @@ let
   }) deployedProducers;
 
   producers = map (n: {
-    addr = if (nodes ? ${n}) then hostName n else n;
-    port = nodePort;
-    valency = 1;
+    addr = let a = n.addr or n; in if (nodes ? ${a}) then hostName a else a;
+    port = n.port or nodePort;
+    valency = n.valency or 1;
   }) cfg.producers;
 
   topology = builtins.toFile "topology.yaml" (builtins.toJSON {
@@ -32,6 +32,7 @@ in
 {
   imports = [
     cardano-ops.modules.common
+    cardano-ops.modules.custom-metrics
     (sourcePaths.cardano-node + "/nix/nixos")
   ];
 
@@ -40,7 +41,7 @@ in
       publicIp = mkOption { type = types.str; default = staticRouteIp name;};
       producers = mkOption {
         default = [];
-        type = types.listOf types.str;
+        type = types.listOf (types.either types.str types.attrs);
         description = ''Static routes to peers.'';
       };
     };
@@ -58,6 +59,10 @@ in
       CARDANO_NODE_SOCKET_PATH = cfg.socketPath;
     };
     services.monitoring-exporters.extraPrometheusExportersPorts = [ monitoringPort ];
+    services.custom-metrics = {
+      enable = true;
+      statsdExporter = "node";
+    };
 
     networking.firewall = {
       allowedTCPPorts = [ nodePort monitoringPort ];
@@ -102,7 +107,7 @@ in
     };
 
     # FIXME: https://github.com/input-output-hk/cardano-node/issues/1023
-    systemd.sockets.cardano-node.bindsTo = [ "cardano-node.service" ];
+    systemd.sockets.cardano-node.partOf = [ "cardano-node.service" ];
 
     services.dnsmasq = {
       enable = true;

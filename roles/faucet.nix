@@ -5,10 +5,12 @@ let
   hostAddr = getListenIp nodes.${name};
   nodePort = globals.cardanoNodePort;
   monitoringPort = globals.cardanoNodePrometheusExporterPort;
+  inherit (pkgs.lib) mkIf;
 in {
 
   imports = [
     cardano-ops.modules.common
+    cardano-ops.modules.custom-metrics
 
     # Cardano faucet needs to pair a compatible version of wallet with node
     # The following service import will do this:
@@ -22,11 +24,6 @@ in {
     #(sourcePaths.cardano-node + "/nix/nixos")
   ];
 
-  environment.systemPackages = with pkgs; [
-    faucetPkgs.cardano-wallet-byron
-    jq
-  ];
-
   networking.firewall.allowedTCPPorts = [
     80
     443
@@ -35,21 +32,16 @@ in {
   ];
 
   services.monitoring-exporters.extraPrometheusExportersPorts = [ monitoringPort ];
+  services.custom-metrics = {
+    enable = true;
+    statsdExporter = "node";
+  };
 
   services.cardano-faucet = {
     enable = true;
     cardanoEnv = globals.environmentName;
-    package = faucetPkgs.packages.cardano-faucet-cr;
-    walletPackage = faucetPkgs.cardano-wallet-byron;
-
-    # Defaults to 1000 ADA per request
-    #lovelacesToGive = 1000000000;
-
-    # Defaults to INFO
-    #faucetLogLevel = "DEBUG";
-
-    # Defaults to a 1 day rate request limit, exemptable by API key
-    #secondsBetweenRequests = 3600;
+    cardanoEnvAttrs = globals.environmentConfig;
+    package = faucetPkgs.packages.cardano-faucet;
   };
 
   deployment.keys = {
@@ -81,6 +73,10 @@ in {
     hasPrometheus = [ hostAddr monitoringPort ];
   };
 
+  security.acme = mkIf (config.deployment.targetEnv != "libvirtd") {
+    email = "devops@iohk.io";
+    acceptTerms = true; # https://letsencrypt.org/repository/
+  };
   services.nginx = {
     enable = true;
     recommendedTlsSettings = true;
@@ -101,10 +97,9 @@ in {
 
       map $http_origin $origin_allowed {
         default 0;
-        https://testnet.iohkdev.io 1;
         https://testnets.cardano.org 1;
-        https://staging-testnets-cardano.netlify.com 1;
         https://staging-testnets-cardano.netlify.app 1;
+        http://localhost:8000 1;
       }
 
       map $origin_allowed $origin {

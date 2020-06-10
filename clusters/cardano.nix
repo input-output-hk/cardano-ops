@@ -82,8 +82,17 @@ let
               targets = [ "${globals.faucetHostname}.${globals.domain}" ];
               labels = { alias = "cardano-faucet"; };
             }];
-          })
-        );
+          }));
+          #})) ++
+          #[{
+          #  job_name = "netdata";
+          #  scrape_interval = "60s";
+          #  metrics_path = "/api/v1/allmetrics?format=prometheus";
+          #  static_configs = pkgs.lib.traceValFn (x: __toJSON x) (map (n: {
+          #    targets = [ "${n.name}-ip:${toString globals.netdataExporterPort}" ];
+          #    labels = { alias = "${n.name}"; };
+          #  }) (coreNodes ++ relayNodes ++ (topology.testNodes or [])));
+          #}];
       };
     } def;
   }) // (lib.optionalAttrs globals.withExplorer {
@@ -163,7 +172,7 @@ let
         inherit (def) producers;
       };
       deployment.ec2.region = def.region;
-      imports = if globals.withHighLoadRelays then [
+      imports = if (def.withHighLoadRelays or globals.withHighLoadRelays) then [
         t3-xlarge cardano-ops.roles.relay-high-load
       ] else [
         medium cardano-ops.roles.relay
@@ -240,7 +249,7 @@ let
     recursiveUpdate (
       recursiveUpdate {
         deployment.targetEnv = targetEnv;
-        nixpkgs.overlays = pkgs.cardano-ops.overlays;
+        nixpkgs.pkgs = pkgs;
       } (args // {
         imports = args.imports ++ (def.imports or []);
       }))

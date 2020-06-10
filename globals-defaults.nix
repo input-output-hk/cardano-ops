@@ -31,6 +31,7 @@ in {
   withLegacyExplorer = false;
   withCardanoDBExtended = true;
   withFaucet = false;
+  withFaucetOptions = {};
 
   initialPythonExplorerDBSyncDone = false;
 
@@ -50,11 +51,12 @@ in {
   byronProxyPrometheusExporterPort = 12799;
   cardanoExplorerPrometheusExporterPort = 8080;
   cardanoExplorerPythonApiPrometheusExporterPort = 7001;
+  netdataExporterPort = 19999;
 
   extraPrometheusExportersPorts = [
     pkgs.globals.cardanoNodePrometheusExporterPort
     pkgs.globals.byronProxyPrometheusExporterPort
     pkgs.globals.cardanoExplorerPrometheusExporterPort
-    pkgs.globals.cardanoExplorerPythonApiPrometheusExporterPort
+    pkgs.globals.netdataExporterPort
   ];
 }

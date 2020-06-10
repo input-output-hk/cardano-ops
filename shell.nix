@@ -62,13 +62,19 @@ let
       cd ${toString ./keys}/node-keys
       for i in {1..${toString nbCoreNodes}}; do
         cardano-cli shelley node key-gen-KES --verification-key-file node-kes$i.vkey --signing-key-file node-kes$i.skey
-        cardano-cli shelley node issue-op-cert --hot-kes-verification-key-file node-kes$i.vkey --cold-signing-key-file ../delegate-keys/delegate$i.skey --operational-certificate-issue-counter ../delegate-keys/delegate-opcert$i.counter --kes-period $PERIOD --out-file node$i.opcert
+        cardano-cli shelley node issue-op-cert --hot-kes-verification-key-file node-kes$i.vkey --cold-signing-key-file ../delegate-keys/delegate$i.skey --operational-certificate-issue-counter ../delegate-keys/delegate$i.counter --kes-period $PERIOD --out-file node$i.opcert
       done
+    '';
+  test-cronjob-script = writeShellScriptBin "test-cronjob-script" ''
+      set -euxo pipefail
+      PARAM=$1
+      cd ${toString ./scripts}
+      cardano-cli --version
     '';
 in  mkShell {
   buildInputs = [ iohkNix.niv nivOverrides nixops nix cardano-cli telnet dnsutils mkDevGenesis nix-diff migrate-keys pandoc
-    renew-kes-keys create-shelley-genesis-and-keys
-  ] ++ (with cardano-sl-pkgs.nix-tools.exes; [ cardano-sl-auxx cardano-sl-tools ]);
+    renew-kes-keys create-shelley-genesis-and-keys test-cronjob-script kes-rotation
+  ] ++ (with cardano-sl-pkgs.nix-tools.exes; lib.optionals (globals.topology.legacyCoreNodes != []) [ cardano-sl-auxx cardano-sl-tools ]);
   NIX_PATH = "nixpkgs=${path}";
   NIXOPS_DEPLOYMENT = "${globals.deploymentName}";
   passthru = {
