@@ -24,7 +24,7 @@ let
   };
   regionLetters = (attrNames regions);
 
-  indexedRegions = imap1 (rIndex: rLetter:
+  indexedRegions = imap0 (rIndex: rLetter:
     { inherit rIndex rLetter;
       region = getAttr rLetter regions; }
   ) regionLetters;
@@ -38,6 +38,7 @@ let
     map ({rLetter, rIndex, region}:
       let
         name = "e-${rLetter}-${toString nodeIndex}";
+        globalRelayIndex = rIndex * nbRelaysPerRegion + nodeIndex -1;
       in {
         inherit region name;
         producers =
@@ -48,9 +49,9 @@ let
           # all relay with same suffix in other regions:
           ++ map (r: "e-${r}-${toString nodeIndex}") (filter (r: r != rLetter) regionLetters)
           # a share of the community relays:
-          ++ (filter (p: mod p.index (nbRelay) == nodeIndex * rIndex - 1) ffProducers);
+          ++ (filter (p: mod p.index (nbRelay) == globalRelayIndex) ffProducers);
         org = "IOHK";
-        nodeId =  7 + nodeIndex * rIndex;
+        nodeId =  8 + globalRelayIndex;
       }
     ) (take relayNodesRegions indexedRegions)
   ) relayIndexesInRegion;
