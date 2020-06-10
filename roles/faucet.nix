@@ -5,6 +5,7 @@ let
   hostAddr = getListenIp nodes.${name};
   nodePort = globals.cardanoNodePort;
   monitoringPort = globals.cardanoNodePrometheusExporterPort;
+  inherit (pkgs.lib) mkIf;
 in {
 
   imports = [
@@ -72,6 +73,10 @@ in {
     hasPrometheus = [ hostAddr monitoringPort ];
   };
 
+  security.acme = mkIf (config.deployment.targetEnv != "libvirtd") {
+    email = "devops@iohk.io";
+    acceptTerms = true; # https://letsencrypt.org/repository/
+  };
   services.nginx = {
     enable = true;
     recommendedTlsSettings = true;

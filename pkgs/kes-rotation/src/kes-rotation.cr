@@ -96,7 +96,7 @@ class KesRotate
           "STDOUT: #{IO_CMD_OUT}\n" \
           "STDERR: #{IO_CMD_ERR}"
     if EMAIL_ENABLED
-      sendEmail("kesRotation ABORTED on #{@cluster} at #{NOW}", msg)
+      sendEmail("kesRotation ABORTED on #{@cluster} at #{NOW}", "#{msg}\n\nFULL LOG:\n#{IO_TEE_FULL}")
     else
       IO_TEE_OUT.puts msg
     end
