@@ -4,7 +4,7 @@ pkgs: {
 
   topology = import ./topologies/ff.nix pkgs;
 
-  withExplorer = true;
+  withExplorer = false;
   withLegacyExplorer = false;
   withHighLoadRelays = true;
 

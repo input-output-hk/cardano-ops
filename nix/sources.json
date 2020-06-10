@@ -24,15 +24,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync": {
-        "branch": "erikd/shelley-32byte-address-hash",
+        "branch": "tags/1.5.0",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "fc671f2b79ac639de7d3fe09fb8f7527c517ad7e",
-        "sha256": "0413d67dipd1bba0bzn6j0v5smwhm3mhhdyc7wxdy564ihz9pbl6",
+        "rev": "335424ccfe6114cb494e7e0e9694d27d4d875ebb",
+        "sha256": "11ivyixcg30baf3zl74lriz7f7bv1f9rgfk4ybyj2xkz16s2bvgk",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/fc671f2b79ac639de7d3fe09fb8f7527c517ad7e.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/335424ccfe6114cb494e7e0e9694d27d4d875ebb.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer-app": {
