@@ -7,5 +7,12 @@
     addr = "prophet.samleathers.com";
     port = 3001;
     # valency = 1; (default)
+  },
+  {
+   operator = "martin@atada";
+   node = "atada";
+   addr = "relays.stakepool.at";
+   port = 3001;
+   valency = 2;
   }
 ]
