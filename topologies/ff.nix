@@ -31,7 +31,8 @@ let
 
   relayIndexesInRegion = genList (i: i + 1) nbRelaysPerRegion;
 
-  ffProducers = lib.imap0 (index: cp: cp // { inherit index; }) globals.static.ffProducers;
+  ffProducers = lib.imap0 (index: cp: cp // { inherit index; })
+    (globals.static.additionalPeers ++ import ./ff-peers.nix);
 
   relayNodesBaseDef = concatMap (nodeIndex:
     map ({rLetter, rIndex, region}:
