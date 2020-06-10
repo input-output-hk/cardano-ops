@@ -8,4 +8,10 @@
     port = 3001;
     # valency = 1; (default)
   }
+  {
+    operator = "clio";
+    addr = "relays.ff.clio.one";
+    port = 6000;
+    valency = 1;
+  }
 ]
