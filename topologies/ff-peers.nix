@@ -7,5 +7,23 @@
     addr = "prophet.samleathers.com";
     port = 3001;
     # valency = 1; (default)
+  },
+    {
+    operator = "planetstake";
+    addr = "stake-relay1.planetstake.com";
+    port = 3001;
+    # valency = 1; (default)
+  },
+  {
+    operator = "planetstake";
+    addr = "stake-relay2.planetstake.com";
+    port = 3002;
+    # valency = 1; (default)
+  },
+  {
+    operator = "planetstake";
+    addr = "stake-relay3.planetstake.com";
+    port = 3003;
+    # valency = 1; (default)
   }
 ]
