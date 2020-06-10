@@ -14,7 +14,7 @@
     port = 3007;
     valency = 1;
   }
-   {
+  {
     operator = "SkyLightPool";
     addr = "relay2.oqulent.com";
     port = 3008;
