@@ -129,4 +129,10 @@
     port = 5001;
     valency = 1;
   }
+  {
+    operator = "EARTH Relay02";
+    addr = "relay.adainground.com";
+    port = 3002;
+    valency = 2;
+  }
 ]
