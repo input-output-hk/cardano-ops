@@ -61,4 +61,16 @@
     port = 4321;
     valency = 4;
   }
+  {
+    operator = "cheapstaking";
+    addr = "spicy.cheapstaking.com";
+    port = 3011;
+    valency = 1;
+  }
+  {
+    operator = "cheapstaking";
+    addr = "pungent.cheapstaking.com";
+    port = 3012;
+    valency = 1;
+  }
 ]
