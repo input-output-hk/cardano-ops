@@ -199,4 +199,16 @@
     port = 5665;
     valency = 1;
   }
+  {
+    operator = "AndrewWestberg";
+    node = "BCSH";
+    addr = "relay0.bluecheesestakehouse.com";
+    port = 5001;
+  }
+  {
+    operator = "AndrewWestberg";
+    node = "BCSH";
+    addr = "relay1.bluecheesestakehouse.com";
+    port = 5002;
+  }
 ]
