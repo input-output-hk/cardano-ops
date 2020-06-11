@@ -129,4 +129,10 @@
     port = 5001;
     valency = 1;
   }
+  {
+    operator = "ADAfrog";
+    addr = "tadpole.adafrog.io";
+    port = 3728;
+    valency = 2;
+  }
 ]
