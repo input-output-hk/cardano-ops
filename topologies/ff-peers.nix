@@ -8,4 +8,10 @@
     port = 3001;
     # valency = 1; (default)
   }
+  {
+    operator = "cheapstaking";
+    addr = "spicy.cheapstaking.com";
+    port = 3011;
+    valency = 1;
+  }
 ]
