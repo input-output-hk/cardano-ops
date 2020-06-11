@@ -112,11 +112,6 @@
     valency = 2;
   }
   {
-    operator = "Cardaspians";
-    addr = "relays.cardaspians.io";
-    port = 3001;
-    valency = 2;
-  }
     operator = "antonio_csp";
     addr = "relay1.capitalstakepool.info";
     port = 9998;
@@ -133,5 +128,11 @@
     addr = "85.114.128.66";
     port = 5001;
     valency = 1;
+  }
+  {
+    operator = "Cardaspians";
+    addr = "relays.cardaspians.io";
+    port = 3001;
+    valency = 2;
   }
 ]
