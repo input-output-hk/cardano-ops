@@ -111,4 +111,10 @@
     port = 3002;
     valency = 2;
   }
+  {
+    operator = "antonio_csp";
+    addr = "relay1.capitalstakepool.info";
+    port = 9998;
+    valency = 2;
+  }
 ]
