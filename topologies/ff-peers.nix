@@ -185,4 +185,18 @@
     port = 4002;
     valency = 1;
   }
+  {
+    operator = "nchatur_relay_2_BFSA";
+    node = "BFSA";
+    addr = "159.203.34.2";
+    port = 5666;
+    valency = 1;
+  }
+  {
+    operator = "nchatur_relay_1_BFSA";
+    node = "BFSA";
+    addr = "142.93.115.228";
+    port = 5665;
+    valency = 1;
+  }
 ]
