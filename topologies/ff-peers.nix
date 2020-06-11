@@ -135,4 +135,16 @@
     port = 3001;
     valency = 1;
   }
+  {
+    operator = "dezentstaking";
+    addr = "relayone.dezent.online";
+    port = 8885;
+    valency = 1;
+  }
+  {
+    operator = "Cardaspians";
+    addr = "relays.cardaspians.io";
+    port = 3001;
+    valency = 2;
+  }
 ]
