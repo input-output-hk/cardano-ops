@@ -7,7 +7,7 @@
     addr = "prophet.samleathers.com";
     port = 3001;
     # valency = 1; (default)
-  },
+  }
   {
     operator = "TITANstaking";
     addr = "relays.ff.titanstaking.io";
