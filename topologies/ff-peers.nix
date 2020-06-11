@@ -159,4 +159,10 @@
     port = 3728;
     valency = 2;
   }
+  {
+    operator = "BKIND Relay";
+    addr = "song1.smitstakepools.online";
+    port = 3001;
+    valency = 1;
+  }
 ]
