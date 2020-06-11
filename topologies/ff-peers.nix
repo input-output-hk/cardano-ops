@@ -45,4 +45,14 @@
     addr = "95.216.188.94";
     port = 9000;
   }
+  {
+    operator = "Chris-Graffagnino";
+    addr = "194.32.79.182";
+    port = 3001;
+  }
+  {
+    operator = "Chris-Graffagnino";
+    addr = "194.32.77.27";
+    port = 3001;
+  }
 ]
