@@ -130,10 +130,40 @@
     valency = 1;
   }
   {
+    operator = "StakeNuts.com";
+    addr = "ff.stakenuts.com";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "dezentstaking";
+    addr = "relayone.dezent.online";
+    port = 8885;
+    valency = 1;
+  }
+  {
     operator = "Cardaspians";
     addr = "relays.cardaspians.io";
     port = 3001;
     valency = 2;
+  }
+  {
+    operator = "EARTH Relay01";
+    addr = "relay.adainground.com";
+    port = 3001;
+    valency = 2;
+  }
+  {
+    operator = "ADAfrog";
+    addr = "tadpole.adafrog.io";
+    port = 3728;
+    valency = 2;
+  }
+  {
+    operator = "BKIND Relay";
+    addr = "song1.smitstakepools.online";
+    port = 3001;
+    valency = 1;
   }
   {
     operator = "LordWotton";
@@ -142,7 +172,7 @@
     port = 4001;
     valency = 1;
   }
-    {
+  {
     operator = "LordWotton";
     node = "RIOT";
     addr = "relay1.riotpools.com";
