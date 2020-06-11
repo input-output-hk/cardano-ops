@@ -153,4 +153,10 @@
     port = 3001;
     valency = 2;
   }
+  {
+    operator = "ADAfrog";
+    addr = "tadpole.adafrog.io";
+    port = 3728;
+    valency = 2;
+  }
 ]
