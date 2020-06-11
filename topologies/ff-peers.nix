@@ -211,4 +211,10 @@
     addr = "relay1.bluecheesestakehouse.com";
     port = 5002;
   }
+  {
+    operator = "HEX Relay 0x01";
+    addr = "104.248.18.79";
+    port = 8081;
+    valency = 1;
+  }  
 ]
