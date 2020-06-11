@@ -22,4 +22,10 @@
     addr = "stake-relay3.planetstake.com";
     port = 3003;
   }
+  {
+    operator = "clio";
+    addr = "relays.ff.clio.one";
+    port = 6000;
+    valency = 1;
+  }
 ]
