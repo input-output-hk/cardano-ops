@@ -13,6 +13,11 @@
     port = 6060;
   }
   {
+    operator = "onyxstakepool";
+    addr = "relays.onyxstakepool.com";
+    port = 3001;
+  }
+  {
     operator = "planetstake";
     addr = "stake-relay1.planetstake.com";
     port = 3001;
