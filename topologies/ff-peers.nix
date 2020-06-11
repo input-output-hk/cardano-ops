@@ -130,9 +130,9 @@
     valency = 1;
   }
   {
-    operator = "EARTH Relay02";
+    operator = "EARTH Relay01";
     addr = "relay.adainground.com";
-    port = 3002;
+    port = 3001;
     valency = 2;
   }
 ]
