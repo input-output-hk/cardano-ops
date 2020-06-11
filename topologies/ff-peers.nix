@@ -7,5 +7,11 @@
     addr = "prophet.samleathers.com";
     port = 3001;
     # valency = 1; (default)
-  }
+  },
+  {
+    operator = "samcgill";
+    addr = "relays.ddnsfree.com";
+    port = 3002;
+    valency = 2;
+  },
 ]
