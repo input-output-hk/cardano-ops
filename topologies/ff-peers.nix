@@ -221,14 +221,14 @@
     operator = "Angel01";
     node = "ANGEL relay1";
     addr = "relay1.angelstakepool.net";
-    port: 3001;
-    valency= 1;
+    port = 3001;
+    valency = 1;
   }
   {
     operator = "Angel01";
     node = "ANGEL relay2";
     addr = "relay2.angelstakepool.net";
-    port: 3002;
-    valency= 1;
+    port = 3002;
+    valency = 1;
   }  
 ]
