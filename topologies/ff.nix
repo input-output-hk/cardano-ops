@@ -38,7 +38,7 @@ let
     map ({rLetter, rIndex, region}:
       let
         name = "e-${rLetter}-${toString nodeIndex}";
-        globalRelayIndex = rIndex * nbRelaysPerRegion + nodeIndex -1;
+        globalRelayIndex = rIndex + (nodeIndex - 1) * relayNodesRegions;
       in {
         inherit region name;
         producers =
