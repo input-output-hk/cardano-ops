@@ -129,4 +129,10 @@
     port = 5001;
     valency = 1;
   }
+  {
+    operator = "dezentstaking";
+    addr = "relayone.dezent.online";
+    port = 8885;
+    valency = 1;
+  }
 ]
