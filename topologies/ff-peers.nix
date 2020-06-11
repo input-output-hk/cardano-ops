@@ -14,4 +14,10 @@
     port = 3011;
     valency = 1;
   }
+  {
+    operator = "cheapstaking";
+    addr = "pungent.cheapstaking.com";
+    port = 3012;
+    valency = 1;
+  }
 ]
