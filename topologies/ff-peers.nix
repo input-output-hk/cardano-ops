@@ -39,6 +39,21 @@
     valency = 1;
   }
   {
+    operator = "BlockNgine";
+    addr = "cardano-relay1.blockngine.io";
+    port = 3001;
+  }
+  {
+    operator = "BlockNgine";
+    addr = "cardano-relay2.blockngine.io";
+    port = 3001;
+  }
+  {
+    operator = "BlockNgine";
+    addr = "cardano-relay3.blockngine.io";
+    port = 3001;
+  }
+  {
     operator = "SkyLightPool";
     addr = "relay1.oqulent.com";
     port = 3007;
