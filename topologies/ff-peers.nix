@@ -55,4 +55,10 @@
     addr = "194.32.77.27";
     port = 3001;
   }
+  {
+    operator = "TITANstaking";
+    addr = "relays.ff.titanstaking.io";
+    port = 4321;
+    valency = 4;
+  }
 ]
