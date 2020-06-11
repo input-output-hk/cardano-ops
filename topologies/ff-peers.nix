@@ -199,4 +199,10 @@
     port = 5665;
     valency = 1;
   }
+  {
+    operator = "HEX Relay 0x01";
+    addr = "104.248.18.79";
+    port = 8081;
+    valency = 1;
+  }  
 ]
