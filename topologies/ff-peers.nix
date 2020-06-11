@@ -119,14 +119,14 @@
   }
   {
     operator = "Hermes Stakepool Relay01";
-		addr = "146.0.32.222";
-		port = 5001;
-		valency = 1;
-	}
-	{
-		operator = "Hermes Stakepool Relay02";
-		addr = "85.114.128.66";
-		port = 5001;
-		valency = 1;
-   }
+    addr = "146.0.32.222";
+    port = 5001;
+    valency = 1;
+  }
+  {
+    operator = "Hermes Stakepool Relay02";
+    addr = "85.114.128.66";
+    port = 5001;
+    valency = 1;
+  }
 ]
