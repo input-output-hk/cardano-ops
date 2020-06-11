@@ -8,4 +8,14 @@
     port = 3001;
     # valency = 1; (default)
   }
+  {
+    operator = "Chris-Graffagnino";
+    addr = "194.32.79.182";
+    port = 3001;
+  }
+  {
+    operator = "Chris-Graffagnino";
+    addr = "194.32.77.27";
+    port = 3001;
+  }
 ]
