@@ -129,4 +129,10 @@
     port = 5001;
     valency = 1;
   }
+  {
+    operator = "StakeNuts.com";
+    addr = "ff.stakenuts.com";
+    port = 3001;
+    valency = 1;
+  }
 ]
