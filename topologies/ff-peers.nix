@@ -11,7 +11,6 @@
     operator = "ispool.live";
     addr = "95.217.190.205";
     port = 6060;
-    valency = 1;
   }
   {
     operator = "planetstake";
