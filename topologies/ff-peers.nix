@@ -8,6 +8,11 @@
     port = 3001;
   }
   {
+    operator = "pegasus";
+    addr = "ff-relay.pegasuspool.info";
+    port = 3001;
+  }
+  {
     operator = "ispool.live";
     addr = "95.217.190.205";
     port = 6060;
