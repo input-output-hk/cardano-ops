@@ -28,4 +28,16 @@
     port = 6000;
     valency = 1;
   }
+  {
+    operator = "SkyLightPool";
+    addr = "relay1.oqulent.com";
+    port = 3007;
+    valency = 1;
+  }
+  {
+    operator = "SkyLightPool";
+    addr = "relay2.oqulent.com";
+    port = 3008;
+    valency = 1;
+  }
 ]
