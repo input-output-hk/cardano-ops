@@ -111,4 +111,10 @@
     port = 3002;
     valency = 2;
   }
+  {
+    operator = "Cardaspians";
+    addr = "relays.cardaspians.io";
+    port = 3001;
+    valency = 2;
+  }
 ]
