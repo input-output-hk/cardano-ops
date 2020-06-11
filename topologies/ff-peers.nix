@@ -80,4 +80,10 @@
    port = 3001;
    valency = 2;
   }
+  {
+    operator = "samcgill";
+    addr = "relays.ddnsfree.com";
+    port = 3002;
+    valency = 2;
+  }
 ]
