@@ -8,6 +8,11 @@
     port = 3001;
   }
   {
+    operator = "ispool.live";
+    addr = "95.217.190.205";
+    port = 6060;
+  }
+  {
     operator = "onyxstakepool";
     addr = "relays.onyxstakepool.com";
     port = 3001;
