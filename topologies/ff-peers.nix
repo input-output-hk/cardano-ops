@@ -263,5 +263,5 @@
     addr = "ff-relay2.cardanoland.com";
     port = 8650;
     valency = 1;
-  }  
-      
+  } 
+]    
