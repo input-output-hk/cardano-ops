@@ -130,6 +130,30 @@
     valency = 1;
   }
   {
+    operator = "StakeNuts.com";
+    addr = "ff.stakenuts.com";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "dezentstaking";
+    addr = "relayone.dezent.online";
+    port = 8885;
+    valency = 1;
+  }
+  {
+    operator = "Cardaspians";
+    addr = "relays.cardaspians.io";
+    port = 3001;
+    valency = 2;
+  }
+  {
+    operator = "EARTH Relay01";
+    addr = "relay.adainground.com";
+    port = 3001;
+    valency = 2;
+  }
+  {
     operator = "ADAfrog";
     addr = "tadpole.adafrog.io";
     port = 3728;
