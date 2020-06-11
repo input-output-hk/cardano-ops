@@ -135,4 +135,18 @@
     port = 3001;
     valency = 2;
   }
+  {
+    operator = "LordWotton";
+    node = "RIOT";
+    addr = "relay1.riotpools.com";
+    port = 4001;
+    valency = 1;
+  }
+    {
+    operator = "LordWotton";
+    node = "RIOT";
+    addr = "relay1.riotpools.com";
+    port = 4002;
+    valency = 1;
+  }
 ]
