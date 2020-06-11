@@ -7,5 +7,10 @@
     addr = "prophet.samleathers.com";
     port = 3001;
     # valency = 1; (default)
+  },
+  {
+    operator = "homer1";
+    addr = "95.216.188.94";
+    port = 9000;
   }
 ]
