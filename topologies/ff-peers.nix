@@ -13,5 +13,5 @@
     addr = "relays.ddnsfree.com";
     port = 3002;
     valency = 2;
-  },
+  }
 ]
