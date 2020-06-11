@@ -40,4 +40,9 @@
     port = 3008;
     valency = 1;
   }
+  {
+    operator = "homer1";
+    addr = "95.216.188.94";
+    port = 9000;
+  }
 ]
