@@ -9,7 +9,7 @@
   }
   {
     operator = "pegasus";
-    addr = "relay1.pegasuspool.info";
+    addr = "ff-relay.pegasuspool.info";
     port = 3001;
   }
   {
