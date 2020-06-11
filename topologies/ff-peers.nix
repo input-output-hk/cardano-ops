@@ -136,6 +136,12 @@
     valency = 1;
   }
   {
+    operator = "[RPST] La RepsistancE";
+    addr = "relay.fftn.cardano.none.guru";
+    port = 31001;
+    valency = 2;
+  }
+  {
     operator = "dezentstaking";
     addr = "relayone.dezent.online";
     port = 8885;
