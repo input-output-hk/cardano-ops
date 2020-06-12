@@ -59,6 +59,12 @@
     port = 3001;
   }
   {
+    operator = "Staking CASH";
+    addr = "167.71.15.97";
+    port = 9630;
+    valency = 1;
+  }
+  {
     operator = "SkyLightPool";
     addr = "relay1.oqulent.com";
     port = 3007;
