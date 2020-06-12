@@ -290,7 +290,7 @@
   }
   {
     operator = "TEAM";
-    addr = 3.14.36.206;
+    addr = "3.14.36.206";
     port = 4250;
     valency = 1;
   }
