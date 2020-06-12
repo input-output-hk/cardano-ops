@@ -351,4 +351,16 @@
     port = 3000;
     valency = 2;
   }
+  {
+    operator = "freedom-relay1";
+    addr = "kokosz.nerdpol.ovh";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "freedom-relay2";
+    addr = "kokosz.nerdpol.ovh";
+    port = 3002;
+    valency = 1;
+  }
 ]
