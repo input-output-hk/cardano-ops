@@ -235,5 +235,12 @@
     addr = "relay2.angelstakepool.net";
     port = 3002;
     valency = 1;
+  }
+  {
+    operator = "Crypto2099, Corp.";
+    node = "SPIKE RN";
+    addr = "relays.ff.crypto2099.io";
+    port = 3001;
+    valency = 2;
   }  
 ]
