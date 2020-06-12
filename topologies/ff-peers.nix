@@ -110,11 +110,23 @@
     valency = 1;
   }
   {
-   operator = "atada_stakepool_austria";
-   node = "atada";
-   addr = "relays.stakepool.at";
-   port = 3001;
-   valency = 2;
+    operator = "Kiwipool Staking";
+    addr = "love.kiwipool.org";
+    port = 9630;
+    valency = 1;
+  }
+  {
+    operator = "Kiwipool Staking";
+    addr = "unity.kiwipool.org";
+    port = 9630;
+    valency = 1;
+  }
+  {
+    operator = "atada_stakepool_austria";
+    node = "atada";
+    addr = "relays.stakepool.at";
+    port = 3001;
+    valency = 2;
   }
   {
     operator = "samcgill";
@@ -243,6 +255,13 @@
     valency = 1;
   }
   {
+    operator = "Crypto2099, Corp.";
+    node = "SPIKE RN";
+    addr = "relays.ff.crypto2099.io";
+    port = 3001;
+    valency = 2;
+  }  
+  {
     operator = "ONEW Relay01";
     addr = "3.127.174.250";
     port = 3001;
@@ -287,6 +306,44 @@
     addr = "relay.orionada.com";
     port = 3001;
     valency = 2;
+  }
+  {
+    operator = "4ADA relay 1";
+    addr = "4ADA.staking4ada.org";
+    port = 8081;
+    valency = 1;
+  }
+  {
+    operator = "4ADA relay 2";
+    addr = "4ADA.staking4ada.org";
+    port = 8082;
+    valency = 1;
+  }
+  {
+    operator = "TEAM";
+    addr = "3.14.36.206";
+    port = 4250;
+    valency = 1;
+  }
+  {
+    operator = "CROWN";
+    node = "Relay1";
+    addr = "78.47.182.92";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "CROWN";
+    node = "Relay2";
+    addr = "78.47.182.92";
+    port = 3002;
+    valency = 1;
+  }
+  {
+    operator = "CROWN";
+    node = "Relay3";
+    addr = "94.130.99.102";
+    port = 3000;
   }
   {
     operator = "Smaug";
