@@ -363,4 +363,16 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "sk";
+    addr = "relay1.wastaking.xyz";
+    port = 5000;
+    valency = 1;
+  }
+  {
+    operator = "sk";
+    addr = "relay2.wastaking.xyz";
+    port = 5002;
+    valency = 1;
+  }
 ]
