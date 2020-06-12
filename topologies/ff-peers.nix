@@ -282,4 +282,10 @@
     port = 8650;
     valency = 1;
   }
+  {
+    operator = "ORADA";
+    addr = "relay.orionada.com";
+    port = 3001;
+    valency = 2;
+  }
 ]
