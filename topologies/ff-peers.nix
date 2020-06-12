@@ -59,6 +59,12 @@
     port = 3001;
   }
   {
+    operator = "Staking CASH";
+    addr = "167.71.15.97";
+    port = 9630;
+    valency = 1;
+  }
+  {
     operator = "SkyLightPool";
     addr = "relay1.oqulent.com";
     port = 3007;
@@ -104,11 +110,23 @@
     valency = 1;
   }
   {
-   operator = "atada_stakepool_austria";
-   node = "atada";
-   addr = "relays.stakepool.at";
-   port = 3001;
-   valency = 2;
+    operator = "Kiwipool Staking";
+    addr = "love.kiwipool.org";
+    port = 9630;
+    valency = 1;
+  }
+  {
+    operator = "Kiwipool Staking";
+    addr = "unity.kiwipool.org";
+    port = 9630;
+    valency = 1;
+  }
+  {
+    operator = "atada_stakepool_austria";
+    node = "atada";
+    addr = "relays.stakepool.at";
+    port = 3001;
+    valency = 2;
   }
   {
     operator = "samcgill";
@@ -243,4 +261,50 @@
     port = 3001;
     valency = 2;
   }  
+  {
+    operator = "ONEW Relay01";
+    addr = "3.127.174.250";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "ONEW Relay02";
+    addr = "18.223.41.0";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "CardanoLand";
+    node = "CardanoLand relay1";
+    addr = "ff-relay.cardanoland.com";
+    port = 8650;
+    valency = 1;
+  }
+  {
+    operator = "CardanoLand";
+    node = "CardanoLand relay2";
+    addr = "ff-relay.cardanoland.com";
+    port = 8750;
+    valency = 1;
+  }
+  {
+    operator = "CardanoLand";
+    node = "CardanoLand relay3";
+    addr = "ff-relay.cardanoland.com";
+    port = 8850;
+    valency = 1;
+  }
+  {
+    operator = "CardanoLand";
+    node = "CardanoLand relay4";
+    addr = "ff-relay2.cardanoland.com";
+    port = 8650;
+    valency = 1;
+  }
+  {
+    operator = "ORADA";
+    addr = "relay.orionada.com";
+    port = 3001;
+    valency = 2;
+  }
 ]
