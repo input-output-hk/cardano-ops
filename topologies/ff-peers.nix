@@ -110,6 +110,18 @@
     valency = 1;
   }
   {
+    operator = "Kiwipool Staking";
+    addr = "love.kiwipool.org";
+    port = 9630;
+    valency = 1;
+  }
+  {
+    operator = "Kiwipool Staking";
+    addr = "unity.kiwipool.org";
+    port = 9630;
+    valency = 1;
+  }
+  {
    operator = "atada_stakepool_austria";
    node = "atada";
    addr = "relays.stakepool.at";
