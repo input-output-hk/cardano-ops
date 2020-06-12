@@ -319,4 +319,10 @@
     port = 8082;
     valency = 1;
   }
+  {
+    operator = "TEAM";
+    addr = "3.14.36.206";
+    port = 4250;
+    valency = 1;
+  }
 ]
