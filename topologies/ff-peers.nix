@@ -235,33 +235,45 @@
     addr = "relay2.angelstakepool.net";
     port = 3002;
     valency = 1;
-  }  
+  }
+  {
+    operator = "ONEW Relay01";
+    addr = "3.127.174.250";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "ONEW Relay02";
+    addr = "18.223.41.0";
+    port = 3001;
+    valency = 1;
+  }
   {
     operator = "CardanoLand";
     node = "CardanoLand relay1";
     addr = "ff-relay.cardanoland.com";
     port = 8650;
     valency = 1;
-  }  
+  }
   {
     operator = "CardanoLand";
     node = "CardanoLand relay2";
     addr = "ff-relay.cardanoland.com";
     port = 8750;
     valency = 1;
-  }  
+  }
   {
     operator = "CardanoLand";
     node = "CardanoLand relay3";
     addr = "ff-relay.cardanoland.com";
     port = 8850;
     valency = 1;
-  }  
+  }
   {
     operator = "CardanoLand";
     node = "CardanoLand relay4";
     addr = "ff-relay2.cardanoland.com";
     port = 8650;
     valency = 1;
-  } 
-]    
+  }
+]
