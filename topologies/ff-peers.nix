@@ -288,4 +288,10 @@
     port = 3001;
     valency = 2;
   }
+  {
+    operator = "Smaug";
+    addr = "relay.smaug.group";
+    port = 3000;
+    valency = 2;
+  }
 ]
