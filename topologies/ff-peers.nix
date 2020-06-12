@@ -235,5 +235,17 @@
     addr = "relay2.angelstakepool.net";
     port = 3002;
     valency = 1;
-  }  
+  }
+  {
+    operator = "ONEW Relay01";
+    addr = "3.127.174.250";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "ONEW Relay02";
+    addr = "18.223.41.0";
+    port = 3001;
+    valency = 1;
+  }
 ]
