@@ -122,11 +122,11 @@
     valency = 1;
   }
   {
-   operator = "atada_stakepool_austria";
-   node = "atada";
-   addr = "relays.stakepool.at";
-   port = 3001;
-   valency = 2;
+    operator = "atada_stakepool_austria";
+    node = "atada";
+    addr = "relays.stakepool.at";
+    port = 3001;
+    valency = 2;
   }
   {
     operator = "samcgill";
@@ -254,6 +254,13 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "Crypto2099, Corp.";
+    node = "SPIKE RN";
+    addr = "relays.ff.crypto2099.io";
+    port = 3001;
+    valency = 2;
+  }  
   {
     operator = "ONEW Relay01";
     addr = "3.127.174.250";
