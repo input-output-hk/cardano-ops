@@ -325,4 +325,24 @@
     port = 4250;
     valency = 1;
   }
+  {
+    operator = "CROWN";
+    node = "Relay1";
+    addr = "78.47.182.92";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "CROWN";
+    node = "Relay2";
+    addr = "78.47.182.92";
+    port = 3002;
+    valency = 1;
+  }
+  {
+    operator = "CROWN";
+    node = "Relay3";
+    addr = "94.130.99.102";
+    port = 3000;
+  }
 ]
