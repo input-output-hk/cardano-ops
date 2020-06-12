@@ -307,4 +307,16 @@
     port = 3001;
     valency = 2;
   }
+  {
+    operator = "4ADA relay 1";
+    addr = "4ADA.staking4ada.org";
+    port = 8081;
+    valency = 1;
+  }
+  {
+    operator = "4ADA relay 2";
+    addr = "4ADA.staking4ada.org";
+    port = 8082;
+    valency = 1;
+  }
 ]
