@@ -248,4 +248,32 @@
     port = 3001;
     valency = 1;
   }
+  {
+    operator = "CardanoLand";
+    node = "CardanoLand relay1";
+    addr = "ff-relay.cardanoland.com";
+    port = 8650;
+    valency = 1;
+  }
+  {
+    operator = "CardanoLand";
+    node = "CardanoLand relay2";
+    addr = "ff-relay.cardanoland.com";
+    port = 8750;
+    valency = 1;
+  }
+  {
+    operator = "CardanoLand";
+    node = "CardanoLand relay3";
+    addr = "ff-relay.cardanoland.com";
+    port = 8850;
+    valency = 1;
+  }
+  {
+    operator = "CardanoLand";
+    node = "CardanoLand relay4";
+    addr = "ff-relay2.cardanoland.com";
+    port = 8650;
+    valency = 1;
+  }
 ]
