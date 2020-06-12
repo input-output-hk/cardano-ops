@@ -345,4 +345,10 @@
     addr = "94.130.99.102";
     port = 3000;
   }
+  {
+    operator = "Smaug";
+    addr = "relay.smaug.group";
+    port = 3000;
+    valency = 2;
+  }
 ]
