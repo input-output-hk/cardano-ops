@@ -363,4 +363,16 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "cloud_relay1";
+    addr = "3.15.6.176";
+    port = 8081;
+    valency = 1;
+  }
+  {
+    operator = "cloud_relay2";
+    addr = "3.15.6.176";
+    port = 8082;
+    valency = 1;
+  }
 ]
