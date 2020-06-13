@@ -363,4 +363,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "Cardano DAN's Stake Pool";
+    addr = "54.219.39.14";
+    port = 4000;
+    valency = 1;
+  }
 ]
