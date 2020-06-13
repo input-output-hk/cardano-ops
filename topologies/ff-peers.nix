@@ -364,15 +364,15 @@
     valency = 1;
   }
   {
-    "operator": "CROWN-Relay-1";
-    "addr": "ff-relay1.StakeADAcoins.io";
-    "port": 3000;
-    "valency": 1;
+    "operator" = "CROWN-Relay-1";
+    "addr" = "ff-relay1.StakeADAcoins.io";
+    "port" = 3000;
+    "valency" = 1;
   }
   { 
-    "operator": "CROWN-Relay-2";
-    "addr": "ff-relay2.StakeADAcoins.io";
-    "port": 3000;
-    "valency": 1;
+    "operator" = "CROWN-Relay-2";
+    "addr" = "ff-relay2.StakeADAcoins.io";
+    "port" = 3000;
+    "valency" = 1;
   }
 ]
