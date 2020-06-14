@@ -363,4 +363,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "INDIA Stake Pool";
+    addr = "relay1.indiastakepool.com";
+    port = 3001;
+    valency = 1;
+   }
 ]
