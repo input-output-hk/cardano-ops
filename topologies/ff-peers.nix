@@ -363,4 +363,22 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "sobit";
+    addr = "toki.relay.staking.outofbits.com";
+    port = 3333;
+    valency = 1;
+  }
+  {
+    operator = "sobit";
+    addr = "kaya.relay.staking.outofbits.com";
+    port = 3333;
+    valency = 1;
+  }
+  {
+    operator = "sobit";
+    addr = "lin.relay.staking.outofbits.com";
+    port = 3333;
+    valency = 1;
+  }
 ]
