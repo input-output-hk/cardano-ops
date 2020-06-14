@@ -363,4 +363,16 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "CPS";
+    addr = "160.16.60.146";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "CPS";
+    addr = "160.16.60.146";
+    port = 3002;
+    valency = 1;
+  }
 ]
