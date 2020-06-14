@@ -363,4 +363,16 @@
     port = 3002;
     valency = 1;
   }
+    {
+    operator = "MoxieStakePool";
+    addr = "18.191.134.79";
+    port = 8081;
+    valency = 4;
+  }
+      {
+    operator = "MoxieStakePool";
+    addr = "18.191.134.79";
+    port = 8082;
+    valency = 4;
+  }
 ]
