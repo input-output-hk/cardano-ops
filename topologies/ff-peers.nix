@@ -363,4 +363,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "THETA";
+    addr = "144.76.17.207";
+    port = 50073;
+    valency = 1;
+  }
 ]
