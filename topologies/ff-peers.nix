@@ -363,4 +363,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "Reliable Staking (RELY)";
+    addr = "44.231.131.180";
+    port = 3001;
+    valency = 1;
+  }
 ]
