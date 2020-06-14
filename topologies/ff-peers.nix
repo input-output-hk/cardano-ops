@@ -363,4 +363,18 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "BetterSTAKE";
+    node = "Relay 1";
+    addr = "209.97.174.197";
+    port = 8081;
+    valency = 1;
+  }
+  {
+    operator = "BetterSTAKE";
+    node = "Relay 2";
+    addr = "209.97.174.197";
+    port = 8082;
+    valency = 1;
+  }
 ]
