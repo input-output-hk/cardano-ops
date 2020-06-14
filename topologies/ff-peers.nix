@@ -363,4 +363,16 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "Tilia I/O";
+    "addr": "relay1.tiliaio.com";
+    "port": 7856;
+    "valency": 1
+  }
+  {
+    operator = "Tilia I/O";
+    "addr": "relay2.tiliaio.com";
+    "port": 7856;
+    "valency": 1
+  }  
 ]
