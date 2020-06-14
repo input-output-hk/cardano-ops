@@ -291,13 +291,13 @@
   {
     operator = "Crazy Career";
     addr = "86.26.138.25";
-    port = 8081;
-    valency = 2;
+    port = 3001;
+    valency = 1;
   }
   {
     operator = "Crazy Career";
     addr = "86.26.138.25";
-    port = 8082;
-    valency = 2;
+    port = 3002;
+    valency = 1;
   }
 ]
