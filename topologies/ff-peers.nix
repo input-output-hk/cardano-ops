@@ -608,4 +608,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "DoxaPool";
+    addr = "35.228.131.120";
+    port = 3001;
+    valency = 2;
+  }
 ]
