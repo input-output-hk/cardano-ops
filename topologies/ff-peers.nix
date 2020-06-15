@@ -363,4 +363,16 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "ADAMEOW-r1";
+    addr = "r1.node.cardano.adameow.com";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "ADAMEOW-r2";
+    addr = "r2.node.cardano.adameow.com";
+    port = 3002;
+    valency = 1;
+  }
 ]
