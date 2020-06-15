@@ -28,6 +28,11 @@
     port = 4242;
   }  
   {
+    operator = "phba2061";
+    addr = "taurus-ada.phba2061.com";
+    port = 7051;
+  }   
+  {
     operator = "planetstake";
     addr = "stake-relay1.planetstake.com";
     port = 3001;
