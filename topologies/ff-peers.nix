@@ -363,4 +363,16 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "genePool-relay1";
+    addr = "194-36-88-164.cloud-xip.io";
+    port = 8001;
+    valency = 1;
+  }
+  {
+    operator = "genePool-relay2";
+    addr = "104-128-66-166.cloud-xip.io";
+    port = 8001;
+    valency = 1;
+  }
 ]
