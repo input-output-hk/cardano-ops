@@ -596,4 +596,18 @@
     port = 3001;
     valency = 2;
   }
+  {
+    operator = "ADAforge";
+    node = "relay1";
+    addr = "ad1612.spdns.de";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "ADAforge";
+    node = "relay2";
+    addr = "78.47.125.202";
+    port = 3001;
+    valency = 1;
+  }    
 ]
