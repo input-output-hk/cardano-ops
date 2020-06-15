@@ -596,4 +596,16 @@
     port = 3001;
     valency = 2;
   }
+  {
+    operator = "CardanesiaRelay1";
+    addr = "35.232.118.177";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "CardanesiaRelay2";
+    addr = "35.232.118.177";
+    port = 3002;
+    valency = 1;
+  }
 ]
