@@ -596,4 +596,10 @@
     port = 3001;
     valency = 2;
   }
+  {
+    operator = "StakhanoviteIO";
+    addr = "91.121.85.255";
+    port = 9001;
+    valency = 1;
+  }
 ]
