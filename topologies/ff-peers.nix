@@ -363,4 +363,11 @@
     port = 3002;
     valency = 1;
   }
+{
+   operator = "Ankachain Solutions";
+   node = "ANQA";
+   addr = "relay.anqahub.com";
+   port = 3032;
+   valency = 2;
+}
 ]
