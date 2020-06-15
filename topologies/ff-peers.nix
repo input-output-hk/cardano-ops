@@ -608,4 +608,16 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "BareMetalStaking Relay1";
+    addr = "relay1.baremetalstaking.com";
+    port = 4001;
+    valency = 1;
+  }
+  {
+    operator = "BareMetalStaking Relay2";
+    addr = "relay2.baremetalstaking.com";
+    port = 4002;
+    valency = 1;
+  }
 ]
