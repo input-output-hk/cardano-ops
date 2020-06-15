@@ -558,4 +558,10 @@
     port = 3001;
     valency = 1;
   }
+  {
+    operator = "CardanoCanucks";
+    addr = "relay1.cardanocanucks.com";
+    port = 8081;
+    valency = 1;
+  }
 ]
