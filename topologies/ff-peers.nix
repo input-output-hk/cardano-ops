@@ -590,4 +590,10 @@
     addr = "172.30.0.147";
     port = 3002;
   }
+  {
+    operator = "StakePool247";
+    addr = "relays.stakepool247.eu";
+    port = 3001;
+    valency = 2;
+  }
 ]
