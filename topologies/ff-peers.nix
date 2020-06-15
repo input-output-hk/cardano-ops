@@ -608,4 +608,18 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "Cardinal";
+    node = "relay 1";
+    addr = "46.101.64.236";
+    port = 8081;
+    valency = 1;
+  }
+  {
+    operator = "Cardinal";
+    node = "relay 2";
+    addr = "46.101.64.236";
+    port = 8082;
+    valency = 1;
+  }
 ]
