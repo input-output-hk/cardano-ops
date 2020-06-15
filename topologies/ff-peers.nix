@@ -336,7 +336,7 @@
   }
   {
     operator = "Smaug";
-    addr = "relay.smaug.group";
+    addr = "relays.smaug.group";
     port = 3000;
     valency = 2;
   }
