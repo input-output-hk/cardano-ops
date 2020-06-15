@@ -363,4 +363,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "QSBLR-Duniya Decentralized";
+    addr = "115.99.220.199";
+    port = 3001;
+    valency = 2;
+  }
 ]
