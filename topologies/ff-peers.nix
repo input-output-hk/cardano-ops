@@ -608,4 +608,18 @@
     port = 3002;
     valency = 1;
   }
+  {
+  "operator": "cryptobounty",
+  "node": "BNTY1 relay1",
+  "addr": "relay1.testnet.cryptobounty.org",
+  "port": 8081,
+  "valency": 1
+  }
+  {
+  "operator": "cryptobounty",
+  "node": "BNTY1 relay2",
+  "addr": "relay2.testnet.cryptobounty.org",
+  "port": 8082,
+  "valency": 1
+  }
 ]
