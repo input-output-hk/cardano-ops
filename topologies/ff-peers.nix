@@ -363,4 +363,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "SAIB";
+    addr = "45.32.110.195";
+    port = 3000;
+    valency = 1;
+  }
 ]
