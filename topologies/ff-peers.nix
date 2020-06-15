@@ -599,7 +599,7 @@
   {
     operator = "ADAforge";
     node = "relay1";
-    addr = "ad1612.spdns.de";
+    addr = "adaforge.spdns.org";
     port = 3001;
     valency = 1;
   }
