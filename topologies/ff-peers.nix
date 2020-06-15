@@ -62,7 +62,6 @@
     operator = "Staking CASH";
     addr = "167.71.15.97";
     port = 9630;
-    valency = 1;
   }
   {
     operator = "SkyLightPool";
@@ -144,13 +143,11 @@
     operator = "Hermes Stakepool Relay01";
     addr = "146.0.32.222";
     port = 5001;
-    valency = 1;
   }
   {
     operator = "Hermes Stakepool Relay02";
     addr = "85.114.128.66";
     port = 5001;
-    valency = 1;
   }
   {
     operator = "StakeNuts.com";
@@ -213,14 +210,12 @@
     node = "BFSA";
     addr = "159.203.34.2";
     port = 5666;
-    valency = 1;
   }
   {
     operator = "nchatur_relay_1_BFSA";
     node = "BFSA";
     addr = "142.93.115.228";
     port = 5665;
-    valency = 1;
   }
   {
     operator = "AndrewWestberg";
@@ -238,7 +233,6 @@
     operator = "HEX Relay 0x01";
     addr = "104.248.18.79";
     port = 8081;
-    valency = 1;
   }
   {
     operator = "Angel01";
@@ -265,13 +259,11 @@
     operator = "ONEW Relay01";
     addr = "3.127.174.250";
     port = 3001;
-    valency = 1;
   }
   {
     operator = "ONEW Relay02";
     addr = "18.223.41.0";
     port = 3001;
-    valency = 1;
   }
   {
     operator = "CardanoLand";
@@ -323,21 +315,18 @@
     operator = "TEAM";
     addr = "3.14.36.206";
     port = 4250;
-    valency = 1;
   }
   {
     operator = "CROWN";
     node = "Relay1";
     addr = "78.47.182.92";
     port = 3001;
-    valency = 1;
   }
   {
     operator = "CROWN";
     node = "Relay2";
     addr = "78.47.182.92";
     port = 3002;
-    valency = 1;
   }
   {
     operator = "CROWN";
@@ -364,13 +353,201 @@
     valency = 1;
   }
   {
-    operator = "ADAMEOW-r1";
+    operator = "sk";
+    node = "WAAUS";
+    addr = "relay1.wastaking.xyz";
+    port = 5000;
+    valency = 1;
+  }
+  {
+    operator = "sk";
+    node = "WAAUS";
+    addr = "relay2.wastaking.xyz";
+    port = 5002;
+    valency = 1;
+  }
+  {
+    operator = "ALTZ";
+    addr = "54.215.208.23";
+    port = 3001;
+  }
+  {
+    operator = "ALTZ";
+    addr = "18.156.193.249";
+    port = 3002;
+  }
+  {
+    operator = "Cardano DAN's Stake Pool";
+    addr = "54.219.39.14";
+    port = 4000;
+  }
+  {
+    operator = "CROWN-Relay-1";
+    addr = "ff-relay1.StakeADAcoins.io";
+    port = 3000;
+    valency = 1;
+  }
+  { 
+    operator = "CROWN-Relay-2";
+    addr = "ff-relay2.StakeADAcoins.io";
+    port = 3000;
+    valency = 1;
+  }
+  {
+    operator = "cloud_relay1";
+    addr = "3.15.6.176";
+    port = 8081;
+  }
+  {
+    operator = "cloud_relay2";
+    addr = "3.15.6.176";
+    port = 8082;
+  }
+  {
+    operator = "Reliable Staking (RELY)";
+    addr = "44.231.131.180";
+    port = 3001;
+  }
+  {
+    operator = "MoxieStakePool";
+    addr = "18.191.134.79";
+    port = 8081;
+  }
+  {
+    operator = "MoxieStakePool";
+    addr = "18.191.134.79";
+    port = 8082;
+  }
+  {
+    operator = "INDIA Stake Pool";
+    addr = "relay1.indiastakepool.com";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "Crazy Career";
+    addr = "86.26.138.25";
+    port = 3001;
+  }
+  {
+    operator = "Crazy Career";
+    addr = "86.26.138.25";
+    port = 3002;
+  }
+  {
+    operator = "CPS1";
+    addr = "160.16.60.146";
+    port = 3001;
+  }
+  {
+    operator = "CPS2";
+    addr = "160.16.60.146";
+    port = 3002;
+  }
+  {
+    operator = "sobit";
+    addr = "toki.relay.staking.outofbits.com";
+    port = 3333;
+    valency = 1;
+  }
+  {
+    operator = "sobit";
+    addr = "kaya.relay.staking.outofbits.com";
+    port = 3333;
+    valency = 1;
+  }
+  {
+    operator = "sobit";
+    addr = "lin.relay.staking.outofbits.com";
+    port = 3333;
+    valency = 1;
+  }
+  {
+    operator = "phba2061";
+    addr = "adapool01.phba2061.com";
+    port = 4242;
+  }
+  {
+    operator = "Tilia I/O";
+    addr = "relay1.tiliaio.com";
+    port = 7856;
+    valency = 1;
+  }
+  {
+    operator = "Tilia I/O";
+    addr = "relay2.tiliaio.com";
+    port = 7856;
+    valency = 1;
+  }
+  {
+    operator = "THETA";
+    addr = "144.76.17.207";
+    port = 50073;
+  }
+  {
+    operator = "BetterSTAKE";
+    node = "Relay 1";
+    addr = "209.97.174.197";
+    port = 8081;
+  }
+  {
+    operator = "BetterSTAKE";
+    node = "Relay 2";
+    addr = "209.97.174.197";
+    port = 8082;
+  }
+  {
+    operator = "SAIB";
+    addr = "45.32.110.195";
+    port = 3000;
+  }
+  {
+    operator = "QSBLR-Duniya Decentralized";
+    addr = "115.99.220.199";
+    port = 3001;
+  }
+  {
+   operator = "Ankachain Solutions";
+   node = "ANQA";
+   addr = "relay.anqahub.com";
+   port = 3032;
+   valency = 2;
+  }
+  {
+    operator = "genePool one";
+    node = "relay1";
+    addr = "194-36-88-164.cloud-xip.io";
+    port = 8001;
+  }
+  {
+    operator = "genePool one";
+    node = "relay2";
+    addr = "104-128-66-166.cloud-xip.io";
+    port = 8001;
+  }
+  {
+    operator = "AlphaPool";
+    node = "relay1";
+    addr = "relay01.alphastaking.com";
+    port = 3001;
+  }
+  {
+    operator = "AlphaPool";
+    node = "relay2";
+    addr = "relay02.alphastaking.com";
+    port = 3002;
+    valency = 1;
+  }
+  {
+    operator = "ADAMEOW";
+    node = "r1";
     addr = "r1.node.cardano.adameow.com";
     port = 3001;
     valency = 1;
   }
   {
-    operator = "ADAMEOW-r2";
+    operator = "ADAMEOW";
+    node = "r2";
     addr = "r2.node.cardano.adameow.com";
     port = 3002;
     valency = 1;
