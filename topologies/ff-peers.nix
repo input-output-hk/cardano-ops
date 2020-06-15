@@ -363,4 +363,16 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "alphapool-relay1";
+    addr = "relay01.alphastaking.com";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "alphapool-relay2";
+    addr = "relay02.alphastaking.com";
+    port = 3002;
+    valency = 1;
+  }
 ]
