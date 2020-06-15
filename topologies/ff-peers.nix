@@ -564,4 +564,10 @@
     port = 8081;
     valency = 1;
   }
+  {
+    operator = "Staker Space";
+    addr = "95.217.13.208";
+    port = 3001;
+    valency = 1;
+  }
 ]
