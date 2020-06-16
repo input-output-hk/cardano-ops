@@ -608,4 +608,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "Cardano Universe Relays";
+    addr = "relays.cardano-universe.com";
+    port = 3001;
+    valency = 2;
+  }
 ]
