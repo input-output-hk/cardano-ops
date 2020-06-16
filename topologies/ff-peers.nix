@@ -607,5 +607,14 @@
     addr = "35.232.118.177";
     port = 3002;
     valency = 1;
+  },
+  {
+    "operator": "Rick",
+    "node": "digi",
+    "addr": "relay1.digitalfortress.online",
+    "port": 3001,
+    "valency": 1
   }
+
+
 ]
