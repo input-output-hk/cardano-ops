@@ -608,4 +608,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "ADAOcean";
+    addr = "ff-relay.adaocean.com";
+    port = 3002;
+    valency = 1;
+  }  
 ]
