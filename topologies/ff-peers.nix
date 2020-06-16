@@ -608,4 +608,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "Scitz0";
+    node = "AHLNET";
+    addr = "relay1.ahlnet.nu";
+    port = 2111;
+  }
 ]
