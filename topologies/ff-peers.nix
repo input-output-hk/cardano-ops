@@ -608,4 +608,9 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "beef";
+    addr = "159.69.185.211";
+    port = 9000;
+  }  
 ]
