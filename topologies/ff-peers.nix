@@ -608,4 +608,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "KernoPool";
+    addr = "relays.kernopool.com";
+    port = 7801;
+    valency = 2;
+  }
 ]
