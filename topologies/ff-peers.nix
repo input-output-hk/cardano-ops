@@ -608,4 +608,18 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "GOLD - AdaStakes.com";
+    node = "GOLD"
+    addr = "relay1.goldpools.io";
+    port = 8081;
+    valency = 1;
+  }
+  {
+      operator = "GOLD2 - AdaStakes.com";
+      node = "GOLD2"
+      addr = "relay2.goldpools.io";
+      port = 8081;
+      valency = 1;
+  }
 ]
