@@ -608,4 +608,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "OCTA2";
+    addr = "3.249.241.111";
+    port = 3002;
+  }
+
 ]
