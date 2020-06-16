@@ -608,4 +608,9 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "AKIBA";
+    addr = "139.99.61.246";
+    port = 10006;
+  }
 ]
