@@ -558,4 +558,10 @@
     port = 3001;
     valency = 1;
   }
+  {
+    operator = "Tap-ada.at";
+    addr = "relay2.tap-ada.at";
+    port = 3001;
+    valency = 1;
+  }
 ]
