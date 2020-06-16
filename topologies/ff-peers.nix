@@ -608,4 +608,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "GHISX";
+    addr = "relay.ff.0.ghisx-pool.com";
+    port = 3001;
+    valency = 1;   
+  }
 ]
