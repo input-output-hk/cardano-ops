@@ -73,7 +73,7 @@ in {
       faucetLogLevel = "DEBUG";
       secondsBetweenRequestsAnonymous = 86400;
       secondsBetweenRequestsApiKeyAuth = 86400;
-      lovelacesToGiveAnonymous = 1000000000;
+      lovelacesToGiveAnonymous = 100000000000;
       lovelacesToGiveApiKeyAuth = 1000000000000;
     };
   };

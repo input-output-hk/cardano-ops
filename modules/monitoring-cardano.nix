@@ -137,6 +137,18 @@
         description = "{{$labels.alias}}: cardano-node db block divergence detected on explorer of more than 5 blocks for more than 5 minutes";
       };
     }
+    {
+      alert = "faucet_value_zero_available";
+      expr = "cardano_faucet_metrics_value_available{alias=~\".*faucet.*\"} == bool 0 == 1";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: cardano-faucet has zero balance available for more than 5 minutes";
+        description = "{{$labels.alias}}: cardano-faucet has zero balance available for more than 5 minutes";
+      };
+    }
   ] ++ (builtins.concatMap ({region, regionLetter}: [
     {
       alert = "high_tcp_connections_${region}";
