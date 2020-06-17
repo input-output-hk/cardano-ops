@@ -3,6 +3,16 @@
 # Pull-requests against this file will be merged and deployed once a day.
 [
   {
+    operator = "serapis";
+    addr = "relay1.serap.is";
+    port = 3001;
+  }
+  {
+    operator = "serapis";
+    addr = "relay2.serap.is";
+    port = 3002;
+  }
+  {
     operator = "disassembler";
     addr = "prophet.samleathers.com";
     port = 3001;
