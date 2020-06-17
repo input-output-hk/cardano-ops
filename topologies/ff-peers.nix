@@ -254,7 +254,7 @@
     addr = "relays.ff.crypto2099.io";
     port = 3001;
     valency = 2;
-  }  
+  }
   {
     operator = "ONEW Relay01";
     addr = "3.127.174.250";
@@ -387,7 +387,7 @@
     port = 3000;
     valency = 1;
   }
-  { 
+  {
     operator = "CROWN-Relay-2";
     addr = "ff-relay2.StakeADAcoins.io";
     port = 3000;
@@ -637,7 +637,7 @@
     operator = "phba2061";
     addr = "adapool01.phba2061.com";
     port = 4242;
-  }  
+  }
   {
     operator = "phba2061";
     addr = "taurus-ada.phba2061.com";
@@ -657,7 +657,7 @@
     operator = "GHISX";
     addr = "relay.ff.0.ghisx-pool.com";
     port = 3001;
-    valency = 1;   
+    valency = 1;
   }
   {
     operator = "AKIBA";
@@ -698,7 +698,7 @@
     operator = "BSP";
     addr = "relay.brothershipool.org";
     port = 3305;
-  } 
+  }
   {
     operator = "BSP";
     addr = "relay.brothershipool.org";
@@ -706,14 +706,14 @@
   }
   {
     operator = "GOLD - AdaStakes.com";
-    node = "GOLD"
+    node = "GOLD";
     addr = "relay1.goldpools.io";
     port = 8081;
     valency = 1;
   }
   {
       operator = "GOLD - AdaStakes.com";
-      node = "GOLD2"
+      node = "GOLD2";
       addr = "relay2.goldpools.io";
       port = 8081;
       valency = 1;
