@@ -810,6 +810,6 @@
     operator = "stake-ada";
     addr = "stake-ada.ddns.net";
     port = 3002;
-    valency = 1
+    valency = 1;
   }
 ]
