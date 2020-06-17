@@ -608,4 +608,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "SWAG-ADARelay";
+    addr = "18.221.248.208";
+    port = 3001;
+    valency = 1;
+  }
 ]
