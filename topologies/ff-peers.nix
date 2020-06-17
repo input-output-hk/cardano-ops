@@ -812,4 +812,19 @@
     port = 3002;
     valency = 1;
   }
+{
+    operator = "NAP-1";
+    addr = "88.198.112.102";
+    port = 6006;
+  }
+  {
+    operator = "NAP-2";
+    addr = "88.198.112.102";
+    port = 6012;
+  }
+    {
+    operator = "NAP-3";
+    addr = "88.198.112.102";
+    port = 6024;
+  }
 ]
