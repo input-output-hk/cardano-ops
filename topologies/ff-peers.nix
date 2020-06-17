@@ -812,4 +812,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "MASP-relay-NL";
+    addr = "134.209.80.70";
+    port = 3001;
+    valency = 1;
+  }
 ]
