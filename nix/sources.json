@@ -178,5 +178,17 @@
         "type": "tarball",
         "url": "https://github.com/input-output-hk/ops-lib/archive/a13920e3ddc442f7bfed7d000d22b11e8e2cde18.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "smash": {
+        "branch": "ksaric/CAD-779",
+        "description": "Stakepool Metadata Aggregation Server",
+        "homepage": null,
+        "owner": "input-output-hk",
+        "repo": "smash",
+        "rev": "4b7ed5337e5cee2dad11df7e3d8278b409c53922",
+        "sha256": "0jhsklcvyax629zc42mji48bd03lwxmv6pyxbs1nl7l66brgnjbs",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/smash/archive/4b7ed5337e5cee2dad11df7e3d8278b409c53922.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

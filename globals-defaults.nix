@@ -32,6 +32,7 @@ in {
   withCardanoDBExtended = true;
   withFaucet = false;
   withFaucetOptions = {};
+  withSmash = false;
 
   initialPythonExplorerDBSyncDone = false;
 

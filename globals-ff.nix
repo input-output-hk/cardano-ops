@@ -7,6 +7,7 @@ pkgs: {
   withExplorer = false;
   withLegacyExplorer = false;
   withHighLoadRelays = true;
+  withSmash = true;
 
   withFaucet = true;
   faucetHostname = "faucet";

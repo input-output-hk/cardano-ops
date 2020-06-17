@@ -136,6 +136,21 @@ let
         org = "IOHK";
       };
     } def;
+  })// (lib.optionalAttrs globals.withSmash {
+    smash = let def = (topology.smash or {}); in mkNode {
+      deployment.ec2 = {
+        region = "eu-central-1";
+      };
+      imports = [
+        medium
+        cardano-ops.roles.smash
+      ];
+      node = {
+        roles.isExplorer = true;
+        nodeId = def.nodeId or 100;
+        org = "IOHK";
+      };
+    } def;
   });
 
   nodes = cardanoNodes // otherNodes;
