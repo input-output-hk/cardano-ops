@@ -202,5 +202,7 @@
    { region = "ap-northeast-1"; regionLetter = "b"; }
    { region = "ap-southeast-1"; regionLetter = "c"; }
    { region = "us-east-2";      regionLetter = "d"; }
+   { region = "us-west-1";      regionLetter = "e"; }
+   { region = "eu-west-1";      regionLetter = "f"; }
   ]);
 }
