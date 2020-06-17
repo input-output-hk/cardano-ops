@@ -608,4 +608,16 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "stake-ada";
+    addr = "173.79.33.207";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "stake-ada";
+    addr = "173.79.33.207";
+    port = 3002;
+    valency = 1;
+  }
 ]
