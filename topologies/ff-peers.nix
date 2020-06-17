@@ -800,4 +800,16 @@
     addr = "78.47.125.202";
     port = 3001;
   }
+  {
+    operator = "stake-ada";
+    addr = "stake-ada.ddns.net";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "stake-ada";
+    addr = "stake-ada.ddns.net";
+    port = 3002;
+    valency = 1
+  }
 ]
