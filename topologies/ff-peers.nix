@@ -812,4 +812,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "TQWS";
+    addr = "161.35.138.215";
+    port = 3000;
+    valency = 1
+  }
 ]
