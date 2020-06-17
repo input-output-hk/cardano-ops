@@ -608,4 +608,9 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "ATOM";
+    addr = "94.130.200.121";
+    port = 6009;
+  }
 ]
