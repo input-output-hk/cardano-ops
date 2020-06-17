@@ -2,6 +2,7 @@
   "annotations": {
     "list": [
       {
+        "$$hashKey": "object:278",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -15,7 +16,6 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 33,
   "links": [],
   "panels": [
     {
@@ -47,6 +47,7 @@
         "x": 0,
         "y": 1
       },
+      "hiddenSeries": false,
       "id": 25,
       "legend": {
         "alignAsTable": true,
@@ -139,6 +140,7 @@
         "x": 12,
         "y": 1
       },
+      "hiddenSeries": false,
       "id": 28,
       "legend": {
         "alignAsTable": true,
@@ -231,6 +233,7 @@
         "x": 0,
         "y": 11
       },
+      "hiddenSeries": false,
       "id": 29,
       "legend": {
         "alignAsTable": true,
@@ -323,6 +326,7 @@
         "x": 12,
         "y": 11
       },
+      "hiddenSeries": false,
       "id": 30,
       "legend": {
         "alignAsTable": true,
@@ -401,12 +405,204 @@
       }
     },
     {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "description": "CurrEstab - TCP connections for which the current state is either ESTABLISHED or CLOSE-WAIT",
+      "fill": 2,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 21
+      },
+      "hiddenSeries": false,
+      "id": 31,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": false,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "sort": null,
+        "sortDesc": null,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"e-e-.*\"}",
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "{{alias}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "US West (N. California) TCP connections",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:397",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:398",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "description": "CurrEstab - TCP connections for which the current state is either ESTABLISHED or CLOSE-WAIT",
+      "fill": 2,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 21
+      },
+      "hiddenSeries": false,
+      "id": 32,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": false,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "sort": null,
+        "sortDesc": null,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"e-f-.*\"}",
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "{{alias}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Ireland TCP connections",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:475",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:476",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
       "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 31
       },
       "id": 23,
       "title": "Edge Node CPU% and Free Mem%",
@@ -424,18 +620,21 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 22
+        "y": 32
       },
+      "hiddenSeries": false,
       "id": 21,
       "interval": "",
       "legend": {
         "alignAsTable": true,
-        "avg": false,
+        "avg": true,
         "current": true,
         "max": false,
         "min": false,
         "rightSide": true,
         "show": true,
+        "sort": null,
+        "sortDesc": null,
         "total": false,
         "values": true
       },
@@ -480,6 +679,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:553",
           "decimals": null,
           "format": "none",
           "label": null,
@@ -489,6 +689,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:554",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -515,8 +716,9 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 22
+        "y": 32
       },
+      "hiddenSeries": false,
       "id": 19,
       "interval": "",
       "legend": {
@@ -601,7 +803,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 42
       },
       "id": 16,
       "panels": [],
@@ -621,18 +823,21 @@
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 33
+        "y": 43
       },
+      "hiddenSeries": false,
       "id": 14,
       "interval": "",
       "legend": {
         "alignAsTable": true,
-        "avg": false,
+        "avg": true,
         "current": true,
         "max": false,
         "min": false,
         "rightSide": true,
         "show": true,
+        "sort": "avg",
+        "sortDesc": false,
         "total": false,
         "values": true
       },
@@ -653,6 +858,7 @@
       "targets": [
         {
           "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"e-a-.*\",device!~\"lo\"}[20s]) * -8)",
+          "interval": "",
           "legendFormat": "Frankfurt Egress",
           "refId": "A"
         },
@@ -688,8 +894,33 @@
         },
         {
           "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"e-d-.*\",device!~\"lo\"}[20s]) * 8)",
+          "interval": "",
           "legendFormat": "Ohio Ingress",
           "refId": "H"
+        },
+        {
+          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"e-e-.*\",device!~\"lo\"}[20s]) * -8)",
+          "interval": "",
+          "legendFormat": "US West Egress",
+          "refId": "I"
+        },
+        {
+          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"e-f-.*\",device!~\"lo\"}[20s]) * -8)",
+          "interval": "",
+          "legendFormat": "Ireland Egress",
+          "refId": "J"
+        },
+        {
+          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"e-e-.*\",device!~\"lo\"}[20s]) * 8)",
+          "interval": "",
+          "legendFormat": "US West Ingress",
+          "refId": "K"
+        },
+        {
+          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"e-f-.*\",device!~\"lo\"}[20s]) * 8)",
+          "interval": "",
+          "legendFormat": "Ireland Ingress",
+          "refId": "L"
         }
       ],
       "thresholds": [],
@@ -712,6 +943,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:715",
           "format": "decbits",
           "label": null,
           "logBase": 1,
@@ -720,6 +952,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:716",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -746,8 +979,9 @@
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 33
+        "y": 43
       },
+      "hiddenSeries": false,
       "id": 17,
       "interval": "",
       "legend": {
@@ -830,7 +1064,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 54
       },
       "id": 11,
       "panels": [],
@@ -849,8 +1083,9 @@
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 45
+        "y": 55
       },
+      "hiddenSeries": false,
       "id": 2,
       "interval": "",
       "legend": {
@@ -938,8 +1173,9 @@
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 45
+        "y": 55
       },
+      "hiddenSeries": false,
       "id": 3,
       "interval": "",
       "legend": {
@@ -1027,8 +1263,9 @@
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 56
+        "y": 66
       },
+      "hiddenSeries": false,
       "id": 4,
       "interval": "",
       "legend": {
@@ -1116,8 +1353,9 @@
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 56
+        "y": 66
       },
+      "hiddenSeries": false,
       "id": 5,
       "interval": "",
       "legend": {
@@ -1194,13 +1432,195 @@
       }
     },
     {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 11,
+        "w": 12,
+        "x": 0,
+        "y": 77
+      },
+      "hiddenSeries": false,
+      "id": 33,
+      "interval": "",
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": false,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "rate(node_network_transmit_bytes_total{alias=~\"e-e-.*\",device!~\"lo\"}[20s]) * -8",
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "US West Edge Node Egress Bandwidth (bps)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "decbits",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 11,
+        "w": 12,
+        "x": 12,
+        "y": 77
+      },
+      "hiddenSeries": false,
+      "id": 34,
+      "interval": "",
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": false,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "rate(node_network_transmit_bytes_total{alias=~\"e-f-.*\",device!~\"lo\"}[20s]) * -8",
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Ireland Edge Node Egress Bandwidth (bps)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "decbits",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
       "collapsed": false,
       "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 67
+        "y": 88
       },
       "id": 13,
       "panels": [],
@@ -1219,8 +1639,9 @@
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 68
+        "y": 89
       },
+      "hiddenSeries": false,
       "id": 6,
       "interval": "",
       "legend": {
@@ -1308,8 +1729,9 @@
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 68
+        "y": 89
       },
+      "hiddenSeries": false,
       "id": 7,
       "interval": "",
       "legend": {
@@ -1397,8 +1819,9 @@
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 79
+        "y": 100
       },
+      "hiddenSeries": false,
       "id": 8,
       "interval": "",
       "legend": {
@@ -1486,8 +1909,9 @@
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 79
+        "y": 100
       },
+      "hiddenSeries": false,
       "id": 9,
       "interval": "",
       "legend": {
@@ -1562,22 +1986,208 @@
         "align": false,
         "alignLevel": null
       }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 11,
+        "w": 12,
+        "x": 0,
+        "y": 111
+      },
+      "hiddenSeries": false,
+      "id": 35,
+      "interval": "",
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": false,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "rate(node_network_receive_bytes_total{alias=~\"e-e-.*\",device!~\"lo\"}[20s]) * 8",
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "US West Edge Node Ingress Bandwidth (bps)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "decbits",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 11,
+        "w": 12,
+        "x": 12,
+        "y": 111
+      },
+      "hiddenSeries": false,
+      "id": 36,
+      "interval": "",
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": false,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "rate(node_network_receive_bytes_total{alias=~\"e-f-.*\",device!~\"lo\"}[20s]) * 8",
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Ireland Edge Node Ingress Bandwidth (bps)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "decbits",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "refresh": "30s",
-  "schemaVersion": 20,
+  "schemaVersion": 22,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Byron-Reboot Monitoring",
   "uid": "HvGFvr9Wk",
-  "version": 11
+  "variables": {
+    "list": []
+  },
+  "version": 1
 }
+

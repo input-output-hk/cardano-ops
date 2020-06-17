@@ -10,7 +10,7 @@ let
   relayNodesRegions = 6;
 
   nbCoreNodesPerRegion = 2;
-  nbRelaysPerRegion = 3;
+  nbRelaysPerRegion = 4;
 
   nbRelay = relayNodesRegions * nbRelaysPerRegion;
 
@@ -20,7 +20,7 @@ let
     c = "ap-southeast-1";
     d = "us-east-2";
     e = "us-west-1";
-    f = "sa-east-1";
+    f = "eu-west-1";
   };
   regionLetters = (attrNames regions);
 
