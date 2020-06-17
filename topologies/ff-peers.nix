@@ -568,7 +568,6 @@
     operator = "Staker Space";
     addr = "95.217.13.208";
     port = 3001;
-    valency = 1;
   }
   {
     operator = "Kopi1";
@@ -597,15 +596,208 @@
     valency = 2;
   }
   {
-    operator = "CardanesiaRelay1";
+    operator = "Cardanesia";
+    node = "Relay1";
     addr = "35.232.118.177";
+    port = 3001;
+  }
+  {
+    operator = "Cardanesia";
+    node = "Relay2";
+    addr = "35.232.118.177";
+    port = 3002;
+  }
+  {
+    operator = "Scitz0";
+    node = "AHLNET";
+    addr = "relay1.ahlnet.nu";
+    port = 2111;
+  }
+  {
+    operator = "ATOM";
+    addr = "94.130.200.121";
+    port = 6009;
+  }
+  {
+    operator = "SWAG-ADARelay";
+    addr = "18.221.248.208";
+    port = 3001;
+  }
+  {
+    operator = "stake-ada";
+    addr = "173.79.33.207";
+    port = 3001;
+  }
+  {
+    operator = "stake-ada";
+    addr = "173.79.33.207";
+    port = 3002;
+  }
+  {
+    operator = "phba2061";
+    addr = "adapool01.phba2061.com";
+    port = 4242;
+  }  
+  {
+    operator = "phba2061";
+    addr = "taurus-ada.phba2061.com";
+    port = 7051;
+  }
+  {
+    operator = "DoxaPool";
+    addr = "35.228.131.120";
+    port = 3001;
+  }
+  {
+    operator = "beef";
+    addr = "159.69.185.211";
+    port = 9000;
+  }
+  {
+    operator = "GHISX";
+    addr = "relay.ff.0.ghisx-pool.com";
+    port = 3001;
+    valency = 1;   
+  }
+  {
+    operator = "AKIBA";
+    addr = "139.99.61.246";
+    port = 10006;
+  }
+  {
+    operator = "Rick";
+    node = "digi";
+    addr = "relay1.digitalfortress.online";
     port = 3001;
     valency = 1;
   }
   {
-    operator = "CardanesiaRelay2";
-    addr = "35.232.118.177";
+    operator = "Cardano Universe Relays";
+    addr = "relays.cardano-universe.com";
+    port = 3001;
+    valency = 2;
+  }
+  {
+    operator = "Kaze";
+    node = "RelayNode1";
+    addr = "94.254.35.232";
+    port = 3001;
+  }
+  {
+    operator = "Kaze";
+    node = "RelayNode2";
+    addr = "94.254.35.232";
+    port = 3002;
+  }
+  {
+    operator = "OCTA2";
+    addr = "3.249.241.111";
+    port = 3002;
+  }
+  {
+    operator = "BSP";
+    addr = "relay.brothershipool.org";
+    port = 3305;
+  } 
+  {
+    operator = "BSP";
+    addr = "relay.brothershipool.org";
+    port = 3304;
+  }
+  {
+    operator = "GOLD - AdaStakes.com";
+    node = "GOLD"
+    addr = "relay1.goldpools.io";
+    port = 8081;
+    valency = 1;
+  }
+  {
+      operator = "GOLD - AdaStakes.com";
+      node = "GOLD2"
+      addr = "relay2.goldpools.io";
+      port = 8081;
+      valency = 1;
+  }
+  {
+    operator = "Tap-ada.at";
+    addr = "relay1.tap-ada.at";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "Tap-ada.at";
+    addr = "relay2.tap-ada.at";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "KernoPool";
+    addr = "relays.kernopool.com";
+    port = 7801;
+    valency = 2;
+  }
+  {
+    operator = "ADAOcean";
+    addr = "ff-relay.adaocean.com";
     port = 3002;
     valency = 1;
+  }
+  {
+    operator = "StakhanoviteIO";
+    addr = "91.121.85.255";
+    port = 9001;
+  }
+  {
+    operator = "BareMetalStaking";
+    node = "Relay1";
+    addr = "relay1.baremetalstaking.com";
+    port = 4001;
+    valency = 1;
+  }
+  {
+    operator = "BareMetalStaking";
+    node = "Relay2";
+    addr = "relay2.baremetalstaking.com";
+    port = 4002;
+    valency = 1;
+  }
+  {
+    operator = "Cardinal";
+    node = "relay 1";
+    addr = "46.101.64.236";
+    port = 8081;
+  }
+  {
+    operator = "Cardinal";
+    node = "relay 2";
+    addr = "46.101.64.236";
+    port = 8082;
+  }
+  {
+    operator = "cryptobounty";
+    node = "BNTY1 relay1";
+    addr = "relay1.testnet.cryptobounty.org";
+    port = 8081;
+    valency = 1;
+  }
+  {
+    operator = "cryptobounty";
+    node = "BNTY1 relay2";
+    addr = "relay2.testnet.cryptobounty.org";
+    port = 8082;
+    valency = 1;
+  }
+  {
+    operator = "ADAforge";
+    node = "relay1";
+    addr = "adaforge.spdns.org";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "ADAforge";
+    node = "relay2";
+    addr = "78.47.125.202";
+    port = 3001;
   }
 ]
