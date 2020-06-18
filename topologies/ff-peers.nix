@@ -812,4 +812,11 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "AdaJAWS";
+    node = "JAWS";
+    addr = "relay2.adajaws.com";
+    port = 3001;
+    valency = 1;
+  }
 ]
