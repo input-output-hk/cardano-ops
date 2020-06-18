@@ -827,4 +827,46 @@
     addr = "88.198.112.102";
     port = 6024;
   }
+  {
+    operator = "feqifei";
+    node = "COOL";
+    addr = "eu.stakecool.io";
+    port = 4001;
+    valency = 2;
+  }
+  {
+    operator = "feqifei";
+    node = "COOL";
+    addr = "us.stakecool.io";
+    port = 4001;
+    valency = 1;
+  }
+  {
+    operator = "feqifei";
+    node = "COOL";
+    addr = "ap.stakecool.io";
+    port = 4001;
+    valency = 1;
+  }
+  {
+    operator = "feqifei";
+    node = "CALM";
+    addr = "eu.stakecool.io";
+    port = 4002;
+    valency = 2;
+  }
+  {
+    operator = "feqifei";
+    node = "CALM";
+    addr = "us.stakecool.io";
+    port = 4002;
+    valency = 1;
+  }
+  {
+    operator = "feqifei";
+    node = "CALM";
+    addr = "ap.stakecool.io";
+    port = 4002;
+    valency = 1;
+  }
 ]
