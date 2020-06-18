@@ -16,7 +16,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 46,
+  "id": 79,
   "links": [],
   "panels": [
     {
@@ -1332,6 +1332,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
+      "description": "",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1341,7 +1342,7 @@
         "y": 32
       },
       "hiddenSeries": false,
-      "id": 16,
+      "id": 51,
       "interval": "",
       "legend": {
         "avg": false,
@@ -1368,16 +1369,17 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_filefd_allocated",
+          "expr": "cardano_node_metrics_txsInMempool_int",
+          "interval": "",
           "legendFormat": "{{alias}}",
-          "refId": "A"
+          "refId": "C"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "File Descriptors",
+      "title": "Mempool Txs",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1393,7 +1395,8 @@
       },
       "yaxes": [
         {
-          "format": "none",
+          "$$hashKey": "object:500",
+          "format": "short",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -1401,6 +1404,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:501",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -1595,7 +1599,6 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
-      "description": "/",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1605,7 +1608,7 @@
         "y": 40
       },
       "hiddenSeries": false,
-      "id": 25,
+      "id": 16,
       "interval": "",
       "legend": {
         "avg": false,
@@ -1632,22 +1635,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(node_network_receive_bytes_total{alias!~\"monitoring.*\",device!~\"lo\"}[1h])) * 3600",
-          "legendFormat": "1h Cluster Data Received, bytes",
+          "expr": "node_filefd_allocated",
+          "legendFormat": "{{alias}}",
           "refId": "A"
-        },
-        {
-          "expr": "sum(rate(node_network_transmit_bytes_total{alias!~\"monitoring.*\",device!~\"lo\"}[1h])) * 3600",
-          "hide": false,
-          "legendFormat": "1h Cluster Data Transmitted, bytes",
-          "refId": "B"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Cluster Aggregate Data Transfer, 1 hr Rolling Window",
+      "title": "File Descriptors",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1663,18 +1660,16 @@
       },
       "yaxes": [
         {
-          "decimals": null,
-          "format": "decbytes",
-          "label": "",
+          "format": "none",
+          "label": null,
           "logBase": 1,
           "max": null,
           "min": null,
           "show": true
         },
         {
-          "decimals": null,
           "format": "short",
-          "label": "",
+          "label": null,
           "logBase": 1,
           "max": null,
           "min": null,
@@ -1871,7 +1866,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
-      "description": "Shows how many times cardano related services have been restarted within a 1 hour lookback window",
+      "description": "/",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1881,7 +1876,7 @@
         "y": 48
       },
       "hiddenSeries": false,
-      "id": 35,
+      "id": 25,
       "interval": "",
       "legend": {
         "avg": false,
@@ -1908,18 +1903,22 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "round(increase(node_systemd_unit_state{name=~\"cardano.*|byron.*|explorer.*\",state=\"active\"}[1h:10s])) > 0",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "{{alias}}-{{name}}",
+          "expr": "sum(rate(node_network_receive_bytes_total{alias!~\"monitoring.*\",device!~\"lo\"}[1h])) * 3600",
+          "legendFormat": "1h Cluster Data Received, bytes",
           "refId": "A"
+        },
+        {
+          "expr": "sum(rate(node_network_transmit_bytes_total{alias!~\"monitoring.*\",device!~\"lo\"}[1h])) * 3600",
+          "hide": false,
+          "legendFormat": "1h Cluster Data Transmitted, bytes",
+          "refId": "B"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Cardano Service Restarts Per Hour",
+      "title": "Cluster Aggregate Data Transfer, 1 hr Rolling Window",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1935,16 +1934,18 @@
       },
       "yaxes": [
         {
-          "format": "none",
-          "label": null,
+          "decimals": null,
+          "format": "decbytes",
+          "label": "",
           "logBase": 1,
           "max": null,
           "min": null,
           "show": true
         },
         {
+          "decimals": null,
           "format": "short",
-          "label": null,
+          "label": "",
           "logBase": 1,
           "max": null,
           "min": null,
@@ -2140,7 +2141,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
-      "description": "20 second rolling time average",
+      "description": "Shows how many times cardano related services have been restarted within a 1 hour lookback window",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -2150,7 +2151,7 @@
         "y": 56
       },
       "hiddenSeries": false,
-      "id": 22,
+      "id": 35,
       "interval": "",
       "legend": {
         "avg": false,
@@ -2177,21 +2178,18 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(node_network_receive_bytes_total{alias!~\"monitoring.*\",device!~\"lo\"}[20s])) * 8",
-          "legendFormat": "Aggregate cluster ingress (received)",
+          "expr": "round(increase(node_systemd_unit_state{name=~\"cardano.*|byron.*|explorer.*\",state=\"active\"}[1h:10s])) > 0",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "{{alias}}-{{name}}",
           "refId": "A"
-        },
-        {
-          "expr": "sum(rate(node_network_transmit_bytes_total{alias!~\"monitoring.*\",device!~\"lo\"}[20s]) * -8)",
-          "legendFormat": "Aggregate cluster egress (transmit)",
-          "refId": "B"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Cluster Aggregate Bandwidth (bps)",
+      "title": "Cardano Service Restarts Per Hour",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -2207,18 +2205,16 @@
       },
       "yaxes": [
         {
-          "decimals": null,
-          "format": "decbits",
-          "label": "",
+          "format": "none",
+          "label": null,
           "logBase": 1,
           "max": null,
           "min": null,
           "show": true
         },
         {
-          "decimals": null,
           "format": "short",
-          "label": "",
+          "label": null,
           "logBase": 1,
           "max": null,
           "min": null,
@@ -2423,6 +2419,102 @@
         "w": 8,
         "x": 16,
         "y": 64
+      },
+      "hiddenSeries": false,
+      "id": 22,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "sum(rate(node_network_receive_bytes_total{alias!~\"monitoring.*\",device!~\"lo\"}[20s])) * 8",
+          "legendFormat": "Aggregate cluster ingress (received)",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(node_network_transmit_bytes_total{alias!~\"monitoring.*\",device!~\"lo\"}[20s]) * -8)",
+          "legendFormat": "Aggregate cluster egress (transmit)",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Cluster Aggregate Bandwidth (bps)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "decbits",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "description": "20 second rolling time average",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 72
       },
       "hiddenSeries": false,
       "id": 20,
