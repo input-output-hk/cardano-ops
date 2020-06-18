@@ -922,5 +922,23 @@
     port = 3000;
     valency = 1;
   }
+  {
+    operator = "KING Cardano Staking";
+    addr = "portlaoise.kingcardanostaking.com";
+    port = 7070;
+    valency = 2;
+  }
+  {
+    operator = "KING Cardano Staking";
+    addr = "dublin.kingcardanostaking.com";
+    port = 7080;
+    valency = 2;
+  }
+  {
+    operator = "KING Cardano Staking";
+    addr = "kilkenny.queenada.com";
+    port = 7090;
+    valency = 2;
+  }
 
 ]
