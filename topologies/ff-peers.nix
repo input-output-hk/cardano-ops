@@ -507,11 +507,11 @@
     port = 3001;
   }
   {
-   operator = "Ankachain Solutions";
-   node = "ANQA";
-   addr = "relay.anqahub.com";
-   port = 3032;
-   valency = 2;
+    operator = "Ankachain Solutions";
+    node = "ANQA";
+    addr = "relay.anqahub.com";
+    port = 3032;
+    valency = 2;
   }
   {
     operator = "genePool one";
@@ -712,11 +712,11 @@
     valency = 1;
   }
   {
-      operator = "GOLD - AdaStakes.com";
-      node = "GOLD2";
-      addr = "relay2.goldpools.io";
-      port = 8081;
-      valency = 1;
+    operator = "GOLD - AdaStakes.com";
+    node = "GOLD2";
+    addr = "relay2.goldpools.io";
+    port = 8081;
+    valency = 1;
   }
   {
     operator = "Tap-ada.at";
@@ -812,7 +812,7 @@
     port = 3002;
     valency = 1;
   }
-{
+  {
     operator = "NAP-1";
     addr = "88.198.112.102";
     port = 6006;
@@ -822,9 +822,105 @@
     addr = "88.198.112.102";
     port = 6012;
   }
-    {
+  {
     operator = "NAP-3";
     addr = "88.198.112.102";
     port = 6024;
   }
+  {
+    operator = "feqifei";
+    node = "COOL";
+    addr = "eu.stakecool.io";
+    port = 4001;
+    valency = 2;
+  }
+  {
+    operator = "feqifei";
+    node = "COOL";
+    addr = "us.stakecool.io";
+    port = 4001;
+    valency = 1;
+  }
+  {
+    operator = "feqifei";
+    node = "COOL";
+    addr = "ap.stakecool.io";
+    port = 4001;
+    valency = 1;
+  }
+  {
+    operator = "feqifei";
+    node = "CALM";
+    addr = "eu.stakecool.io";
+    port = 4002;
+    valency = 2;
+  }
+  {
+    operator = "feqifei";
+    node = "CALM";
+    addr = "us.stakecool.io";
+    port = 4002;
+    valency = 1;
+  }
+  {
+    operator = "feqifei";
+    node = "CALM";
+    addr = "ap.stakecool.io";
+    port = 4002;
+    valency = 1;
+  }
+  {
+    operator = "INDIA Stake Pool";
+    addr = "relay2.indiastakepool.com";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "clearpool";
+    addr = "51.81.35.185";
+    port = 6001;
+    valency = 1;
+  }
+  {
+    operator = "clearpool";
+    addr = "194.32.79.115";
+    port = 6010;
+    valency = 1;
+  }
+  {
+    operator = "clearpool";
+    addr = "194.32.79.115";
+    port = 6011;
+    valency = 1;
+  }
+  {
+    operator = "AdaJAWS";
+    node = "JAWS";
+    addr = "relay2.adajaws.com";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "serapis";
+    addr = "relay1.serap.is";
+    port = 3001;
+  }
+  {
+    operator = "serapis";
+    addr = "relay2.serap.is";
+    port = 3002;
+  }
+  {
+    operator = "MASP-relay-NL";
+    addr = "134.209.80.70";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "TQWS";
+    addr = "161.35.138.215";
+    port = 3000;
+    valency = 1;
+  }
+
 ]
