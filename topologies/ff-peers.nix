@@ -812,4 +812,22 @@
     port = 3002;
     valency = 1;
   }
+  {
+      operator = "clearpool";
+      addr = "51.81.35.185";
+      port = 6001;
+      valency = 1;
+  }
+  {
+      operator = "clearpool";
+      addr = "194.32.79.115";
+      port = 6010;
+      valency = 1;
+  }
+  {
+      operator = "clearpool";
+      addr = "194.32.79.115";
+      port = 6011;
+      valency = 1;
+  }
 ]
