@@ -827,4 +827,10 @@
     addr = "88.198.112.102";
     port = 6024;
   }
+  {
+    operator = "INDIA Stake Pool";
+    addr = "relay2.indiastakepool.com";
+    port = 3001;
+    valency = 1;
+  }
 ]
