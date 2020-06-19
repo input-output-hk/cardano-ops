@@ -928,5 +928,11 @@
     port = 3001;
     valency = 2;
   }
+ {
+    operator = "JOY";
+    addr = "192.168.12.7";
+    port = 3002;
+    valency = 2;
+  }
 
 ]
