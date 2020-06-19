@@ -812,4 +812,17 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "champada";
+    addr = "relay1.champada.io";
+    port = 5001;
+    valency = 1;
+  }
+    {
+    operator = "champada";
+    addr = "relay2.champada.io";
+    port = 5001;
+    valency = 1;
+  }
 ]
+
