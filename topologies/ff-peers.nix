@@ -940,5 +940,10 @@
     port = 7090;
     valency = 2;
   }
-
+  {
+    operator = "Staking 247";
+    addr = "relay.staking247.com";
+    port = 3001;
+    valency = 1;
+  }
 ]
