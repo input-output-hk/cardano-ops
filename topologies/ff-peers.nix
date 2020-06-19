@@ -924,8 +924,8 @@
   }
   {
     operator = "JOY";
-    addr = "192.168.12.5";
-    port = 3000;
+    addr = "192.168.12.8";
+    port = 3001;
     valency = 2;
   }
 
