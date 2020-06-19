@@ -940,5 +940,16 @@
     port = 7090;
     valency = 2;
   }
-
+  {
+    "operator": "Pirate Bay Staking",
+    "addr": "35.202.124.219",
+    "port": 3000,
+    "valency": 1
+  }
+  {
+    "operator": "Pirate Bay Staking",
+    "addr": "35.224.35.249",
+    "port": 3000,
+    "valency": 1
+  }
 ]
