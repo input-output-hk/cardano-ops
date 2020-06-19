@@ -940,5 +940,16 @@
     port = 7090;
     valency = 2;
   }
-
+  {
+    operator = "Fancy1";
+    addr = "75.40.55.247";
+    port = 8081;
+    valency = 1;
+  }
+  {
+    operator = "Fancy2";
+    addr = "75.40.55.247";
+    port = 8082;
+    valency = 1;
+  }
 ]
