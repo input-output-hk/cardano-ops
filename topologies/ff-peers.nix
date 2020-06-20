@@ -896,7 +896,7 @@
   {
     operator = "AdaJAWS";
     node = "JAWS";
-    addr = "relay2.adajaws.com";
+    addr = "91.153.127.8";
     port = 3001;
     valency = 1;
   }
