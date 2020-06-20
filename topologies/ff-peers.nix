@@ -940,5 +940,11 @@
     port = 7090;
     valency = 2;
   }
+  {
+    operator = "KNIP";
+    addr = "24.245.16.135";
+    port = 3001;
+    valency = 1;
+  }
 
 ]
