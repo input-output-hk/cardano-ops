@@ -940,5 +940,17 @@
     port = 7090;
     valency = 2;
   }
+  {
+    operator = "Black Swan Pool";
+    addr = "81.149.31.222";
+    port = 8081;
+    valency = 2;
+  }
+  {
+    operator = "Black Swan Pool";
+    addr = "81.149.31.222";
+    port = 8082;
+    valency = 2;
+  }
 
 ]
