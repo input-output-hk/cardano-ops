@@ -940,5 +940,22 @@
     port = 7090;
     valency = 2;
   }
-
+  {
+    operator = "TOBG Community Pool";
+    addr = "adar1.tobg.services";
+    port = 30500;
+    valency = 1;
+  }
+  {
+    operator = "TOBG Community Pool";
+    addr = "adar2.tobg.services;
+    port = 30501;
+    valency = 1;
+  }
+  {
+    operator = "TOBG Community Pool";
+    addr = "adar3.tobg.services";
+    port = 30502;
+    valency = 1;
+  }
 ]
