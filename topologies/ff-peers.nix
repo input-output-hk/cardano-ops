@@ -738,7 +738,13 @@
   }
   {
     operator = "ADAOcean";
-    addr = "ff-relay.adaocean.com";
+    addr = "relay1.adaocean.com";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "ADAOcean";
+    addr = "relay2.adaocean.com";
     port = 3002;
     valency = 1;
   }
