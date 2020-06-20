@@ -804,10 +804,12 @@
     operator = "stake-ada1";
     addr = "stake-ada.ddns.net";
     port = 8001;
+    valency = 1;
   }
   {
     operator = "stake-ada1";
     addr = "stake-ada.ddns.net";
     port = 8002;
+    valency = 1;
   }
 ]
