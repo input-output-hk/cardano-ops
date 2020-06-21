@@ -940,5 +940,11 @@
     port = 7090;
     valency = 2;
   }
-
+  {
+    operator = "BRADA";
+    addr = "135.181.28.81";
+    port = 6001;
+    valency = 1;
+  }
+  
 ]
