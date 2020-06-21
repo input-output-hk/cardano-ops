@@ -940,5 +940,9 @@
     port = 7090;
     valency = 2;
   }
-
+  {
+    operator = "gacallea";
+    addr = "relays.insalada.io";
+    port = 3001;
+  }
 ]
