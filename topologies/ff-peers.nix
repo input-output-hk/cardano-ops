@@ -3,6 +3,12 @@
 # Pull-requests against this file will be merged and deployed once a day.
 [
   {
+    operator = "Rocky Mountain Relay1";
+    addr = "50.99.210.102";
+    port = 3001;
+    valency = 2;
+  }
+  {
     operator = "disassembler";
     addr = "prophet.samleathers.com";
     port = 3001;
