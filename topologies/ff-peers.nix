@@ -941,9 +941,9 @@
     valency = 2;
   }
   {
-    operator = "KNIP";
+    operator = "Griffinholm";
     addr = "24.245.16.135";
-    port = 3001;
+    port = 3002;
     valency = 1;
   }
 
