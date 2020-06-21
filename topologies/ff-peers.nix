@@ -363,4 +363,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "QSBLR-Duniya Decentralized";
+    node = "Relay1"
+    addr = "ganithmudram.ddns.net";
+    port = 8081;
+  }
 ]
