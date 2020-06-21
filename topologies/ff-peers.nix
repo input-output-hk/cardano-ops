@@ -942,7 +942,9 @@
   }
   {
     operator = "gacallea";
+    node = "SALAD";
     addr = "relays.insalada.io";
     port = 3001;
+    valency = 2;
   }
 ]
