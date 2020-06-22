@@ -1103,4 +1103,12 @@
     port = 3001;
     valency = 1;
   }
+  {
+    operator = "MICRO";
+    node = "relay1";
+    addr = "31.151.55.28";
+    port = 3001;
+    valency = 1;
+  }
+  
 ]
