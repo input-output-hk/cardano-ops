@@ -1117,4 +1117,17 @@
     port = 4002;
     valency = 1;
   }
+      operator = "KAKE1";
+    node = "relay1";
+    addr = "45.153.184.41";
+    port = 8081;
+    valency = 1;
+  }
+  {
+    operator = "KAKE1";
+    node = "relay2";
+    addr = "45.153.184.41";
+    port = 8082;
+    valency = 1;
+  }
 ]
