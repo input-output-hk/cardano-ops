@@ -610,10 +610,10 @@
   },
   {
     "operator": "Rick",
-    "node": "digi",
+    "node": "DIGI",
     "addr": "relay1.digitalfortress.online",
     "port": 3001,
-    "valency": 1
+    "valency": 5
   }
 
 
