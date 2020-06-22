@@ -1105,7 +1105,7 @@
   }
   {
     operator = "MICRO";
-    node = "relay1";
+    node = "micro-relay1";
     addr = "31.151.55.28";
     port = 3001;
     valency = 1;
