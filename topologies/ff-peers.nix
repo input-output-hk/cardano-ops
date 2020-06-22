@@ -1024,7 +1024,7 @@
   }
   {
     operator = "TOBG Community Pool";
-    addr = "adar2.tobg.services;
+    addr = "adar2.tobg.services";
     port = 30501;
     valency = 1;
   }
@@ -1041,7 +1041,7 @@
   }
   {
     operator = "Gryph, rADArStakePool, @poolradar";
-    addr = "relay.radarstakepool.com;
+    addr = "relay.radarstakepool.com";
     port = 3001;
     valency = 1;
   }
@@ -1077,14 +1077,14 @@
   }
   {
     operator = "ROCK";
-    node = "relay1"
+    node = "relay1";
     addr = "37.120.159.246";
     port = 3001;
     valency = 1;
   }
   {
     operator = "ROCK";
-    node = "relay2"
+    node = "relay2";
     addr = "37.120.159.246";
     port = 3002;
     valency = 1;
