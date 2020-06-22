@@ -1103,4 +1103,18 @@
     port = 3001;
     valency = 1;
   }
+  {
+    operator = "ADAGL";
+    node = "relay1";
+    addr = "185.56.89.59";
+    port = 4001;
+    valency = 1;
+  }
+  {
+    operator = "ADAGL";
+    node = "relay2";
+    addr = "185.56.89.59";
+    port = 4002;
+    valency = 1;
+  }
 ]
