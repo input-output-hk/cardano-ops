@@ -1096,4 +1096,11 @@
     port = 3001;
     valency = 1;
   }
+  {
+    operator = "OHOH7";
+    node = "relay2";
+    addr = "95.217.26.134";
+    port = 3001;
+    valency = 1;
+  }
 ]
