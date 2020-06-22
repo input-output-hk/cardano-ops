@@ -565,6 +565,12 @@
     valency = 1;
   }
   {
+    operator = "CardanoCanucks";
+    addr = "relay2.cardanocanucks.com";
+    port = 8081;
+    valency = 1;
+  }
+  {
     operator = "Staker Space";
     addr = "95.217.13.208";
     port = 3001;
@@ -666,10 +672,10 @@
   }
   {
     operator = "Rick";
-    node = "digi";
+    node = "DIGI";
     addr = "relay1.digitalfortress.online";
     port = 3001;
-    valency = 1;
+    valency = 5;
   }
   {
     operator = "Cardano Universe Relays";
@@ -738,7 +744,13 @@
   }
   {
     operator = "ADAOcean";
-    addr = "ff-relay.adaocean.com";
+    addr = "relay1.adaocean.com";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "ADAOcean";
+    addr = "relay2.adaocean.com";
     port = 3002;
     valency = 1;
   }
@@ -879,26 +891,22 @@
     operator = "clearpool";
     addr = "51.81.35.185";
     port = 6001;
-    valency = 1;
   }
   {
     operator = "clearpool";
     addr = "194.32.79.115";
     port = 6010;
-    valency = 1;
   }
   {
     operator = "clearpool";
     addr = "194.32.79.115";
     port = 6011;
-    valency = 1;
   }
   {
     operator = "AdaJAWS";
     node = "JAWS";
-    addr = "relay2.adajaws.com";
+    addr = "91.153.127.8";
     port = 3001;
-    valency = 1;
   }
   {
     operator = "serapis";
@@ -914,13 +922,11 @@
     operator = "MASP-relay-NL";
     addr = "134.209.80.70";
     port = 3001;
-    valency = 1;
   }
   {
     operator = "TQWS";
     addr = "161.35.138.215";
     port = 3000;
-    valency = 1;
   }
   {
     operator = "KING Cardano Staking";
@@ -940,5 +946,147 @@
     port = 7090;
     valency = 2;
   }
-
+  {
+    operator = "JOY";
+    addr = "192.168.12.8";
+    port = 3001;
+  }
+  {
+    operator = "JOY";
+    addr = "192.168.12.7";
+    port = 3002;
+  }
+  {
+    operator = "champada";
+    addr = "relay1.champada.io";
+    port = 5001;
+    valency = 1;
+  }
+  {
+    operator = "champada";
+    addr = "relay2.champada.io";
+    port = 5001;
+    valency = 1;
+  }
+  {
+    operator = "Staking 247";
+    addr = "relay.staking247.com";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "Fancy1";
+    addr = "75.40.55.247";
+    port = 8081;
+  }
+  {
+    operator = "Fancy2";
+    addr = "75.40.55.247";
+    port = 8082;
+  }
+  {
+    operator = "Pirate Bay Staking";
+    addr = "35.202.124.219";
+    port = 3000;
+  }
+  {
+    operator = "Pirate Bay Staking";
+    addr = "35.224.35.249";
+    port = 3000;
+  }
+  {
+    operator = "stake-ada1";
+    addr = "stake-ada.ddns.net";
+    port = 8001;
+    valency = 1;
+  }
+  {
+    operator = "stake-ada1";
+    addr = "stake-ada.ddns.net";
+    port = 8002;
+    valency = 1;
+  }
+  {
+    operator = "Black Swan Pool";
+    addr = "81.149.31.222";
+    port = 8081;
+  }
+  {
+    operator = "Black Swan Pool";
+    addr = "81.149.31.222";
+    port = 8082;
+  }
+  {
+    operator = "TOBG Community Pool";
+    addr = "adar1.tobg.services";
+    port = 30500;
+    valency = 1;
+  }
+  {
+    operator = "TOBG Community Pool";
+    addr = "adar2.tobg.services;
+    port = 30501;
+    valency = 1;
+  }
+  {
+    operator = "TOBG Community Pool";
+    addr = "adar3.tobg.services";
+    port = 30502;
+    valency = 1;
+  }
+  {
+    operator = "Griffinholm";
+    addr = "24.245.16.135";
+    port = 3002;
+  }
+  {
+    operator = "Gryph, rADArStakePool, @poolradar";
+    addr = "relay.radarstakepool.com;
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "Gryph, rADArStakePool, @poolradar";
+    addr = "relay1.radarstakepool.com";
+    port = 3002;
+    valency = 1;
+  }
+  {
+    operator = "BRADA";
+    addr = "135.181.28.81";
+    port = 6001;
+  }
+  {
+    operator = "gacallea";
+    node = "SALAD";
+    addr = "relays.insalada.io";
+    port = 3001;
+    valency = 2;
+  }
+  {
+    operator = "Rocky Mountain";
+    node = "Relay1";
+    addr = "50.99.210.102";
+    port = 3001;
+  }
+  {
+    operator = "QSBLR-Duniya Decentralized";
+    node = "Relay1";
+    addr = "ganithmudram.ddns.net";
+    port = 8081;
+  }
+  {
+    operator = "ROCK";
+    node = "relay1"
+    addr = "37.120.159.246";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "ROCK";
+    node = "relay2"
+    addr = "37.120.159.246";
+    port = 3002;
+    valency = 1;
+  }
 ]
