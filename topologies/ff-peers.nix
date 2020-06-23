@@ -1206,4 +1206,16 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = "METS";
+    node = "METS Relay1";
+    addr = "35.223.67.99";
+    port = 3001;
+  }
+  {
+    operator = "METS";
+    node = "METS Relay2";
+    addr = "34.86.156.240";
+    port = 3002;
+  }
 ]
