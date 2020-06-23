@@ -1117,4 +1117,11 @@
     port = 4002;
     valency = 1;
   }
+  {
+    operator = "ADAFR";
+    node = "relay1";
+    addr = "87.98.219.95";
+    port = 4000;
+    valency = 1;
+  }  
 ]
