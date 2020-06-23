@@ -1117,4 +1117,10 @@
     port = 4002;
     valency = 1;
   }
+ {
+   operator = "COLDHEAT";
+   addr = "34.68.127.66";
+   port = 3000;
+   valency = 1;
+  }
 ]
