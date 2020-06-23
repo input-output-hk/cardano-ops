@@ -1117,4 +1117,11 @@
     port = 4002;
     valency = 1;
   }
+  {
+    operator = "KoalaPool";
+    node = "Relay1";
+    addr = ""35.244.94.64";
+    port = 3001;
+    valency = 1;
+  }
 ]
