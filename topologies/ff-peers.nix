@@ -1117,4 +1117,18 @@
     port = 4002;
     valency = 1;
   }
+  {
+    operator = "ZENITH";
+    node = "ZENITH Relay0";
+    addr = "relay.zenithpool.io";
+    port = 31400;
+    valency = 2;
+  }
+  {
+    operator = "ZENITH";
+    node = "ZENITH Relay1";
+    addr = "relay.zenithpool.io";
+    port = 3102;
+    valency = 2;
+  }
 ]
