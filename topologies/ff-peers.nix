@@ -59,6 +59,11 @@
     port = 3001;
   }
   {
+    operator = "CENT";
+    addr = "relay01.stakepoolcentral.com";
+    port = 17654;
+  }
+  {
     operator = "Staking CASH";
     addr = "167.71.15.97";
     port = 9630;
