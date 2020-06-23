@@ -1117,4 +1117,11 @@
     port = 4002;
     valency = 1;
   }
+  {
+   operator = "twin staking";
+   node = "TWINR";
+   addr = "5.146.169.84";
+   port = 9068;
+   valency = 1;
+  }
 ]
