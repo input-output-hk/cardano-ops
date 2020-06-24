@@ -604,13 +604,13 @@
   {
     operator = "Cardanesia";
     node = "Relay1";
-    addr = "35.232.118.177";
+    addr = "34.101.200.25";
     port = 3001;
   }
   {
     operator = "Cardanesia";
     node = "Relay2";
-    addr = "35.232.118.177";
+    addr = "34.101.200.25";
     port = 3002;
   }
   {
