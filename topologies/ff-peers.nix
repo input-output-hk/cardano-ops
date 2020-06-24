@@ -1206,4 +1206,9 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+   {
+     operator = "BKIND Relay";
+     addr = "song1.smitstakepools.online";
+     port = 3001;
+   }
 ]
