@@ -125,6 +125,8 @@
     node = "atada";
     addr = "relays.stakepool.at";
     port = 3001;
+    metadataUrl = "https://stakepool.at/atada.metadata.json";
+    metadataHash = "f792c672a350971266b5404f04ff3bd47deb1544bc411566a2f95c090c1202cf";
     valency = 2;
   }
   {
