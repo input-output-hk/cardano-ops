@@ -109,19 +109,19 @@
     valency = 1;
   }
   {
-    operator = "Kiwipool Staking”;
-    poolId = "e35ee716dfa388b7ed79037a7b61334a8c437c07a4643a0212f9a0a5”;
-    metadataUrl = "https://raw.githubusercontent.com/kiwipool/testpool1/master/kiwi.json”
-    meatadataHash = "fc0bfc1cb4b745daa5f37751bc7b73f37f306724ff35c5ab68aa4d602dce404d”;
-    addr = "love.kiwipool.org”;
+    operator = "Kiwipool Staking";
+    poolId = "e35ee716dfa388b7ed79037a7b61334a8c437c07a4643a0212f9a0a5";
+    metadataUrl = "https://raw.githubusercontent.com/kiwipool/testpool1/master/kiwi.json"
+    meatadataHash = "fc0bfc1cb4b745daa5f37751bc7b73f37f306724ff35c5ab68aa4d602dce404d";
+    addr = "love.kiwipool.org";
     port = 9635;
   }
   {
-    operator = “Kiwipool Staking”;
-    poolId = “3ec4d782898c75eb57b0ba7df4c58daefa100867e92d0b6257801b60”;
-    metadataUrl = “https://raw.githubusercontent.com/kiwipool/testpool1/master/trufl.json”
-    meatadataHash = “45052b34313dc304d523185e28d93d45a0e104287dd699db32bb84fb09e04a1c”;
-    addr = “unity.kiwipool.org”;
+    operator = "Kiwipool Staking";
+    poolId = "3ec4d782898c75eb57b0ba7df4c58daefa100867e92d0b6257801b60";
+    metadataUrl = "https://raw.githubusercontent.com/kiwipool/testpool1/master/trufl.json"
+    meatadataHash = "45052b34313dc304d523185e28d93d45a0e104287dd699db32bb84fb09e04a1c";
+    addr = "unity.kiwipool.org";
     port = 9635;
   }
   {
