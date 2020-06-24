@@ -115,10 +115,12 @@
     valency = 1;
   }
   {
-    operator = "Kiwipool Staking";
-    addr = "unity.kiwipool.org";
-    port = 9630;
-    valency = 1;
+   operator = “Kiwipool Staking”;
+   poolId = “3ec4d782898c75eb57b0ba7df4c58daefa100867e92d0b6257801b60”;
+   metadataUrl = “https://raw.githubusercontent.com/kiwipool/testpool1/master/trufl.json”
+   meatadataHash = “45052b34313dc304d523185e28d93d45a0e104287dd699db32bb84fb09e04a1c”;
+   addr = “unity.kiwipool.org”;
+   port = 9635;
   }
   {
     operator = "atada_stakepool_austria";
