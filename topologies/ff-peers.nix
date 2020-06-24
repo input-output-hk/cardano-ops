@@ -1201,4 +1201,9 @@
     addr = "134.122.16.177";
     port = 3001;
   }
+  {
+    operator = "cardanians";
+    addr = "relay.cardanians.io";
+    port = 3001;
+  }
 ]
