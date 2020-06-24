@@ -940,5 +940,10 @@
     port = 7090;
     valency = 2;
   }
-
+  {
+    operator = "Moderno";
+    addr = "134.122.16.177";
+    port = 3001;
+    valency = 1;
+  }
 ]
