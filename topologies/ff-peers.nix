@@ -1157,7 +1157,7 @@
   {
     operator = "KoalaPool";
     node = "Relay1";
-    addr = ""35.244.94.64";
+    addr = "35.244.94.64";
     port = 3001;
   }
   {
