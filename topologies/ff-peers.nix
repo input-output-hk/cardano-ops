@@ -1080,41 +1080,125 @@
     node = "relay1";
     addr = "37.120.159.246";
     port = 3001;
-    valency = 1;
   }
   {
     operator = "ROCK";
     node = "relay2";
     addr = "37.120.159.246";
     port = 3002;
-    valency = 1;
   }
   {
     operator = "OHOH7";
     node = "relay1";
     addr = "95.217.26.135";
     port = 3001;
-    valency = 1;
   }
   {
     operator = "OHOH7";
     node = "relay2";
     addr = "95.217.26.134";
     port = 3001;
-    valency = 1;
   }
   {
     operator = "ADAGL";
     node = "relay1";
     addr = "185.56.89.59";
     port = 4001;
-    valency = 1;
   }
   {
     operator = "ADAGL";
     node = "relay2";
     addr = "185.56.89.59";
     port = 4002;
-    valency = 1;
+  }
+  {
+    operator = "MICRO";
+    node = "micro-relay1";
+    addr = "31.151.55.28";
+    port = 3001;
+  }
+  {
+    operator = "KAKE1";
+    node = "relay1";
+    addr = "45.153.184.41";
+    port = 8081;
+  }
+  {
+    operator = "KAKE1";
+    node = "relay2";
+    addr = "45.153.184.41";
+    port = 8082;
+  }
+  {
+    operator = "CPS1";
+    addr = "160.16.60.146";
+    port = 3001;
+  }
+  {
+    operator = "CPS2";
+    addr = "160.16.60.146";
+    port = 3002;
+  }
+  {
+    operator = "CPS3";
+    addr = "160.16.85.215";
+    port = 3001;
+  }
+  {
+    operator = "CPS4";
+    addr = "160.16.85.215";
+    port = 3002;
+  }
+  {
+    operator = "AEON";
+    addr = "139.99.238.118";
+    port = 6000;
+  }
+  {
+    operator = "KoalaPool";
+    node = "Relay1";
+    addr = ""35.244.94.64";
+    port = 3001;
+  }
+  {
+    operator = "twin staking";
+    node = "TWINR";
+    addr = "5.146.169.84";
+    port = 9068;
+  }
+  {
+    operator = "ADAFR";
+    node = "relay1";
+    addr = "87.98.219.95";
+    port = 4000;
+  }
+  {
+    operator = "ZENITH";
+    node = "ZENITH Relay0";
+    addr = "relay.zenithpool.io";
+    port = 31400;
+    valency = 2;
+  }
+  {
+    operator = "ZENITH";
+    node = "ZENITH Relay1";
+    addr = "relay.zenithpool.io";
+    port = 3102;
+    valency = 2;
+  }
+  {
+    operator = "COLDHEAT";
+    addr = "34.68.127.66";
+    port = 3000;
+  }
+  {
+    operator = "CENT";
+    addr = "relay01.stakepoolcentral.com";
+    port = 17654;
+  }
+  {
+    operator = "Moderno";
+    addr = "134.122.16.177";
+    port = 3001;
   }
 ]
