@@ -1206,4 +1206,25 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = "CardanoLand";
+    node = "CardanoLand relay1";
+    addr = "relay.cardanoland.com";
+    port = 6000;
+    valency = 2;
+  }
+  {
+    operator = "CardanoLand";
+    node = "CardanoLand relay1";
+    addr = "relay.cardanoland.com";
+    port = 7000;
+    valency = 2;
+  }  
+    {
+    operator = "CardanoLand";
+    node = "CardanoLand relay1";
+    addr = "relay.cardanoland.com";
+    port = 8000;
+    valency = 2;
+  }
 ]
