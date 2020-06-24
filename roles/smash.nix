@@ -31,6 +31,13 @@ in {
       then cardano-db-sync-pkgs.cardano-db-sync-extended
       else cardano-db-sync-pkgs.cardano-db-sync;
   };
+  systemd.services.cardano-db-sync.serviceConfig = {
+    # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
+    SupplementaryGroups = "cardano-node";
+    # FIXME: https://github.com/input-output-hk/cardano-db-sync/issues/102
+    Restart = "always";
+    RestartSec = "30s";
+  };
   services.smash.enable = true;
   services.cardano-postgres.enable = true;
   services.postgresql = {
