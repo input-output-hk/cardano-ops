@@ -616,8 +616,9 @@
   {
     operator = "Scitz0";
     node = "AHLNET";
-    addr = "relay1.ahlnet.nu";
+    addr = "relays.ahlnet.nu";
     port = 2111;
+    valency = 3;
   }
   {
     operator = "ATOM";
