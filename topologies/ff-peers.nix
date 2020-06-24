@@ -254,7 +254,7 @@
     addr = "relays.ff.crypto2099.io";
     port = 3001;
     valency = 2;
-  }  
+  }
   {
     operator = "ONEW Relay01";
     addr = "3.127.174.250";
@@ -387,7 +387,7 @@
     port = 3000;
     valency = 1;
   }
-  { 
+  {
     operator = "CROWN-Relay-2";
     addr = "ff-relay2.StakeADAcoins.io";
     port = 3000;
@@ -507,11 +507,11 @@
     port = 3001;
   }
   {
-   operator = "Ankachain Solutions";
-   node = "ANQA";
-   addr = "relay.anqahub.com";
-   port = 3032;
-   valency = 2;
+    operator = "Ankachain Solutions";
+    node = "ANQA";
+    addr = "relay.anqahub.com";
+    port = 3032;
+    valency = 2;
   }
   {
     operator = "genePool one";
@@ -565,10 +565,15 @@
     valency = 1;
   }
   {
+    operator = "CardanoCanucks";
+    addr = "relay2.cardanocanucks.com";
+    port = 8081;
+    valency = 1;
+  }
+  {
     operator = "Staker Space";
     addr = "95.217.13.208";
     port = 3001;
-    valency = 1;
   }
   {
     operator = "Kopi1";
@@ -597,15 +602,608 @@
     valency = 2;
   }
   {
-    operator = "CardanesiaRelay1";
+    operator = "Cardanesia";
+    node = "Relay1";
     addr = "35.232.118.177";
+    port = 3001;
+  }
+  {
+    operator = "Cardanesia";
+    node = "Relay2";
+    addr = "35.232.118.177";
+    port = 3002;
+  }
+  {
+    operator = "Scitz0";
+    node = "AHLNET";
+    addr = "relay1.ahlnet.nu";
+    port = 2111;
+  }
+  {
+    operator = "ATOM";
+    addr = "94.130.200.121";
+    port = 6009;
+  }
+  {
+    operator = "SWAG-ADARelay";
+    addr = "18.221.248.208";
+    port = 3001;
+  }
+  {
+    operator = "stake-ada";
+    addr = "173.79.33.207";
+    port = 3001;
+  }
+  {
+    operator = "stake-ada";
+    addr = "173.79.33.207";
+    port = 3002;
+  }
+  {
+    operator = "phba2061";
+    addr = "adapool01.phba2061.com";
+    port = 4242;
+  }
+  {
+    operator = "phba2061";
+    addr = "taurus-ada.phba2061.com";
+    port = 7051;
+  }
+  {
+    operator = "DoxaPool";
+    addr = "35.228.131.120";
+    port = 3001;
+  }
+  {
+    operator = "beef";
+    addr = "159.69.185.211";
+    port = 9000;
+  }
+  {
+    operator = "GHISX";
+    addr = "relay.ff.0.ghisx-pool.com";
     port = 3001;
     valency = 1;
   }
   {
-    operator = "CardanesiaRelay2";
-    addr = "35.232.118.177";
+    operator = "AKIBA";
+    addr = "139.99.61.246";
+    port = 10006;
+  }
+  {
+    operator = "Rick";
+    node = "DIGI";
+    addr = "relay1.digitalfortress.online";
+    port = 3001;
+    valency = 5;
+  }
+  {
+    operator = "Cardano Universe Relays";
+    addr = "relays.cardano-universe.com";
+    port = 3001;
+    valency = 2;
+  }
+  {
+    operator = "Kaze";
+    node = "RelayNode1";
+    addr = "94.254.35.232";
+    port = 3001;
+  }
+  {
+    operator = "Kaze";
+    node = "RelayNode2";
+    addr = "94.254.35.232";
+    port = 3002;
+  }
+  {
+    operator = "OCTA2";
+    addr = "3.249.241.111";
+    port = 3002;
+  }
+  {
+    operator = "BSP";
+    addr = "relay.brothershipool.org";
+    port = 3305;
+  }
+  {
+    operator = "BSP";
+    addr = "relay.brothershipool.org";
+    port = 3304;
+  }
+  {
+    operator = "GOLD - AdaStakes.com";
+    node = "GOLD";
+    addr = "relay1.goldpools.io";
+    port = 8081;
+    valency = 1;
+  }
+  {
+    operator = "GOLD - AdaStakes.com";
+    node = "GOLD2";
+    addr = "relay2.goldpools.io";
+    port = 8081;
+    valency = 1;
+  }
+  {
+    operator = "Tap-ada.at";
+    addr = "relay1.tap-ada.at";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "Tap-ada.at";
+    addr = "relay2.tap-ada.at";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "KernoPool";
+    addr = "relays.kernopool.com";
+    port = 7801;
+    valency = 2;
+  }
+  {
+    operator = "ADAOcean";
+    addr = "relay1.adaocean.com";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "ADAOcean";
+    addr = "relay2.adaocean.com";
     port = 3002;
     valency = 1;
+  }
+  {
+    operator = "StakhanoviteIO";
+    addr = "91.121.85.255";
+    port = 9001;
+  }
+  {
+    operator = "BareMetalStaking";
+    node = "Relay1";
+    addr = "relay1.baremetalstaking.com";
+    port = 4001;
+    valency = 1;
+  }
+  {
+    operator = "BareMetalStaking";
+    node = "Relay2";
+    addr = "relay2.baremetalstaking.com";
+    port = 4002;
+    valency = 1;
+  }
+  {
+    operator = "Cardinal";
+    node = "relay 1";
+    addr = "46.101.64.236";
+    port = 8081;
+  }
+  {
+    operator = "Cardinal";
+    node = "relay 2";
+    addr = "46.101.64.236";
+    port = 8082;
+  }
+  {
+    operator = "cryptobounty";
+    node = "BNTY1 relay1";
+    addr = "relay1.testnet.cryptobounty.org";
+    port = 8081;
+    valency = 1;
+  }
+  {
+    operator = "cryptobounty";
+    node = "BNTY1 relay2";
+    addr = "relay2.testnet.cryptobounty.org";
+    port = 8082;
+    valency = 1;
+  }
+  {
+    operator = "ADAforge";
+    node = "relay1";
+    addr = "adaforge.spdns.org";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "ADAforge";
+    node = "relay2";
+    addr = "78.47.125.202";
+    port = 3001;
+  }
+  {
+    operator = "stake-ada";
+    addr = "stake-ada.ddns.net";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "stake-ada";
+    addr = "stake-ada.ddns.net";
+    port = 3002;
+    valency = 1;
+  }
+  {
+    operator = "NAP-1";
+    addr = "88.198.112.102";
+    port = 6006;
+  }
+  {
+    operator = "NAP-2";
+    addr = "88.198.112.102";
+    port = 6012;
+  }
+  {
+    operator = "NAP-3";
+    addr = "88.198.112.102";
+    port = 6024;
+  }
+  {
+    operator = "feqifei";
+    node = "COOL";
+    addr = "eu.stakecool.io";
+    port = 4001;
+    valency = 2;
+  }
+  {
+    operator = "feqifei";
+    node = "COOL";
+    addr = "us.stakecool.io";
+    port = 4001;
+    valency = 1;
+  }
+  {
+    operator = "feqifei";
+    node = "COOL";
+    addr = "ap.stakecool.io";
+    port = 4001;
+    valency = 1;
+  }
+  {
+    operator = "feqifei";
+    node = "CALM";
+    addr = "eu.stakecool.io";
+    port = 4002;
+    valency = 2;
+  }
+  {
+    operator = "feqifei";
+    node = "CALM";
+    addr = "us.stakecool.io";
+    port = 4002;
+    valency = 1;
+  }
+  {
+    operator = "feqifei";
+    node = "CALM";
+    addr = "ap.stakecool.io";
+    port = 4002;
+    valency = 1;
+  }
+  {
+    operator = "INDIA Stake Pool";
+    addr = "relay2.indiastakepool.com";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "clearpool";
+    addr = "51.81.35.185";
+    port = 6001;
+  }
+  {
+    operator = "clearpool";
+    addr = "194.32.79.115";
+    port = 6010;
+  }
+  {
+    operator = "clearpool";
+    addr = "194.32.79.115";
+    port = 6011;
+  }
+  {
+    operator = "AdaJAWS";
+    node = "JAWS";
+    addr = "91.153.127.8";
+    port = 3001;
+  }
+  {
+    operator = "serapis";
+    addr = "relay1.serap.is";
+    port = 3001;
+  }
+  {
+    operator = "serapis";
+    addr = "relay2.serap.is";
+    port = 3002;
+  }
+  {
+    operator = "MASP-relay-NL";
+    addr = "134.209.80.70";
+    port = 3001;
+  }
+  {
+    operator = "TQWS";
+    addr = "161.35.138.215";
+    port = 3000;
+  }
+  {
+    operator = "KING Cardano Staking";
+    addr = "portlaoise.kingcardanostaking.com";
+    port = 7070;
+    valency = 2;
+  }
+  {
+    operator = "KING Cardano Staking";
+    addr = "dublin.kingcardanostaking.com";
+    port = 7080;
+    valency = 2;
+  }
+  {
+    operator = "KING Cardano Staking";
+    addr = "kilkenny.queenada.com";
+    port = 7090;
+    valency = 2;
+  }
+  {
+    operator = "JOY";
+    addr = "192.168.12.8";
+    port = 3001;
+  }
+  {
+    operator = "JOY";
+    addr = "192.168.12.7";
+    port = 3002;
+  }
+  {
+    operator = "champada";
+    addr = "relay1.champada.io";
+    port = 5001;
+    valency = 1;
+  }
+  {
+    operator = "champada";
+    addr = "relay2.champada.io";
+    port = 5001;
+    valency = 1;
+  }
+  {
+    operator = "Staking 247";
+    addr = "relay.staking247.com";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "Fancy1";
+    addr = "75.40.55.247";
+    port = 8081;
+  }
+  {
+    operator = "Fancy2";
+    addr = "75.40.55.247";
+    port = 8082;
+  }
+  {
+    operator = "Pirate Bay Staking";
+    addr = "35.202.124.219";
+    port = 3000;
+  }
+  {
+    operator = "Pirate Bay Staking";
+    addr = "35.224.35.249";
+    port = 3000;
+  }
+  {
+    operator = "stake-ada1";
+    addr = "stake-ada.ddns.net";
+    port = 8001;
+    valency = 1;
+  }
+  {
+    operator = "stake-ada1";
+    addr = "stake-ada.ddns.net";
+    port = 8002;
+    valency = 1;
+  }
+  {
+    operator = "Black Swan Pool";
+    addr = "81.149.31.222";
+    port = 8081;
+  }
+  {
+    operator = "Black Swan Pool";
+    addr = "81.149.31.222";
+    port = 8082;
+  }
+  {
+    operator = "TOBG Community Pool";
+    addr = "adar1.tobg.services";
+    port = 30500;
+    valency = 1;
+  }
+  {
+    operator = "TOBG Community Pool";
+    addr = "adar2.tobg.services";
+    port = 30501;
+    valency = 1;
+  }
+  {
+    operator = "TOBG Community Pool";
+    addr = "adar3.tobg.services";
+    port = 30502;
+    valency = 1;
+  }
+  {
+    operator = "Griffinholm";
+    addr = "24.245.16.135";
+    port = 3002;
+  }
+  {
+    operator = "Gryph, rADArStakePool, @poolradar";
+    addr = "relay.radarstakepool.com";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "Gryph, rADArStakePool, @poolradar";
+    addr = "relay1.radarstakepool.com";
+    port = 3002;
+    valency = 1;
+  }
+  {
+    operator = "BRADA";
+    addr = "135.181.28.81";
+    port = 6001;
+  }
+  {
+    operator = "gacallea";
+    node = "SALAD";
+    addr = "relays.insalada.io";
+    port = 3001;
+    valency = 2;
+  }
+  {
+    operator = "Rocky Mountain";
+    node = "Relay1";
+    addr = "50.99.210.102";
+    port = 3001;
+  }
+  {
+    operator = "QSBLR-Duniya Decentralized";
+    node = "Relay1";
+    addr = "ganithmudram.ddns.net";
+    port = 8081;
+  }
+  {
+    operator = "ROCK";
+    node = "relay1";
+    addr = "37.120.159.246";
+    port = 3001;
+  }
+  {
+    operator = "ROCK";
+    node = "relay2";
+    addr = "37.120.159.246";
+    port = 3002;
+  }
+  {
+    operator = "OHOH7";
+    node = "relay1";
+    addr = "95.217.26.135";
+    port = 3001;
+  }
+  {
+    operator = "OHOH7";
+    node = "relay2";
+    addr = "95.217.26.134";
+    port = 3001;
+  }
+  {
+    operator = "ADAGL";
+    node = "relay1";
+    addr = "185.56.89.59";
+    port = 4001;
+  }
+  {
+    operator = "ADAGL";
+    node = "relay2";
+    addr = "185.56.89.59";
+    port = 4002;
+  }
+  {
+    operator = "MICRO";
+    node = "micro-relay1";
+    addr = "31.151.55.28";
+    port = 3001;
+  }
+  {
+    operator = "KAKE1";
+    node = "relay1";
+    addr = "45.153.184.41";
+    port = 8081;
+  }
+  {
+    operator = "KAKE1";
+    node = "relay2";
+    addr = "45.153.184.41";
+    port = 8082;
+  }
+  {
+    operator = "CPS1";
+    addr = "160.16.60.146";
+    port = 3001;
+  }
+  {
+    operator = "CPS2";
+    addr = "160.16.60.146";
+    port = 3002;
+  }
+  {
+    operator = "CPS3";
+    addr = "160.16.85.215";
+    port = 3001;
+  }
+  {
+    operator = "CPS4";
+    addr = "160.16.85.215";
+    port = 3002;
+  }
+  {
+    operator = "AEON";
+    addr = "139.99.238.118";
+    port = 6000;
+  }
+  {
+    operator = "KoalaPool";
+    node = "Relay1";
+    addr = "35.244.94.64";
+    port = 3001;
+  }
+  {
+    operator = "twin staking";
+    node = "TWINR";
+    addr = "5.146.169.84";
+    port = 9068;
+  }
+  {
+    operator = "ADAFR";
+    node = "relay1";
+    addr = "87.98.219.95";
+    port = 4000;
+  }
+  {
+    operator = "ZENITH";
+    node = "ZENITH Relay0";
+    addr = "relay.zenithpool.io";
+    port = 31400;
+    valency = 2;
+  }
+  {
+    operator = "ZENITH";
+    node = "ZENITH Relay1";
+    addr = "relay.zenithpool.io";
+    port = 3102;
+    valency = 2;
+  }
+  {
+    operator = "COLDHEAT";
+    addr = "34.68.127.66";
+    port = 3000;
+  }
+  {
+    operator = "CENT";
+    addr = "relay01.stakepoolcentral.com";
+    port = 17654;
+  }
+  {
+    operator = "Moderno";
+    addr = "134.122.16.177";
+    port = 3001;
+  }
+  {
+    operator = "cardanians";
+    addr = "relay.cardanians.io";
+    port = 3001;
   }
 ]
