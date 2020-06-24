@@ -1206,4 +1206,12 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = "Cardanobay";
+    poolId = "1fd1450ad92fc024235e2bf908a9b178a6e13f2e653ff0dec5414c46";
+    metadataUrl = "https://bit.ly/2Z1lxwV"
+    meatadataHash = "4934e57d30ecf92cbb404e9e03f186054374b8f167e10489060e46d4c4fd71fd";
+    addr = "relay.cardanobay.com";
+    port = 3001;
+  }
 ]
