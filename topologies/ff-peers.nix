@@ -1206,4 +1206,22 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = “EveryBlock_Studio”;
+    node = “Relay1”;
+    poolId = “7579c7a611679121e5b46ebbfae74b9b581ef1f7d757f639b6a2f8db”;
+    metadataUrl = “https://everyblock.studio/pool/poolmeta.json”;
+    metadataHash = “af6ea00d9e99f4778771a2605e2e7820eac88a771a11766f105c1710dec23c03”;
+    addr = “191.252.93.138”;
+    port = 3001;
+  }
+  {
+    operator = “EveryBlock_Studio”;
+    node = “Relay2”;
+    poolId = “7579c7a611679121e5b46ebbfae74b9b581ef1f7d757f639b6a2f8db”;
+    metadataUrl = “https://everyblock.studio/pool/poolmeta.json”;
+    metadataHash = “af6ea00d9e99f4778771a2605e2e7820eac88a771a11766f105c1710dec23c03”;
+    addr = “191.252.93.139”;
+    port = 3001;
+  }
 ]
