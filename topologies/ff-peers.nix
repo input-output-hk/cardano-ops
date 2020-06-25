@@ -300,14 +300,14 @@
     valency = 2;
   }
   {
-    operator = "4ADA relay 1";
-    addr = "4ADA.staking4ada.org";
+    operator = "4ADA Relay 1";
+    addr = "relay1.staking4ada.org";
     port = 8081;
     valency = 1;
   }
   {
-    operator = "4ADA relay 2";
-    addr = "4ADA.staking4ada.org";
+    operator = "4ADA Relay 2";
+    addr = "relay2.staking4ada.org";
     port = 8082;
     valency = 1;
   }
