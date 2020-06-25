@@ -1206,4 +1206,11 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = "MondoNet";
+    node = "NET51";
+    addr = "104.173.253.56";
+    port = 3002;
+    valency = 1;
+  }
 ]
