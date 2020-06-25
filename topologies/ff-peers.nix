@@ -151,6 +151,6 @@
     operator = "EARTH Relay01";
     addr = "relay.adainground.com";
     port = 3001;
-    valency = 2;
+    valency = 1;
   }
 ]
