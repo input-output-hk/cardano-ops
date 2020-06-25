@@ -103,7 +103,7 @@ in {
   systemd.services.dump-registered-relays-topology = let
     extract_relays_sql = writeText "extract_relays.sql" ''
       select array_to_json(array_agg(row_to_json(t))) from (
-        select ipv4, dns_name, port from (
+        select COALESCE(ipv4, dns_name) as addr, port from (
           select min(pool_id) as pool_id, ipv4, dns_name, port from pool_relay where
             ipv4 is null or ipv4 !~ '(^0\.)|(^10\.)|(^100\.6[4-9]\.)|(^100\.[7-9]\d\.)|(^100\.1[0-1]\d\.)|(^100\.12[0-7]\.)|(^127\.)|(^169\.254\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.0\.0\.)|(^192\.0\.2\.)|(^192\.88\.99\.)|(^192\.168\.)|(^198\.1[8-9]\.)|(^198\.51\.100\.)|(^203.0\.113\.)|(^22[4-9]\.)|(^23[0-9]\.)|(^24[0-9]\.)|(^25[0-5]\.)'
             group by ipv4, dns_name, port order by pool_id
@@ -111,19 +111,19 @@ in {
       ) t;
     '';
   in {
-    path = [ config.services.postgresql.package jq dnsutils ];
+    path = [ config.services.postgresql.package jq netcat ];
     script = ''
       cd $STATE_DIRECTORY
       for r in $(psql -t < ${extract_relays_sql} | jq -c '.[]'); do
-      dns_name=$(echo $r | jq -r '.dns_name')
-      if [ "$dns_name" != "null" ]; then
-        nslookup $dns_name > /dev/null
-        if [ "$?" -eq "0" ]; then
-          echo $r | jq '{"addr": .dns_name} + . | del(.ipv4) | del(.dns_name)'
+        addr=$(echo $r | jq -r '.addr')
+        port=$(echo $r | jq -r '.port')
+        set +e
+        nc -w 2 -z $addr $port  > /dev/null
+        res=$?
+        set -e
+        if [ $res -eq 0 ]; then
+          echo $r
         fi
-      else
-        echo $r | jq '{"addr": .ipv4} + . | del(.ipv4) | del(.dns_name)'
-      fi
       done | jq -n '. + [inputs]' | jq '{ Producers : . }' > topology.json
       mkdir -p relays
       mv topology.json relays/topology.json
