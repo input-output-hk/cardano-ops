@@ -1206,4 +1206,9 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = "Latheesan";
+    addr = "206.189.114.189";
+    port = 5001;
+  }
 ]
