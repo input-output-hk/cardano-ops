@@ -1170,7 +1170,7 @@
     operator = "ADAFR";
     node = "relay1";
     addr = "87.98.219.95";
-    port = 4000;
+    port = 6000;
   }
   {
     operator = "ZENITH";
