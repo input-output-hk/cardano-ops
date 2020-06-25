@@ -410,12 +410,12 @@
   }
   {
     operator = "MoxieStakePool";
-    addr = "18.191.134.79";
+    addr = "3.15.28.251";
     port = 8081;
   }
   {
     operator = "MoxieStakePool";
-    addr = "18.191.134.79";
+    addr = "3.15.28.251";
     port = 8082;
   }
   {
