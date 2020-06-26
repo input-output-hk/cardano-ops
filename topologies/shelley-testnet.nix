@@ -79,9 +79,9 @@ in {
   };
 
   explorer = withDailyRestart {
-    #services.nginx.virtualHosts."${globals.explorerHostName}.${globals.domain}".locations."/pool" = {
-    #  root = ../modules/iohk-pools/shelley_testnet;
-    #};
+    services.nginx.virtualHosts."${globals.explorerHostName}.${globals.domain}".locations."/p" = {
+      root = ../modules/iohk-pools/shelley_testnet;
+    };
   };
 
   coreNodes = [
