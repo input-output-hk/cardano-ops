@@ -1206,4 +1206,10 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = "ANFRA";
+    addr = "relays.pool.anfra.io";
+    port = 3001;
+    valency = 2;
+  }
 ]
