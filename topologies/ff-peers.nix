@@ -464,7 +464,7 @@
   }
   {
     operator = "phba2061";
-    addr = "adapool01.phba2061.com";
+    addr = "aquarius-ada.phba2061.com";
     port = 4242;
   }
   {
