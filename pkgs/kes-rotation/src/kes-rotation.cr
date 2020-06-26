@@ -5,7 +5,7 @@
 #   nix-instantiate --eval -E '((import ../nix/sources.nix).nixpkgs-crystal).outPath'
 
 # This script can be used in cron.  For example:
-# 00 15 * * * cd ~/ff && nix-shell --run 'kes-rotation -r' -I nixpkgs="$(nix eval '(import ./nix {}).path')" \
+# 00 15 * * * cd ~/shelley_testnet && nix-shell --run 'kes-rotation -r' -I nixpkgs="$(nix eval '(import ./nix {}).path')" \
 #   &> ~/ff/kes-rotation-logs/kes-rotate-$(date -u +"\%F_\%H-\%M-\%S").log
 
 require "json"
@@ -57,11 +57,11 @@ class KesRotate
       @sesSecret = ""
     end
 
-    if scriptCmdPrivate("nix-instantiate --eval -E --json '(import #{PATH_MOD}/globals.nix {}).deploymentName'").success?
+    if scriptCmdPrivate("nix-instantiate --eval -E --json '(import #{PATH_MOD}/globals.nix {}).environmentName'").success?
       @cluster = IO_CMD_OUT.to_s.strip('"')
       IO_TEE_OUT.puts "cluster: #{@cluster}"
     else
-      kesAbort("Unable to process the deployment name from the globals file.")
+      kesAbort("Unable to process the environment name from the globals file.")
     end
 
     if scriptCmdPrivate("nix-instantiate --eval -E --json 'let n = import #{PATH_MOD}/deployments/cardano-aws.nix; in __attrNames n'").success?
