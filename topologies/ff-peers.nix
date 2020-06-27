@@ -208,14 +208,20 @@
   {
     operator = "nchatur_relay_2_BFSA";
     node = "BFSA";
-    addr = "159.203.34.2";
-    port = 5666;
+    addr = "45.79.153.222";
+    port = 7881;
   }
   {
     operator = "nchatur_relay_1_BFSA";
     node = "BFSA";
-    addr = "142.93.115.228";
-    port = 5665;
+    addr = "173.230.129.114";
+    port = 7881;
+  }
+  {
+    operator = "nchatur_relay_3_BFSA";
+    node = "BFSA";
+    addr = "176.58.113.142";
+    port = 7881;
   }
   {
     operator = "AndrewWestberg";
