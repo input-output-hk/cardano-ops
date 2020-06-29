@@ -1206,4 +1206,14 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = "polypool";
+    addr = "r-eu-1.polypool.io";
+    port = 4001;
+  }
+  {
+    operator = "polypool";
+    addr = "r-us-1.polypool.io";
+    port = 4001;
+  }
 ]
