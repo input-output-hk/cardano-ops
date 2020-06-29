@@ -148,9 +148,11 @@
     valency = 2;
   }
   {
-    operator = "EARTH Relay01";
-    addr = "relay.adainground.com";
+    operator = "EARTH";
+    poolId = “3c47156edf22aace11df364ff6354508c64f92ba2740d43f431333b9”;
+    metadataUrl = “https://www.adainground.com/EARTH.json”
+    meatadataHash = 567518bb9e288744aaf751862fcd1a234dc9eb793717429f57699a98a8776d10;
+    addr = “110.174.184.26”;
     port = 3001;
-    valency = 1;
   }
 ]
