@@ -1206,4 +1206,14 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = "Beerwolf-R1";
+    addr = "relay01.beerwolfband.com";
+    port = 3001;
+  }
+  {
+    operator = "Beerwolf-R2";
+    addr = "relay02.beerwolfband.com";
+    port = 3002;
+  }
 ]
