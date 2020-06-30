@@ -95,6 +95,11 @@ in {
 
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
+  security.acme = lib.mkIf (config.deployment.targetEnv != "libvirtd") {
+    email = "devops@iohk.io";
+    acceptTerms = true; # https://letsencrypt.org/repository/
+  };
+
   services.nginx = {
     enable = true;
     package = nginxExplorer;
