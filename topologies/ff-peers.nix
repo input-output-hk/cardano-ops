@@ -1206,4 +1206,9 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = "brunjlar";
+    addr = "ec2-18-220-109-107.us-east-2.compute.amazonaws.com";
+    port = 3000;
+  }
 ]
