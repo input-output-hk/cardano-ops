@@ -2,6 +2,16 @@
 # evenly split across all IOHK FF relays.
 # Pull-requests against this file will be merged and deployed once a day.
 [
+{
+    operator = "relax";
+    addr = "relay1.cardano-stake-and-relax.com";
+    port = 6001;
+  }
+  {
+    operator = "relax relay2";
+    addr = "relay2.cardano-stake-and-relax.com";
+    port = 6002;
+  }
   {
     operator = "disassembler";
     addr = "prophet.samleathers.com";
