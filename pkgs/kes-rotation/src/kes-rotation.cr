@@ -5,8 +5,8 @@
 #   nix-instantiate --eval -E '((import ../nix/sources.nix).nixpkgs-crystal).outPath'
 
 # This script can be used in cron.  For example:
-# 00 15 * * * cd ~/shelley_testnet && nix-shell --run 'kes-rotation -r' -I nixpkgs="$(nix eval '(import ./nix {}).path')" \
-#   &> ~/ff/kes-rotation-logs/kes-rotate-$(date -u +"\%F_\%H-\%M-\%S").log
+# 00 15 * * * cd ~/$CLUSTER && nix-shell --run 'kes-rotation -r' -I nixpkgs="$(nix eval '(import ./nix {}).path')" \
+#   &> kes-rotation-logs/kes-rotate-$(date -u +"\%F_\%H-\%M-\%S").log
 
 require "json"
 require "email"
@@ -15,6 +15,7 @@ require "option_parser"
 EMAIL_ENABLED           = ENV.fetch("EMAIL_ENABLED", "TRUE") == "TRUE" ? true : false
 MOCK_ENABLED            = ENV.fetch("MOCK_ENABLED", "FALSE") == "TRUE" ? true : false
 PATH_MOD                = ENV.fetch("PATH_MOD", ".")
+BLACKLISTED_CLUSTERS    = [ "mainnet", "testnet", "staging" ]
 
 EMAIL_FROM              = "devops@ci.iohkdev.io"
 EMAIL_TO                = "devops@iohk.io"
@@ -62,6 +63,10 @@ class KesRotate
       IO_TEE_OUT.puts "cluster: #{@cluster}"
     else
       kesAbort("Unable to process the environment name from the globals file.")
+    end
+
+    if BLACKLISTED_CLUSTERS.includes?(@cluster)
+      kesAbort("The current cluster \"#{@cluster}\" is not allowed to use this script.")
     end
 
     if scriptCmdPrivate("nix-instantiate --eval -E --json 'let n = import #{PATH_MOD}/deployments/cardano-aws.nix; in __attrNames n'").success?
@@ -245,7 +250,7 @@ class KesRotate
       IO_TEE_OUT.puts "\n"
     end
 
-    IO_TEE_OUT.puts "KES key rotation and deployment at on cluster #{@cluster} at #{NOW}, completed."
+    IO_TEE_OUT.puts "KES key rotation and deployment on cluster #{@cluster} at #{NOW}, completed."
 
     if EMAIL_ENABLED
       sendEmail("kesRotation SUCCESS on #{@cluster} at #{NOW}",
