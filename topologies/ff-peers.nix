@@ -1066,8 +1066,14 @@
   {
     operator = "Rocky Mountain";
     node = "Relay1";
-    addr = "50.99.210.102";
+    addr = "137.186.219.2";
     port = 3001;
+  }
+  {
+    operator = "Rocky Mountain";
+    node = "Relay2";
+    addr = "137.186.219.2";
+    port = 3002;
   }
   {
     operator = "QSBLR-Duniya Decentralized";
