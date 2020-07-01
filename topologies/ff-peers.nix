@@ -3,12 +3,12 @@
 # Pull-requests against this file will be merged and deployed once a day.
 [
 {
-    operator = "relax";
+    operator = "RELAX relay1";
     addr = "relay1.cardano-stake-and-relax.com";
     port = 6001;
   }
   {
-    operator = "relax relay2";
+    operator = "RELAX relay2";
     addr = "relay2.cardano-stake-and-relax.com";
     port = 6002;
   }
