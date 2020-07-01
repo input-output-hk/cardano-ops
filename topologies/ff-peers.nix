@@ -1206,4 +1206,10 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = "PaC";
+    addr = "18.157.178.155";
+    port = 3002;
+  }
+
 ]
