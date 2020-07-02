@@ -31,7 +31,7 @@ let
 
   relayIndexesInRegion = genList (i: i + 1) nbRelaysPerRegion;
 
-  ffProducers = lib.imap0 (index: cp: cp // { inherit index; })
+  peerProducers = lib.imap0 (index: cp: cp // { inherit index; })
     (globals.static.additionalPeers ++ (builtins.tail (builtins.fromJSON (builtins.readFile ../static/registered_relays_topology.json)).Producers));
 
   relayNodesBaseDef = concatMap (nodeIndex:
@@ -49,7 +49,7 @@ let
           # all relay with same suffix in other regions:
           ++ map (r: "e-${r}-${toString nodeIndex}") (filter (r: r != rLetter) regionLetters)
           # a share of the community relays:
-          ++ (filter (p: mod p.index (nbRelay) == globalRelayIndex) ffProducers);
+          ++ (filter (p: mod p.index (nbRelay) == globalRelayIndex) peerProducers);
         org = "IOHK";
         nodeId =  8 + globalRelayIndex;
       }
