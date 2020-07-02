@@ -1206,4 +1206,14 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = "Stake and Relax (RELAX) Relay1";
+    addr = "relay1.cardano-stake-and-relax.com";
+    port = 6001;
+  }
+  {
+    operator = "Stake and Relax (RELAX) Relay2";
+    addr = "relay2.cardano-stake-and-relax.com";
+    port = 6002;
+  }
 ]
