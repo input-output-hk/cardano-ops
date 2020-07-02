@@ -1193,7 +1193,14 @@
   }
   {
     operator = "CENT";
+    node = "CENT Relay 01";
     addr = "relay01.stakepoolcentral.com";
+    port = 17654;
+  }
+  {
+    operator = "CENT";
+    node = "CENT Relay 02";
+    addr = "relay02.stakepoolcentral.com";
     port = 17654;
   }
   {
