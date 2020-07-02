@@ -48,15 +48,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
-        "branch": "shelley-support-1.14.0",
+        "branch": "master",
         "description": "Faucet for Cardano",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "dfd750ce736ab4089d619aa49385ee57c90ec674",
-        "sha256": "1k565dxb2d3ai37757sc229vnpa7rhzp1g7bzbz8v6i98a8vc19k",
+        "rev": "47971d47f6cecdbf9b2d3c466f4ce9d216aaf620",
+        "sha256": "1sqjrjmlbfk8dalgbp6gmlzdsx0s5w1d9mswsq62ajmvn1d69x7b",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/dfd750ce736ab4089d619aa49385ee57c90ec674.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/47971d47f6cecdbf9b2d3c466f4ce9d216aaf620.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
