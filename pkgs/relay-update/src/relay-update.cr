@@ -240,10 +240,14 @@ class RelayUpdate
       IO_CMD_OUT.clear
       IO_CMD_ERR.clear
       begin
-        if blob = JSON.parse(response.body.to_s)
-          IO_TEE_STDOUT.puts "Explorer GET URL response body is valid JSON"
-          writeTopology(response.body.to_s)
+        blob = JSON.parse(response.body.to_s)
+        IO_TEE_STDOUT.puts "Explorer GET URL response body is valid JSON"
+        if blob["Producers"]?
+          IO_TEE_STDOUT.puts "Explorer latest topology contains #{blob["Producers"].size} producers"
+        else
+          updateAbort("Explorer latest topology contains no \"Producers\" JSON.")
         end
+        writeTopology(response.body.to_s)
       rescue
         IO_CMD_ERR.puts response.body.to_s
         updateAbort("Explorer GET URL body is NOT valid JSON.")
