@@ -1206,4 +1206,9 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = "LOOP";
+    addr = "31.16.159.107";
+    port = 3001;
+  }
 ]
