@@ -230,6 +230,18 @@
     port = 5002;
   }
   {
+    operator = "Jun-Sik Choi";
+    node = "HAPPY";
+    addr = "relay0.happycardano.com";
+    port = 3001;
+  }
+  {
+    operator = "Jun-Sik Choi";
+    node = "HAPPY";
+    addr = "relay1.happycardano.com";
+    port = 3002;
+  }
+  {
     operator = "HEX Relay 0x01";
     addr = "104.248.18.79";
     port = 8081;
