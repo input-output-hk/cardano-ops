@@ -3,6 +3,16 @@
 # Pull-requests against this file will be merged and deployed once a day.
 [
   {
+    operator = "BTS_KPOP_relay01";
+    addr = "kanjijin.iptime.org";
+    port = 3001;
+  }
+  {
+    operator = "BTS_KPOP_relay02";
+    addr = "kanjijin.iptime.org";
+    port = 3002;
+  }
+  {
     operator = "disassembler";
     addr = "prophet.samleathers.com";
     port = 3001;
