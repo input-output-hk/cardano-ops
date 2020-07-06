@@ -611,7 +611,7 @@
   {
     "operator": "Rick",
     "node": "DIGI",
-    "addr": "relay1.digitalfortress.online",
+    "addr": "relays.digitalfortress.online",
     "port": 3001,
     "valency": 5
   }
