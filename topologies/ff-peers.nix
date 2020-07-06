@@ -1206,4 +1206,9 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = "KysenPool";
+    addr = "cardano-relay.kysenpool.io";
+    port = 3000;
+  }
 ]
