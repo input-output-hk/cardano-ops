@@ -1206,4 +1206,9 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = "MYTH";
+    addr = "45.119.213.248";
+    port = 3001;
+  }
 ]
