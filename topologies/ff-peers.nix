@@ -1206,4 +1206,16 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = "BAKON";
+    addr = "relays.lowski.dev";
+    port = 3000;
+    valency = 5;
+  }
+  {
+    operator = "BAKON";
+    addr = "relays.lowski.dev";
+    port = 3001;
+    valency = 5;
+  }
 ]
