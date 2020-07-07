@@ -180,15 +180,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "smash": {
-        "branch": "ksaric/CAD-779",
+        "branch": "master",
         "description": "Stakepool Metadata Aggregation Server",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "smash",
-        "rev": "4b7ed5337e5cee2dad11df7e3d8278b409c53922",
-        "sha256": "0jhsklcvyax629zc42mji48bd03lwxmv6pyxbs1nl7l66brgnjbs",
+        "rev": "ce9aac48074e46cf6f6fc5e693fb7403c3e0cec9",
+        "sha256": "05jbi27zmlj83h590l0jglk7nby0hy2cp2x61pkfswy7mdajyzh6",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/smash/archive/4b7ed5337e5cee2dad11df7e3d8278b409c53922.tar.gz",
+        "url": "https://github.com/input-output-hk/smash/archive/ce9aac48074e46cf6f6fc5e693fb7403c3e0cec9.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

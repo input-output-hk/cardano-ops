@@ -142,7 +142,7 @@ let
         region = "eu-central-1";
       };
       imports = [
-        medium
+        xlarge
         cardano-ops.roles.smash
       ];
       node = {

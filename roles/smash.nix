@@ -1,63 +1,55 @@
 pkgs: with pkgs; { nodes, name, config, ... }:
 let
   nodeCfg = config.services.cardano-node;
-  dbSyncCfg = config.services.cardano-db-sync;
+  cfg = config.services.smash;
   hostAddr = getListenIp nodes.${name};
 in {
   environment = {
     systemPackages = [
       bat fd lsof netcat ncdu ripgrep tree vim cardano-cli
-      cardano-db-sync-pkgs.haskellPackages.cardano-db.components.exes.cardano-db-tool
     ];
     variables = {
-      PGPASSFILE = config.services.cardano-db-sync.pgpass;
+      SMASHPGPASSFILE = cfg.postgres.pgpass;
     };
   };
   imports = [
     cardano-ops.modules.base-service
     cardano-ops.modules.cardano-postgres
-    (sourcePaths.cardano-db-sync + "/nix/nixos")
     (sourcePaths.smash+ "/nix/nixos")
   ];
   services.cardano-node.producers = [ globals.relaysNew ];
-  services.cardano-db-sync = {
-    enable = true;
-    cluster = globals.environmentName;
-    environment = globals.environmentConfig;
-    socketPath = nodeCfg.socketPath;
-    logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { hasPrometheus = [ hostAddr 12698 ]; };
-    extended = globals.withCardanoDBExtended;
-    package = if globals.withCardanoDBExtended
-      then cardano-db-sync-pkgs.cardano-db-sync-extended
-      else cardano-db-sync-pkgs.cardano-db-sync;
-  };
-  systemd.services.cardano-db-sync.serviceConfig = {
+  systemd.services.smash.serviceConfig = {
     # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
     SupplementaryGroups = "cardano-node";
     # FIXME: https://github.com/input-output-hk/cardano-db-sync/issues/102
     Restart = "always";
     RestartSec = "30s";
   };
-  services.smash.enable = true;
+  services.smash = {
+    enable = true;
+    inherit (globals) environmentName;
+    environment = globals.environmentConfig;
+    inherit (nodeCfg) socketPath;
+    logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { hasPrometheus = [ hostAddr 12698 ]; };
+  };
   services.cardano-postgres.enable = true;
   services.postgresql = {
-    ensureDatabases = [ "${dbSyncCfg.user}" ];
+    ensureDatabases = [ "${cfg.postgres.database}" ];
     ensureUsers = [
       {
-        name = "${dbSyncCfg.user}";
+        name = "${cfg.postgres.user}";
         ensurePermissions = {
-          "DATABASE ${dbSyncCfg.user}" = "ALL PRIVILEGES";
+          "DATABASE ${cfg.postgres.database}" = "ALL PRIVILEGES";
         };
       }
     ];
     identMap = ''
-      cdbsync-users root ${dbSyncCfg.user}
-      cdbsync-users smash ${dbSyncCfg.user}
-      cdbsync-users ${dbSyncCfg.user} ${dbSyncCfg.user}
-      cdbsync-users postgres postgres
+      smash-users root ${cfg.postgres.user}
+      smash-users ${cfg.user} ${cfg.postgres.user}
+      smash-users postgres postgres
     '';
     authentication = ''
-      local all all ident map=cdbsync-users
+      local all all ident map=smash-users
     '';
   };
   security.acme = lib.mkIf (config.deployment.targetEnv != "libvirtd") {
