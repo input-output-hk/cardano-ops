@@ -27,6 +27,7 @@ NODE_METRICS_PORT       = 12798
 NOW                     = Time.utc.to_s("%F %R %z")
 METRICS_WAIT_INTERVAL   = 60
 METRICS_WAIT_ITERATIONS = 10
+MINIMUM_PRODUCERS       = 100
 
 IO_CMD_OUT    = IO::Memory.new
 IO_CMD_ERR    = IO::Memory.new
@@ -244,6 +245,12 @@ class RelayUpdate
         IO_TEE_STDOUT.puts "Explorer GET URL response body is valid JSON"
         if blob["Producers"]?
           IO_TEE_STDOUT.puts "Explorer latest topology contains #{blob["Producers"].size} producers"
+          if blob["Producers"].size < MINIMUM_PRODUCERS
+            updateAbort("Explorer latest topology contains less than the required minimum number " \
+                        "(#{MINIMUM_PRODUCERS}) of producers: #{blob["Producers"].size}.")
+          else
+            IO_TEE_STDOUT.puts "Explorer latest topology meets or exceeds the minimum number of producers (#{MINIMUM_PRODUCERS})"
+          end
         else
           updateAbort("Explorer latest topology contains no \"Producers\" JSON.")
         end
