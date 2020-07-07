@@ -113,6 +113,7 @@ in {
   in {
     path = [ config.services.postgresql.package jq netcat ];
     script = ''
+      set -uo pipefail
       cd $STATE_DIRECTORY
       for r in $(psql -t < ${extract_relays_sql} | jq -c '.[]'); do
         addr=$(echo $r | jq -r '.addr')
