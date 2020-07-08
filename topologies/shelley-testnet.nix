@@ -7,10 +7,10 @@ let
   } def;
 
   coreNodesRegions = 3;
-  relayNodesRegions = 6;
+  relayNodesRegions = 7;
 
   nbCoreNodesPerRegion = 2;
-  nbRelaysPerRegion = 4;
+  nbRelaysPerRegion = 5;
 
   nbRelay = relayNodesRegions * nbRelaysPerRegion;
 
@@ -21,6 +21,7 @@ let
     d = "us-east-2";
     e = "us-west-1";
     f = "eu-west-1";
+    g = "eu-west-2";
   };
   regionLetters = (attrNames regions);
 
@@ -73,7 +74,7 @@ in {
       faucetLogLevel = "DEBUG";
       secondsBetweenRequestsAnonymous = 86400;
       secondsBetweenRequestsApiKeyAuth = 86400;
-      lovelacesToGiveAnonymous = 100000000000;
+      lovelacesToGiveAnonymous = 1000000000;
       lovelacesToGiveApiKeyAuth = 1000000000000;
     };
   };
