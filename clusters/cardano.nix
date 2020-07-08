@@ -123,7 +123,7 @@ let
       };
     } def;
   }) // (lib.optionalAttrs globals.withFaucet {
-    "${globals.faucetHostname}" = let def = (topology.faucet or {}); in mkNode {
+    "${globals.faucetHostname}" = let def = (topology.${globals.faucetHostname} or {}); in mkNode {
       deployment.ec2 = {
         region = "eu-central-1";
       };

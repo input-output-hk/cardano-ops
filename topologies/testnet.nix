@@ -1,4 +1,16 @@
+pkgs: with pkgs; with lib;
 {
+  "${globals.faucetHostname}" = {
+    services.cardano-faucet = {
+      anonymousAccess = true;
+      faucetLogLevel = "DEBUG";
+      secondsBetweenRequestsAnonymous = 86400;
+      secondsBetweenRequestsApiKeyAuth = 86400;
+      lovelacesToGiveAnonymous = 1000000000;
+      lovelacesToGiveApiKeyAuth = 1000000000000;
+    };
+  };
+
   legacyCoreNodes = [];
 
   legacyRelayNodes = [
