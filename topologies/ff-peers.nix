@@ -18,6 +18,16 @@
     port = 6060;
   }
   {
+    operator = "divpools.com";
+    addr = "167.172.1.22";
+    port = 9201;
+  }
+  {
+    operator = "divpools.com";
+    addr = "167.172.1.22";
+    port = 9202;
+  }  
+  {
     operator = "onyxstakepool";
     addr = "relays.onyxstakepool.com";
     port = 3001;
