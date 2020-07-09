@@ -164,11 +164,10 @@ let
         inherit (def) org nodeId;
       };
       deployment.ec2.region = def.region;
-      imports = [ medium ] ++ (if (globals.environmentConfig.nodeConfig.Protocol == "TPraos") then [
-        cardano-ops.roles.shelley-core
-      ] else [
+      imports = [
+        medium
         cardano-ops.roles.core
-      ]);
+      ];
       services.cardano-node = {
         inherit (def) producers;
       };
