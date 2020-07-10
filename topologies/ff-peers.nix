@@ -1206,4 +1206,16 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = "sinequix";
+    node = "Sinequix Relay1";
+    addr = "3.235.236.117";
+    port = 3001;
+  }
+   {
+    operator = "sinequix";
+    node = "Sinequix Relay2";
+    addr = "3.235.236.117";
+    port = 3002;
+  }
 ]
