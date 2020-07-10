@@ -32,8 +32,11 @@ let
 
   relayIndexesInRegion = genList (i: i + 1) nbRelaysPerRegion;
 
+  registeredRelays = (builtins.fromJSON (builtins.readFile ../static/registered_relays_topology.json)).Producers;
+
   peerProducers = lib.imap0 (index: cp: cp // { inherit index; })
-    (globals.static.additionalPeers ++ (builtins.tail (builtins.fromJSON (builtins.readFile ../static/registered_relays_topology.json)).Producers));
+    (globals.static.additionalPeers ++
+    (filter (r: !(hasSuffix globals.relaysNew r.addr)) registeredRelays));
 
   relayNodesBaseDef = concatMap (nodeIndex:
     map ({rLetter, rIndex, region}:

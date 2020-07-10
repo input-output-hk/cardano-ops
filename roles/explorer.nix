@@ -111,7 +111,7 @@ in {
       ) t;
     '';
   in {
-    path = [ config.services.postgresql.package jq netcat ];
+    path = [ config.services.postgresql.package jq netcat curl ];
     script = ''
       set -uo pipefail
       cd $STATE_DIRECTORY
@@ -123,7 +123,16 @@ in {
         res=$?
         set -e
         if [ $res -eq 0 ]; then
-          echo $r
+          geoinfo=$(curl -s https://json.geoiplookup.io/$addr)
+          continent=$(echo $geoinfo | jq -r '.continent_name')
+          country_code=$(echo $geoinfo | jq -r '.country_code')
+          if [ "$country_code" == "US" ]; then
+            state=$(echo $geoinfo | jq -r '.region')
+          else
+            state=$(echo $geoinfo | jq -r '.country_name')
+          fi
+          echo $r | jq --arg continent "$continent" \
+            --arg state "$state" '. + {continent: $continent, state: $state}'
         fi
       done | jq -n '. + [inputs]' | jq '{ Producers : . }' > topology.json
       mkdir -p relays
