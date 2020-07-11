@@ -1150,11 +1150,6 @@
     port = 3002;
   }
   {
-    operator = "AEON";
-    addr = "139.99.238.118";
-    port = 6000;
-  }
-  {
     operator = "KoalaPool";
     node = "Relay1";
     addr = "35.244.94.64";
