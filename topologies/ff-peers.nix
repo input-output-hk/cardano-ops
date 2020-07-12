@@ -3,6 +3,18 @@
 # Pull-requests against this file will be merged and deployed once a day.
 [
   {
+    operator = "ALTZ relay1";
+    addr = "54.176.97.30";
+    port = 3001;
+    valency = 1;
+  }
+  {
+    operator = "ALTZ relay2";
+    addr = "3.127.9.125";
+    port = 3002;
+    valency = 1;
+  }
+ {
     operator = "disassembler";
     addr = "prophet.samleathers.com";
     port = 3001;
