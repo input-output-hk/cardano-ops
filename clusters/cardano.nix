@@ -166,7 +166,7 @@ let
       deployment.ec2.region = def.region;
       imports = [
         medium
-        (cardano-ops.roles.core nodeId)
+        (cardano-ops.roles.core def.nodeId)
       ];
       services.cardano-node = {
         inherit (def) producers;
