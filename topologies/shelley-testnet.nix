@@ -6,22 +6,23 @@ let
     };
   } def;
 
-  coreNodesRegions = 3;
-  relayNodesRegions = 7;
+  bftNodesRegions = 3;
+  stakeNodesRegions = 3;
+  relayNodesRegions = 6;
 
-  nbCoreNodesPerRegion = 2;
+  nbBftNodesPerRegion = 1;
+  nbStakeNodesPerRegion = 1;
   nbRelaysPerRegion = 5;
 
   nbRelay = relayNodesRegions * nbRelaysPerRegion;
 
   regions = {
     a = "eu-central-1";
-    b = "ap-northeast-1";
+    b = "us-east-2";
     c = "ap-southeast-1";
-    d = "us-east-2";
+    d = "eu-west-2";
     e = "us-west-1";
-    f = "eu-west-1";
-    g = "eu-west-2";
+    f = "ap-northeast-1";
   };
   regionLetters = (attrNames regions);
 
@@ -32,7 +33,7 @@ let
 
   relayIndexesInRegion = genList (i: i + 1) nbRelaysPerRegion;
 
-  registeredRelays = (builtins.fromJSON (builtins.readFile ../static/registered_relays_topology.json)).Producers;
+  registeredRelays = []; #(builtins.fromJSON (builtins.readFile ../static/registered_relays_topology.json)).Producers;
 
   peerProducers = lib.imap0 (index: cp: cp // { inherit index; })
     (globals.static.additionalPeers ++
@@ -41,17 +42,19 @@ let
   relayNodesBaseDef = concatMap (nodeIndex:
     map ({rLetter, rIndex, region}:
       let
-        name = "e-${rLetter}-${toString nodeIndex}";
+        name = "rel-${rLetter}-${toString nodeIndex}";
         globalRelayIndex = rIndex + (nodeIndex - 1) * relayNodesRegions;
       in {
         inherit region name;
         producers =
-          # One of the core node:
-          [ "c-${elemAt regionLetters (mod rIndex coreNodesRegions)}-${toString (mod (nodeIndex - 1) nbCoreNodesPerRegion + 1)}" ]
+          # One of the BFT node:
+          [ "bft-${elemAt regionLetters (mod rIndex bftNodesRegions)}-${toString (mod (nodeIndex - 1) nbBftNodesPerRegion + 1)}" ]
+          # One of the staking pool:
+          ++ [ "stk-${elemAt regionLetters (mod rIndex stakeNodesRegions)}-${toString (mod (nodeIndex - 1) nbStakeNodesPerRegion + 1)}" ]
           # all relay in same region:
-          ++ map (i: "e-${rLetter}-${toString i}") (filter (i: i != nodeIndex) relayIndexesInRegion)
+          ++ map (i: "rel-${rLetter}-${toString i}") (filter (i: i != nodeIndex) relayIndexesInRegion)
           # all relay with same suffix in other regions:
-          ++ map (r: "e-${r}-${toString nodeIndex}") (filter (r: r != rLetter) regionLetters)
+          ++ map (r: "rel-${r}-${toString nodeIndex}") (filter (r: r != rLetter) regionLetters)
           # a share of the community relays:
           ++ (filter (p: mod p.index (nbRelay) == globalRelayIndex) peerProducers);
         org = "IOHK";
@@ -92,45 +95,45 @@ in {
   coreNodes = [
     # backup OBFT centralized nodes
     {
-      name = "c-a-1";
-      region = "eu-central-1";
-      producers = [ "c-b-1" "c-c-1" "c-a-2" "e-a-1" "e-d-1" ];
+      name = "bft-a-1";
+      region = regions.a;
+      producers = [ "bft-b-1" "bft-c-1" "stk-a-1" "rel-a-1" "rel-d-1" ];
       org = "IOHK";
       nodeId = 1;
     }
     {
-      name = "c-b-1";
-      region = "ap-northeast-1";
-      producers = [ "c-c-1" "c-a-1" "c-b-2" "e-b-1" "e-e-1" ];
+      name = "bft-b-1";
+      region = regions.b;
+      producers = [ "bft-a-1" "bft-c-1" "stk-b-1" "rel-b-1" "rel-c-1" ];
       org = "IOHK";
       nodeId = 2;
     }
     {
-      name = "c-c-1";
-      region = "ap-southeast-1";
-      producers = [ "c-a-1" "c-b-1" "c-c-2" "e-c-1" "e-f-1" ];
+      name = "bft-c-1";
+      region = regions.c;
+      producers = [ "bft-a-1" "bft-b-1" "stk-c-1" "rel-c-1" "rel-f-1" ];
       org = "IOHK";
       nodeId = 3;
     }
     # stake pools
     {
-      name = "c-a-2";
-      region = "eu-central-1";
-      producers = [ "c-b-2" "c-c-2" "c-a-1" "e-a-2" "e-e-2" ];
+      name = "stk-a-1";
+      region = regions.a;
+      producers = [ "stk-b-2" "stk-c-2" "bft-a-1" "rel-a-2" "rel-d-2" ];
       org = "IOHK";
       nodeId = 4;
     }
     {
-      name = "c-b-2";
-      region = "ap-northeast-1";
-      producers = [ "c-c-2" "c-a-2" "c-b-1" "e-b-2" "e-f-2" ];
+      name = "stk-b-1";
+      region = regions.b;
+      producers = [ "stk-a-2" "stk-c-2" "bft-b-1" "rel-b-2" "rel-e-2" ];
       org = "IOHK";
       nodeId = 5;
     }
     {
-      name = "c-c-2";
-      region = "ap-southeast-1";
-      producers = [ "c-a-2" "c-b-2" "c-c-1" "e-c-2" "e-d-2" ];
+      name = "stk-c-1";
+      region = regions.c;
+      producers = [ "stk-a-1" "stk-b-1" "bft-c-1" "rel-c-2" "rel-f-2" ];
       org = "IOHK";
       nodeId = 6;
     }
