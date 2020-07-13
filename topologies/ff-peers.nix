@@ -174,10 +174,16 @@
     valency = 2;
   }
   {
-    operator = "EARTH Relay01";
-    addr = "relay.adainground.com";
+    operator = "EARTH";
+    addr = "relay1.adainground.com";
     port = 3001;
-    valency = 2;
+    valency = 1;
+  }
+  {
+    operator = "EARTH";
+    addr = "relay2.adainground.com";
+    port = 3001;
+    valency = 1;
   }
   {
     operator = "ADAfrog";
