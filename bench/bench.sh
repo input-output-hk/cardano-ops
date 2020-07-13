@@ -330,7 +330,7 @@ op_bench_start() {
         nixops ssh-for-each --parallel "systemctl start systemd-journald"
         sleep 3s
         nixops ssh-for-each --parallel "systemctl start cardano-node"
-        nixops ssh explorer "systemctl start cardano-explorer-node cardano-db-sync"
+        nixops ssh explorer "systemctl start cardano-db-sync"
 
         deploystate_check_deployed_genesis_age
 
@@ -473,14 +473,13 @@ op_wait_for_nonempty_block() {
 
         echo -n "--( waiting for a non-empty block on explorer (patience for ${patience}s).  Seen empty: 00"
         while now=$(date +%s); test "${now}" -lt ${patience_until}
-        do r=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq \"select(.data.msg.txids != [])\" | wc -l'")
+        do r=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq --compact-output \"select(.data.msg.\\\"tx ids\\\" != [])\" | wc -l'")
            if test "$r" -ne 0
-           then l=$(nixops ssh explorer -- sh -c \
-                   "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq \".data.msg.txids | select(. != []) | length\"'")
-                echo ", got [$l], after $((now - start)) seconds"
+           then l=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq \".data.msg.\\\"tx ids\\\" | select(. != []) | length\" | jq . --slurp --compact-output'")
+                echo ", got $l, after $((now - start)) seconds"
                 return 0; fi
            e=$(nixops ssh explorer -- sh -c \
-                   "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq --slurp \"map (.data.msg.txids | select(. == [])) | length\"'")
+                   "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq --slurp \"map (.data.msg.\\\"tx ids\\\" | select(. == [])) | length\"'")
            echo -ne "\b\b"; printf "%02d" "$e"
            sleep 5; done
 
@@ -500,7 +499,7 @@ op_wait_for_empty_blocks() {
         local last_blkid='absolut4ly_n=wher'
         local news=
         while test $patience -gt 1 -a $anyblock_patience -gt 1
-        do while news=$(nixops ssh explorer -- sh -c "'set -euo pipefail; { echo \"{ data: { msg: { blkid: 0, txids: [] }}}\"; tac /var/lib/cardano-node/logs/node.json; } | grep -F MsgBlock | jq --compact-output \".data.msg | { blkid: .blkid, tx_count: (.txids | length) } \"'" |
+        do while news=$(nixops ssh explorer -- sh -c "'set -euo pipefail; { echo \"{ data: { msg: { blkid: 0, \\\"tx ids\\\": [] }}}\"; tac /var/lib/cardano-node/logs/node.json; } | grep -F MsgBlock | jq --compact-output \".data.msg | { blkid: .\\\"block hash\\\", tx_count: (.\\\"tx ids\\\" | length) } \"'" |
                         sed -n '0,/'$last_blkid'/ p' |
                         head -n-1 |
                         jq --slurp 'reverse | ## undo order inversion..

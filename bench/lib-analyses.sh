@@ -57,16 +57,18 @@ analysis_list+=(analysis_dbsync_slot_span)
 analysis_dbsync_slot_span() {
         local dir=${1:-.}; shift
         local machines=("$@")
-        local logs
+        local fst_nodes last_nodes logs
 
         logs=($(logs_of_nodes "$dir" "${machines[@]}"))
 
-        args=(--argjson fst_dbsync  "$(grep -E '^[0-9]+' "$dir"/analysis/00-results-table.sql.csv | head -n1 | cut -d, -f1)"
-              --argjson last_dbsync "$(grep -E '^[0-9]+' "$dir"/analysis/00-results-table.sql.csv | tail -n1 | cut -d, -f1)"
-              --argjson fst_nodes  "$(grep -Fh '"TraceStartLeadershipCheck"' "${logs[@]}" |
-                                     sort | head -n1 | jq .data.slot)"
-              --argjson last_nodes "$(grep -Fh '"TraceStartLeadershipCheck"' "${logs[@]}" |
-                                     sort | tail -n1 | jq .data.slot)"
+        fst_nodes=$(grep -Fh '"TraceStartLeadershipCheck"' "${logs[@]}" |
+                     sort | head -n1 | jq .data.slot)
+        last_nodes=$(grep -Fh '"TraceStartLeadershipCheck"' "${logs[@]}" |
+                     sort | tail -n1 | jq .data.slot)
+        args=(--argjson fst_dbsync  "$(grep -E '^[0-9]+' "$dir"/analysis/00-results-table.sql.csv | head -n1 | cut -d, -f1 || echo $fst_nodes)"
+              --argjson last_dbsync "$(grep -E '^[0-9]+' "$dir"/analysis/00-results-table.sql.csv | tail -n1 | cut -d, -f1 || echo $last_nodes)"
+              --argjson fst_nodes  "$fst_nodes"
+              --argjson last_nodes "$last_nodes"
         )
         json_file_prepend "$dir"/analysis.json \
           '{ slot_spans:
@@ -245,7 +247,7 @@ analysis_derived() {
                 + { tx_rejected:      $rejected
                   , tx_utxo_invalid:  $utxo_invalid
                   , tx_missing_input: $missing_input })}
-          ' --argjson rejected      "$(wc   -l <$f)" \
+          ' --argjson rejected      "$(wc   -l <$f || echo 0)" \
             --argjson utxo_invalid  "$(grep -F "(UTxOValidationUTxOError " $f | wc -l)" \
             --argjson missing_input "$(grep -F "(UTxOMissingInput " $f | wc -l)" \
             <<<0

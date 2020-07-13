@@ -107,7 +107,6 @@ def profile_name($gtor; $gsis):
   } as $genesis_defaults
 
 | { init_cooldown:           120
-  , single_threaded:         true
   , tx_fee:                  10000000
   } as $generator_defaults
 

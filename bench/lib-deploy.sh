@@ -186,7 +186,7 @@ nixopsfile_producers() {
 
 op_stop() {
         nixops ssh-for-each --parallel "systemctl stop cardano-node 2>/dev/null || true"
-        nixops ssh explorer            "systemctl stop cardano-explorer-node cardano-db-sync 2>/dev/null || true"
+        nixops ssh explorer            "systemctl stop cardano-db-sync 2>/dev/null || true"
         nixops ssh-for-each --parallel "systemctl stop systemd-journald 2>/dev/null || true"
 }
 

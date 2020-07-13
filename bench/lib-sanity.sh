@@ -183,10 +183,11 @@ default_tolerances='
 }'
 
 sanity_check_run() {
-        local dir=${1:-.} metafile meta prof tolerances t
+        local dir=${1:-.} tolerances t
 
         for check in ${sanity_check_list[*]}
-        do $check "$dir" "${default_tolerances}"
+        do echo -n " $check" | sed 's/sanity_//' >&2
+           $check "$dir" "${default_tolerances}"
         done | jq --slurp '
           if length != 0
           then . +

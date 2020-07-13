@@ -30,7 +30,7 @@ run_fetch_benchmarking() {
         test -d "$nix_store_benchmarking" ||
                 fail "couldn't fetch 'cardano-benchmarking'"
         mkdir -p "$targetdir"
-        cp -fa "$nix_store_benchmarking"/{analyses/*.sh,scripts/*.{sh,sql}} "$targetdir"
+        cp -fa "$nix_store_benchmarking"/scripts/*.{sh,sql} "$targetdir"
 }
 
 is_run_broken() {
