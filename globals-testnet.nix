@@ -13,7 +13,7 @@ pkgs: {
 
   environmentName = "testnet";
 
-  topology = import ./topologies/testnet.nix;
+  topology = import ./topologies/testnet.nix pkgs;
 
   ec2 = {
     credentials = {
