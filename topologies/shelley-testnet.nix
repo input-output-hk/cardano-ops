@@ -17,12 +17,12 @@ let
   nbRelay = relayNodesRegions * nbRelaysPerRegion;
 
   regions = {
-    a = "eu-central-1";
-    b = "us-east-2";
-    c = "ap-southeast-1";
-    d = "eu-west-2";
-    e = "us-west-1";
-    f = "ap-northeast-1";
+    a = "eu-central-1";   # Europe (Frankfurt)
+    b = "us-east-2";      # US East (Ohio)
+    c = "ap-southeast-1"; # Asia Pacific (Singapore)
+    d = "eu-west-2";      # Europe (London)
+    e = "us-west-1";      # US West (N. California)
+    f = "ap-northeast-1"; # Asia Pacific (Tokyo)
   };
   regionLetters = (attrNames regions);
 

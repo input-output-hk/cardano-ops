@@ -78,7 +78,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"e-a-.*\"}",
+          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"rel-a-.*\"}",
+          "interval": "",
           "intervalFactor": 2,
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -88,7 +89,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Frankfurt TCP connections",
+      "title": "Europe (Frankfurt) TCP connections",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -171,7 +172,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"e-b-.*\"}",
+          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"rel-b-.*\"}",
+          "interval": "",
           "intervalFactor": 2,
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -181,7 +183,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Tokyo TCP connections",
+      "title": "US East (Ohio) TCP connections",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -264,7 +266,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"e-c-.*\"}",
+          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"rel-c-.*\"}",
+          "interval": "",
           "intervalFactor": 2,
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -274,7 +277,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Singapore TCP connections",
+      "title": "Asia Pacific (Singapore) TCP connections",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -357,7 +360,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"e-d-.*\"}",
+          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"rel-d-.*\"}",
+          "interval": "",
           "intervalFactor": 2,
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -367,7 +371,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Ohio TCP connections",
+      "title": "Europe (London) TCP connections",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -383,6 +387,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:213",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -391,6 +396,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:214",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -450,7 +456,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"e-e-.*\"}",
+          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"rel-e-.*\"}",
           "interval": "",
           "intervalFactor": 2,
           "legendFormat": "{{alias}}",
@@ -546,7 +552,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"e-f-.*\"}",
+          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"rel-f-.*\"}",
           "interval": "",
           "intervalFactor": 2,
           "legendFormat": "{{alias}}",
@@ -557,7 +563,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Ireland TCP connections",
+      "title": "Asia Pacific (Tokyo) TCP connections",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -654,7 +660,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "100 - (avg by(alias) (irate(node_cpu_seconds_total{alias=~\"e-.*\",mode=\"idle\"}[1m])) * 100)",
+          "expr": "100 - (avg by(alias) (irate(node_cpu_seconds_total{alias=~\"rel-.*\",mode=\"idle\"}[1m])) * 100)",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -748,7 +755,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_memory_MemAvailable_bytes{alias=~\"e-.*\"} / node_memory_MemTotal_bytes{alias=~\"e-.*\"} * 100",
+          "expr": "node_memory_MemAvailable_bytes{alias=~\"rel-.*\"} / node_memory_MemTotal_bytes{alias=~\"rel-.*\"} * 100",
           "hide": false,
           "interval": "",
           "legendFormat": "{{alias}}",
@@ -857,69 +864,75 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"e-a-.*\",device!~\"lo\"}[20s]) * -8)",
+          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"rel-a-.*\",device!~\"lo\"}[20s]) * -8)",
           "interval": "",
           "legendFormat": "Frankfurt Egress",
           "refId": "A"
         },
         {
-          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"e-b-.*\",device!~\"lo\"}[20s]) * -8)",
-          "legendFormat": "Tokyo Egress",
+          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"rel-a-.*\",device!~\"lo\"}[20s]) * 8)",
+          "interval": "",
+          "legendFormat": "Frankfurt Ingress",
           "refId": "B"
         },
         {
-          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"e-c-.*\",device!~\"lo\"}[20s]) * -8)",
-          "legendFormat": "Singapore Egress",
+          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"rel-b-.*\",device!~\"lo\"}[20s]) * -8)",
+          "interval": "",
+          "legendFormat": "Ohio Egress",
           "refId": "C"
         },
         {
-          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"e-d-.*\",device!~\"lo\"}[20s]) * -8)",
-          "legendFormat": "Ohio Egress",
+          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"rel-b-.*\",device!~\"lo\"}[20s]) * 8)",
+          "interval": "",
+          "legendFormat": "Ohio Ingress",
           "refId": "D"
         },
         {
-          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"e-a-.*\",device!~\"lo\"}[20s]) * 8)",
-          "legendFormat": "Frankfurt Ingress",
+          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"rel-c-.*\",device!~\"lo\"}[20s]) * -8)",
+          "interval": "",
+          "legendFormat": "Singapore Egress",
           "refId": "E"
         },
         {
-          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"e-b-.*\",device!~\"lo\"}[20s]) * 8)",
-          "legendFormat": "Tokyo Ingress",
+          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"rel-c-.*\",device!~\"lo\"}[20s]) * 8)",
+          "interval": "",
+          "legendFormat": "Singapore Ingress",
           "refId": "F"
         },
         {
-          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"e-c-.*\",device!~\"lo\"}[20s]) * 8)",
-          "legendFormat": "Singapore Ingress",
+          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"rel-d-.*\",device!~\"lo\"}[20s]) * -8)",
+          "interval": "",
+          "legendFormat": "London Egress",
           "refId": "G"
         },
         {
-          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"e-d-.*\",device!~\"lo\"}[20s]) * 8)",
+          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"rel-d-.*\",device!~\"lo\"}[20s]) * 8)",
           "interval": "",
-          "legendFormat": "Ohio Ingress",
+          "legendFormat": "London Ingress",
           "refId": "H"
         },
         {
-          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"e-e-.*\",device!~\"lo\"}[20s]) * -8)",
+          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"rel-e-.*\",device!~\"lo\"}[20s]) * -8)",
           "interval": "",
-          "legendFormat": "US West Egress",
+          "legendFormat": "N. California Egress",
           "refId": "I"
         },
         {
-          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"e-f-.*\",device!~\"lo\"}[20s]) * -8)",
+          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"rel-e-.*\",device!~\"lo\"}[20s]) * 8)",
           "interval": "",
-          "legendFormat": "Ireland Egress",
+          "legendFormat": "N. California Ingress",
           "refId": "J"
         },
         {
-          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"e-e-.*\",device!~\"lo\"}[20s]) * 8)",
+          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"rel-f-.*\",device!~\"lo\"}[20s]) * -8)",
           "interval": "",
-          "legendFormat": "US West Ingress",
+          "legendFormat": "Tokyo Egress",
           "refId": "K"
         },
         {
-          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"e-f-.*\",device!~\"lo\"}[20s]) * 8)",
+          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"rel-f-.*\",device!~\"lo\"}[20s]) * 8)",
           "interval": "",
-          "legendFormat": "Ireland Ingress",
+          "legendFormat": "Tokyo Ingress",
           "refId": "L"
         }
       ],
@@ -1011,7 +1024,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "cardano_node_ChainDB_metrics_blockNum_int{alias=~\"e-.*\"}",
+          "expr": "cardano_node_ChainDB_metrics_blockNum_int{alias=~\"rel-.*\"}",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -1115,7 +1129,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_transmit_bytes_total{alias=~\"e-a-.*\",device!~\"lo\"}[20s]) * -8",
+          "expr": "rate(node_network_transmit_bytes_total{alias=~\"rel-a-.*\",device!~\"lo\"}[20s]) * -8",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -1124,7 +1139,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Frankfurt Edge Node Egress Bandwidth (bps)",
+      "title": "Europe (Frankfurt) Edge Node Egress Bandwidth (bps)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1205,7 +1220,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_transmit_bytes_total{alias=~\"e-b-.*\",device!~\"lo\"}[20s]) * -8",
+          "expr": "rate(node_network_transmit_bytes_total{alias=~\"rel-b-.*\",device!~\"lo\"}[20s]) * -8",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -1214,7 +1230,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Tokyo Edge Node Egress Bandwidth (bps)",
+      "title": "US East (Ohio) Edge Node Egress Bandwidth (bps)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1295,7 +1311,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_transmit_bytes_total{alias=~\"e-c-.*\",device!~\"lo\"}[20s]) * -8",
+          "expr": "rate(node_network_transmit_bytes_total{alias=~\"rel-c-.*\",device!~\"lo\"}[20s]) * -8",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -1304,7 +1321,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Singapore Edge Node Egress Bandwidth (bps)",
+      "title": "Asia Pacific (Singapore) Edge Node Egress Bandwidth (bps)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1385,7 +1402,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_transmit_bytes_total{alias=~\"e-d-.*\",device!~\"lo\"}[20s]) * -8",
+          "expr": "rate(node_network_transmit_bytes_total{alias=~\"rel-d-.*\",device!~\"lo\"}[20s]) * -8",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -1394,7 +1412,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Ohio Edge Node Egress Bandwidth (bps)",
+      "title": "Europe (London) Edge Node Egress Bandwidth (bps)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1410,6 +1428,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:379",
           "format": "decbits",
           "label": null,
           "logBase": 1,
@@ -1418,6 +1437,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:380",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -1475,7 +1495,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_transmit_bytes_total{alias=~\"e-e-.*\",device!~\"lo\"}[20s]) * -8",
+          "expr": "rate(node_network_transmit_bytes_total{alias=~\"rel-e-.*\",device!~\"lo\"}[20s]) * -8",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -1485,7 +1505,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "US West Edge Node Egress Bandwidth (bps)",
+      "title": "US West (N. California) Edge Node Egress Bandwidth (bps)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1566,7 +1586,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_transmit_bytes_total{alias=~\"e-f-.*\",device!~\"lo\"}[20s]) * -8",
+          "expr": "rate(node_network_transmit_bytes_total{alias=~\"rel-f-.*\",device!~\"lo\"}[20s]) * -8",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -1576,7 +1596,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Ireland Edge Node Egress Bandwidth (bps)",
+      "title": "Asia Pacific (Tokyo) Edge Node Egress Bandwidth (bps)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1671,7 +1691,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_receive_bytes_total{alias=~\"e-a-.*\",device!~\"lo\"}[20s]) * 8",
+          "expr": "rate(node_network_receive_bytes_total{alias=~\"rel-a-.*\",device!~\"lo\"}[20s]) * 8",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -1680,7 +1701,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Frankfurt Edge Node Ingress Bandwidth (bps)",
+      "title": "Europe (Frankfurt) Edge Node Ingress Bandwidth (bps)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1761,7 +1782,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_receive_bytes_total{alias=~\"e-b-.*\",device!~\"lo\"}[20s]) * 8",
+          "expr": "rate(node_network_receive_bytes_total{alias=~\"rel-b-.*\",device!~\"lo\"}[20s]) * 8",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -1770,7 +1792,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Tokyo Edge Node Ingress Bandwidth (bps)",
+      "title": "US East (Ohio) Edge Node Ingress Bandwidth (bps)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1851,7 +1873,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_receive_bytes_total{alias=~\"e-c-.*\",device!~\"lo\"}[20s]) * 8",
+          "expr": "rate(node_network_receive_bytes_total{alias=~\"rel-c-.*\",device!~\"lo\"}[20s]) * 8",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -1860,7 +1883,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Singapore Edge Node Ingress Bandwidth (bps)",
+      "title": "Asia Pacific (Singapore) Edge Node Ingress Bandwidth (bps)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1941,7 +1964,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_receive_bytes_total{alias=~\"e-d-.*\",device!~\"lo\"}[20s]) * 8",
+          "expr": "rate(node_network_receive_bytes_total{alias=~\"rel-d-.*\",device!~\"lo\"}[20s]) * 8",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -1950,7 +1974,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Ohio Edge Node Ingress Bandwidth (bps)",
+      "title": "Europe (London) Edge Node Ingress Bandwidth (bps)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -2031,7 +2055,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_receive_bytes_total{alias=~\"e-e-.*\",device!~\"lo\"}[20s]) * 8",
+          "expr": "rate(node_network_receive_bytes_total{alias=~\"rel-e-.*\",device!~\"lo\"}[20s]) * 8",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -2041,7 +2065,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "US West Edge Node Ingress Bandwidth (bps)",
+      "title": "US West (N. California) Edge Node Ingress Bandwidth (bps)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -2122,7 +2146,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_receive_bytes_total{alias=~\"e-f-.*\",device!~\"lo\"}[20s]) * 8",
+          "expr": "rate(node_network_receive_bytes_total{alias=~\"rel-f-.*\",device!~\"lo\"}[20s]) * 8",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -2132,7 +2156,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Ireland Edge Node Ingress Bandwidth (bps)",
+      "title": "Asia Pacific (Tokyo) Edge Node Ingress Bandwidth (bps)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -2190,4 +2214,3 @@
   },
   "version": 1
 }
-
