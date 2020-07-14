@@ -121,6 +121,8 @@ analysis_from_benchmarking() {
         local analysis aname files
 
         files=($(ls -- "$dir"/analysis/logs-node-*/node-*.json 2>/dev/null || true))
+        echo "tool scripts:" >&2
+
         if test ${#files[*]} -gt 0
         then for analysis in $(ls -- "$dir"/tools/node.*.sh 2>/dev/null || true)
              do aname=$(sed 's_^.*/node\.\(.*\)\.sh$_\1_' <<<$analysis)

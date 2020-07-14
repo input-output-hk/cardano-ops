@@ -83,28 +83,8 @@ deploystate_local_genesis_startTime() {
 }
 
 deploystate_check_deployed_genesis_age() {
-        if ! check_genesis_age "$(deploystate_node_process_genesis_startTime 'node-0')"
+        if ! genesis_check_age "$(deploystate_node_process_genesis_startTime 'node-0')"
         then fail "genesis needs update"; fi
-}
-
-check_genesis_age() {
-        # test $# = 3 || failusage "check-genesis-age HOST SLOTLEN K"
-        local startTime=$1 slotlen="${2:-20}" k="${3:-2160}" now
-        now=$(date +%s)
-        local age_t=$((now - startTime))
-        local age_slots=$((age_t / slotlen))
-        local remaining=$((k * 2 - age_slots))
-        cat <<EOF
----| Genesis:  .startTime=${startTime}  now=${now}  age=${age_t}s  slotlen=${slotlen}
----|           slot age=${age_slots}  k=${k}  remaining=${remaining}
-EOF
-        if   test "${age_slots}" -ge $((k * 2))
-        then fprint "genesis is too old"
-             return 1
-        elif test "${age_slots}" -ge $((k * 38 / 20))
-        then fprint "genesis is dangerously old, slots remaining: ${remaining}"
-             return 1
-        fi
 }
 
 deploystate_destroy() {

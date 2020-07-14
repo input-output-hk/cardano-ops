@@ -8,6 +8,7 @@ __BENCH_BASEPATH=$(dirname "$(realpath "$0")")
 . "$__BENCH_BASEPATH"/lib-analysis.sh
 . "$__BENCH_BASEPATH"/lib-benchrun.sh
 . "$__BENCH_BASEPATH"/lib-deploy.sh
+. "$__BENCH_BASEPATH"/lib-genesis.sh
 . "$__BENCH_BASEPATH"/lib-params.sh
 . "$__BENCH_BASEPATH"/lib-profile.sh
 . "$__BENCH_BASEPATH"/lib-sanity.sh
@@ -122,7 +123,7 @@ main() {
         do case "$1" in
            --fast-unsafe | --fu ) no_deploy=t;;
            --deploy | --force-deploy )
-                                  force_deploy=t;;
+                   force_deploy=t;;
            --genesis | --force-genesis )
                                   force_genesis=t;;
            --watch | --watch-deploy )
@@ -171,13 +172,13 @@ main() {
 
                 check-genesis-age | check-genesis | genesis-age | age )
                                       deploystate_check_deployed_genesis_age "$@";;
-                genesis )             profile_genesis_byron "$@";;
+                genesis )             profile_genesis "$@";;
 
                 wait-for-empty-blocks | wait-empty | wait )
                                       op_wait_for_empty_blocks "$@";;
                 stop )                op_stop "$@";;
                 fetch | f )           op_stop
-                                      op_bench_fetch "$@";;
+                                      fetch_tag "$@";;
                 analyse | a )
                                       export tagroot=$(realpath ./runs)
                                       analyse_tag "$@";;

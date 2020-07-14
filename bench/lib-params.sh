@@ -8,6 +8,13 @@ params_check() {
                 fail "missing cluster benchmark parameters, consider running:  $(basename "${self}") init NODECOUNT"
 }
 
+get_topology_file() {
+        local node_count
+        node_count=${1:-$(parmetajq '.node_names | length')}
+
+        realpath "$__BENCH_BASEPATH"/../topologies/bench-txgen-simple-${node_count}.nix
+}
+
 params_recreate_cluster() {
         local n=$1 prof=${2:-default}
 
@@ -20,6 +27,39 @@ params_recreate_cluster() {
         ## This can be done only after the paramsfile is updated.
         prof=$(params resolve-profile "$prof")
         profile_deploy "$prof"
+}
+
+node_count_id_pool_map() {
+        local node_count=${1:-}
+
+        local topology_file
+        topology_file=$(get_topology_file $node_count)
+
+        nix-instantiate \
+          --strict --eval \
+          -E '__toJSON (__listToAttrs
+                        (map (x: { name = toString x.nodeId;
+                                  value = __hasAttr "stakePool" x; })
+                             (import '"${topology_file}"').coreNodes))' |
+          sed 's_\\__g; s_^"__; s_"$__'
+}
+
+id_pool_map_composition() {
+        local ids_pool_map=$1
+
+        jq '.
+           | to_entries
+           | { n_pools:         (map (select (.value))       | length)
+             , n_bft_delegates: (map (select (.value | not)) | length)
+             , n_total:         length
+             }
+           ' <<<$ids_pool_map --compact-output
+}
+
+params_composition() {
+        local node_count=$1
+
+        id_pool_map_composition "$(node_count_id_pool_map "$node_count")"
 }
 
 ## This sets up the cluster configuration file,
@@ -36,14 +76,22 @@ params_recreate_cluster() {
 ##      - genesis parameters
 params_init() {
         local node_count="${1?USAGE:  init-cluster NODECOUNT [PROTOCOL-ERA=byron]}"
-        local era="${2:-byron}"
+        local era="${2:-shelley}"
         if test $((node_count + 0)) -ne $node_count
         then fail "this operation requires a node count as an integer argument."
         fi
-        oprint "re-deriving cluster parameters for size $node_count"
-        jq --null-input --argjson node_count "$node_count" '
+        oprint "re-deriving cluster parameters for size $node_count, era $era"
+
+        local composition
+        composition=$(params_composition $node_count)
+
+        local args=(--argjson composition "$composition"
+                    --arg     era         "$era")
+        jq "${args[@]}" '
+include "profile-definitions" { search: "bench" };
+
 def profile_name($gtor; $gsis):
-  [ "dist\($node_count)"
+  [ "dist\($composition.n_total)"
   , ($gtor.txs         | tostring) + "tx"
   , ($gtor.add_tx_size | tostring) + "b"
   , ($gtor.tps         | tostring) + "tps"
@@ -52,63 +100,11 @@ def profile_name($gtor; $gsis):
                        | tostring) + "kb"
   ] | join("-");
 
-  [ { txs: 50000, add_tx_size: 100, io_arity: 1,  tps: 100 }
-  , { txs: 50000, add_tx_size: 100, io_arity: 2,  tps: 100 }
-  , { txs: 50000, add_tx_size: 100, io_arity: 4,  tps: 100 }
-  , { txs: 50000, add_tx_size: 100, io_arity: 8,  tps: 100 }
-  , { txs: 50000, add_tx_size: 100, io_arity: 16, tps: 100 }
-  ] as $generator_profiles
+  era_generator_profiles($era)           as $generator_profiles
+| era_genesis_profiles($era)             as $genesis_profiles
 
-| [ { name: "short"
-    , txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100
-    }
-  , { name: "small"
-    , txs: 1000,  add_tx_size: 100, io_arity: 1,  tps: 100
-    , init_cooldown: 25, finish_patience: 4 }
-  , { name: "small-32k"
-    , txs: 1000,  add_tx_size: 100, io_arity: 1,  tps: 100
-    , init_cooldown: 25, finish_patience: 4
-    , genesis_profile: 6
-    }
-  , { name: "edgesmoke"
-    , txs: 100,   add_tx_size: 100, io_arity: 1,  tps: 100
-    , init_cooldown: 25, finish_patience: 3 }
-  , { name: "smoke"
-    , txs: 100,   add_tx_size: 100, io_arity: 1,  tps: 100
-    , init_cooldown: 25, finish_patience: 4 }
-  ] as $generator_aux_profiles
-
-| [ { max_block_size: 2000000 }
-  , { max_block_size: 1000000 }
-  , { max_block_size:  500000 }
-  , { max_block_size:  250000 }
-  , { max_block_size:  128000 }
-  , { max_block_size:   64000 }
-  , { max_block_size:   32000 }
-  ] as $genesis_profiles
-
-| { parameter_k:             2160
-  , protocol_magic:          459045235
-  , secret:                  2718281828
-  , total_balance:           8000000000000000
-  } as $common_genesis_params
-
-| { byron:
-    { n_poors:               128
-    , n_delegates:           $node_count
-      ## Note, that the delegate count doesnt have to match cluster size.
-    , delegate_share:        0.9
-    , avvm_entries:          128
-    , avvm_entry_balance:    10000000000000
-    }
-  } as $era_genesis_params
-
-| { slot_duration:           20000
-  } as $genesis_defaults
-
-| { init_cooldown:           120
-  , tx_fee:                  10000000
-  } as $generator_defaults
+| era_generator_params($era)             as $generator_params
+| era_genesis_params($era; $composition) as $genesis_params
 
 | { finish_patience:         7
   } as $run_defaults
@@ -116,14 +112,14 @@ def profile_name($gtor; $gsis):
 ## For all IO arities and block sizes:
 | [[ $genesis_profiles
    , ($generator_profiles
-     | ( $generator_aux_profiles | map(.name | {key: ., value: null})
+     | ( generator_aux_profiles | map(.name | {key: ., value: null})
        | from_entries) as $aux_names
      | map (select ((.name // "") | in($aux_names) | not)))
    ]
    | combinations
    ]
 | . +
-  ( $generator_aux_profiles
+  ( generator_aux_profiles
   | map ([ $genesis_profiles[.genesis_profile // 0]
            // error("in aux profile \(.name):
                      no genesis profile with index \(.genesis_profile)")
@@ -133,40 +129,38 @@ def profile_name($gtor; $gsis):
   | .[1] as $generator
   | { "\($generator.name // profile_name($generator; $genesis))":
       { generator:
-        ($generator_defaults +
+        ($generator_params +
          ($generator | del(.name) | del(.txs) | del(.io_arity)
                      | del(.finish_patience)) +
         { tx_count:        $generator.txs
         , inputs_per_tx:   $generator.io_arity
         , outputs_per_tx:  $generator.io_arity
         })
+      , genesis:
+        ($genesis_params + $genesis)
       , run:
         ($run_defaults +
         { finish_patience:
             ## TODO:  fix ugly
             ($generator.finish_patience // $run_defaults.finish_patience)
         })
-      , genesis:
-        ($common_genesis_params +
-         ($era_genesis_params."'"$era"'" // error("era is null")) +
-         $genesis_defaults +
-         $genesis)
       }}
   )
 | { meta:
-    { node_names:          ( [range(0; 16)]
+    { era:                 $era
+    , node_names:          ( [range(0; 16)]
                            | map ("node-\(.)")
-                           | .[:'${node_count}'])
+                           | .[:$composition.n_total])
     ## Note:  the above is a little ridiculous, but better than hard-coding.
     ##  The alternative is quite esoteric -- we have to evaluate the Nixops
     ##  deployment in a highly non-trivial manner and query that.
 
     ## The first entry is the defprof defprof.
     , default_profile:     (.[0] | (. | keys) | .[0])
-    , aux_profiles:        ($generator_aux_profiles | map(.name))
+    , aux_profiles:        (generator_aux_profiles | map(.name))
     }}
   + (. | add)
-' > ${paramsfile}
+' > ${paramsfile} --null-input
 }
 
 ## Paramsfile JQ
@@ -196,6 +190,10 @@ parmgenjq() {
 ## Paramsfile JQ TEST
 parmjqtest() {
         parmjq "$1" --exit-status >/dev/null
+}
+
+get_era() {
+        parmetajq '.era'
 }
 
 query_profiles() {

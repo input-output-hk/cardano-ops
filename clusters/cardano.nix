@@ -276,6 +276,7 @@ let
         "producers"
         "staticRoutes"
         "dynamicSubscribe"
+        "stakePool"
       ]);
 
 in {

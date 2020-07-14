@@ -80,12 +80,12 @@ in reportDeployment (rec {
     genesisFile = ./keys/genesis.json;
     genesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/GENHASH);
     private = true;
-    networkConfig = pkgs.iohkNix.cardanoLib.environments.shelley_staging_short.networkConfig // {
+    networkConfig = pkgs.iohkNix.cardanoLib.environments.shelley_testnet.networkConfig // {
       GenesisFile = genesisFile;
       GenesisHash = genesisHash;
       NumCoreNodes = builtins.length topology.coreNodes;
     };
-    nodeConfig = pkgs.iohkNix.cardanoLib.environments.shelley_staging_short.nodeConfig // {
+    nodeConfig = pkgs.iohkNix.cardanoLib.environments.shelley_testnet.nodeConfig // {
       GenesisFile = genesisFile;
       GenesisHash = genesisHash;
       NumCoreNodes = builtins.length topology.coreNodes;

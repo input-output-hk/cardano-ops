@@ -42,7 +42,10 @@ in {
 
   environments = pkgs.iohkNix.cardanoLib.environments;
 
-  environmentConfig = pkgs.globals.environments.${pkgs.globals.environmentName};
+  environmentConfig =
+    __trace
+      "using environment:  ${pkgs.globals.environmentName}"
+    pkgs.globals.environments.${pkgs.globals.environmentName};
 
   deployerIp = requireEnv "DEPLOYER_IP";
   cardanoNodePort = 3001;
