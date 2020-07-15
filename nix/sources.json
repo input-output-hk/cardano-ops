@@ -48,15 +48,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
-        "branch": "master",
+        "branch": "1.15.1-bump",
         "description": "Faucet for Cardano",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "f3046aaab05cabe83c23134ae5a610a78304c817",
-        "sha256": "16jfgiaafd0w65zvsppdfj16xwdy3784vv2a4xcz79gab81lwvi4",
+        "rev": "bfbab53b658576965011fe24c4631c17f22a969a",
+        "sha256": "0aplpqr1505g5wmvf778f0hw5b43karmnk3nia2q7vakhb1g8d5w",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/f3046aaab05cabe83c23134ae5a610a78304c817.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/bfbab53b658576965011fe24c4631c17f22a969a.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
@@ -72,15 +72,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
-        "branch": "tags/1.14.2",
+        "branch": "release/1.15.x",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "924a6f7d8c2bdb1bf525be8b0d5626e440697b01",
-        "sha256": "0bi1vwmb1w6wc2szpr8v1nbsci9y36lnjr4v5pli1wvll1hhpw3c",
+        "rev": "712a287602797e8fd889fbf73e56a08c3d8b004a",
+        "sha256": "1lg1g702x5q6m8n61bfyji7pmj2gsw44mm41nxhc5rv2wk4g996c",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/924a6f7d8c2bdb1bf525be8b0d5626e440697b01.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/712a287602797e8fd889fbf73e56a08c3d8b004a.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rest": {

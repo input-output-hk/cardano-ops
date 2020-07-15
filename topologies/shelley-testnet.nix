@@ -33,7 +33,7 @@ let
 
   relayIndexesInRegion = genList (i: i + 1) nbRelaysPerRegion;
 
-  registeredRelays = []; #(builtins.fromJSON (builtins.readFile ../static/registered_relays_topology.json)).Producers;
+  registeredRelays = (builtins.fromJSON (builtins.readFile ../static/registered_relays_topology.json)).Producers;
 
   peerProducers = lib.imap0 (index: cp: cp // { inherit index; })
     (globals.static.additionalPeers ++
