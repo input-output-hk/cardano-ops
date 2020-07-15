@@ -35,7 +35,7 @@ let
       imports = [
         (if globals.withHighCapacityMonitoring then t3-2xlarge-monitor else xlarge-monitor)
         iohk-ops-lib.roles.monitor
-        cardano-ops.modules.monitoring-cardano
+        (cardano-ops.modules.monitoring-cardano pkgs)
       ];
       node = {
         roles.isMonitor = true;

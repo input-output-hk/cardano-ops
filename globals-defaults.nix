@@ -60,4 +60,9 @@ in {
     pkgs.globals.cardanoExplorerPrometheusExporterPort
     pkgs.globals.netdataExporterPort
   ];
+
+  alertTcpHigh = "120";
+  alertTcpCrit = "150";
+  alertMbpsHigh = "150";
+  alertMbpsCrit = "200";
 }

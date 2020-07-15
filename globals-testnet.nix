@@ -23,4 +23,7 @@ pkgs: {
       };
     };
   };
+
+  alertTcpHigh = "220";
+  alertTcpCrit = "250";
 }
