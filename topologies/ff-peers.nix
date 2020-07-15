@@ -2,6 +2,26 @@
 # evenly split across all IOHK FF relays.
 # Pull-requests against this file will be merged and deployed once a day.
 [
+ {
+    operator = "cointourage";
+    addr = "relay1.cointourage.com;
+    port = 3001;
+  }
+ {
+    operator = "cointourage";
+    addr = "relay2.cointourage.com;
+    port = 3002;
+  }
+ {
+    operator = "cointourage";
+    addr = "relay3.cointourage.com;
+    port = 3001;
+  }
+ {
+    operator = "cointourage";
+    addr = "relay4.cointourage.com;
+    port = 3002;
+  }
   {
     operator = "disassembler";
     addr = "prophet.samleathers.com";
