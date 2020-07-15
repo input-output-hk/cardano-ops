@@ -78,7 +78,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"rel-a-.*\"}",
+          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"e-a-.*|rel-a-.*\"}",
           "interval": "",
           "intervalFactor": 2,
           "legendFormat": "{{alias}}",
@@ -172,7 +172,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"rel-b-.*\"}",
+          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"e-b-.*|rel-b-.*\"}",
           "interval": "",
           "intervalFactor": 2,
           "legendFormat": "{{alias}}",
@@ -266,7 +266,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"rel-c-.*\"}",
+          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"e-c-.*|rel-c-.*\"}",
           "interval": "",
           "intervalFactor": 2,
           "legendFormat": "{{alias}}",
@@ -360,7 +360,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"rel-d-.*\"}",
+          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"e-d-.*|rel-d-.*\"}",
           "interval": "",
           "intervalFactor": 2,
           "legendFormat": "{{alias}}",
@@ -456,7 +456,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"rel-e-.*\"}",
+          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"e-e-.*|rel-e-.*\"}",
           "interval": "",
           "intervalFactor": 2,
           "legendFormat": "{{alias}}",
@@ -552,7 +552,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"rel-f-.*\"}",
+          "expr": "node_netstat_Tcp_CurrEstab{alias=~\"e-f-.*|rel-f-.*\"}",
           "interval": "",
           "intervalFactor": 2,
           "legendFormat": "{{alias}}",
@@ -864,73 +864,73 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"rel-a-.*\",device!~\"lo\"}[20s]) * -8)",
+          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"e-a-.*|rel-a-.*\",device!~\"lo\"}[20s]) * -8)",
           "interval": "",
           "legendFormat": "Frankfurt Egress",
           "refId": "A"
         },
         {
-          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"rel-a-.*\",device!~\"lo\"}[20s]) * 8)",
+          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"e-a-.*|rel-a-.*\",device!~\"lo\"}[20s]) * 8)",
           "interval": "",
           "legendFormat": "Frankfurt Ingress",
           "refId": "B"
         },
         {
-          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"rel-b-.*\",device!~\"lo\"}[20s]) * -8)",
+          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"e-b-.*|rel-b-.*\",device!~\"lo\"}[20s]) * -8)",
           "interval": "",
           "legendFormat": "Ohio Egress",
           "refId": "C"
         },
         {
-          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"rel-b-.*\",device!~\"lo\"}[20s]) * 8)",
+          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"e-b-.*|rel-b-.*\",device!~\"lo\"}[20s]) * 8)",
           "interval": "",
           "legendFormat": "Ohio Ingress",
           "refId": "D"
         },
         {
-          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"rel-c-.*\",device!~\"lo\"}[20s]) * -8)",
+          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"e-c-.*|rel-c-.*\",device!~\"lo\"}[20s]) * -8)",
           "interval": "",
           "legendFormat": "Singapore Egress",
           "refId": "E"
         },
         {
-          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"rel-c-.*\",device!~\"lo\"}[20s]) * 8)",
+          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"e-c-.*|rel-c-.*\",device!~\"lo\"}[20s]) * 8)",
           "interval": "",
           "legendFormat": "Singapore Ingress",
           "refId": "F"
         },
         {
-          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"rel-d-.*\",device!~\"lo\"}[20s]) * -8)",
+          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"e-d-.*|rel-d-.*\",device!~\"lo\"}[20s]) * -8)",
           "interval": "",
           "legendFormat": "London Egress",
           "refId": "G"
         },
         {
-          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"rel-d-.*\",device!~\"lo\"}[20s]) * 8)",
+          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"e-d-.*|rel-d-.*\",device!~\"lo\"}[20s]) * 8)",
           "interval": "",
           "legendFormat": "London Ingress",
           "refId": "H"
         },
         {
-          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"rel-e-.*\",device!~\"lo\"}[20s]) * -8)",
+          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"e-e-.*|rel-e-.*\",device!~\"lo\"}[20s]) * -8)",
           "interval": "",
           "legendFormat": "N. California Egress",
           "refId": "I"
         },
         {
-          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"rel-e-.*\",device!~\"lo\"}[20s]) * 8)",
+          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"e-e-.*|rel-e-.*\",device!~\"lo\"}[20s]) * 8)",
           "interval": "",
           "legendFormat": "N. California Ingress",
           "refId": "J"
         },
         {
-          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"rel-f-.*\",device!~\"lo\"}[20s]) * -8)",
+          "expr": "sum(rate(node_network_transmit_bytes_total{alias=~\"e-f-.*|rel-f-.*\",device!~\"lo\"}[20s]) * -8)",
           "interval": "",
           "legendFormat": "Tokyo Egress",
           "refId": "K"
         },
         {
-          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"rel-f-.*\",device!~\"lo\"}[20s]) * 8)",
+          "expr": "sum(rate(node_network_receive_bytes_total{alias=~\"e-f-.*|rel-f-.*\",device!~\"lo\"}[20s]) * 8)",
           "interval": "",
           "legendFormat": "Tokyo Ingress",
           "refId": "L"
@@ -1129,7 +1129,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_transmit_bytes_total{alias=~\"rel-a-.*\",device!~\"lo\"}[20s]) * -8",
+          "expr": "rate(node_network_transmit_bytes_total{alias=~\"e-a-.*|rel-a-.*\",device!~\"lo\"}[20s]) * -8",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -1220,7 +1220,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_transmit_bytes_total{alias=~\"rel-b-.*\",device!~\"lo\"}[20s]) * -8",
+          "expr": "rate(node_network_transmit_bytes_total{alias=~\"e-b-.*|rel-b-.*\",device!~\"lo\"}[20s]) * -8",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -1311,7 +1311,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_transmit_bytes_total{alias=~\"rel-c-.*\",device!~\"lo\"}[20s]) * -8",
+          "expr": "rate(node_network_transmit_bytes_total{alias=~\"e-c-.*|rel-c-.*\",device!~\"lo\"}[20s]) * -8",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -1402,7 +1402,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_transmit_bytes_total{alias=~\"rel-d-.*\",device!~\"lo\"}[20s]) * -8",
+          "expr": "rate(node_network_transmit_bytes_total{alias=~\"e-d-.*|rel-d-.*\",device!~\"lo\"}[20s]) * -8",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -1495,7 +1495,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_transmit_bytes_total{alias=~\"rel-e-.*\",device!~\"lo\"}[20s]) * -8",
+          "expr": "rate(node_network_transmit_bytes_total{alias=~\"e-e-.*|rel-e-.*\",device!~\"lo\"}[20s]) * -8",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -1586,7 +1586,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_transmit_bytes_total{alias=~\"rel-f-.*\",device!~\"lo\"}[20s]) * -8",
+          "expr": "rate(node_network_transmit_bytes_total{alias=~\"e-f-.*|rel-f-.*\",device!~\"lo\"}[20s]) * -8",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -1691,7 +1691,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_receive_bytes_total{alias=~\"rel-a-.*\",device!~\"lo\"}[20s]) * 8",
+          "expr": "rate(node_network_receive_bytes_total{alias=~\"e-a-.*|rel-a-.*\",device!~\"lo\"}[20s]) * 8",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -1782,7 +1782,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_receive_bytes_total{alias=~\"rel-b-.*\",device!~\"lo\"}[20s]) * 8",
+          "expr": "rate(node_network_receive_bytes_total{alias=~\"e-b-.*|rel-b-.*\",device!~\"lo\"}[20s]) * 8",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -1873,7 +1873,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_receive_bytes_total{alias=~\"rel-c-.*\",device!~\"lo\"}[20s]) * 8",
+          "expr": "rate(node_network_receive_bytes_total{alias=~\"e-c-.*|rel-c-.*\",device!~\"lo\"}[20s]) * 8",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -1964,7 +1964,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_receive_bytes_total{alias=~\"rel-d-.*\",device!~\"lo\"}[20s]) * 8",
+          "expr": "rate(node_network_receive_bytes_total{alias=~\"e-d-.*|rel-d-.*\",device!~\"lo\"}[20s]) * 8",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -2055,7 +2055,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_receive_bytes_total{alias=~\"rel-e-.*\",device!~\"lo\"}[20s]) * 8",
+          "expr": "rate(node_network_receive_bytes_total{alias=~\"e-e-.*|rel-e-.*\",device!~\"lo\"}[20s]) * 8",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -2146,7 +2146,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_receive_bytes_total{alias=~\"rel-f-.*\",device!~\"lo\"}[20s]) * 8",
+          "expr": "rate(node_network_receive_bytes_total{alias=~\"e-f-.*|rel-f-.*\",device!~\"lo\"}[20s]) * 8",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"

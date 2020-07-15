@@ -16,7 +16,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 79,
+  "id": 35,
   "links": [],
   "panels": [
     {
@@ -760,7 +760,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "floor(avg(cardano_node_ChainDB_metrics_slotNum_int{alias=~\"c-.*\"})/3600)",
+          "expr": "floor(avg(cardano_node_ChainDB_metrics_slotNum_int{alias=~\"c-.*|bft-.*|stk-.*\"})/3600)",
           "interval": "",
           "refId": "A"
         }
@@ -1062,7 +1062,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
-      "description": "Remaining faucet funds in ADA",
+      "description": "Secondary method of calculating the KES time remaining until expiration",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1099,16 +1099,17 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "cardano_faucet_metrics_value_available / 1e6",
+          "expr": "(cardano_node_genesis_slotLength * (cardano_node_genesis_slotsPerKESPeriod * ((cardano_node_decode_kesCreatedPeriod > -1) + cardano_node_genesis_maxKESEvolutions)) - on(alias) (cardano_node_genesis_slotLength * on(alias) cardano_node_ChainDB_metrics_slotNum_int))",
+          "interval": "",
           "legendFormat": "{{alias}}",
-          "refId": "C"
+          "refId": "A"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Faucet (ADA)",
+      "title": "KES Time Remaining (Alternate Method)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1124,7 +1125,8 @@
       },
       "yaxes": [
         {
-          "format": "short",
+          "$$hashKey": "object:405",
+          "format": "s",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -1132,6 +1134,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:406",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -2490,6 +2493,95 @@
           "decimals": null,
           "format": "short",
           "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "description": "Remaining faucet funds in ADA",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 72
+      },
+      "hiddenSeries": false,
+      "id": 52,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "cardano_faucet_metrics_value_available / 1e6",
+          "legendFormat": "{{alias}}",
+          "refId": "C"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Faucet (ADA)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
           "logBase": 1,
           "max": null,
           "min": null,
