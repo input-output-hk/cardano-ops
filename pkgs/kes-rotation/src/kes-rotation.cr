@@ -5,7 +5,7 @@
 #   nix-instantiate --eval -E '((import ../nix/sources.nix).nixpkgs-crystal).outPath'
 
 # This script can be used in cron.  For example:
-# 00 15 * * * cd ~/$CLUSTER && nix-shell --run 'kes-rotation -r' -I nixpkgs="$(nix eval '(import ./nix {}).path')" \
+# 00 15 * * * cd ~/$CLUSTER && nix-shell --run 'kes-rotation -r --all' -I nixpkgs="$(nix eval '(import ./nix {}).path')" \
 #   &> kes-rotation-logs/kes-rotate-$(date -u +"\%F_\%H-\%M-\%S").log
 
 require "json"
@@ -34,6 +34,7 @@ IO_NO_TEE_OUT = IO::MultiWriter.new(IO_CMD_OUT, IO_TEE_FULL)
 IO_NO_TEE_ERR = IO::MultiWriter.new(IO_CMD_ERR, IO_TEE_FULL)
 
 class KesRotate
+  setter allOpt, coreOpt, bftOpt, stkOpt, ignoreOpt
 
   @sesUsername : String
   @sesSecret : String
@@ -41,6 +42,13 @@ class KesRotate
   @network : Array(String)
 
   def initialize
+
+    @allOpt = false
+    @coreOpt = false
+    @bftOpt = false
+    @stkOpt = false
+    @ignoreOpt = false
+
     if EMAIL_ENABLED
       if scriptCmdPrivate("nix-instantiate --eval -E --json '(import #{PATH_MOD}/static/ses.nix).sesSmtp.username'").success?
         @sesUsername = IO_CMD_OUT.to_s.strip('"')
@@ -126,19 +134,40 @@ class KesRotate
   end
 
   def doRotation
+
+    IO_TEE_OUT.puts "Script options selected:"
+    IO_TEE_OUT.puts "allOpt = #{@allOpt}"
+    IO_TEE_OUT.puts "coreOpt = #{@coreOpt}"
+    IO_TEE_OUT.puts "bftOpt = #{@bftOpt}"
+    IO_TEE_OUT.puts "stkOpt = #{@stkOpt}"
+    IO_TEE_OUT.puts "ignoreOpt = #{@ignoreOpt}"
+
     IO_TEE_OUT.puts "LATEST_CARDANO_URL: #{LATEST_CARDANO_URL}"
 
     if @network
       coreNodes       = @network.select { |n| /^c-[a-z]-[0-9]+$/ =~ n }
+      bftNodes        = @network.select { |n| /^bft-[a-z]-[0-9]+$/ =~ n }
+      stkNodes        = @network.select { |n| /^stk-[a-z]-[0-9]+-\w+$/ =~ n }
       edgeNodes       = @network.select { |n| /^e-[a-z]-[0-9]+$/ =~ n }
+      relayNodes      = @network.select { |n| /^rel-[a-z]-[0-9]+$/ =~ n }
       faucetNodes     = @network.select { |n| /^faucet/ =~ n }
       monitoringNodes = @network.select { |n| /^monitoring/ =~ n }
-      networkAttrs    = @network - coreNodes - edgeNodes - faucetNodes - monitoringNodes
+      networkAttrs    = @network - coreNodes - bftNodes - stkNodes - edgeNodes - relayNodes - faucetNodes - monitoringNodes
+
+      if @allOpt
+        kesNodes = coreNodes + bftNodes + stkNodes
+      else
+        kesNodes = [] of String
+        kesNodes.concat(coreNodes) if @coreOpt
+        kesNodes.concat(bftNodes) if @bftOpt
+        kesNodes.concat(stkNodes) if @stkOpt
+      end
     else
       kesAbort("The network array is empty")
     end
 
-    #p! coreNodes
+    IO_TEE_OUT.puts "Selected KES nodes: #{kesNodes}"
+
     #p! edgeNodes
     #p! faucetNodes
     #p! monitoringNodes
@@ -151,8 +180,27 @@ class KesRotate
       kesAbort("Failed to obtain latest report URL")
     end
 
+    latestConfigUrl = "#{latestReportUrl.to_s.rstrip("index.html")}#{@cluster}-config.json"
+    IO_TEE_OUT.puts "latestConfigUrl: #{latestConfigUrl}"
 
-    latestGenesisUrl = "#{latestReportUrl.to_s.rstrip("index.html")}#{@cluster}-genesis.json"
+    if scriptCmdPrivate("curl -sL #{latestConfigUrl}").success?
+      latestConfig = IO_CMD_OUT.to_s
+    else
+      kesAbort("Unable to obtain the latest config file")
+    end
+
+    config = JSON.parse(latestConfig.to_s)
+    protocol = config["Protocol"]
+    IO_TEE_OUT.puts "Protocol: #{protocol}"
+
+    case protocol
+    when "RealPBFT" then kesAbort("KES rotation does not need to happen in the byron era")
+    when "TPraos"   then eraName = "shelley"
+    when "Cardano"  then eraName = "shelley"
+    else kesAbort("Unrecognized protocol in the latest config file")
+    end
+
+    latestGenesisUrl = "#{latestReportUrl.to_s.rstrip("index.html")}#{@cluster}-#{eraName}-genesis.json"
     IO_TEE_OUT.puts "latestGenesisUrl: #{latestGenesisUrl}"
 
     if scriptCmdPrivate("curl -sL #{latestGenesisUrl}").success?
@@ -168,7 +216,7 @@ class KesRotate
     IO_TEE_OUT.puts "slotsPerKesPeriodInt: #{slotsPerKesPeriodInt}"
 
     nodeKesPeriod = Hash(String, Int64).new
-    coreNodes.as(Array).each do |n|
+    kesNodes.as(Array).each do |n|
       if scriptCmdPrivate("nixops ssh #{n} -- 'curl -s #{n}:#{NODE_METRICS_PORT}/metrics | grep -oP \"cardano_node_ChainDB_metrics_slotNum_int \\K[0-9]+\"'").success?
         slotHeight = IO_CMD_OUT.to_s
       else
@@ -195,7 +243,11 @@ class KesRotate
     if MOCK_ENABLED
       rotateCmd1 = "test-cronjob-script #{kesNewStartPeriod}"
     else
-      rotateCmd1 = "new-KES-keys-at-period #{kesNewStartPeriod}"
+      if @ignoreOpt
+        rotateCmd1 = "new-KES-keys-at-period #{kesNewStartPeriod} || true"
+      else
+        rotateCmd1 = "new-KES-keys-at-period #{kesNewStartPeriod}"
+      end
     end
 
     if scriptCmdPrivate(rotateCmd1).success?
@@ -209,7 +261,7 @@ class KesRotate
     IO_TEE_OUT.puts "Sleeping 10 seconds prior to deploying the new keys..."
     sleep(10)
 
-    coreNodes.each do |n|
+    kesNodes.each do |n|
       if MOCK_ENABLED
         rotateCmd2 = "echo \"MOCK SENDING KEYS to core node #{n}\""
         rotateCmd3 = "nixops ssh-for-each --include #{n} -- 'id'"
@@ -260,9 +312,19 @@ class KesRotate
 end
 
 proceed = false
+allOpt = false
+coreOpt = false
+bftOpt = false
+stkOpt = false
+ignoreOpt = false
 OptionParser.parse do |parser|
   parser.banner = "Usage: kes-rotate [arguments]"
-  parser.on("-r", "--rotate", "Updates and deploys the core node KES keys") { proceed = true }
+  parser.on("-r", "--rotate", "Updates and deploy the KES keys (required option)") { proceed = true }
+  parser.on("-a", "--all", "Updates and deploys all KES nodes") { allOpt = true }
+  parser.on("--core", "Updates and deploys KES core nodes (c-X-Y)") { coreOpt = true }
+  parser.on("--bft", "Updates and deploys KES bft nodes (bft-X-Y)") { bftOpt = true }
+  parser.on("--stk", "Updates and deploys KES stake nodes (stk-X-Y-TICKER)") { stkOpt = true }
+  parser.on("-i", "--ignore", "Ignores errors thrown by new-KES-keys-at-period (CAUTION!)") { ignoreOpt = true }
   parser.on("-h", "--help", "Show this help") do
     puts parser
     exit
@@ -276,6 +338,11 @@ end
 
 if proceed
   kesRotate=KesRotate.new
+  kesRotate.allOpt = allOpt
+  kesRotate.coreOpt = coreOpt
+  kesRotate.bftOpt = bftOpt
+  kesRotate.stkOpt = stkOpt
+  kesRotate.ignoreOpt = ignoreOpt
   kesRotate.doRotation
 end
 exit 0

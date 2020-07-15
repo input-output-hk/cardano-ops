@@ -5,7 +5,7 @@
 #   nix-instantiate --eval -E '((import ../nix/sources.nix).nixpkgs-crystal).outPath'
 
 # This script can be used in cron.  For example:
-# 00 16 * * * cd ~/$CLUSTER && nix-shell --run 'relay-update -r' -I nixpkgs="$(nix eval '(import ./nix {}).path')" \
+# 00 16 * * * cd ~/$CLUSTER && nix-shell --run 'relay-update -r --all' -I nixpkgs="$(nix eval '(import ./nix {}).path')" \
 #   &> relay-update-logs/relay-update-$(date -u +"\%F_\%H-\%M-\%S").log
 
 require "json"
@@ -39,6 +39,7 @@ IO_NO_TEE_OUT = IO::MultiWriter.new(IO_CMD_OUT, IO_TEE_FULL)
 IO_NO_TEE_ERR = IO::MultiWriter.new(IO_CMD_ERR, IO_TEE_FULL)
 
 class RelayUpdate
+  setter allOpt, edgeOpt, relOpt, minOpt
 
   @sesUsername : String
   @sesSecret : String
@@ -49,6 +50,12 @@ class RelayUpdate
   @network : Array(String)
 
   def initialize
+
+    @allOpt = false
+    @edgeOpt = false
+    @relOpt = false
+    @minOpt = 100
+
     if EMAIL_ENABLED
       if scriptCmdPrivate("nix-instantiate --eval -E --json '(import #{PATH_MOD}/static/ses.nix).sesSmtp.username'").success?
         @sesUsername = IO_CMD_OUT.to_s.strip('"')
@@ -218,12 +225,30 @@ class RelayUpdate
   end
 
   def doUpdate
+
+    IO_TEE_OUT.puts "Script options selected:"
+    IO_TEE_OUT.puts "allOpt = #{@allOpt}"
+    IO_TEE_OUT.puts "edgeOpt = #{@edgeOpt}"
+    IO_TEE_OUT.puts "relOpt = #{@relOpt}"
+    IO_TEE_OUT.puts "minOpt = #{@minOpt}"
+
     if @network
       coreNodes       = @network.select { |n| /^c-[a-z]-[0-9]+$/ =~ n }
+      bftNodes        = @network.select { |n| /^bft-[a-z]-[0-9]+$/ =~ n }
+      stkNodes        = @network.select { |n| /^stk-[a-z]-[0-9]+-\w+$/ =~ n }
       edgeNodes       = @network.select { |n| /^e-[a-z]-[0-9]+$/ =~ n }
+      relayNodes      = @network.select { |n| /^rel-[a-z]-[0-9]+$/ =~ n }
       faucetNodes     = @network.select { |n| /^faucet/ =~ n }
       monitoringNodes = @network.select { |n| /^monitoring/ =~ n }
-      networkAttrs    = @network - coreNodes - edgeNodes - faucetNodes - monitoringNodes
+      networkAttrs    = @network - coreNodes - bftNodes - stkNodes - edgeNodes - relayNodes - faucetNodes - monitoringNodes
+
+      if @allOpt
+        targetNodes = edgeNodes + relayNodes
+      else
+        targetNodes = [] of String
+        targetNodes.concat(edgeNodes) if @edgeOpt
+        targetNodes.concat(relayNodes) if @relOpt
+      end
     else
       updateAbort("The network array is empty")
     end
@@ -245,11 +270,11 @@ class RelayUpdate
         IO_TEE_STDOUT.puts "Explorer GET URL response body is valid JSON"
         if blob["Producers"]?
           IO_TEE_STDOUT.puts "Explorer latest topology contains #{blob["Producers"].size} producers"
-          if blob["Producers"].size < MINIMUM_PRODUCERS
+          if blob["Producers"].size < @minOpt
             updateAbort("Explorer latest topology contains less than the required minimum number " \
-                        "(#{MINIMUM_PRODUCERS}) of producers: #{blob["Producers"].size}.")
+                        "(#{@minOpt}) of producers: #{blob["Producers"].size}.")
           else
-            IO_TEE_STDOUT.puts "Explorer latest topology meets or exceeds the minimum number of producers (#{MINIMUM_PRODUCERS})"
+            IO_TEE_STDOUT.puts "Explorer latest topology meets or exceeds the minimum number of producers (#{@minOpt})"
           end
         else
           updateAbort("Explorer latest topology contains no \"Producers\" JSON.")
@@ -261,28 +286,28 @@ class RelayUpdate
       end
     end
 
-    IO_TEE_STDOUT.puts "Deploying to edge nodes:\n#{edgeNodes}"
+    IO_TEE_STDOUT.puts "Deploying to target nodes:\n#{targetNodes}"
 
-    edgeNodes.each do |n|
+    targetNodes.each do |n|
       if MOCK_ENABLED
-        updateCmd = "echo \"MOCK UPDATING TOPOLOGY to edge node #{n}\""
+        updateCmd = "echo \"MOCK UPDATING TOPOLOGY to target node #{n}\""
       else
         updateCmd = "nixops deploy --include #{n}"
       end
 
-      IO_TEE_OUT.puts "Deploying new peer topology to edge node: #{n} (#{updateCmd})"
+      IO_TEE_OUT.puts "Deploying new peer topology to target node: #{n} (#{updateCmd})"
       if scriptCmdPrivate(updateCmd).success?
         IO_TEE_OUT.puts IO_CMD_OUT.to_s
         IO_TEE_OUT.puts IO_CMD_ERR.to_s
       else
-        updateAbort("Failed to deploy the new peer topology to edge node: #{n} (#{updateCmd})")
+        updateAbort("Failed to deploy the new peer topology to target node: #{n} (#{updateCmd})")
       end
 
-      IO_TEE_OUT.puts "Waiting for metrics to re-appear on edge node: #{n}"
+      IO_TEE_OUT.puts "Waiting for metrics to re-appear on target node: #{n}"
       deployFinished = false
       METRICS_WAIT_ITERATIONS.times do |i|
         if scriptCmdPrivate("nixops ssh #{n} -- 'curl -s #{n}:#{NODE_METRICS_PORT}/metrics | grep -oP \"cardano_node_ChainDB_metrics_slotNum_int \\K[0-9]+\"'").success?
-          IO_TEE_OUT.puts "Found slotNum_int metrics post topology update deploy on edge node: #{n} at #{IO_CMD_OUT.to_s}"
+          IO_TEE_OUT.puts "Found slotNum_int metrics post topology update deploy on target node: #{n} at #{IO_CMD_OUT.to_s}"
           deployFinished = true
           break
         else
@@ -290,7 +315,7 @@ class RelayUpdate
           sleep(METRICS_WAIT_INTERVAL)
         end
       end
-      updateAbort("Failed to find returned slotNum metrics on edge node: #{n}") unless deployFinished
+      updateAbort("Failed to find returned slotNum metrics on target node: #{n}") unless deployFinished
       IO_TEE_OUT.puts "\n"
     end
 
@@ -303,9 +328,17 @@ class RelayUpdate
 end
 
 proceed = false
+allOpt = false
+edgeOpt = false
+relOpt = false
+minOpt = MINIMUM_PRODUCERS
 OptionParser.parse do |parser|
   parser.banner = "Usage: relay-update [arguments]"
-  parser.on("-r", "--refresh", "Updates and deploys the latest explorer relay topology") { proceed = true }
+  parser.on("-r", "--refresh", "Updates and deploys the latest explorer relay topology (required option)") { proceed = true }
+  parser.on("-a", "--all", "Updates and deploys relay topology to all edges/relays") { allOpt = true }
+  parser.on("--edge", "Updates and deploys relay topology to edge nodes (e-X-Y)") { edgeOpt = true }
+  parser.on("--relay", "Updates and deploys relay topology to relay nodes (rel-X-Y)") { relOpt = true }
+  parser.on("-m POSINT", "--minProd POSINT", "The minimum producers to allow deployment (default: #{MINIMUM_PRODUCERS})") { |posint| minOpt = posint.to_i }
   parser.on("-h", "--help", "Show this help") do
     puts parser
     exit
@@ -319,6 +352,10 @@ end
 
 if proceed
   relayUpdate=RelayUpdate.new
+  relayUpdate.allOpt = allOpt
+  relayUpdate.edgeOpt = edgeOpt
+  relayUpdate.relOpt = relOpt
+  relayUpdate.minOpt = minOpt
   relayUpdate.doUpdate
 end
 exit 0
