@@ -1,4 +1,16 @@
 {
+    "aws-datacenters": {
+        "branch": "master",
+        "description": "AWS Regional Data Centers mapping",
+        "homepage": "https://www.turnkeylinux.org",
+        "owner": "turnkeylinux",
+        "repo": "aws-datacenters",
+        "rev": "a7106906e60969e917e555fd770454f72c78bb75",
+        "sha256": "0l6k6cspsb5cil5s2vypm9v7ci798x4q2zv6hyavlvwy1g2gnggf",
+        "type": "tarball",
+        "url": "https://github.com/turnkeylinux/aws-datacenters/archive/a7106906e60969e917e555fd770454f72c78bb75.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-benchmarking": {
         "branch": "cad-992-updates",
         "description": "Epic win",

@@ -50,4 +50,15 @@ self: super: {
         in v == "regular" && (substring (l - 4) l n) == ".nix")
         (builtins.readDir dir));
 
+  aws-affinity-indexes = self.runCommand "aws-affinity-indexes" {
+    nativeBuildInputs = with self; [ csvkit jq ];
+  } ''
+    mkdir -p $out
+    csvjson -d ";" -I --blanks -H ${self.sourcePaths.aws-datacenters}/output/countries.index | jq 'map( { (.a): .c } ) | add' \
+      > $out/countries-index.json
+    csvjson -d ";" -I --blanks -H ${self.sourcePaths.aws-datacenters}/output/usa.index | jq 'map( { (.b): .c } ) | add' \
+      > $out/usa-index.json
+    jq -s 'add' $out/countries-index.json $out/usa-index.json > $out/state-index.json
+  '';
+
 }

@@ -129,7 +129,7 @@ in {
           if [ "$country_code" == "US" ]; then
             state=$(echo $geoinfo | jq -r '.region')
           else
-            state=$(echo $geoinfo | jq -r '.country_name')
+            state=$country_code
           fi
           echo $r | jq --arg continent "$continent" \
             --arg state "$state" '. + {continent: $continent, state: $state}'
