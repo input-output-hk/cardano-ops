@@ -3,6 +3,12 @@
 # Pull-requests against this file will be merged and deployed once a day.
 [
   {
+    operator = "ALTZ stn2";
+    addr = "83.42.127.224";
+    port = 3001;
+    valency = 1;
+  }
+  {
     operator = "disassembler";
     addr = "prophet.samleathers.com";
     port = 3001;
