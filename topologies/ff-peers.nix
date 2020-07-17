@@ -1206,4 +1206,10 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  
+    operator = "mondonet";
+    node = "ALOHA";
+    addr = "104.173.253.56";
+    port = 6000;
+  }
 ]
