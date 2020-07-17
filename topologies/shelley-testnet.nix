@@ -19,16 +19,16 @@ let
       minRelays = 5;
     };
     c = { name = "ap-southeast-1"; # Asia Pacific (Singapore)
-      minRelays = 5;
+      minRelays = 4;
     };
     d = { name = "eu-west-2";      # Europe (London)
       minRelays = 5;
     };
     e = { name = "us-west-1";      # US West (N. California)
-      minRelays = 5;
+      minRelays = 4;
     };
     f = { name = "ap-northeast-1"; # Asia Pacific (Tokyo)
-      minRelays = 5;
+      minRelays = 3;
     };
   };
 
