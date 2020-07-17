@@ -1206,4 +1206,19 @@
     addr = "relay.cardanians.io";
     port = 3001;
   }
+  {
+    operator = "ZKOPE";
+    addr = "95.179.250.28";
+    port = 3001;
+  }
+  {
+    operator = "ZKOPE";
+    addr = "45.63.40.68";
+    port = 3001;
+  }
+  {
+    operator = "ZKOPE";
+    addr = "136.244.119.128";
+    port = 3001;
+  }
 ]
