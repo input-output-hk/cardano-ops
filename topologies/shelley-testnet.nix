@@ -2,24 +2,18 @@ pkgs: with pkgs; with lib;
 let
   withDailyRestart = def: lib.recursiveUpdate {
     systemd.services.cardano-node.serviceConfig = {
-      RuntimeMaxSec = (if (def.name == "rel-a-1") then 72 else 6) *
+      RuntimeMaxSec = (if (def ? name && def.name == "rel-a-1") then 72 else 6) *
         60 * 60 + 60 * (5 * (def.nodeId or 0));
     };
   } def;
 
-  bftCoreNodes = filter (n: hasPrefix "bft-" n.name) coreNodes;
-  nbBftCoreNodes = length bftCoreNodes;
-  stakingPoolNodes = filter (n: hasPrefix "stk-" n.name) coreNodes;
-  nbStakingPoolNodes = length stakingPoolNodes;
-
   regions = mapAttrs (_: {name, minRelays}: {
     inherit name;
     # we scale so that relays have less than 20 producers, with a given minimum:
-    nbRelays = max minRelays ((max nbBftCoreNodes nbStakingPoolNodes)
-      + (builtins.div (length thirdPartyRelaysByRegions.${name}) 20));
+    nbRelays = max minRelays (2 + (builtins.div (length thirdPartyRelaysByRegions.${name}) 20));
   }) {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
-      minRelays = 5;
+      minRelays = 6;
     };
     b = { name = "us-east-2";      # US East (Ohio)
       minRelays = 5;
@@ -85,10 +79,11 @@ let
     ) thirdPartyRelays);
 
   indexedThirdPartyRelays = mapAttrs (_: (imap0 (index: mergeAttrs {inherit index;}))) thirdPartyRelaysByRegions;
+  indexedCoreNodes = imap0 (index: mergeAttrs {inherit index;}) coreNodes;
 
-  relayNodesBaseDef = imap1 (i:
-    mergeAttrs { nodeId = i + (length coreNodes); }
-   )(concatMap ({rLetter, rIndex, region}:
+  relayNodesBaseDef = imap1 (i: r:
+    removeAttrs r ["nodeIndex"] // { nodeId = i + (length coreNodes); }
+   ) (sort (r1: r2: r1.nodeIndex < r2.nodeIndex) (concatMap ({rLetter, rIndex, region}:
     let
       inherit (regions.${rLetter}) nbRelays;
       relayIndexesInRegion = genList (i: i + 1) nbRelays;
@@ -96,11 +91,10 @@ let
       let
         name = "rel-${rLetter}-${toString nodeIndex}";
       in {
-        inherit region name;
+        inherit region name nodeIndex;
         producers =
-          # One of the bft code nodes and one of staking pool nodes:
-          [ (elemAt bftCoreNodes (mod (nodeIndex - 1) nbBftCoreNodes)).name
-            (elemAt stakingPoolNodes (mod (nodeIndex - 1) nbStakingPoolNodes)).name ]
+          # a share of the core nodes:
+          (map (c: c.name) (filter (c: mod c.index nbRelays == (nodeIndex - 1)) indexedCoreNodes))
           # all relay in same region:
           ++ map (i: "rel-${rLetter}-${toString i}") (filter (i: i != nodeIndex) relayIndexesInRegion)
           # one relay in each other regions:
@@ -110,7 +104,7 @@ let
         org = "IOHK";
       }
     ) relayIndexesInRegion
-  ) indexedRegions);
+  ) indexedRegions));
 
   coreNodes = [
     # backup OBFT centralized nodes

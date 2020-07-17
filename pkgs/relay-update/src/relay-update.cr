@@ -47,7 +47,6 @@ class RelayUpdate
   @cluster : String
   @deployment : String
   @explorerUrl : String
-  @network : Array(String)
 
   def initialize
 
@@ -94,11 +93,6 @@ class RelayUpdate
     @explorerUrl = "https://explorer.#{@deployment}.dev.cardano.org/relays/topology.json"
     IO_TEE_OUT.puts "explorerUrl: #{@explorerUrl}"
 
-    if scriptCmdPrivate("nix-instantiate --eval -E --json 'let n = import #{PATH_MOD}/deployments/cardano-aws.nix; in __attrNames n'").success?
-      @network = Array(String).from_json(IO_CMD_OUT.to_s)
-    else
-      updateAbort("Unable to process the network attribute names from the deployment.")
-    end
 
     IO_TEE_STDOUT.puts "Getting deployer IP"
     @deployerIp = ""
@@ -226,38 +220,17 @@ class RelayUpdate
 
   def doUpdate
 
+    network : Array(String)
+    securityGroups : Array(String)
+    elasticIps : Array(String)
+    route53RecordSets : Array(String)
+    lastSlot = 0
+
     IO_TEE_OUT.puts "Script options selected:"
     IO_TEE_OUT.puts "allOpt = #{@allOpt}"
     IO_TEE_OUT.puts "edgeOpt = #{@edgeOpt}"
     IO_TEE_OUT.puts "relOpt = #{@relOpt}"
     IO_TEE_OUT.puts "minOpt = #{@minOpt}"
-
-    if @network
-      coreNodes       = @network.select { |n| /^c-[a-z]-[0-9]+$/ =~ n }
-      bftNodes        = @network.select { |n| /^bft-[a-z]-[0-9]+$/ =~ n }
-      stkNodes        = @network.select { |n| /^stk-[a-z]-[0-9]+-\w+$/ =~ n }
-      edgeNodes       = @network.select { |n| /^e-[a-z]-[0-9]+$/ =~ n }
-      relayNodes      = @network.select { |n| /^rel-[a-z]-[0-9]+$/ =~ n }
-      faucetNodes     = @network.select { |n| /^faucet/ =~ n }
-      monitoringNodes = @network.select { |n| /^monitoring/ =~ n }
-      networkAttrs    = @network - coreNodes - bftNodes - stkNodes - edgeNodes - relayNodes - faucetNodes - monitoringNodes
-
-      if @allOpt
-        targetNodes = edgeNodes + relayNodes
-      else
-        targetNodes = [] of String
-        targetNodes.concat(edgeNodes) if @edgeOpt
-        targetNodes.concat(relayNodes) if @relOpt
-      end
-    else
-      updateAbort("The network array is empty")
-    end
-
-    #p! coreNodes
-    #p! edgeNodes
-    #p! faucetNodes
-    #p! monitoringNodes
-    #p! networkAttrs
 
     IO_TEE_STDOUT.puts "Explorer GET URL topology (#{@explorerUrl}):"
     if (response = apiGet(@explorerUrl)).success?
@@ -286,6 +259,71 @@ class RelayUpdate
       end
     end
 
+    if scriptCmdPrivate("nix eval --json '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix))'").success?
+      network = Array(String).from_json(IO_CMD_OUT.to_s)
+    else
+      updateAbort("Unable to process the attribute names from the deployment.")
+    end
+
+    if scriptCmdPrivate("nix eval --json '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix).resources.ec2SecurityGroups)'").success?
+      securityGroups = Array(String).from_json(IO_CMD_OUT.to_s)
+    else
+      updateAbort("Unable to process the ec2SecurityGroups attribute names from the deployment.")
+    end
+
+    if scriptCmdPrivate("nix eval --json '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix).resources.elasticIPs)'").success?
+      elasticIps = Array(String).from_json(IO_CMD_OUT.to_s)
+    else
+      updateAbort("Unable to process the elasticIPs attribute names from the deployment.")
+    end
+
+    if scriptCmdPrivate("nix eval --json '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix).resources.route53RecordSets)'").success?
+      route53RecordSets = Array(String).from_json(IO_CMD_OUT.to_s)
+    else
+      updateAbort("Unable to process the route53RecordSets attribute names from the deployment.")
+    end
+
+    if network
+      coreNodes       = network.select { |n| /^c-[a-z]-[0-9]+$/ =~ n }
+      bftNodes        = network.select { |n| /^bft-[a-z]-[0-9]+$/ =~ n }
+      stkNodes        = network.select { |n| /^stk-[a-z]-[0-9]+-\w+$/ =~ n }
+      edgeNodes       = network.select { |n| /^e-[a-z]-[0-9]+$/ =~ n }
+      relayNodes      = network.select { |n| /^rel-[a-z]-[0-9]+$/ =~ n }
+      faucetNodes     = network.select { |n| /^faucet/ =~ n }
+      monitoringNodes = network.select { |n| /^monitoring/ =~ n }
+      networkAttrs    = network - coreNodes - bftNodes - stkNodes - edgeNodes - relayNodes - faucetNodes - monitoringNodes
+
+      if @allOpt
+        targetNodes = edgeNodes + relayNodes
+      else
+        targetNodes = [] of String
+        targetNodes.concat(edgeNodes) if @edgeOpt
+        targetNodes.concat(relayNodes) if @relOpt
+      end
+    else
+      updateAbort("The network array is empty")
+    end
+
+    #p! coreNodes
+    #p! edgeNodes
+    #p! faucetNodes
+    #p! monitoringNodes
+    #p! networkAttrs
+
+
+    if MOCK_ENABLED
+      updateCmd = "echo \"MOCK UPDATING SECURITY GROUPS AND IPS: #{securityGroups.join(" ")}\n #{elasticIps.join(" ")}\""
+    else
+      IO_TEE_STDOUT.puts "Deploying security groups and elastic ips:\n#{securityGroups.join(" ")}\n#{elasticIps.join(" ")}"
+      updateCmd = "nixops deploy --include #{elasticIps.join(" ")} #{securityGroups.join(" ")}"
+    end
+    if scriptCmdPrivate(updateCmd).success?
+      IO_TEE_OUT.puts IO_CMD_OUT.to_s
+      IO_TEE_OUT.puts IO_CMD_ERR.to_s
+    else
+      updateAbort("Failed to deploy the security groups updates (#{updateCmd})")
+    end
+
     IO_TEE_STDOUT.puts "Deploying to target nodes:\n#{targetNodes}"
 
     targetNodes.each do |n|
@@ -304,19 +342,63 @@ class RelayUpdate
       end
 
       IO_TEE_OUT.puts "Waiting for metrics to re-appear on target node: #{n}"
+      sleep(10)
       deployFinished = false
-      METRICS_WAIT_ITERATIONS.times do |i|
+      prevSlot = 0
+      i = 0
+      while i < METRICS_WAIT_ITERATIONS
         if scriptCmdPrivate("nixops ssh #{n} -- 'curl -s #{n}:#{NODE_METRICS_PORT}/metrics | grep -oP \"cardano_node_ChainDB_metrics_slotNum_int \\K[0-9]+\"'").success?
-          IO_TEE_OUT.puts "Found slotNum_int metrics post topology update deploy on target node: #{n} at #{IO_CMD_OUT.to_s}"
-          deployFinished = true
-          break
+          slot = IO_CMD_OUT.to_s
+          IO_TEE_OUT.puts "Found slotNum_int metrics post topology update deploy on target node: #{n} at #{slot}"
+          if (slot.to_i >= lastSlot)
+            lastSlot = slot.to_i
+            deployFinished = true
+            break
+          else
+            IO_TEE_OUT.puts "... not yet synced.. sleeping #{METRICS_WAIT_INTERVAL} seconds ..."
+            if (slot.to_i > prevSlot)
+              # Only allow more wait if there is actual progress:
+              i = 0
+              prevSlot = slot.to_i
+            else
+              i = i + 1
+            end
+            sleep(METRICS_WAIT_INTERVAL)
+          end
         else
+          i = i + 1
           IO_TEE_OUT.puts "... sleeping #{METRICS_WAIT_INTERVAL} seconds ..."
           sleep(METRICS_WAIT_INTERVAL)
         end
       end
       updateAbort("Failed to find returned slotNum metrics on target node: #{n}") unless deployFinished
       IO_TEE_OUT.puts "\n"
+    end
+
+    if MOCK_ENABLED
+      updateCmd = "echo \"MOCK MONITORING UPDATE\""
+    else
+      IO_TEE_STDOUT.puts "Deploying monitoring"
+      updateCmd = "nixops deploy --include monitoring"
+    end
+    if scriptCmdPrivate(updateCmd).success?
+      IO_TEE_OUT.puts IO_CMD_OUT.to_s
+      IO_TEE_OUT.puts IO_CMD_ERR.to_s
+    else
+      updateAbort("Failed to deploy monitoring updates (#{updateCmd})")
+    end
+
+    if MOCK_ENABLED
+      updateCmd = "echo \"MOCK UPDATING DNS ENRIES: #{route53RecordSets.join(" ")}\""
+    else
+      IO_TEE_STDOUT.puts "Deploying route53 dns entries:\n#{route53RecordSets.join(" ")}"
+      updateCmd = "nixops deploy --include #{route53RecordSets.join(" ")}"
+    end
+    if scriptCmdPrivate(updateCmd).success?
+      IO_TEE_OUT.puts IO_CMD_OUT.to_s
+      IO_TEE_OUT.puts IO_CMD_ERR.to_s
+    else
+      updateAbort("Failed to deploy route53 dns entries updates (#{updateCmd})")
     end
 
     IO_TEE_OUT.puts "Peer topology update and deployment on cluster #{@cluster} at #{NOW}, completed."
