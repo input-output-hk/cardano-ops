@@ -8,6 +8,31 @@
     port = 3001;
   }
   {
+    operator = "adanorthpool";
+    addr = "norway.adanorthpool.com";
+    port = 9011;
+  }
+  {
+    operator = "adanorthpool";
+    addr = "germany.adanorthpool.com";
+    port = 9011;
+  }
+  {
+    operator = "adanorthpool";
+    addr = "usa.adanorthpool.com";
+    port = 9011;
+  }
+  {
+    operator = "adanorthpool";
+    addr = "japan.adanorthpool.com";
+    port = 9011;
+  }
+  {
+    operator = "adanorthpool";
+    addr = "australia.adanorthpool.com";
+    port = 9011;
+  }
+  {
     operator = "pegasus";
     addr = "ff-relay.pegasuspool.info";
     port = 3001;
