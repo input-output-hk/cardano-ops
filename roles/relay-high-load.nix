@@ -3,7 +3,7 @@ with pkgs; with lib;
 {
 
   imports = [
-    cardano-ops.modules.base-service
+    cardano-ops.roles.relay
   ];
 
   # Performance testing temporary changes; suitable for vertical scaling with

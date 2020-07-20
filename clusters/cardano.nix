@@ -35,7 +35,7 @@ let
       imports = [
         (if globals.withHighCapacityMonitoring then t3-2xlarge-monitor else xlarge-monitor)
         iohk-ops-lib.roles.monitor
-        cardano-ops.modules.monitoring-cardano
+        (cardano-ops.modules.monitoring-cardano pkgs)
       ];
       node = {
         roles.isMonitor = true;
@@ -123,7 +123,7 @@ let
       };
     } def;
   }) // (lib.optionalAttrs globals.withFaucet {
-    "${globals.faucetHostname}" = let def = (topology.faucet or {}); in mkNode {
+    "${globals.faucetHostname}" = let def = (topology.${globals.faucetHostname} or {}); in mkNode {
       deployment.ec2 = {
         region = "eu-central-1";
       };
@@ -133,6 +133,21 @@ let
       ];
       node = {
         roles.isFaucet = true;
+        org = "IOHK";
+      };
+    } def;
+  })// (lib.optionalAttrs globals.withSmash {
+    smash = let def = (topology.smash or {}); in mkNode {
+      deployment.ec2 = {
+        region = "eu-central-1";
+      };
+      imports = [
+        xlarge
+        cardano-ops.roles.smash
+      ];
+      node = {
+        roles.isExplorer = true;
+        nodeId = def.nodeId or 100;
         org = "IOHK";
       };
     } def;
@@ -149,11 +164,10 @@ let
         inherit (def) org nodeId;
       };
       deployment.ec2.region = def.region;
-      imports = [ medium ] ++ (if (globals.environmentConfig.nodeConfig.Protocol == "TPraos") then [
-        cardano-ops.roles.shelley-core
-      ] else [
-        cardano-ops.roles.core
-      ]);
+      imports = [
+        medium
+        (cardano-ops.roles.core def.nodeId)
+      ];
       services.cardano-node = {
         inherit (def) producers;
       };

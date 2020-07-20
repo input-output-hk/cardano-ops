@@ -1,0 +1,21 @@
+name: relay-update
+version: 0.1.0
+
+authors:
+  - John Lotoski <john.lotoski@iohk.io>
+
+description: |
+  Peer update and rotation script for use in crontab
+
+targets:
+  relay-update:
+    main: src/relay-update.cr
+
+dependencies:
+  email:
+    github: arcage/crystal-mail
+    version: 0.6.1
+
+crystal: 0.34.0
+
+license: MIT

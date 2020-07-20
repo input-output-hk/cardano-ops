@@ -8,6 +8,7 @@ result*
 /runs
 /runs-archive
 /runs-last
+*-logs/
 
 .envrc
 genesis-keys

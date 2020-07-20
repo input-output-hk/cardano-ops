@@ -3,7 +3,7 @@ let
   inherit (pkgs.lib)
     attrValues attrNames filter filterAttrs flatten foldl' hasAttrByPath listToAttrs
     mapAttrs' mapAttrs nameValuePair recursiveUpdate unique optional any concatMap
-    getAttrs;
+    getAttrs optionalString hasPrefix;
 
   inherit (globals.topology) legacyCoreNodes legacyRelayNodes byronProxies coreNodes relayNodes;
   inherit (globals.ec2.credentials) accessKeyIds;
@@ -111,17 +111,23 @@ let
         ) orgs)
         regions);
 
-      route53RecordSets = listToAttrs (map (relay: nameValuePair "relays-new-${relay.name}" (
-        { resources, ... }: {
-          zoneName = "${pkgs.globals.dnsZone}.";
-          domainName = "${pkgs.globals.relaysNew}.";
-          recordValues = [ resources.machines.${relay.name} ];
-          recordType = "A";
-          setIdentifier = relay.name;
-          routingPolicy = "multivalue";
-          accessKeyId = pkgs.globals.ec2.credentials.accessKeyIds.dns;
-        })
-      ) relayNodes);
+      route53RecordSets =
+        let mkRelayRecords = prefix: relayFilter: listToAttrs (map (relay:
+          nameValuePair "${prefix}${optionalString (prefix != "") "-"}relays-new-${relay.name}" (
+          { resources, ... }: {
+            zoneName = "${pkgs.globals.dnsZone}.";
+            domainName = "${prefix}${optionalString (prefix != "") "."}${pkgs.globals.relaysNew}.";
+            recordValues = [ resources.machines.${relay.name} ];
+            recordType = "A";
+            setIdentifier = relay.name;
+            routingPolicy = "multivalue";
+            accessKeyId = pkgs.globals.ec2.credentials.accessKeyIds.dns;
+          })
+        ) (filter relayFilter relayNodes));
+        in mkRelayRecords "" (_: true)
+        // mkRelayRecords "asia-pacific" (n: hasPrefix "ap" n.region)
+        // mkRelayRecords "north-america" (n: hasPrefix "us" n.region)
+        // mkRelayRecords "europe" (n: hasPrefix "eu" n.region);
     };
     defaults = { name, resources, config, ... }: {
       deployment.ec2 = {

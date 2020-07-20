@@ -2,6 +2,7 @@
   "annotations": {
     "list": [
       {
+        "$$hashKey": "object:345",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -15,6 +16,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
+  "id": 35,
   "links": [],
   "panels": [
     {
@@ -253,15 +255,18 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "cardano_node_ChainDB_metrics_density_real * 100",
+          "expr": "cardano_node_ChainDB_metrics_density_real / on(alias) cardano_node_genesis_activeSlotsCoeff * 100",
           "format": "time_series",
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "{{alias}}",
           "refId": "A"
         },
         {
-          "expr": "cardano_node_metrics_ChainDB_density_real * 100",
+          "expr": "cardano_node_metrics_ChainDB_density_real / on(alias) cardano_node_genesis_activeSlotsCoeff * 100",
           "format": "time_series",
+          "hide": false,
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "{{alias}}",
           "refId": "B"
@@ -408,7 +413,7 @@
       "dashes": false,
       "datasource": "prometheus",
       "decimals": 5,
-      "description": "",
+      "description": "Calculated at a 1 hr averaging window",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -447,14 +452,18 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(cardano_node_metrics_Forge_node_is_leader_int[710s])/rate(cardano_node_metrics_Forge_forge_about_to_lead_int[710s])",
+          "expr": "(rate(cardano_node_metrics_Forge_node_is_leader_int[1h])/rate(cardano_node_metrics_Forge_forge_about_to_lead_int[1h])) / on(alias) cardano_node_genesis_activeSlotsCoeff",
+          "hide": false,
           "instant": false,
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "{{alias}}",
           "refId": "A"
         },
         {
-          "expr": "sum(rate(cardano_node_metrics_Forge_node_is_leader_int[710s])/rate(cardano_node_metrics_Forge_forge_about_to_lead_int[710s]))",
+          "expr": "sum((rate(cardano_node_metrics_Forge_node_is_leader_int[1h])/rate(cardano_node_metrics_Forge_forge_about_to_lead_int[1h])) / on(alias) cardano_node_genesis_activeSlotsCoeff)",
+          "hide": false,
+          "interval": "",
           "legendFormat": "Total led slots",
           "refId": "B"
         }
@@ -728,7 +737,6 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
-      "options": {},
       "pluginVersion": "6.6.2",
       "postfix": "",
       "postfixFontSize": "50%",
@@ -752,7 +760,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "floor(avg(cardano_node_ChainDB_metrics_slotNum_int{alias=~\"c-.*\"})/3600)",
+          "expr": "floor(avg(cardano_node_ChainDB_metrics_slotNum_int{alias=~\"c-.*|bft-.*|stk-.*\"})/3600)",
           "interval": "",
           "refId": "A"
         }
@@ -870,6 +878,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
+      "description": "KES periods remaining",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -877,6 +886,554 @@
         "w": 8,
         "x": 0,
         "y": 24
+      },
+      "hiddenSeries": false,
+      "id": 49,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "cardano_node_Forge_metrics_remainingKESPeriods_int",
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "C"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "KES Periods Remaining",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:591",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:592",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "description": "KES time remaining",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 24
+      },
+      "hiddenSeries": false,
+      "id": 50,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "cardano_node_Forge_metrics_remainingKESPeriods_int * on(alias) cardano_node_genesis_slotsPerKESPeriod * on(alias) cardano_node_genesis_slotLength",
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "C"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "KES Time Remaining Until Expiration",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:591",
+          "format": "s",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:592",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "description": "Secondary method of calculating the KES time remaining until expiration",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 24
+      },
+      "hiddenSeries": false,
+      "id": 47,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "(cardano_node_genesis_slotLength * (cardano_node_genesis_slotsPerKESPeriod * ((cardano_node_decode_kesCreatedPeriod > -1) + cardano_node_genesis_maxKESEvolutions)) - on(alias) (cardano_node_genesis_slotLength * on(alias) cardano_node_ChainDB_metrics_slotNum_int))",
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "KES Time Remaining (Alternate Method)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:405",
+          "format": "s",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:406",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 32
+      },
+      "hiddenSeries": false,
+      "id": 43,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "1/rate(cardano_node_metrics_Forge_forge_about_to_lead_int[600s])",
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Slot length",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": 3,
+          "format": "s",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "description": "",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 32
+      },
+      "hiddenSeries": false,
+      "id": 48,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "cardano_node_protocol_decentralisationParam >= 0",
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "C"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Decentralization Parameter (d)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:500",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:501",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "description": "",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 32
+      },
+      "hiddenSeries": false,
+      "id": 51,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "cardano_node_metrics_txsInMempool_int",
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "C"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Mempool Txs",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:500",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:501",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 40
       },
       "hiddenSeries": false,
       "id": 30,
@@ -905,7 +1462,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "(cardano_node_metrics_Stat_rss_int*4096)/(1024*1026)",
+          "expr": "(cardano_node_metrics_Stat_rss_int*4096)/(1024*1024)",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -963,10 +1521,10 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 24
+        "y": 40
       },
       "hiddenSeries": false,
-      "id": 43,
+      "id": 37,
       "legend": {
         "avg": false,
         "current": false,
@@ -992,7 +1550,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "1/rate(cardano_node_metrics_Forge_forge_about_to_lead_int[710s])",
+          "expr": "rts_gc_current_bytes_used/(1024*1024)",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -1001,7 +1559,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Slot length",
+      "title": "Node current \"residency\" (amount of live data, MBytes)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1017,8 +1575,7 @@
       },
       "yaxes": [
         {
-          "decimals": 3,
-          "format": "s",
+          "format": "short",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -1051,7 +1608,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 24
+        "y": 40
       },
       "hiddenSeries": false,
       "id": 16,
@@ -1139,7 +1696,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 32
+        "y": 48
       },
       "hiddenSeries": false,
       "id": 17,
@@ -1221,16 +1778,18 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
+      "description": "Counts memory that is free as well as reclaimable from caches and buffers",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 32
+        "y": 48
       },
       "hiddenSeries": false,
-      "id": 37,
+      "id": 23,
+      "interval": "",
       "legend": {
         "avg": false,
         "current": false,
@@ -1256,7 +1815,9 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rts_gc_current_bytes_used/(1024*1024)",
+          "expr": "node_memory_MemAvailable_bytes{alias!~\"monitoring.*\"} / node_memory_MemTotal_bytes{alias!~\"monitoring.*\"} * 100",
+          "hide": false,
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -1265,7 +1826,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Node current \"residency\" (amount of live data, MBytes)",
+      "title": "Node Memory Available (%)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1281,7 +1842,7 @@
       },
       "yaxes": [
         {
-          "format": "short",
+          "format": "none",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -1315,7 +1876,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 32
+        "y": 48
       },
       "hiddenSeries": false,
       "id": 25,
@@ -1412,7 +1973,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 40
+        "y": 56
       },
       "hiddenSeries": false,
       "id": 26,
@@ -1496,18 +2057,16 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
-      "description": "Counts memory that is free as well as reclaimable from caches and buffers",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 40
+        "y": 56
       },
       "hiddenSeries": false,
-      "id": 23,
-      "interval": "",
+      "id": 32,
       "legend": {
         "avg": false,
         "current": false,
@@ -1533,9 +2092,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_memory_MemAvailable_bytes{alias!~\"monitoring.*\"} / node_memory_MemTotal_bytes{alias!~\"monitoring.*\"} * 100",
-          "hide": false,
-          "interval": "",
+          "expr": "rts_gc_max_bytes_used/(1024*1024)",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -1544,7 +2101,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Node Memory Available (%)",
+      "title": "Node max \"residency\" (amount of live data, MBytes)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1560,7 +2117,7 @@
       },
       "yaxes": [
         {
-          "format": "none",
+          "format": "short",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -1594,7 +2151,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 40
+        "y": 56
       },
       "hiddenSeries": false,
       "id": 35,
@@ -1685,7 +2242,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 48
+        "y": 64
       },
       "hiddenSeries": false,
       "id": 24,
@@ -1769,16 +2326,17 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
+      "description": "Counts only memory that is physically free",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 48
+        "y": 64
       },
       "hiddenSeries": false,
-      "id": 32,
+      "id": 34,
       "legend": {
         "avg": false,
         "current": false,
@@ -1804,7 +2362,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rts_gc_max_bytes_used/(1024*1024)",
+          "expr": "rts_gc_peak_megabytes_allocated",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -1813,7 +2371,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Node max \"residency\" (amount of live data, MBytes)",
+      "title": "Node peak memory allocated (from OS, in MBytes)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1829,7 +2387,7 @@
       },
       "yaxes": [
         {
-          "format": "short",
+          "format": "none",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -1863,7 +2421,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 48
+        "y": 64
       },
       "hiddenSeries": false,
       "id": 22,
@@ -1952,17 +2510,18 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
-      "description": "Counts only memory that is physically free",
+      "description": "Remaining faucet funds in ADA",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 56
+        "y": 72
       },
       "hiddenSeries": false,
-      "id": 34,
+      "id": 52,
+      "interval": "",
       "legend": {
         "avg": false,
         "current": false,
@@ -1988,16 +2547,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rts_gc_peak_megabytes_allocated",
+          "expr": "cardano_faucet_metrics_value_available / 1e6",
           "legendFormat": "{{alias}}",
-          "refId": "A"
+          "refId": "C"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Node peak memory allocated (from OS, in MBytes)",
+      "title": "Faucet (ADA)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -2013,7 +2572,7 @@
       },
       "yaxes": [
         {
-          "format": "none",
+          "format": "short",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -2047,7 +2606,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 56
+        "y": 72
       },
       "hiddenSeries": false,
       "id": 20,
@@ -2170,5 +2729,8 @@
   "timezone": "",
   "title": "Cardano: Application metrics v2",
   "uid": "Oe0reiHef",
+  "variables": {
+    "list": []
+  },
   "version": 1
 }

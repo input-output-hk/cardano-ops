@@ -1,12 +1,15 @@
 pkgs: {
 
-  deploymentName = "ff";
+  deploymentName = "shelley-testnet";
 
-  topology = import ./topologies/ff.nix pkgs;
+  environmentName = "shelley_testnet";
 
-  withExplorer = false;
+  topology = import ./topologies/shelley-testnet.nix pkgs;
+
+  withExplorer = true;
   withLegacyExplorer = false;
   withHighLoadRelays = true;
+  withSmash = true;
 
   withFaucet = true;
   faucetHostname = "faucet";
@@ -19,4 +22,7 @@ pkgs: {
       };
     };
   };
+
+  alertTcpHigh = "150";
+  alertTcpCrit = "180";
 }

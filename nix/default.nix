@@ -65,6 +65,7 @@ let
     inherit (crystalPkgs) crystal2nix shards pkg-config openssl;
     inherit crystal;
     kes-rotation = (crystalPkgs.callPackage ../pkgs/kes-rotation {}).kes-rotation;
+    relay-update = (crystalPkgs.callPackage ../pkgs/relay-update {}).relay-update;
   };
 
   # If needed for isolated crystal binary without rust pkg overlay interference.
@@ -73,6 +74,7 @@ let
   #
   crystalEnvIsolated = self: super: {
     kes-rotation = (self.extend crystalEnv).kes-rotation;
+    relay-update = (self.extend crystalEnv).relay-update;
   };
 
   # merge upstream sources with our own:

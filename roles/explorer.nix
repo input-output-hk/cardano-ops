@@ -100,6 +100,54 @@ in {
     acceptTerms = true; # https://letsencrypt.org/repository/
   };
 
+  systemd.services.dump-registered-relays-topology = let
+    extract_relays_sql = writeText "extract_relays.sql" ''
+      select array_to_json(array_agg(row_to_json(t))) from (
+        select COALESCE(ipv4, dns_name) as addr, port from (
+          select min(update_id) as update_id, ipv4, dns_name, port from pool_relay where
+            ipv4 is null or ipv4 !~ '(^0\.)|(^10\.)|(^100\.6[4-9]\.)|(^100\.[7-9]\d\.)|(^100\.1[0-1]\d\.)|(^100\.12[0-7]\.)|(^127\.)|(^169\.254\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.0\.0\.)|(^192\.0\.2\.)|(^192\.88\.99\.)|(^192\.168\.)|(^198\.1[8-9]\.)|(^198\.51\.100\.)|(^203.0\.113\.)|(^22[4-9]\.)|(^23[0-9]\.)|(^24[0-9]\.)|(^25[0-5]\.)'
+            group by ipv4, dns_name, port order by update_id
+        ) t
+      ) t;
+    '';
+  in {
+    path = [ config.services.postgresql.package jq netcat curl ];
+    script = ''
+      set -uo pipefail
+      cd $STATE_DIRECTORY
+      for r in $(psql -t < ${extract_relays_sql} | jq -c '.[]'); do
+        addr=$(echo $r | jq -r '.addr')
+        port=$(echo $r | jq -r '.port')
+        set +e
+        nc -w 2 -z $addr $port  > /dev/null
+        res=$?
+        set -e
+        if [ $res -eq 0 ]; then
+          geoinfo=$(curl -s https://json.geoiplookup.io/$addr)
+          continent=$(echo $geoinfo | jq -r '.continent_name')
+          country_code=$(echo $geoinfo | jq -r '.country_code')
+          if [ "$country_code" == "US" ]; then
+            state=$(echo $geoinfo | jq -r '.region')
+          else
+            state=$country_code
+          fi
+          echo $r | jq --arg continent "$continent" \
+            --arg state "$state" '. + {continent: $continent, state: $state}'
+        fi
+      done | jq -n '. + [inputs]' | jq '{ Producers : . }' > topology.json
+      mkdir -p relays
+      mv topology.json relays/topology.json
+    '';
+    serviceConfig = {
+      User = config.services.cardano-db-sync.user;
+      StateDirectory = "registered-relays-dump";
+    };
+  };
+  systemd.timers.dump-registered-relays-topology = {
+    timerConfig.OnCalendar = "hourly";
+    wantedBy = [ "timers.target" ];
+  };
+
   services.nginx = {
     enable = true;
     package = nginxExplorer;
@@ -147,6 +195,9 @@ in {
           };
           "/graphql" = {
             proxyPass = "http://127.0.0.1:3100/graphql";
+          };
+          "/relays" = {
+            root = "/var/lib/registered-relays-dump";
           };
         };
       };

@@ -1,4 +1,11 @@
-{
+pkgs: { ... }:
+with pkgs;
+let
+  tcpHigh = globals.alertTcpHigh;
+  tcpCrit = globals.alertTcpCrit;
+  MbpsHigh = globals.alertMbpsHigh;
+  MbpsCrit = globals.alertMbpsCrit;
+in {
   services.monitoring-services.applicationDashboards = ./grafana/cardano;
   services.monitoring-services.applicationRules = [
     {
@@ -137,58 +144,74 @@
         description = "{{$labels.alias}}: cardano-node db block divergence detected on explorer of more than 5 blocks for more than 5 minutes";
       };
     }
-  ] ++ (builtins.concatMap ({region, regionLetter}: [
     {
-      alert = "high_tcp_connections_${region}";
-      expr = "avg(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*\"}) - count(count(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*\"}) by (alias)) > 120";
+      alert = "faucet_value_zero_available";
+      expr = "cardano_faucet_metrics_value_available{alias=~\".*faucet.*\"} == bool 0 == 1";
       for = "5m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "${region}: Average connection per nodes higher than 120 for more than 5 minutes.";
-        description = "${region}: Average connection per nodes higher than 120 for more than 5 minutes. Adding new nodes to that region might soon be required.";
+        summary = "{{$labels.alias}}: cardano-faucet has zero balance available for more than 5 minutes";
+        description = "{{$labels.alias}}: cardano-faucet has zero balance available for more than 5 minutes";
+      };
+    }
+  ] ++ (builtins.concatMap ({region, regionLetter}: [
+    {
+      alert = "high_tcp_connections_${region}";
+      expr = "avg(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*|rel-${regionLetter}-.*\"}) " +
+             "- count(count(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*|rel-${regionLetter}-.*\"}) by (alias)) > ${tcpHigh}";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "${region}: Average connection per nodes higher than ${tcpHigh} for more than 5 minutes.";
+        description = "${region}: Average connection per nodes higher than ${tcpHigh} for more than 5 minutes. Adding new nodes to that region might soon be required.";
       };
     }
     {
       alert = "critical_tcp_connections_${region}";
-      expr = "avg(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*\"}) - count(count(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*\"}) by (alias)) > 150";
+      expr = "avg(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*|rel-${regionLetter}-.*\"}) " +
+             "- count(count(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*|rel-${regionLetter}-.*\"}) by (alias)) > ${tcpCrit}";
       for = "15m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "${region}: Average connection per nodes higher than 150 for more than 15 minutes.";
-        description = "${region}: Average connection per nodes higher than 150 for more than 15 minutes. Adding new nodes to that region IS required.";
+        summary = "${region}: Average connection per nodes higher than ${tcpCrit} for more than 15 minutes.";
+        description = "${region}: Average connection per nodes higher than ${tcpCrit} for more than 15 minutes. Adding new nodes to that region IS required.";
       };
     }
     {
       alert = "high_egress_${region}";
-      expr = "avg(rate(node_network_transmit_bytes_total{alias=~\"e-${regionLetter}-.*\",device!~\"lo\"}[20s]) * 8) > 150 * 1000 * 1000";
+      expr = "avg(rate(node_network_transmit_bytes_total{alias=~\"e-${regionLetter}-.*|rel-${regionLetter}-.*\",device!~\"lo\"}[20s]) * 8) > ${MbpsHigh} * 1000 * 1000";
       for = "5m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "${region}: Average egress throughput is higher than 150 Mbps for more than 5 minutes.";
-        description = "${region}: Average egress throughput is higher than 150 Mbps for more than 5 minutes. Adding new nodes to that region might soon be required.";
+        summary = "${region}: Average egress throughput is higher than ${MbpsHigh} Mbps for more than 5 minutes.";
+        description = "${region}: Average egress throughput is higher than ${MbpsHigh} Mbps for more than 5 minutes. Adding new nodes to that region might soon be required.";
       };
     }
     {
       alert = "critical_egress_${region}";
-      expr = "avg(rate(node_network_transmit_bytes_total{alias=~\"e-${regionLetter}-.*\",device!~\"lo\"}[20s]) * 8) > 200 * 1000 * 1000";
+      expr = "avg(rate(node_network_transmit_bytes_total{alias=~\"e-${regionLetter}-.*|rel-${regionLetter}-.*\",device!~\"lo\"}[20s]) * 8) > ${MbpsCrit} * 1000 * 1000";
       for = "15m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "${region}: Average egress throughput is higher than 200 Mbps for more than 15 minutes.";
-        description = "${region}: Average egress throughput is higher than 200 Mbps for more than 15 minutes. Adding new nodes to that region IS required.";
+        summary = "${region}: Average egress throughput is higher than ${MbpsCrit} Mbps for more than 15 minutes.";
+        description = "${region}: Average egress throughput is higher than ${MbpsCrit} Mbps for more than 15 minutes. Adding new nodes to that region IS required.";
       };
     }])
   [{ region = "eu-central-1";   regionLetter = "a"; }
    { region = "ap-northeast-1"; regionLetter = "b"; }
    { region = "ap-southeast-1"; regionLetter = "c"; }
    { region = "us-east-2";      regionLetter = "d"; }
+   { region = "us-west-1";      regionLetter = "e"; }
+   { region = "eu-west-1";      regionLetter = "f"; }
   ]);
 }

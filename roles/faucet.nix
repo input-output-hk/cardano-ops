@@ -59,6 +59,13 @@ in {
       permissions = "0400";
     };
 
+    "faucet.recaptcha" = {
+      keyFile = ../static + "/faucet.recaptcha";
+      destDir = "/var/lib/keys/";
+      user = "cardano-node";
+      permissions = "0400";
+    };
+
     "faucet.apikey" = {
       keyFile = ../static + "/faucet.apikey";
       destDir = "/var/lib/keys/";

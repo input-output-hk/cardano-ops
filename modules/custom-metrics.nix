@@ -110,7 +110,7 @@ in with pkgs; {
         STATSD_HOST="localhost"
         STATSD_PORT="${if (cfg.statsdExporter == "node") then (toString cfgExporters.statsdPort) else (toString cfg.netdataStatsdPort)}"
 
-        MAGIC="${if cfg.useTestnetMagic then "--testnet-magic ${toString cfg.testnetMagicNumber}" else ""}"
+        MAGIC="${if cfg.useTestnetMagic then "--testnet-magic ${toString cfg.testnetMagicNumber}" else "--mainnet"}"
         OPCERT="${cfg.opcertFile}"
 
         # Default decoded metric settings in case they are not obtainable
@@ -161,27 +161,37 @@ in with pkgs; {
 
         # main
         #
-        if [ -f "$OPCERT" ]; then
-          echo "Cardano node opcert file is: $OPCERT"
-          KES_CREATED_PERIOD=$(cardano-cli shelley text-view decode-cbor --file $OPCERT | sed '8q;d'  | cut -d '(' -f2 | cut -d ')' -f1)
-        fi
-
         if CONFIG=$(pgrep -a cardano-node | grep -oP ".*--config \K.*\.json"); then
           echo "Cardano node config file is: $CONFIG"
-          if GENESIS=$(jq -r '.GenesisFile' < "$CONFIG"); then
-            echo "Cardano node genesis file is: $GENESIS"
-            if [ -f "$GENESIS" ]; then
-              ACTIVE_SLOTS_COEFF=$(jq '.activeSlotsCoeff' < "$GENESIS")
-              EPOCH_LENGTH=$(jq '.epochLength' < "$GENESIS")
-              SLOTS_PER_KES_PERIOD=$(jq '.slotsPerKESPeriod' < "$GENESIS")
-              SLOT_LENGTH=$(jq '.slotLength' < "$GENESIS")
-              MAX_KES_EVOLUTIONS=$(jq '.maxKESEvolutions' < "$GENESIS")
-              SECURITY_PARAM=$(jq '.securityParam' < "$GENESIS")
-            fi
+          PROTOCOL=$(jq -r '.Protocol' < "$CONFIG")
+          if [ "$PROTOCOL" = "Cardano" ]; then
+            GENESIS=$(jq -r '.ShelleyGenesisFile' < "$CONFIG")
+            MODE="--cardano-mode"
+          elif [ "$PROTOCOL" = "TPraos" ]; then
+            GENESIS=$(jq -r '.GenesisFile' < "$CONFIG")
+            MODE="--shelley-mode"
+          elif [ "$PROTOCOL" = "RealPBFT" ]; then
+            echo "Byron era not supported" && exit 1
+          else
+            echo "Unknown protocol: $PROTOCOL" && exit 1
+          fi
+          echo "Cardano node shelley genesis file is: $GENESIS"
+          if [ -f "$GENESIS" ]; then
+            ACTIVE_SLOTS_COEFF=$(jq '.activeSlotsCoeff' < "$GENESIS")
+            EPOCH_LENGTH=$(jq '.epochLength' < "$GENESIS")
+            SLOTS_PER_KES_PERIOD=$(jq '.slotsPerKESPeriod' < "$GENESIS")
+            SLOT_LENGTH=$(jq '.slotLength' < "$GENESIS")
+            MAX_KES_EVOLUTIONS=$(jq '.maxKESEvolutions' < "$GENESIS")
+            SECURITY_PARAM=$(jq '.securityParam' < "$GENESIS")
           fi
         fi
 
-        if PROTOCOL_CONFIG=$(cardano-cli shelley query protocol-parameters $MAGIC); then
+        if [ -f "$OPCERT" ]; then
+          echo "Cardano node opcert file is: $OPCERT"
+          KES_CREATED_PERIOD=$(cardano-cli shelley text-view decode-cbor --in-file $OPCERT | sed '8q;d'  | cut -d '(' -f2 | cut -d ')' -f1)
+        fi
+
+        if PROTOCOL_CONFIG=$(cardano-cli shelley query protocol-parameters $MAGIC $MODE); then
           A_0=$(jq '.a0' <<< "$PROTOCOL_CONFIG")
           DECENTRALISATION_PARAM=$(jq '.decentralisationParam' <<< "$PROTOCOL_CONFIG")
           E_MAX=$(jq '.eMax' <<< "$PROTOCOL_CONFIG")
