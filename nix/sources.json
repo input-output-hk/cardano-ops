@@ -36,15 +36,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync": {
-        "branch": "erikd/hfc-5",
+        "branch": "master",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "4393bdfabde484cb222cd333ef2322daffb3502b",
-        "sha256": "02d97718a85x3igghf2isn952h8iigsv1niy7wpjkpki8d242797",
+        "rev": "0c01cde80d271ddbfc703816fb4e12da9796a87c",
+        "sha256": "12jblsdk50zq7n7zwm4xhccvvscpbjklgfig69rk88gsd2d4g4pw",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/4393bdfabde484cb222cd333ef2322daffb3502b.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/0c01cde80d271ddbfc703816fb4e12da9796a87c.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer-app": {
@@ -84,15 +84,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
-        "branch": "release/1.16.x",
+        "branch": "refs/tags/1.17.0",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "b218bca02d31f22407e586ec949c7d3637e8c1d3",
-        "sha256": "09xl8n91pg6k972if46nqdsg6hl8zny9h7563dc9aj6j17xanpcx",
+        "rev": "0191ff56d194b6ac074af0d51e67493c14e08ffa",
+        "sha256": "1mwx751w6f59bhf8r4n72s0gy0fz5w4ss5jcds0fs8nvjlk7y3c6",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/b218bca02d31f22407e586ec949c7d3637e8c1d3.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/0191ff56d194b6ac074af0d51e67493c14e08ffa.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rest": {
