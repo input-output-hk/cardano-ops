@@ -1,4 +1,4 @@
-pkgs: with pkgs; with lib;
+pkgs: with pkgs; with lib; with topology-lib;
 let
   withDailyRestart = def: lib.recursiveUpdate {
     systemd.services.cardano-node.serviceConfig = {
