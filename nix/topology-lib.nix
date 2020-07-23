@@ -57,7 +57,7 @@ pkgs: with pkgs; with lib; {
 
       nbRelaysPerRegions = mapAttrs (_: {minRelays, name, ...}:
         # we scale so that relays have less than 20 producers, with a given minimum:
-        max minRelays (2 + (builtins.div (length (thirdPartyRelaysByRegions.${name} or [])) 20))
+        minRelays + (builtins.div (length (thirdPartyRelaysByRegions.${name} or [])) 20)
       ) regions;
     in
       imap1 (i: r:
