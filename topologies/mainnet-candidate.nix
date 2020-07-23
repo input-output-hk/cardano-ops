@@ -102,7 +102,7 @@ in {
 
   explorer = withDailyRestart {
     services.nginx.virtualHosts."${globals.explorerHostName}.${globals.domain}".locations."/p" = {
-      root = ../modules/iohk-pools/mainnet_candidate;
+      root = ../static/iohk_pools;
     };
   };
 
