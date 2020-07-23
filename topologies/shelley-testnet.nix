@@ -1,5 +1,6 @@
-pkgs: with pkgs; with lib;
+pkgs: with pkgs; with lib; with topology-lib;
 let
+
   withDailyRestart = def: lib.recursiveUpdate {
     systemd.services.cardano-node.serviceConfig = {
       RuntimeMaxSec = (if (def ? name && def.name == "rel-a-1") then 72 else 6) *
@@ -7,11 +8,7 @@ let
     };
   } def;
 
-  regions = mapAttrs (_: {name, minRelays}: {
-    inherit name;
-    # we scale so that relays have less than 20 producers, with a given minimum:
-    nbRelays = max minRelays (2 + (builtins.div (length thirdPartyRelaysByRegions.${name}) 20));
-  }) {
+  regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
       minRelays = 6;
     };
@@ -32,79 +29,9 @@ let
     };
   };
 
-  inUseRegions = mapAttrsToList (_: r: r.name) regions;
-
-  # Since we don't have relays in every regions,
-  # we define a substitute region for each region we don't deploy to;
-  regionsSubstitutes = {
-    eu-north-1 = "eu-central-1";
-    ap-northeast-3 = "ap-northeast-1";
-    ap-northeast-2 = "ap-northeast-1";
-    cn-north-1 = "ap-northeast-1";
-    cn-northwest-1 = "ap-northeast-1";
-    ap-east-1 = "ap-southeast-1";
-    ap-south-1 = "ap-southeast-1";
-    ap-southeast-2 = "ap-southeast-1";
-    me-south-1 = "ap-southeast-1";
-    us-east-1 = "us-east-2";
-    sa-east-1 = "us-east-2";
-    ca-central-1 = "us-east-2";
-    us-west-2 = "us-west-1";
-    af-south-1 = "eu-west-2";
-    eu-west-1 = "eu-west-2";
-    eu-west-3 = "eu-west-2";
+  relayNodesBaseDef = mkRelayTopology {
+    inherit regions coreNodes;
   };
-
-  regionLetters = (attrNames regions);
-
-  indexedRegions = imap0 (rIndex: rLetter:
-    { inherit rIndex rLetter;
-      region = regions.${rLetter}.name; }
-  ) regionLetters;
-
-  thirdPartyRelays = globals.static.additionalPeers ++
-    (filter (r: !(hasSuffix globals.relaysNew r.addr))
-      (builtins.fromJSON (builtins.readFile ../static/registered_relays_topology.json)).Producers);
-
-  stateAwsAffinityIndex = builtins.fromJSON (builtins.readFile (pkgs.aws-affinity-indexes + "/state-index.json"));
-
-  thirdPartyRelaysByRegions = groupBy (r: r.region) (map
-    (relay:
-      let bestRegion = stateAwsAffinityIndex.${relay.state} or
-        (builtins.trace "WARNING: relay has unknow 'state': ${relay.state}. Using ${regions.a.name})" regions.a.name);
-      in relay // {
-        region = if (builtins.elem bestRegion inUseRegions) then bestRegion else regionsSubstitutes.${bestRegion} or
-        (builtins.trace "WARNING: relay affected to unknown 'region': ${bestRegion} (to be added in 'regionsSubstitutes'). Using ${regions.a.name})" regions.a.name);
-      }
-    ) thirdPartyRelays);
-
-  indexedThirdPartyRelays = mapAttrs (_: (imap0 (index: mergeAttrs {inherit index;}))) thirdPartyRelaysByRegions;
-  indexedCoreNodes = imap0 (index: mergeAttrs {inherit index;}) coreNodes;
-
-  relayNodesBaseDef = imap1 (i: r:
-    removeAttrs r ["nodeIndex"] // { nodeId = i + (length coreNodes); }
-   ) (sort (r1: r2: r1.nodeIndex < r2.nodeIndex) (concatMap ({rLetter, rIndex, region}:
-    let
-      inherit (regions.${rLetter}) nbRelays;
-      relayIndexesInRegion = genList (i: i + 1) nbRelays;
-    in map (nodeIndex:
-      let
-        name = "rel-${rLetter}-${toString nodeIndex}";
-      in {
-        inherit region name nodeIndex;
-        producers =
-          # a share of the core nodes:
-          (map (c: c.name) (filter (c: mod c.index nbRelays == (nodeIndex - 1)) indexedCoreNodes))
-          # all relay in same region:
-          ++ map (i: "rel-${rLetter}-${toString i}") (filter (i: i != nodeIndex) relayIndexesInRegion)
-          # one relay in each other regions:
-          ++ map (r: "rel-${r}-${toString (mod (nodeIndex - 1) regions.${r}.nbRelays + 1)}") (filter (r: r != rLetter) regionLetters)
-          # a share of the third-party relays:
-          ++ (filter (p: mod p.index nbRelays == (nodeIndex - 1)) indexedThirdPartyRelays.${region});
-        org = "IOHK";
-      }
-    ) relayIndexesInRegion
-  ) indexedRegions));
 
   coreNodes = [
     # backup OBFT centralized nodes
