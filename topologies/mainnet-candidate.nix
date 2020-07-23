@@ -6,83 +6,24 @@ let
     };
   } def;
 
-  coreNodesRegions = 3;
-  relayNodesRegions = 6;
-
-  nbCoreNodesPerRegion = 2;
-  nbRelaysPerRegion = 1;
-
-  nbRelay = relayNodesRegions * nbRelaysPerRegion;
-
   regions = {
-    a = "eu-central-1";
-    b = "ap-northeast-1";
-    c = "ap-southeast-1";
-    d = "us-east-2";
-    e = "us-west-1";
-    f = "eu-west-1";
-  };
-  regionLetters = (attrNames regions);
-
-  indexedRegions = imap0 (rIndex: rLetter:
-    { inherit rIndex rLetter;
-      region = getAttr rLetter regions; }
-  ) regionLetters;
-
-  relayIndexesInRegion = genList (i: i + 1) nbRelaysPerRegion;
-
-  peerProducers = lib.imap0 (index: cp: cp // { inherit index; })
-    (globals.static.additionalPeers ++ (builtins.tail (builtins.fromJSON (builtins.readFile ../static/registered_relays_topology.json)).Producers));
-
-  relayNodesBaseDef = concatMap (nodeIndex:
-    map ({rLetter, rIndex, region}:
-      let
-        name = "rel-${rLetter}-${toString nodeIndex}";
-        globalRelayIndex = rIndex + (nodeIndex - 1) * relayNodesRegions;
-      in {
-        inherit region name;
-        producers =
-          # One of the core node:
-          [ "bft-${elemAt regionLetters (mod rIndex coreNodesRegions)}-${toString (mod (nodeIndex - 1) nbCoreNodesPerRegion + 1)}" ]
-          # all relay in same region:
-          ++ map (i: "rel-${rLetter}-${toString i}") (filter (i: i != nodeIndex) relayIndexesInRegion)
-          # all relay with same suffix in other regions:
-          ++ map (r: "rel-${r}-${toString nodeIndex}") (filter (r: r != rLetter) regionLetters)
-          # a share of the community relays:
-          ++ (filter (p: mod p.index (nbRelay) == globalRelayIndex) peerProducers);
-        org = "IOHK";
-        nodeId =  8 + globalRelayIndex;
-      }
-    ) (take relayNodesRegions indexedRegions)
-  ) relayIndexesInRegion;
-
-in {
-  legacyCoreNodes = [];
-
-  legacyRelayNodes = [];
-
-  byronProxies = [];
-
-  monitoring = {
-    services.monitoring-services.publicGrafana = true;
-  };
-
-  "${globals.faucetHostname}" = {
-    services.cardano-faucet = {
-      anonymousAccess = true;
-      faucetLogLevel = "DEBUG";
-      secondsBetweenRequestsAnonymous = 86400;
-      secondsBetweenRequestsApiKeyAuth = 86400;
-      lovelacesToGiveAnonymous = 1000000000;
-      lovelacesToGiveApiKeyAuth = 1000000000000;
-      faucetFrontendUrl = "";
-      useByronWallet = true;
+    a = { name = "eu-central-1";   # Europe (Frankfurt);
+      minRelays = 2;
     };
-  };
-
-  explorer = withDailyRestart {
-    services.nginx.virtualHosts."${globals.explorerHostName}.${globals.domain}".locations."/p" = {
-      root = ../modules/iohk-pools/mainnet_candidate;
+    b = { name = "us-east-2";      # US East (Ohio)
+      minRelays = 2;
+    };
+    c = { name = "ap-southeast-1"; # Asia Pacific (Singapore)
+      minRelays = 2;
+    };
+    d = { name = "eu-west-2";      # Europe (London)
+      minRelays = 2;
+    };
+    e = { name = "us-west-1";      # US West (N. California)
+      minRelays = 2;
+    };
+    f = { name = "ap-northeast-1"; # Asia Pacific (Tokyo)
+      minRelays = 2;
     };
   };
 
@@ -133,5 +74,39 @@ in {
     }
   ];
 
+  relayNodesBaseDef = mkRelayTopology {
+    inherit regions coreNodes;
+  };
+
+in {
+  inherit coreNodes;
+
   relayNodes = map withDailyRestart relayNodesBaseDef;
+
+  monitoring = {
+    services.monitoring-services.publicGrafana = true;
+  };
+
+  "${globals.faucetHostname}" = {
+    services.cardano-faucet = {
+      anonymousAccess = false;
+      faucetLogLevel = "DEBUG";
+      secondsBetweenRequestsAnonymous = 86400;
+      secondsBetweenRequestsApiKeyAuth = 86400;
+      lovelacesToGiveAnonymous = 1000000000;
+      lovelacesToGiveApiKeyAuth = 1000000000;
+      useByronWallet = false;
+      #faucetFrontendUrl = "https://testnets.cardano.org/en/shelley/tools/faucet/";
+    };
+  };
+
+  explorer = withDailyRestart {
+    services.nginx.virtualHosts."${globals.explorerHostName}.${globals.domain}".locations."/p" = {
+      root = ../modules/iohk-pools/mainnet_candidate;
+    };
+  };
+
+  legacyCoreNodes = [];
+  legacyRelayNodes = [];
+  byronProxies = [];
 }
