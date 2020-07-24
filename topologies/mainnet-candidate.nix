@@ -32,21 +32,21 @@ let
     {
       name = "bft-a-1";
       region = "eu-central-1";
-      producers = [ "bft-b-1" "bft-c-1" "stk-a-1-IOHK1" "rel-a-1" "rel-d-1" ];
+      producers = [ "bft-b-1" "bft-c-1" "stk-a-1-IOHK1" "rel-a-1" "rel-d-1" "rel-a-2" "rel-d-2" ];
       org = "IOHK";
       nodeId = 1;
     }
     {
       name = "bft-b-1";
       region = "ap-northeast-1";
-      producers = [ "bft-c-1" "bft-a-1" "stk-b-1-IOHK2" "rel-b-1" "rel-e-1" ];
+      producers = [ "bft-c-1" "bft-a-1" "stk-b-1-IOHK2" "rel-b-1" "rel-e-1" "rel-b-2" "rel-e-2"  ];
       org = "IOHK";
       nodeId = 2;
     }
     {
       name = "bft-c-1";
       region = "ap-southeast-1";
-      producers = [ "bft-a-1" "bft-b-1" "stk-c-1-IOHK3" "rel-c-1" "rel-f-1" ];
+      producers = [ "bft-a-1" "bft-b-1" "stk-c-1-IOHK3" "rel-c-1" "rel-f-1" "rel-c-2" "rel-f-2" ];
       org = "IOHK";
       nodeId = 3;
     }
