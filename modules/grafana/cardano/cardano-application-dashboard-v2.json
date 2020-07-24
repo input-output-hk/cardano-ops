@@ -760,7 +760,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "floor(avg(cardano_node_ChainDB_metrics_slotNum_int{alias=~\"c-.*|bft-.*|stk-.*\"})/3600)",
+          "expr": "avg(cardano_node_Forge_metrics_currentKESPeriod_int)",
           "interval": "",
           "refId": "A"
         }
