@@ -64,6 +64,16 @@ in {
       TraceTxInbound                    = true;
       TraceTxOutbound                   = true;
       TraceTxSubmissionProtocol         = true;
+
+      setupScribes = [
+        { scKind = "StdoutSK"; scName = "stdout"; scFormat = "ScJson"; }
+        { scKind = "FileSK"; scName = "/var/lib/cardano-node/logs/generator.json"; scFormat = "ScJson";
+          scRotation = {
+            rpLogLimitBytes = 300000000;
+            rpMaxAgeHours   = 24;
+            rpKeepFilesNum  = 20;
+          }; }
+      ];
     };
 
     dsmPassthrough = {
@@ -83,7 +93,7 @@ in {
           scRotation = {
             rpLogLimitBytes = 300000000;
             rpMaxAgeHours   = 24;
-            rpKeepFilesNum  = 2;
+            rpKeepFilesNum  = 20;
           }; }
       ];
       minSeverity = "Debug";

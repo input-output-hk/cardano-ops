@@ -9,10 +9,11 @@ params_check() {
 }
 
 get_topology_file() {
-        local node_count
-        node_count=${1:-$(parmetajq '.node_names | length')}
+        local type node_count
+        type=${1:-$(parmetajq '.topology')}
+        node_count=${2:-$(parmetajq '.node_names | length')}
 
-        realpath "$__BENCH_BASEPATH"/../topologies/bench-txgen-simple-${node_count}.nix
+        realpath "$__BENCH_BASEPATH"/../topologies/bench-txgen-${type}-${node_count}.nix
 }
 
 params_recreate_cluster() {
@@ -29,11 +30,8 @@ params_recreate_cluster() {
         profile_deploy "$prof"
 }
 
-node_count_id_pool_map() {
-        local node_count=${1:-}
-
-        local topology_file
-        topology_file=$(get_topology_file $node_count)
+topology_id_pool_map() {
+        local topology_file=${1:-}
 
         nix-instantiate \
           --strict --eval \
@@ -56,12 +54,6 @@ id_pool_map_composition() {
            ' <<<$ids_pool_map --compact-output
 }
 
-params_composition() {
-        local node_count=$1
-
-        id_pool_map_composition "$(node_count_id_pool_map "$node_count")"
-}
-
 ## This sets up the cluster configuration file,
 ## 'benchmarking-cluster-params.json', for:
 ##   1. a given protocol era, and
@@ -75,17 +67,22 @@ params_composition() {
 ##      - count and the names of producer nodes
 ##      - genesis parameters
 params_init() {
-        local node_count="${1?USAGE:  init-cluster NODECOUNT [PROTOCOL-ERA=byron]}"
+        local node_count="${1?USAGE:  init-cluster NODECOUNT [PROTOCOL-ERA=shelley|byron] [TOPOLOGY=distrib|eu-central-1]}"
         local era="${2:-shelley}"
+        local topology="${3:-distrib}"
         if test $((node_count + 0)) -ne $node_count
         then fail "this operation requires a node count as an integer argument."
         fi
-        oprint "re-deriving cluster parameters for size $node_count, era $era"
 
-        local composition
-        composition=$(params_composition $node_count)
+        local topology_file id_pool_map composition
+        topology_file=$(get_topology_file "$topology" "$node_count")
+        oprint "re-deriving cluster parameters for size $node_count, era $era, topology $topology_file"
+
+        id_pool_map=$(topology_id_pool_map "$topology_file")
+        composition=$(id_pool_map_composition "$id_pool_map")
 
         local args=(--argjson composition "$composition"
+                    --arg     topology    "$topology"
                     --arg     era         "$era")
         jq "${args[@]}" '
 include "profile-definitions" { search: "bench" };
@@ -106,8 +103,7 @@ def profile_name($gtor; $gsis):
 | era_generator_params($era)             as $generator_params
 | era_genesis_params($era; $composition) as $genesis_params
 
-| { finish_patience:         7
-  } as $run_defaults
+| era_tolerances($era)                   as $era_tolerances
 
 ## For all IO arities and block sizes:
 | [[ $genesis_profiles
@@ -138,16 +134,17 @@ def profile_name($gtor; $gsis):
         })
       , genesis:
         ($genesis_params + $genesis)
-      , run:
-        ($run_defaults +
+      , tolerances:
+        ($era_tolerances +
         { finish_patience:
             ## TODO:  fix ugly
-            ($generator.finish_patience // $run_defaults.finish_patience)
+            ($generator.finish_patience // $era_tolerances.finish_patience)
         })
       }}
   )
 | { meta:
     { era:                 $era
+    , topology:            $topology
     , node_names:          ( [range(0; 16)]
                            | map ("node-\(.)")
                            | .[:$composition.n_total])

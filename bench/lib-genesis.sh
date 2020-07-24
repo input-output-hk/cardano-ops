@@ -150,14 +150,16 @@ cli() {
 }
 
 profile_genesis_shelley() {
+        set -o pipefail
+
         local prof="${1:-default}"
         local target_dir="${2:-./keys}"
         prof=$(params resolve-profile "$prof")
 
         local start_future_offset='1 minute'
-
         local ids_pool_map ids
-        ids_pool_map=$(node_count_id_pool_map)
+        id_pool_map_composition ""
+        ids_pool_map=$(topology_id_pool_map $(get_topology_file))
         ids=($(jq 'keys
                   | join(" ")
                   ' -cr <<<$ids_pool_map))

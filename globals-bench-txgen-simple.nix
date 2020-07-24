@@ -11,12 +11,12 @@ let
             else abort "${benchmarkingParamsFile} must define the 'meta' section:  please run 'bench reinit' to update it"
     else abort "Benchmarking requires ${toString benchmarkingParamsFile} to exist.  Please, refer to documentation.";
   benchmarkingTopologyFile =
-    ./topologies + "/bench-txgen-simple-${toString (__length benchmarkingParams.meta.node_names)}.nix";
+    ./topologies + "/bench-txgen-${benchmarkingParams.meta.topology}-${toString (__length benchmarkingParams.meta.node_names)}.nix";
   benchmarkingTopology =
     if __pathExists benchmarkingTopologyFile
     then __trace "Using topology:  ${benchmarkingTopologyFile}"
          (import benchmarkingTopologyFile)
-    else abort "Benchmarking topology file implied by configured node count ${__length benchmarkingParams.meta.node_names} does not exist: ${benchmarkingTopologyFile}";
+    else abort "Benchmarking topology file implied by configured node count ${toString (__length benchmarkingParams.meta.node_names)} does not exist: ${benchmarkingTopologyFile}";
   benchmarkingParamsEra =
     if __hasAttr "era" benchmarkingParams.meta
     then benchmarkingParams.meta.era
@@ -112,7 +112,7 @@ in reportDeployment (rec {
   withExplorer = true;
   withLegacyExplorer = false;
 
-  environmentName = "bench-txgen-simple-${benchmarkingProfileName}";
+  environmentName = "bench-txgen-${benchmarkingParams.meta.topology}-${benchmarkingProfileName}";
 
   sourcesJsonOverride = ./nix/sources.bench-txgen-simple.json;
 

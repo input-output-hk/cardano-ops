@@ -287,16 +287,17 @@ benchmarking infrastructure via concordant control mechanisms:
 
 2.  Topology and size
     
-    As mentioned previously, only cluster size can be changed
+    As mentioned previously, only cluster size and topology type can be changed
     conveniently.
     
-    There are four pre-defined topologies, each associated with a
-    particular cluster size: `3, =6`, `9` or `12` nodes, and that's what
+    There are four pre-defined topology, each associated with a
+    particular cluster size: `3`, `6`, `9` or `12` nodes, and that's what
     forms the basis for the parametrisation.
     
     These topology files reside in the `topologies` subdirectory of
-    `cardano-ops`, and are called `bench-txgen-simple-N.nix`, where N is
-    the intended cluster size.
+    `cardano-ops`, and are called `bench-txgen-TYPE-N.nix`, where N is
+    the intended cluster size, and TYPE is topology type -- either `distrib` or
+    `eu-central-1`.
     
     Changes beyond mere size require direct, manual intervention into
     one of those topology files.

@@ -14,7 +14,9 @@
 ##  2. The topology file determines the BFT/stake pool composition.
 ##  3. The era and composition determine base genesis/generator parameters.
 ##  4. The era determines sets of genesis/generator profiles,
-##     which yield a set product of _final, benchmarking profiles._
+##     a set product of which defines _benchmarking profiles_,
+##     which are then each extended with era tolerances,
+##     yielding _final benchmarking profiles_.
 ##
 
 def era_genesis_params($era; $composition):
@@ -36,8 +38,8 @@ def era_genesis_params($era; $composition):
   , slot_duration:           20000
   }
 , shelley:
-  { parameter_k:             20
-  , epoch_length:            4000   # Ought to be at least (10 * k / f).
+  { parameter_k:             10
+  , epoch_length:            2200   # Ought to be at least (10 * k / f).
   , slot_duration:           1
   , decentralisation_param:  0.5
   , max_tx_size:             16384
@@ -70,25 +72,37 @@ def era_generator_params($era):
   , tx_fee:                  10000000
   }
 , shelley:
-  { init_cooldown:           20
+  { init_cooldown:           40
   , tx_fee:                  1000000
   }
 } | (.common + .[$era]);
 
 def era_generator_profiles($era):
 { byron:
-  [ { txs: 50000, add_tx_size: 100, io_arity: 1,  tps: 100 }
-  , { txs: 50000, add_tx_size: 100, io_arity: 2,  tps: 100 }
-  , { txs: 50000, add_tx_size: 100, io_arity: 4,  tps: 100 }
-  , { txs: 50000, add_tx_size: 100, io_arity: 8,  tps: 100 }
-  , { txs: 50000, add_tx_size: 100, io_arity: 16, tps: 100 }
+  [ { txs:  50000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , { txs:  50000, add_tx_size: 100, io_arity: 2,  tps: 100 }
+  , { txs:  50000, add_tx_size: 100, io_arity: 4,  tps: 100 }
+  , { txs:  50000, add_tx_size: 100, io_arity: 8,  tps: 100 }
+  , { txs:  50000, add_tx_size: 100, io_arity: 16, tps: 100 }
   ]
 , shelley:
-  [ { txs: 50000, add_tx_size: 100, io_arity: 1,  tps: 100 }
-  , { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
-  , { txs:  3000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  [ { txs: 250000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , { txs:  50000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , { txs:  10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , { txs:   3000, add_tx_size: 100, io_arity: 1,  tps: 100 }
   ]
 } | .[$era];
+
+def era_tolerances($era):
+{ common:
+  {}
+, byron:
+  { finish_patience:         7
+  }
+, shelley:
+  { finish_patience:         15
+  }
+} | (.common + .[$era]);
 
 def generator_aux_profiles:
 [ { name: "short"

@@ -46,7 +46,10 @@ update_deployfiles() {
         echo "--( collecting live machine state.."
         machine_info=$(jq . <<<"{ $(deploystate_collect_machine_info | sed ':b; N; s_\n_,_; b b' | sed 's_,_\n,_g') }")
         jq >"${files[0]}" "
-          { profile:           \"$prof\"
+          { era:               \"$(get_era)\"
+          , topology:          \"$(parmetajq .topology)\"
+          , profile:           \"$prof\"
+          , timestamp:         ${stamp}
           , timestamp:         ${stamp}
           , date:              \"${date}\"
           , targets:           $targetlist
@@ -111,12 +114,13 @@ deploystate_create() {
 
 deploystate_deploy_profile() {
         local prof=$1 include=$2 deploylog=$3 full=
-        local era node_rev benchmarking_rev ops_rev ops_checkout_state
+        local era topology node_rev benchmarking_rev ops_rev ops_checkout_state
 
         if test "$include" = "$(params all-machines)"
         then include=; full='(full)'; fi
 
         era=$(get_era)
+        topology=$(parmetajq .topology)
         benchmarking_rev=$(jq --raw-output '.["cardano-benchmarking"].rev' nix/sources.json)
         node_rev=$(jq --raw-output '.["cardano-node"].rev' nix/sources.bench-txgen-simple.json)
         ops_rev=$(git rev-parse HEAD)
@@ -127,6 +131,7 @@ deploystate_deploy_profile() {
         cat <<EOF
 --( deploying profile $prof to:  ${to#--include }
 --(   era:           $era
+--(   topology:      $topology
 --(   node:          $node_rev
 --(   benchmarking:  $benchmarking_rev
 --(   ops:           $ops_rev / $ops_branch  $ops_checkout_state
@@ -163,7 +168,7 @@ deploystate_collect_machine_info() {
         local cmd
         cmd=(
                 eval echo
-                '\"$(hostname)\": { \"local_ip\": \"$(ip addr show dev eth0 | sed -n "/^    inet / s_.*inet \([0-9\.]*\)/.*_\1_; T skip; p; :skip")\", \"public_ip\": \"$(curl --silent http://169.254.169.254/latest/meta-data/public-ipv4)\", \"account\": $(curl --silent http://169.254.169.254/latest/meta-data/identity-credentials/ec2/info | jq .AccountId), \"placement\": $(curl --silent http://169.254.169.254/latest/meta-data/placement/availability-zone | jq --raw-input), \"sgs\": $(curl --silent http://169.254.169.254/latest/meta-data/security-groups | jq --raw-input | jq --slurp), \"timestamp\": $(date +%s), \"timestamp_readable\": \"$(date)\" }'
+                '\"$(hostname)\": { \"local_ip\": \"$(ip addr show scope global | sed -n "/^    inet / s_.*inet \([0-9\.]*\)/.*_\1_; T skip; p; :skip")\", \"public_ip\": \"$(curl --silent http://169.254.169.254/latest/meta-data/public-ipv4)\", \"account\": $(curl --silent http://169.254.169.254/latest/meta-data/identity-credentials/ec2/info | jq .AccountId), \"placement\": $(curl --silent http://169.254.169.254/latest/meta-data/placement/availability-zone | jq --raw-input), \"sgs\": $(curl --silent http://169.254.169.254/latest/meta-data/security-groups | jq --raw-input | jq --slurp), \"timestamp\": $(date +%s), \"timestamp_readable\": \"$(date)\" }'
         )
         nixops ssh-for-each --parallel -- "${cmd[@]@Q}" 2>&1 | cut -d'>' -f2-
 }
