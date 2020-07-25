@@ -96,6 +96,7 @@ in {
       secondsBetweenRequestsApiKeyAuth = 86400;
       lovelacesToGiveAnonymous = 1000000000;
       lovelacesToGiveApiKeyAuth = 1000000000;
+      useByronWallet = false;
       #faucetFrontendUrl = "https://testnets.cardano.org/en/shelley/tools/faucet/";
     };
   };
