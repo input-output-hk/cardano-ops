@@ -70,21 +70,21 @@
       "pluginVersion": "6.7.4",
       "targets": [
         {
-          "expr": "avg(cardano_node_cli_version_major)",
+          "expr": "min(cardano_node_cli_version_major)",
           "instant": true,
           "interval": "",
           "legendFormat": "Node Major Version:",
           "refId": "A"
         },
         {
-          "expr": "avg(cardano_node_cli_version_minor)",
+          "expr": "min(cardano_node_cli_version_minor)",
           "instant": true,
           "interval": "",
           "legendFormat": "Node Minor Version:",
           "refId": "B"
         },
         {
-          "expr": "avg(cardano_node_cli_version_patch)",
+          "expr": "min(cardano_node_cli_version_patch)",
           "instant": true,
           "interval": "",
           "legendFormat": "Node Patch Version:",
@@ -190,21 +190,21 @@
       "pluginVersion": "6.7.4",
       "targets": [
         {
-          "expr": "avg(cardano_node_config_isCardano)",
+          "expr": "min(cardano_node_config_isCardano)",
           "instant": true,
           "interval": "",
           "legendFormat": "isCardanoProtocol",
           "refId": "A"
         },
         {
-          "expr": "avg(cardano_node_config_isShelley)",
+          "expr": "min(cardano_node_config_isShelley)",
           "instant": true,
           "interval": "",
           "legendFormat": "isShelleyEra",
           "refId": "B"
         },
         {
-          "expr": "avg(cardano_node_config_isByron)",
+          "expr": "min(cardano_node_config_isByron)",
           "instant": true,
           "interval": "",
           "legendFormat": "isByronEra",
@@ -259,21 +259,21 @@
       "pluginVersion": "6.7.4",
       "targets": [
         {
-          "expr": "avg(cardano_node_config_lastKnownBlockVersionMajor)",
+          "expr": "min(cardano_node_config_lastKnownBlockVersionMajor)",
           "instant": true,
           "interval": "",
           "legendFormat": "Major Block Version",
           "refId": "A"
         },
         {
-          "expr": "avg(cardano_node_config_lastKnownBlockVersionMinor)",
+          "expr": "min(cardano_node_config_lastKnownBlockVersionMinor)",
           "instant": true,
           "interval": "",
           "legendFormat": "Minor Block Version",
           "refId": "B"
         },
         {
-          "expr": "avg(cardano_node_config_lastKnownBlockVersionAlt)",
+          "expr": "min(cardano_node_config_lastKnownBlockVersionAlt)",
           "instant": true,
           "interval": "",
           "legendFormat": "Alt Block Version",
