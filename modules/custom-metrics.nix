@@ -56,7 +56,7 @@ in with pkgs; {
 
       useTestnetMagic = mkOption {
         type = types.bool;
-        default = true;
+        default = if globals.environmentName != "mainnet" then true else false;
         description = "Whether to use testnet magic (required for testnets)";
       };
     };
