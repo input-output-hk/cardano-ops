@@ -150,6 +150,9 @@ in with pkgs; {
         IS_BYRON="-1"
         IS_SHELLEY="-1"
         IS_CARDANO="-1"
+        LAST_KNOWN_BLOCK_VERSION_MAJOR="-1"
+        LAST_KNOWN_BLOCK_VERSION_MINOR="-1"
+        LAST_KNOWN_BLOCK_VERSION_ALT="-1"
 
         # Default cardano-cli versioning
         CARDANO_CLI_VERSION_MAJOR="-1"
@@ -181,6 +184,9 @@ in with pkgs; {
         if CONFIG=$(pgrep -a cardano-node | grep -oP ".*--config \K.*\.json"); then
           echo "Cardano node config file is: $CONFIG"
           PROTOCOL=$(jq -r '.Protocol' < "$CONFIG")
+          LAST_KNOWN_BLOCK_VERSION_MAJOR=$(jq -r '."LastKnownBlockVersion-Major"'  < "$CONFIG")
+          LAST_KNOWN_BLOCK_VERSION_MINOR=$(jq -r '."LastKnownBlockVersion-Minor"'  < "$CONFIG")
+          LAST_KNOWN_BLOCK_VERSION_ALT=$(jq -r '."LastKnownBlockVersion-Alt"'  < "$CONFIG")
           if [ "$PROTOCOL" = "Cardano" ]; then
             IS_CARDANO="1"
             GENESIS=$(jq -r '.ShelleyGenesisFile' < "$CONFIG")
@@ -275,9 +281,12 @@ in with pkgs; {
         echo "cardano_node_protocol_rho:''${RHO}|g"
         echo "cardano_node_protocol_tau:''${TAU}|g"
 
-        echo "cardano_node_protocol_isByron:''${IS_BYRON}|g"
-        echo "cardano_node_protocol_isShelley:''${IS_SHELLEY}|g"
-        echo "cardano_node_protocol_isCardano:''${IS_CARDANO}|g"
+        echo "cardano_node_config_isByron:''${IS_BYRON}|g"
+        echo "cardano_node_config_isShelley:''${IS_SHELLEY}|g"
+        echo "cardano_node_config_isCardano:''${IS_CARDANO}|g"
+        echo "cardano_node_config_lastKnownBlockVersionMajor:''${LAST_KNOWN_BLOCK_VERSION_MAJOR}|g"
+        echo "cardano_node_config_lastKnownBlockVersionMinor:''${LAST_KNOWN_BLOCK_VERSION_MINOR}|g"
+        echo "cardano_node_config_lastKnownBlockVersionAlt:''${LAST_KNOWN_BLOCK_VERSION_ALT}|g"
 
         echo "cardano_node_cli_version_major:''${CARDANO_CLI_VERSION_MAJOR}|g"
         echo "cardano_node_cli_version_minor:''${CARDANO_CLI_VERSION_MINOR}|g"
@@ -317,9 +326,12 @@ in with pkgs; {
           "cardano_node_protocol_tau:''${TAU}|g"
 
         statsd \
-          "cardano_node_protocol_isByron:''${IS_BYRON}|g" \
-          "cardano_node_protocol_isShelley:''${IS_SHELLEY}|g" \
-          "cardano_node_protocol_isCardano:''${IS_CARDANO}|g" \
+          "cardano_node_config_isByron:''${IS_BYRON}|g" \
+          "cardano_node_config_isShelley:''${IS_SHELLEY}|g" \
+          "cardano_node_config_isCardano:''${IS_CARDANO}|g" \
+          "cardano_node_config_lastKnownBlockVersionMajor:''${LAST_KNOWN_BLOCK_VERSION_MAJOR}|g" \
+          "cardano_node_config_lastKnownBlockVersionMinor:''${LAST_KNOWN_BLOCK_VERSION_MINOR}|g" \
+          "cardano_node_config_lastKnownBlockVersionAlt:''${LAST_KNOWN_BLOCK_VERSION_ALT}|g" \
           "cardano_node_cli_version_major:''${CARDANO_CLI_VERSION_MAJOR}|g" \
           "cardano_node_cli_version_minor:''${CARDANO_CLI_VERSION_MINOR}|g" \
           "cardano_node_cli_version_patch:''${CARDANO_CLI_VERSION_PATCH}|g"
