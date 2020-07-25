@@ -16,9 +16,275 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 35,
+  "id": 88,
   "links": [],
   "panels": [
+    {
+      "cacheTimeout": null,
+      "datasource": "prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "id": 60,
+      "links": [],
+      "options": {
+        "colorMode": "value",
+        "fieldOptions": {
+          "calcs": [
+            "last"
+          ],
+          "defaults": {
+            "mappings": [
+              {
+                "$$hashKey": "object:614",
+                "id": 0,
+                "op": "=",
+                "text": "N/A",
+                "type": 1,
+                "value": "null"
+              }
+            ],
+            "nullValueMode": "connected",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "title": "",
+            "unit": "none"
+          },
+          "overrides": [],
+          "values": false
+        },
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal"
+      },
+      "pluginVersion": "6.7.4",
+      "targets": [
+        {
+          "expr": "avg(cardano_node_cli_version_major)",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "Node Major Version:",
+          "refId": "A"
+        },
+        {
+          "expr": "avg(cardano_node_cli_version_minor)",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "Node Minor Version:",
+          "refId": "B"
+        },
+        {
+          "expr": "avg(cardano_node_cli_version_patch)",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "Node Patch Version:",
+          "refId": "C"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Current Node Version",
+      "type": "stat"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "prometheus",
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "id": 57,
+      "links": [],
+      "options": {
+        "colorMode": "value",
+        "fieldOptions": {
+          "calcs": [
+            "last"
+          ],
+          "defaults": {
+            "mappings": [
+              {
+                "$$hashKey": "object:298",
+                "id": 0,
+                "op": "=",
+                "text": "N/A",
+                "type": 1,
+                "value": "null"
+              },
+              {
+                "from": "",
+                "id": 1,
+                "operator": "",
+                "text": "No",
+                "to": "",
+                "type": 1,
+                "value": "0"
+              },
+              {
+                "from": "",
+                "id": 2,
+                "operator": "",
+                "text": "Yes",
+                "to": "",
+                "type": 1,
+                "value": "1"
+              },
+              {
+                "from": "",
+                "id": 3,
+                "operator": "",
+                "text": "N/A",
+                "to": "",
+                "type": 1,
+                "value": "-1"
+              }
+            ],
+            "nullValueMode": "connected",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "#EAB839",
+                  "value": -1
+                },
+                {
+                  "color": "#EF843C",
+                  "value": ""
+                },
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                }
+              ]
+            },
+            "title": "",
+            "unit": "none"
+          },
+          "overrides": [],
+          "values": false
+        },
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal"
+      },
+      "pluginVersion": "6.7.4",
+      "targets": [
+        {
+          "expr": "avg(cardano_node_config_isCardano)",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "isCardanoProtocol",
+          "refId": "A"
+        },
+        {
+          "expr": "avg(cardano_node_config_isShelley)",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "isShelleyEra",
+          "refId": "B"
+        },
+        {
+          "expr": "avg(cardano_node_config_isByron)",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "isByronEra",
+          "refId": "C"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Current Protocol/Era",
+      "type": "stat"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "prometheus",
+      "description": "",
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "id": 58,
+      "links": [],
+      "options": {
+        "colorMode": "value",
+        "fieldOptions": {
+          "calcs": [
+            "last"
+          ],
+          "defaults": {
+            "mappings": [],
+            "nullValueMode": "connected",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "title": "",
+            "unit": "none"
+          },
+          "overrides": [],
+          "values": false
+        },
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal"
+      },
+      "pluginVersion": "6.7.4",
+      "targets": [
+        {
+          "expr": "avg(cardano_node_config_lastKnownBlockVersionMajor)",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "Major Block Version",
+          "refId": "A"
+        },
+        {
+          "expr": "avg(cardano_node_config_lastKnownBlockVersionMinor)",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "Minor Block Version",
+          "refId": "B"
+        },
+        {
+          "expr": "avg(cardano_node_config_lastKnownBlockVersionAlt)",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "Alt Block Version",
+          "refId": "C"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Current Block Version",
+      "type": "stat"
+    },
     {
       "aliasColors": {},
       "bars": false,
@@ -31,7 +297,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 0
+        "y": 6
       },
       "hiddenSeries": false,
       "id": 5,
@@ -131,7 +397,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 0
+        "y": 6
       },
       "hiddenSeries": false,
       "id": 2,
@@ -225,7 +491,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 0
+        "y": 6
       },
       "hiddenSeries": false,
       "id": 18,
@@ -325,7 +591,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 8
+        "y": 14
       },
       "hiddenSeries": false,
       "id": 3,
@@ -420,7 +686,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 8
+        "y": 14
       },
       "hiddenSeries": false,
       "id": 39,
@@ -522,7 +788,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 8
+        "y": 14
       },
       "hiddenSeries": false,
       "id": 41,
@@ -612,7 +878,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 16
+        "y": 22
       },
       "hiddenSeries": false,
       "id": 19,
@@ -718,7 +984,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 16
+        "y": 22
       },
       "id": 45,
       "interval": null,
@@ -792,7 +1058,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 16
+        "y": 22
       },
       "hiddenSeries": false,
       "id": 28,
@@ -885,7 +1151,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 24
+        "y": 30
       },
       "hiddenSeries": false,
       "id": 49,
@@ -977,7 +1243,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 24
+        "y": 30
       },
       "hiddenSeries": false,
       "id": 50,
@@ -1069,7 +1335,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 24
+        "y": 30
       },
       "hiddenSeries": false,
       "id": 47,
@@ -1160,7 +1426,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 32
+        "y": 38
       },
       "hiddenSeries": false,
       "id": 43,
@@ -1250,7 +1516,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 32
+        "y": 38
       },
       "hiddenSeries": false,
       "id": 48,
@@ -1342,7 +1608,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 32
+        "y": 38
       },
       "hiddenSeries": false,
       "id": 51,
@@ -1433,7 +1699,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 40
+        "y": 46
       },
       "hiddenSeries": false,
       "id": 30,
@@ -1521,7 +1787,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 40
+        "y": 46
       },
       "hiddenSeries": false,
       "id": 37,
@@ -1608,7 +1874,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 40
+        "y": 46
       },
       "hiddenSeries": false,
       "id": 16,
@@ -1696,7 +1962,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 48
+        "y": 54
       },
       "hiddenSeries": false,
       "id": 17,
@@ -1785,7 +2051,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 48
+        "y": 54
       },
       "hiddenSeries": false,
       "id": 23,
@@ -1876,7 +2142,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 48
+        "y": 54
       },
       "hiddenSeries": false,
       "id": 25,
@@ -1973,7 +2239,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 56
+        "y": 62
       },
       "hiddenSeries": false,
       "id": 26,
@@ -2063,7 +2329,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 56
+        "y": 62
       },
       "hiddenSeries": false,
       "id": 32,
@@ -2151,7 +2417,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 56
+        "y": 62
       },
       "hiddenSeries": false,
       "id": 35,
@@ -2242,7 +2508,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 64
+        "y": 70
       },
       "hiddenSeries": false,
       "id": 24,
@@ -2333,7 +2599,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 64
+        "y": 70
       },
       "hiddenSeries": false,
       "id": 34,
@@ -2421,7 +2687,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 64
+        "y": 70
       },
       "hiddenSeries": false,
       "id": 22,
@@ -2517,7 +2783,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 72
+        "y": 78
       },
       "hiddenSeries": false,
       "id": 52,
@@ -2606,7 +2872,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 72
+        "y": 78
       },
       "hiddenSeries": false,
       "id": 20,
