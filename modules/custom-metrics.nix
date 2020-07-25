@@ -151,6 +151,11 @@ in with pkgs; {
         IS_SHELLEY="-1"
         IS_CARDANO="-1"
 
+        # Default cardano-cli versioning
+        CARDANO_CLI_VERSION_MAJOR="-1"
+        CARDANO_CLI_VERSION_MINOR="-1"
+        CARDANO_CLI_VERSION_PATCH="-1"
+
         statsd() {
           local UDP="-u" ALL="''${*}"
           echo "Pushing statsd metrics to port: $STATSD_PORT; udp=$UDP"
@@ -166,6 +171,13 @@ in with pkgs; {
 
         # main
         #
+        if VERSION_OUTPUT=$(cardano-cli version); then
+          VERSION=$(echo $VERSION_OUTPUT | head -n 1 | cut -f 2 -d " ")
+          CARDANO_CLI_VERSION_MAJOR=$(echo $VERSION | cut -f 1 -d ".")
+          CARDANO_CLI_VERSION_MINOR=$(echo $VERSION | cut -f 2 -d ".")
+          CARDANO_CLI_VERSION_PATCH=$(echo $VERSION | cut -f 3 -d ".")
+        fi
+
         if CONFIG=$(pgrep -a cardano-node | grep -oP ".*--config \K.*\.json"); then
           echo "Cardano node config file is: $CONFIG"
           PROTOCOL=$(jq -r '.Protocol' < "$CONFIG")
@@ -267,6 +279,10 @@ in with pkgs; {
         echo "cardano_node_protocol_isShelley:''${IS_SHELLEY}|g"
         echo "cardano_node_protocol_isCardano:''${IS_CARDANO}|g"
 
+        echo "cardano_node_cli_version_major:''${CARDANO_CLI_VERSION_MAJOR}|g"
+        echo "cardano_node_cli_version_minor:''${CARDANO_CLI_VERSION_MINOR}|g"
+        echo "cardano_node_cli_version_patch:''${CARDANO_CLI_VERSION_PATCH}|g"
+
         statsd \
           "cardano_node_decode_kesCreatedPeriod:''${KES_CREATED_PERIOD}|g" \
           "cardano_node_genesis_activeSlotsCoeff:''${ACTIVE_SLOTS_COEFF}|g" \
@@ -303,7 +319,10 @@ in with pkgs; {
         statsd \
           "cardano_node_protocol_isByron:''${IS_BYRON}|g" \
           "cardano_node_protocol_isShelley:''${IS_SHELLEY}|g" \
-          "cardano_node_protocol_isCardano:''${IS_CARDANO}|g"
+          "cardano_node_protocol_isCardano:''${IS_CARDANO}|g" \
+          "cardano_node_cli_version_major:''${CARDANO_CLI_VERSION_MAJOR}|g" \
+          "cardano_node_cli_version_minor:''${CARDANO_CLI_VERSION_MINOR}|g" \
+          "cardano_node_cli_version_patch:''${CARDANO_CLI_VERSION_PATCH}|g"
       '';
     };
     systemd.timers.custom-metrics = {
