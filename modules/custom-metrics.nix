@@ -146,6 +146,11 @@ in with pkgs; {
         RHO="-1"
         TAU="-1"
 
+        # Default protocol and era metrics
+        IS_BYRON="-1"
+        IS_SHELLEY="-1"
+        IS_CARDANO="-1"
+
         statsd() {
           local UDP="-u" ALL="''${*}"
           echo "Pushing statsd metrics to port: $STATSD_PORT; udp=$UDP"
@@ -165,9 +170,19 @@ in with pkgs; {
           echo "Cardano node config file is: $CONFIG"
           PROTOCOL=$(jq -r '.Protocol' < "$CONFIG")
           if [ "$PROTOCOL" = "Cardano" ]; then
+            IS_CARDANO="1"
             GENESIS=$(jq -r '.ShelleyGenesisFile' < "$CONFIG")
             MODE="--cardano-mode"
+            if cardano-cli shelley query protocol-parameters $MAGIC $MODE; then
+              IS_SHELLEY="1"
+              IS_BYRON="0"
+            else
+              IS_SHELLEY="0"
+              IS_BYRON="1"
+            fi
           elif [ "$PROTOCOL" = "TPraos" ]; then
+            IS_SHELLEY="1"
+            IS_CARDANO="0"
             GENESIS=$(jq -r '.GenesisFile' < "$CONFIG")
             MODE="--shelley-mode"
           elif [ "$PROTOCOL" = "RealPBFT" ]; then
@@ -177,7 +192,11 @@ in with pkgs; {
           fi
           echo "Cardano node shelley genesis file is: $GENESIS"
           if [ -f "$GENESIS" ]; then
-            ACTIVE_SLOTS_COEFF=$(jq '.activeSlotsCoeff' < "$GENESIS")
+            if [ "$IS_SHELLEY" = "1" ]; then
+              ACTIVE_SLOTS_COEFF=$(jq '.activeSlotsCoeff' < "$GENESIS")
+            else
+              ACTIVE_SLOTS_COEFF="1"
+            fi
             EPOCH_LENGTH=$(jq '.epochLength' < "$GENESIS")
             SLOTS_PER_KES_PERIOD=$(jq '.slotsPerKESPeriod' < "$GENESIS")
             SLOT_LENGTH=$(jq '.slotLength' < "$GENESIS")
@@ -244,6 +263,10 @@ in with pkgs; {
         echo "cardano_node_protocol_rho:''${RHO}|g"
         echo "cardano_node_protocol_tau:''${TAU}|g"
 
+        echo "cardano_node_protocol_isByron:''${IS_BYRON}|g"
+        echo "cardano_node_protocol_isShelley:''${IS_SHELLEY}|g"
+        echo "cardano_node_protocol_isCardano:''${IS_CARDANO}|g"
+
         statsd \
           "cardano_node_decode_kesCreatedPeriod:''${KES_CREATED_PERIOD}|g" \
           "cardano_node_genesis_activeSlotsCoeff:''${ACTIVE_SLOTS_COEFF}|g" \
@@ -276,6 +299,11 @@ in with pkgs; {
           "cardano_node_protocol_protocolVersion_major:''${PROTOCOL_VERSION_MAJOR}|g" \
           "cardano_node_protocol_rho:''${RHO}|g" \
           "cardano_node_protocol_tau:''${TAU}|g"
+
+        statsd \
+          "cardano_node_protocol_isByron:''${IS_BYRON}|g" \
+          "cardano_node_protocol_isShelley:''${IS_SHELLEY}|g" \
+          "cardano_node_protocol_isCardano:''${IS_CARDANO}|g"
       '';
     };
     systemd.timers.custom-metrics = {
