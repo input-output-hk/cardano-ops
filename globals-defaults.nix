@@ -30,6 +30,7 @@ in {
   withExplorer = true;
   withLegacyExplorer = false;
   withCardanoDBExtended = true;
+  withSubmitApi = false;
   withFaucet = false;
   withFaucetOptions = {};
   withSmash = false;

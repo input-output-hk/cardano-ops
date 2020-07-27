@@ -6,6 +6,8 @@ pkgs: {
 
   domain = "cardano-testnet.iohkdev.io";
 
+  withSubmitApi = true;
+
   withFaucet = true;
   faucetHostname = "faucet2";
 

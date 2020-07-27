@@ -10,6 +10,7 @@ pkgs: {
   withLegacyExplorer = false;
   withHighLoadRelays = true;
   withSmash = true;
+  withSubmitApi = true;
 
   withFaucet = true;
   faucetHostname = "faucet";
