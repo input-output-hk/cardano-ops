@@ -718,7 +718,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "(rate(cardano_node_metrics_Forge_node_is_leader_int[1h])/rate(cardano_node_metrics_Forge_forge_about_to_lead_int[1h])) / on(alias) cardano_node_genesis_activeSlotsCoeff",
+          "expr": "(rate(cardano_node_metrics_Forge_node_is_leader_int{alias!~\".*-dr-.*\"}[1h])/rate(cardano_node_metrics_Forge_forge_about_to_lead_int{alias!~\".*-dr-.*\"}[1h])) / on(alias) cardano_node_genesis_activeSlotsCoeff",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -727,7 +727,7 @@
           "refId": "A"
         },
         {
-          "expr": "sum((rate(cardano_node_metrics_Forge_node_is_leader_int[1h])/rate(cardano_node_metrics_Forge_forge_about_to_lead_int[1h])) / on(alias) cardano_node_genesis_activeSlotsCoeff)",
+          "expr": "sum((rate(cardano_node_metrics_Forge_node_is_leader_int{alias!~\".*-dr-.*\"}[1h])/rate(cardano_node_metrics_Forge_forge_about_to_lead_int{alias!~\".*-dr-.*\"}[1h])) / on(alias) cardano_node_genesis_activeSlotsCoeff)",
           "hide": false,
           "interval": "",
           "legendFormat": "Total led slots",
