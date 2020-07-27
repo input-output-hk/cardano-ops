@@ -1,6 +1,9 @@
 pkgs: { ... }:
 with pkgs;
 let
+
+  chainDensityLow = globals.alertChainDensityLow;
+  memPoolHigh = globals.alertMemPoolHigh;
   tcpHigh = globals.alertTcpHigh;
   tcpCrit = globals.alertTcpCrit;
   MbpsHigh = globals.alertMbpsHigh;
@@ -10,25 +13,25 @@ in {
   services.monitoring-services.applicationRules = [
     {
       alert = "chain_quality_degraded";
-      expr = "cardano_chain_quality_last_k__2160__blocks__ < 99";
+      expr = "(cardano_node_ChainDB_metrics_density_real / on(alias) cardano_node_genesis_activeSlotsCoeff * 100) < ${chainDensityLow}";
       for = "5m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "{{$labels.alias}}: Degraded Chain Quality over last 2160 blocks.";
-        description = "{{$labels.alias}}: Degraded Chain Quality over last 2160 blocks (<99%).";
+        summary = "{{$labels.alias}}: Degraded Chain Density (<${chainDensityLow}%).";
+        description = "{{$labels.alias}}: Degraded Chain Density (<${chainDensityLow}%).";
       };
     }
     {
       alert = "mempoolsize_tx_count_too_large";
-      expr = "max_over_time(cardano_MemPoolSize[5m]) > 190";
+      expr = "max_over_time(cardano_node_metrics_txsInMempool_int[5m]) > ${memPoolHigh}";
       for = "1m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "{{$labels.alias}}: MemPoolSize tx count is larger than expected.";
+        summary = "{{$labels.alias}}: MemPoolSize tx count is larger than expected (>${memPoolHigh}).";
         description = "{{$labels.alias}}: When a node's MemPoolSize grows larger than the system can handle, transactions will be dropped. The actual thresholds for that in mainnet are unknown, but [based on benchmarks done beforehand](https://input-output-rnd.slack.com/archives/C2VJ41WDP/p1506563332000201) transactions started getting dropped when the MemPoolSize was ~200 txs.";
       };
     }
