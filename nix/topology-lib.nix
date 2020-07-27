@@ -1,6 +1,7 @@
 pkgs: with pkgs; with lib; {
   mkRelayTopology = {
     regions
+  , relayPrefix ? "rel"
   , coreNodes
     # Since we don't have relays in every regions,
     # we define a substitute region for each region we don't deploy to;
@@ -68,16 +69,16 @@ pkgs: with pkgs; with lib; {
           relayIndexesInRegion = genList (i: i + 1) nbRelays;
         in map (nodeIndex:
           let
-            name = "rel-${rLetter}-${toString nodeIndex}";
+            name = "${relayPrefix}-${rLetter}-${toString nodeIndex}";
           in {
             inherit region name nodeIndex;
             producers =
               # a share of the core nodes:
               (map (c: c.name) (filter (c: mod c.index nbRelays == (nodeIndex - 1)) indexedCoreNodes))
               # all relay in same region:
-              ++ map (i: "rel-${rLetter}-${toString i}") (filter (i: i != nodeIndex) relayIndexesInRegion)
+              ++ map (i: "${relayPrefix}-${rLetter}-${toString i}") (filter (i: i != nodeIndex) relayIndexesInRegion)
               # one relay in each other regions:
-              ++ map (r: "rel-${r}-${toString (mod (nodeIndex - 1) nbRelaysPerRegions.${r} + 1)}") (filter (r: r != rLetter) regionLetters)
+              ++ map (r: "${relayPrefix}-${r}-${toString (mod (nodeIndex - 1) nbRelaysPerRegions.${r} + 1)}") (filter (r: r != rLetter) regionLetters)
               # a share of the third-party relays:
               ++ (filter (p: mod p.index nbRelays == (nodeIndex - 1)) (indexedThirdPartyRelays.${region} or []));
             org = "IOHK";

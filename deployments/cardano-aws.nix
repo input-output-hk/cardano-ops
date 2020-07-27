@@ -6,6 +6,7 @@ let
     getAttrs optionalString hasPrefix;
 
   inherit (globals.topology) legacyCoreNodes legacyRelayNodes byronProxies coreNodes relayNodes;
+  privateRelayNodes = globals.topology.privateRelayNodes or [];
   inherit (globals.ec2.credentials) accessKeyIds;
   inherit (iohk-ops-lib.physical) aws;
 
@@ -44,7 +45,7 @@ let
       groups = [ (import ../physical/aws/security-groups/allow-legacy-public.nix) ];
     }
     {
-      nodes = getAttrs (map (n: n.name) (coreNodes ++ byronProxies)) nodes;
+      nodes = getAttrs (map (n: n.name) (coreNodes ++ byronProxies ++ privateRelayNodes)) nodes;
       groups = [ (import ../physical/aws/security-groups/allow-peers.nix) ];
     }
     {
