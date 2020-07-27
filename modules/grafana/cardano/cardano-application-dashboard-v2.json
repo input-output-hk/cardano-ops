@@ -70,21 +70,21 @@
       "pluginVersion": "6.7.4",
       "targets": [
         {
-          "expr": "min(cardano_node_cli_version_major)",
+          "expr": "min(cardano_node_cli_version_major{alias!~\".*-dr-.*\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "Node Major Version:",
           "refId": "A"
         },
         {
-          "expr": "min(cardano_node_cli_version_minor)",
+          "expr": "min(cardano_node_cli_version_minor{alias!~\".*-dr-.*\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "Node Minor Version:",
           "refId": "B"
         },
         {
-          "expr": "min(cardano_node_cli_version_patch)",
+          "expr": "min(cardano_node_cli_version_patch{alias!~\".*-dr-.*\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "Node Patch Version:",
@@ -190,21 +190,21 @@
       "pluginVersion": "6.7.4",
       "targets": [
         {
-          "expr": "min(cardano_node_config_isCardano)",
+          "expr": "min(cardano_node_config_isCardano{alias!~\".*-dr-.*\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "isCardanoProtocol",
           "refId": "A"
         },
         {
-          "expr": "min(cardano_node_config_isShelley)",
+          "expr": "min(cardano_node_config_isShelley{alias!~\".*-dr-.*\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "isShelleyEra",
           "refId": "B"
         },
         {
-          "expr": "min(cardano_node_config_isByron)",
+          "expr": "min(cardano_node_config_isByron{alias!~\".*-dr-.*\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "isByronEra",
@@ -259,21 +259,21 @@
       "pluginVersion": "6.7.4",
       "targets": [
         {
-          "expr": "min(cardano_node_config_lastKnownBlockVersionMajor)",
+          "expr": "min(cardano_node_config_lastKnownBlockVersionMajor{alias!~\".*-dr-.*\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "Major Block Version",
           "refId": "A"
         },
         {
-          "expr": "min(cardano_node_config_lastKnownBlockVersionMinor)",
+          "expr": "min(cardano_node_config_lastKnownBlockVersionMinor{alias!~\".*-dr-.*\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "Minor Block Version",
           "refId": "B"
         },
         {
-          "expr": "min(cardano_node_config_lastKnownBlockVersionAlt)",
+          "expr": "min(cardano_node_config_lastKnownBlockVersionAlt{alias!~\".*-dr-.*\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "Alt Block Version",
@@ -1026,7 +1026,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "avg(cardano_node_Forge_metrics_currentKESPeriod_int)",
+          "expr": "avg(cardano_node_Forge_metrics_currentKESPeriod_int{alias!~\".*-dr-.*\"})",
           "interval": "",
           "refId": "A"
         }
