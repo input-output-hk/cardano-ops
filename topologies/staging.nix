@@ -1,9 +1,102 @@
-{
-  legacyCoreNodes = [];
+pkgs: with pkgs; with lib; with topology-lib;
+let
 
-  legacyRelayNodes = [];
+  withAutoRestart = def: lib.recursiveUpdate {
+    systemd.services.cardano-node.serviceConfig = {
+      RuntimeMaxSec = 6 *
+        60 * 60 + 60 * (5 * (def.nodeId or 0));
+    };
+  } def;
 
-  byronProxies = [];
+  withTestShelleyHardForkAtVersion3 = lib.recursiveUpdate {
+    services.cardano-node.nodeConfig = {
+      TestShelleyHardForkAtVersion = 3;
+    };
+  };
+
+  recoveryRegions = {
+    a = { name = "eu-central-1";   # Europe (Frankfurt);
+      minRelays = 1;
+    };
+    b = { name = "us-east-2";      # US East (Ohio)
+      minRelays = 1;
+    };
+    c = { name = "ap-southeast-1"; # Asia Pacific (Singapore)
+      minRelays = 1;
+    };
+    d = { name = "eu-west-2";      # Europe (London)
+      minRelays = 1;
+    };
+    e = { name = "us-west-1";      # US West (N. California)
+      minRelays = 1;
+    };
+    f = { name = "ap-northeast-1"; # Asia Pacific (Tokyo)
+      minRelays = 1;
+    };
+  };
+
+  recoveryCoreNodes = map withTestShelleyHardForkAtVersion3 [
+    # OBFT centralized nodes
+    {
+      name = "bft-dr-a-1";
+      region = recoveryRegions.a.name;
+      producers = map (c: c.name) recoveryCoreNodes ++ [ "rel-dr-a-1" "e-a-1" ];
+      org = "IOHK";
+      nodeId = 1;
+    }
+    {
+      name = "bft-dr-b-1";
+      region = recoveryRegions.b.name;
+      producers = map (c: c.name) recoveryCoreNodes ++ [ "rel-dr-b-1" "e-a-2" ];
+      org = "IOHK";
+      nodeId = 2;
+    }
+    {
+      name = "bft-dr-c-1";
+      region = recoveryRegions.c.name;
+      producers = map (c: c.name) recoveryCoreNodes ++ [ "rel-dr-c-1" "e-c-1" ];
+      org = "IOHK";
+      nodeId = 3;
+    }
+    {
+      name = "bft-dr-d-1";
+      region = recoveryRegions.b.name;
+      producers = map (c: c.name) recoveryCoreNodes ++ [ "rel-dr-d-1" "e-a-3" ];
+      org = "IOHK";
+      nodeId = 4;
+    }
+    {
+      name = "bft-dr-e-1";
+      region = recoveryRegions.c.name;
+      producers = map (c: c.name) recoveryCoreNodes ++ [ "rel-dr-e-1" "e-a-4" ];
+      org = "IOHK";
+      nodeId = 5;
+    }
+    {
+      name = "bft-dr-f-1";
+      region = recoveryRegions.f.name;
+      producers = map (c: c.name) recoveryCoreNodes ++ [ "rel-dr-f-1" "e-b-1" ];
+      org = "IOHK";
+      nodeId = 6;
+    }
+    {
+      name = "bft-dr-a-2";
+      region = recoveryRegions.a.name;
+      producers = map (c: c.name) recoveryCoreNodes ++ [ "rel-dr-a-1" "e-a-1" ];
+      org = "IOHK";
+      nodeId = 7;
+    }
+  ];
+
+  recoveryRelayNodes = map withTestShelleyHardForkAtVersion3 (mkRelayTopology {
+    relayPrefix = "rel-dr";
+    regions = recoveryRegions;
+    coreNodes = recoveryCoreNodes;
+  });
+
+in {
+
+  privateRelayNodes = recoveryCoreNodes ++ recoveryRelayNodes;
 
   coreNodes = [
     {
@@ -218,4 +311,8 @@
     #  producers = ["c-c-2" "e-a-1" "e-b-1"];
     #}
   ];
+
+  legacyCoreNodes = [];
+  legacyRelayNodes = [];
+  byronProxies = [];
 }

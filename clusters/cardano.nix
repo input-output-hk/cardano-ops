@@ -15,6 +15,7 @@ let
 
   inherit (globals) topology byronProxyPort;
   inherit (topology) legacyCoreNodes legacyRelayNodes byronProxies coreNodes relayNodes;
+  privateRelayNodes = topology.privateRelayNodes or [];
   inherit (lib) recursiveUpdate mapAttrs listToAttrs imap1 concatLists;
 
   # for now, keys need to be generated for each core nodes with:
@@ -24,7 +25,7 @@ let
     (map mkLegacyCoreNode legacyCoreNodes)
     (map mkLegacyRelayNode legacyRelayNodes)
     (map mkCoreNode coreNodes)
-    (map mkRelayNode relayNodes)
+    (map mkRelayNode (relayNodes ++ privateRelayNodes))
     (map mkByronProxyNode byronProxies)
     (map mkTestNode (topology.testNodes or []))
   ]);

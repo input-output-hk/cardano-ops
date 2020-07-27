@@ -3,8 +3,9 @@ with lib;
 let
   inherit (pkgs.globals) cardanoNodePort topology maxPrivilegedRelays;
   inherit (topology) coreNodes relayNodes byronProxies;
+  privateRelayNodes = topology.privateRelayNodes or [];
   privilegedRelays = lib.take maxPrivilegedRelays relayNodes;
-  peers = map (n: n.name) (builtins.concatLists [ coreNodes privilegedRelays byronProxies ])
+  peers = map (n: n.name) (builtins.concatLists [ coreNodes privateRelayNodes privilegedRelays byronProxies ])
     # Allow explorer to connect directly to core nodes if there is no relay nodes.
     ++ (lib.optional (nodes ? explorer && relayNodes == []) "explorer");
 in

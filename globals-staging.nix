@@ -11,7 +11,7 @@ pkgs: {
   explorerAliases = [ "cardano-explorer.awstest.iohkdev.io" ];
   withHighLoadRelays = true;
 
-  topology = import ./topologies/staging.nix;
+  topology = import ./topologies/staging.nix pkgs;
 
   ec2 = {
     credentials = {
