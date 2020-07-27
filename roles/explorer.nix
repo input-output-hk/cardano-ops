@@ -2,6 +2,7 @@ pkgs: { config, options, name, nodes, ... }:
 with pkgs;
 
 let
+  maintenanceMode = false;
   nodeCfg = config.services.cardano-node;
   nodeId = config.node.nodeId;
   hostAddr = getListenIp nodes.${name};
@@ -188,7 +189,42 @@ in {
         serverAliases = globals.explorerAliases;
         enableACME = true;
         forceSSL = globals.explorerForceSSL;
-        locations = {
+        locations = if maintenanceMode then {
+          "/" = let
+            maintenanceFile = __toFile "maintenance.html" ''
+              <!doctype html>
+              <title>Site Maintenance</title>
+              <style>
+                body { text-align: center; padding: 150px; }
+                h1 { font-size: 50px; }
+                body { font: 20px Helvetica, sans-serif; color: #333; }
+                article { display: block; text-align: left; width: 650px; margin: 0 auto; }
+                a { color: #dc8100; text-decoration: none; }
+                a:hover { color: #333; text-decoration: none; }
+              </style>
+
+              <article>
+                  <h1>We&rsquo;ll be back soon!</h1>
+                  <div>
+                      <p>Sorry for the inconvenience, but we&rsquo;re performing some maintenance at the moment. We&rsquo;ll be back online shortly!</p>
+                      <p>&mdash; IOHK DevOps</p>
+                  </div>
+              </article>
+            '';
+            rootDir = pkgs.runCommand "nginx-root-dir" {} ''
+              mkdir $out
+              cd $out
+              cp ${maintenanceFile} index.html;
+            '';
+          in {
+            extraConfig = ''
+              etag off;
+              add_header etag "\"${builtins.substring 11 32 rootDir}\"";
+              root ${rootDir};
+            '';
+            tryFiles = "$uri /index.html";
+          };
+        } else {
           "/" = {
             root = cardano-explorer-app-pkgs.static.override {
               graphqlApiHost = "${globals.explorerHostName}.${globals.domain}";
