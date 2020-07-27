@@ -41,7 +41,7 @@ let
       name = "bft-dr-a-1";
       region = recoveryRegions.a.name;
       producers = map (c: c.name) recoveryCoreNodes
-        ++ map (c: c.name) coreNodes
+        ++ map (c: c.name) forkingCoreNodes
         ++ [ "rel-dr-a-1" ];
       org = "IOHK";
       nodeId = 1;
@@ -50,7 +50,7 @@ let
       name = "bft-dr-b-1";
       region = recoveryRegions.b.name;
       producers = map (c: c.name) recoveryCoreNodes
-        ++ map (c: c.name) coreNodes
+        ++ map (c: c.name) forkingCoreNodes
         ++ [ "rel-dr-b-1" ];
       org = "IOHK";
       nodeId = 2;
@@ -59,7 +59,7 @@ let
       name = "bft-dr-c-1";
       region = recoveryRegions.c.name;
       producers = map (c: c.name) recoveryCoreNodes
-        ++ map (c: c.name) coreNodes
+        ++ map (c: c.name) forkingCoreNodes
         ++ [ "rel-dr-c-1" ];
       org = "IOHK";
       nodeId = 3;
@@ -68,7 +68,7 @@ let
       name = "bft-dr-d-1";
       region = recoveryRegions.b.name;
       producers = map (c: c.name) recoveryCoreNodes
-        ++ map (c: c.name) coreNodes
+        ++ map (c: c.name) forkingCoreNodes
         ++ [ "rel-dr-d-1" ];
       org = "IOHK";
       nodeId = 4;
@@ -77,7 +77,7 @@ let
       name = "bft-dr-e-1";
       region = recoveryRegions.c.name;
       producers = map (c: c.name) recoveryCoreNodes
-        ++ map (c: c.name) coreNodes
+        ++ map (c: c.name) forkingCoreNodes
         ++ [ "rel-dr-e-1" ];
       org = "IOHK";
       nodeId = 5;
@@ -86,7 +86,7 @@ let
       name = "bft-dr-f-1";
       region = recoveryRegions.f.name;
       producers = map (c: c.name) recoveryCoreNodes
-        ++ map (c: c.name) coreNodes
+        ++ map (c: c.name) forkingCoreNodes
         ++ [ "rel-dr-f-1" ];
       org = "IOHK";
       nodeId = 6;
@@ -95,7 +95,7 @@ let
       name = "bft-dr-a-2";
       region = recoveryRegions.a.name;
       producers = map (c: c.name) recoveryCoreNodes
-        ++ map (c: c.name) coreNodes
+        ++ map (c: c.name) forkingCoreNodes
         ++ [ "rel-dr-a-1" ];
       org = "IOHK";
       nodeId = 7;
@@ -108,7 +108,7 @@ let
     coreNodes = recoveryCoreNodes;
   });
 
-  coreNodes = [
+  forkingCoreNodes = [
     {
       name = "c-a-1";
       region = "eu-central-1";
@@ -160,13 +160,7 @@ let
     }
   ];
 
-in {
-
-  inherit coreNodes;
-
-  privateRelayNodes = recoveryCoreNodes ++ recoveryRelayNodes;
-
-  relayNodes = [
+  forkingRelayNodes = [
     # Group 1 (original group)
     {
       name = "e-a-1";
@@ -258,75 +252,19 @@ in {
       nodeId = 29;
       producers = ["e-c-2" "e-c-3" "e-a-4" "e-b-4"];
     }
-
-    # Group 3 -- not deployed yet
-
-    #{
-    #  name = "e-a-5";
-    #  region = "eu-central-1";
-    #  org = "IOHK";
-    #  nodeId = 30;
-    #  producers = ["c-a-2" "e-b-1" "e-c-1"];
-    #}
-    #{
-    #  name = "e-b-5";
-    #  region = "ap-northeast-1";
-    #  org = "IOHK";
-    #  nodeId = 31;
-    #  producers = ["c-b-2" "e-a-1" "e-c-1"];
-    #}
-    #{
-    #  name = "e-c-5";
-    #  region = "ap-southeast-1";
-    #  org = "IOHK";
-    #  nodeId = 32;
-    #  producers = ["c-c-2" "e-a-1" "e-b-1"];
-    #}
-
-    #{
-    #  name = "e-a-6";
-    #  region = "eu-central-1";
-    #  org = "IOHK";
-    #  nodeId = 33;
-    #  producers = ["c-a-2" "e-b-1" "e-c-1"];
-    #}
-    #{
-    #  name = "e-b-6";
-    #  region = "ap-northeast-1";
-    #  org = "IOHK";
-    #  nodeId = 34;
-    #  producers = ["c-b-2" "e-a-1" "e-c-1"];
-    #}
-    #{
-    #  name = "e-c-6";
-    #  region = "ap-southeast-1";
-    #  org = "IOHK";
-    #  nodeId = 35;
-    #  producers = ["c-c-2" "e-a-1" "e-b-1"];
-    #}
-
-    #{
-    #  name = "e-a-7";
-    #  region = "eu-central-1";
-    #  org = "IOHK";
-    #  nodeId = 36;
-    #  producers = ["c-a-2" "e-b-1" "e-c-1"];
-    #}
-    #{
-    #  name = "e-b-7";
-    #  region = "ap-northeast-1";
-    #  org = "IOHK";
-    #  nodeId = 37;
-    #  producers = ["c-b-2" "e-a-1" "e-c-1"];
-    #}
-    #{
-    #  name = "e-c-7";
-    #  region = "ap-southeast-1";
-    #  org = "IOHK";
-    #  nodeId = 38;
-    #  producers = ["c-c-2" "e-a-1" "e-b-1"];
-    #}
   ];
+
+in {
+
+  coreNodes = forkingCoreNodes;
+  relayNodes = forkingRelayNodes;
+  privateRelayNodes = recoveryCoreNodes ++ recoveryRelayNodes;
+
+  # Recovery plan: comment above three lines, uncomment following 3 lines and redeploy:
+  #coreNodes = recoveryCoreNodes;
+  #relayNodes = recoveryRelayNodes;
+  #privateRelayNodes = forkingCoreNodes ++ forkingRelayNodes;
+
 
   legacyCoreNodes = [];
   legacyRelayNodes = [];
