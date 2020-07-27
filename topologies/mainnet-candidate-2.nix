@@ -1,6 +1,5 @@
 pkgs: with pkgs; with lib; with topology-lib;
 let
-
   withDailyRestart = def: lib.recursiveUpdate {
     systemd.services.cardano-node.serviceConfig = {
       RuntimeMaxSec = (if (def ? name && def.name == "rel-a-1") then 72 else 6) *
@@ -10,27 +9,23 @@ let
 
   regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
-      minRelays = 6;
+      minRelays = 1;
     };
     b = { name = "us-east-2";      # US East (Ohio)
-      minRelays = 5;
+      minRelays = 1;
     };
     c = { name = "ap-southeast-1"; # Asia Pacific (Singapore)
-      minRelays = 4;
+      minRelays = 1;
     };
     d = { name = "eu-west-2";      # Europe (London)
-      minRelays = 5;
+      minRelays = 1;
     };
     e = { name = "us-west-1";      # US West (N. California)
-      minRelays = 4;
+      minRelays = 1;
     };
     f = { name = "ap-northeast-1"; # Asia Pacific (Tokyo)
-      minRelays = 3;
+      minRelays = 1;
     };
-  };
-
-  relayNodesBaseDef = mkRelayTopology {
-    inherit regions coreNodes;
   };
 
   coreNodes = [
@@ -80,13 +75,14 @@ let
     }
   ];
 
+  relayNodesBaseDef = mkRelayTopology {
+    inherit regions coreNodes;
+  };
+
 in {
+  inherit coreNodes;
 
-  legacyCoreNodes = [];
-
-  legacyRelayNodes = [];
-
-  byronProxies = [];
+  relayNodes = map withDailyRestart relayNodesBaseDef;
 
   monitoring = {
     services.monitoring-services.publicGrafana = true;
@@ -94,23 +90,24 @@ in {
 
   "${globals.faucetHostname}" = withDailyRestart {
     services.cardano-faucet = {
-      anonymousAccess = true;
+      anonymousAccess = false;
       faucetLogLevel = "DEBUG";
       secondsBetweenRequestsAnonymous = 86400;
       secondsBetweenRequestsApiKeyAuth = 86400;
-      lovelacesToGiveAnonymous = 100000000000;
-      lovelacesToGiveApiKeyAuth = 1000000000000;
-      faucetFrontendUrl = "https://testnets.cardano.org/en/shelley/tools/faucet/";
+      lovelacesToGiveAnonymous = 1000000000;
+      lovelacesToGiveApiKeyAuth = 1000000000;
+      useByronWallet = false;
+      #faucetFrontendUrl = "https://testnets.cardano.org/en/shelley/tools/faucet/";
     };
   };
 
   explorer = withDailyRestart {
     services.nginx.virtualHosts."${globals.explorerHostName}.${globals.domain}".locations."/p" = {
-      root = ../modules/iohk-pools/shelley_testnet;
+      root = ../static/iohk-pools;
     };
   };
 
-  inherit coreNodes;
-
-  relayNodes = map withDailyRestart relayNodesBaseDef;
+  legacyCoreNodes = [];
+  legacyRelayNodes = [];
+  byronProxies = [];
 }

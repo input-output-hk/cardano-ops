@@ -660,7 +660,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "100 - (avg by(alias) (irate(node_cpu_seconds_total{alias=~\"rel-.*\",mode=\"idle\"}[1m])) * 100)",
+          "expr": "100 - (avg by(alias) (irate(node_cpu_seconds_total{alias=~\"e-.*|rel-.*\",mode=\"idle\"}[1m])) * 100)",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
@@ -755,7 +755,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_memory_MemAvailable_bytes{alias=~\"rel-.*\"} / node_memory_MemTotal_bytes{alias=~\"rel-.*\"} * 100",
+          "expr": "node_memory_MemAvailable_bytes{alias=~\"e-.*|rel-.*\"} / node_memory_MemTotal_bytes{alias=~\"e-.*|rel-.*\"} * 100",
           "hide": false,
           "interval": "",
           "legendFormat": "{{alias}}",
@@ -1024,7 +1024,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "cardano_node_ChainDB_metrics_blockNum_int{alias=~\"rel-.*\"}",
+          "expr": "cardano_node_ChainDB_metrics_blockNum_int{alias=~\"e-.*|rel-.*\"}",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"

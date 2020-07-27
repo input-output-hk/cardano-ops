@@ -56,7 +56,7 @@ in with pkgs; {
 
       useTestnetMagic = mkOption {
         type = types.bool;
-        default = true;
+        default = if globals.environmentName != "mainnet" then true else false;
         description = "Whether to use testnet magic (required for testnets)";
       };
     };
@@ -146,6 +146,19 @@ in with pkgs; {
         RHO="-1"
         TAU="-1"
 
+        # Default protocol and era metrics
+        IS_BYRON="-1"
+        IS_SHELLEY="-1"
+        IS_CARDANO="-1"
+        LAST_KNOWN_BLOCK_VERSION_MAJOR="-1"
+        LAST_KNOWN_BLOCK_VERSION_MINOR="-1"
+        LAST_KNOWN_BLOCK_VERSION_ALT="-1"
+
+        # Default cardano-cli versioning
+        CARDANO_CLI_VERSION_MAJOR="-1"
+        CARDANO_CLI_VERSION_MINOR="-1"
+        CARDANO_CLI_VERSION_PATCH="-1"
+
         statsd() {
           local UDP="-u" ALL="''${*}"
           echo "Pushing statsd metrics to port: $STATSD_PORT; udp=$UDP"
@@ -161,13 +174,33 @@ in with pkgs; {
 
         # main
         #
+        if VERSION_OUTPUT=$(cardano-cli version); then
+          VERSION=$(echo $VERSION_OUTPUT | head -n 1 | cut -f 2 -d " ")
+          CARDANO_CLI_VERSION_MAJOR=$(echo $VERSION | cut -f 1 -d ".")
+          CARDANO_CLI_VERSION_MINOR=$(echo $VERSION | cut -f 2 -d ".")
+          CARDANO_CLI_VERSION_PATCH=$(echo $VERSION | cut -f 3 -d ".")
+        fi
+
         if CONFIG=$(pgrep -a cardano-node | grep -oP ".*--config \K.*\.json"); then
           echo "Cardano node config file is: $CONFIG"
           PROTOCOL=$(jq -r '.Protocol' < "$CONFIG")
+          LAST_KNOWN_BLOCK_VERSION_MAJOR=$(jq -r '."LastKnownBlockVersion-Major"'  < "$CONFIG")
+          LAST_KNOWN_BLOCK_VERSION_MINOR=$(jq -r '."LastKnownBlockVersion-Minor"'  < "$CONFIG")
+          LAST_KNOWN_BLOCK_VERSION_ALT=$(jq -r '."LastKnownBlockVersion-Alt"'  < "$CONFIG")
           if [ "$PROTOCOL" = "Cardano" ]; then
+            IS_CARDANO="1"
             GENESIS=$(jq -r '.ShelleyGenesisFile' < "$CONFIG")
             MODE="--cardano-mode"
+            if cardano-cli shelley query protocol-parameters $MAGIC $MODE; then
+              IS_SHELLEY="1"
+              IS_BYRON="0"
+            else
+              IS_SHELLEY="0"
+              IS_BYRON="1"
+            fi
           elif [ "$PROTOCOL" = "TPraos" ]; then
+            IS_SHELLEY="1"
+            IS_CARDANO="0"
             GENESIS=$(jq -r '.GenesisFile' < "$CONFIG")
             MODE="--shelley-mode"
           elif [ "$PROTOCOL" = "RealPBFT" ]; then
@@ -177,7 +210,11 @@ in with pkgs; {
           fi
           echo "Cardano node shelley genesis file is: $GENESIS"
           if [ -f "$GENESIS" ]; then
-            ACTIVE_SLOTS_COEFF=$(jq '.activeSlotsCoeff' < "$GENESIS")
+            if [ "$IS_SHELLEY" = "1" ]; then
+              ACTIVE_SLOTS_COEFF=$(jq '.activeSlotsCoeff' < "$GENESIS")
+            else
+              ACTIVE_SLOTS_COEFF="1"
+            fi
             EPOCH_LENGTH=$(jq '.epochLength' < "$GENESIS")
             SLOTS_PER_KES_PERIOD=$(jq '.slotsPerKESPeriod' < "$GENESIS")
             SLOT_LENGTH=$(jq '.slotLength' < "$GENESIS")
@@ -244,6 +281,17 @@ in with pkgs; {
         echo "cardano_node_protocol_rho:''${RHO}|g"
         echo "cardano_node_protocol_tau:''${TAU}|g"
 
+        echo "cardano_node_config_isByron:''${IS_BYRON}|g"
+        echo "cardano_node_config_isShelley:''${IS_SHELLEY}|g"
+        echo "cardano_node_config_isCardano:''${IS_CARDANO}|g"
+        echo "cardano_node_config_lastKnownBlockVersionMajor:''${LAST_KNOWN_BLOCK_VERSION_MAJOR}|g"
+        echo "cardano_node_config_lastKnownBlockVersionMinor:''${LAST_KNOWN_BLOCK_VERSION_MINOR}|g"
+        echo "cardano_node_config_lastKnownBlockVersionAlt:''${LAST_KNOWN_BLOCK_VERSION_ALT}|g"
+
+        echo "cardano_node_cli_version_major:''${CARDANO_CLI_VERSION_MAJOR}|g"
+        echo "cardano_node_cli_version_minor:''${CARDANO_CLI_VERSION_MINOR}|g"
+        echo "cardano_node_cli_version_patch:''${CARDANO_CLI_VERSION_PATCH}|g"
+
         statsd \
           "cardano_node_decode_kesCreatedPeriod:''${KES_CREATED_PERIOD}|g" \
           "cardano_node_genesis_activeSlotsCoeff:''${ACTIVE_SLOTS_COEFF}|g" \
@@ -276,6 +324,17 @@ in with pkgs; {
           "cardano_node_protocol_protocolVersion_major:''${PROTOCOL_VERSION_MAJOR}|g" \
           "cardano_node_protocol_rho:''${RHO}|g" \
           "cardano_node_protocol_tau:''${TAU}|g"
+
+        statsd \
+          "cardano_node_config_isByron:''${IS_BYRON}|g" \
+          "cardano_node_config_isShelley:''${IS_SHELLEY}|g" \
+          "cardano_node_config_isCardano:''${IS_CARDANO}|g" \
+          "cardano_node_config_lastKnownBlockVersionMajor:''${LAST_KNOWN_BLOCK_VERSION_MAJOR}|g" \
+          "cardano_node_config_lastKnownBlockVersionMinor:''${LAST_KNOWN_BLOCK_VERSION_MINOR}|g" \
+          "cardano_node_config_lastKnownBlockVersionAlt:''${LAST_KNOWN_BLOCK_VERSION_ALT}|g" \
+          "cardano_node_cli_version_major:''${CARDANO_CLI_VERSION_MAJOR}|g" \
+          "cardano_node_cli_version_minor:''${CARDANO_CLI_VERSION_MINOR}|g" \
+          "cardano_node_cli_version_patch:''${CARDANO_CLI_VERSION_PATCH}|g"
       '';
     };
     systemd.timers.custom-metrics = {

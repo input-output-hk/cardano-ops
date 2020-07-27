@@ -61,4 +61,6 @@ self: super: {
     jq -s 'add' $out/countries-index.json $out/usa-index.json > $out/state-index.json
   '';
 
+  topology-lib = import ./topology-lib.nix self;
+
 }

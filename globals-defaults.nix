@@ -61,6 +61,8 @@ in {
     pkgs.globals.netdataExporterPort
   ];
 
+  alertChainDensityLow = "99";
+  alertMemPoolHigh = "190";
   alertTcpHigh = "120";
   alertTcpCrit = "150";
   alertMbpsHigh = "150";

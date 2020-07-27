@@ -43,7 +43,10 @@ in {
   services.graphql-engine.enable = true;
   services.cardano-graphql = {
     enable = true;
+    genesisByron = nodeCfg.nodeConfig.ByronGenesisFile;
+    genesisShelley = nodeCfg.nodeConfig.ShelleyGenesisFile;
     whitelistPath = cardano-explorer-app-pkgs.whitelist;
+    cardanoNodeSocketPath = nodeCfg.socketPath;
   };
   services.cardano-node.rtsArgs = lib.mkForce
     (if globals.withHighCapacityExplorer then
@@ -88,6 +91,7 @@ in {
   systemd.services.cardano-explorer-api.serviceConfig.RestartSec = "10s";
 
   services.cardano-submit-api = {
+    enable = true;
     environment = pkgs.globals.environmentConfig;
     socketPath = config.services.cardano-node.socketPath;
     package = cardano-rest-pkgs.cardanoRestHaskellPackages.cardano-submit-api.components.exes.cardano-submit-api;
@@ -186,9 +190,15 @@ in {
             };
             tryFiles = "$uri $uri/index.html /index.html";
             extraConfig = ''
-              rewrite /tx/([0-9a-f]+) /$lang/transaction?id=$1 redirect;
-              rewrite /address/([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+) /$lang/address?address=$1 redirect;
+              rewrite /tx/([0-9a-f]+) /$lang/transaction.html?id=$1 redirect;
+              rewrite /address/([0-9a-zA-Z]+) /$lang/address.html?address=$1 redirect;
+              rewrite /block/([0-9a-zA-Z]+) /$lang/block.html?id=$1 redirect;
+              rewrite /epoch/([0-9]+) /$lang/epoch.html?number=$1 redirect;
+              rewrite ^([^.]*[^/])$ $1.html redirect;
             '';
+          };
+          "/api/submit/tx" = {
+            proxyPass = "http://127.0.0.1:8101/api/submit/tx";
           };
           "/api" = {
             proxyPass = "http://127.0.0.1:8100/api";
