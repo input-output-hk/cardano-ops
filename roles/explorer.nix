@@ -82,16 +82,23 @@ in {
     RestartSec = "30s";
   };
 
+  systemd.services.cardano-submit-api.serviceConfig = lib.mkIf globals.withSubmitApi {
+    # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
+    SupplementaryGroups = "cardano-node";
+  };
+
   services.cardano-explorer-api = {
     enable = true;
+    port = 8100;
     package = cardano-rest-pkgs.cardanoRestHaskellPackages.cardano-explorer-api.components.exes.cardano-explorer-api;
   };
   systemd.services.cardano-explorer-api.startLimitIntervalSec = 0;
   systemd.services.cardano-explorer-api.serviceConfig.Restart = "always";
   systemd.services.cardano-explorer-api.serviceConfig.RestartSec = "10s";
 
-  services.cardano-submit-api = {
+  services.cardano-submit-api = lib.mkIf globals.withSubmitApi {
     enable = true;
+    port = 8101;
     environment = pkgs.globals.environmentConfig;
     socketPath = config.services.cardano-node.socketPath;
     package = cardano-rest-pkgs.cardanoRestHaskellPackages.cardano-submit-api.components.exes.cardano-submit-api;
