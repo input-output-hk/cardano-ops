@@ -40,49 +40,63 @@ let
     {
       name = "bft-dr-a-1";
       region = recoveryRegions.a.name;
-      producers = map (c: c.name) recoveryCoreNodes ++ [ "rel-dr-a-1" "e-a-1" ];
+      producers = map (c: c.name) recoveryCoreNodes
+        ++ map (c: c.name) coreNodes
+        ++ [ "rel-dr-a-1" ];
       org = "IOHK";
       nodeId = 1;
     }
     {
       name = "bft-dr-b-1";
       region = recoveryRegions.b.name;
-      producers = map (c: c.name) recoveryCoreNodes ++ [ "rel-dr-b-1" "e-a-2" ];
+      producers = map (c: c.name) recoveryCoreNodes
+        ++ map (c: c.name) coreNodes
+        ++ [ "rel-dr-b-1" ];
       org = "IOHK";
       nodeId = 2;
     }
     {
       name = "bft-dr-c-1";
       region = recoveryRegions.c.name;
-      producers = map (c: c.name) recoveryCoreNodes ++ [ "rel-dr-c-1" "e-c-1" ];
+      producers = map (c: c.name) recoveryCoreNodes
+        ++ map (c: c.name) coreNodes
+        ++ [ "rel-dr-c-1" ];
       org = "IOHK";
       nodeId = 3;
     }
     {
       name = "bft-dr-d-1";
       region = recoveryRegions.b.name;
-      producers = map (c: c.name) recoveryCoreNodes ++ [ "rel-dr-d-1" "e-a-3" ];
+      producers = map (c: c.name) recoveryCoreNodes
+        ++ map (c: c.name) coreNodes
+        ++ [ "rel-dr-d-1" ];
       org = "IOHK";
       nodeId = 4;
     }
     {
       name = "bft-dr-e-1";
       region = recoveryRegions.c.name;
-      producers = map (c: c.name) recoveryCoreNodes ++ [ "rel-dr-e-1" "e-a-4" ];
+      producers = map (c: c.name) recoveryCoreNodes
+        ++ map (c: c.name) coreNodes
+        ++ [ "rel-dr-e-1" ];
       org = "IOHK";
       nodeId = 5;
     }
     {
       name = "bft-dr-f-1";
       region = recoveryRegions.f.name;
-      producers = map (c: c.name) recoveryCoreNodes ++ [ "rel-dr-f-1" "e-b-1" ];
+      producers = map (c: c.name) recoveryCoreNodes
+        ++ map (c: c.name) coreNodes
+        ++ [ "rel-dr-f-1" ];
       org = "IOHK";
       nodeId = 6;
     }
     {
       name = "bft-dr-a-2";
       region = recoveryRegions.a.name;
-      producers = map (c: c.name) recoveryCoreNodes ++ [ "rel-dr-a-1" "e-a-1" ];
+      producers = map (c: c.name) recoveryCoreNodes
+        ++ map (c: c.name) coreNodes
+        ++ [ "rel-dr-a-1" ];
       org = "IOHK";
       nodeId = 7;
     }
@@ -93,10 +107,6 @@ let
     regions = recoveryRegions;
     coreNodes = recoveryCoreNodes;
   });
-
-in {
-
-  privateRelayNodes = recoveryCoreNodes ++ recoveryRelayNodes;
 
   coreNodes = [
     {
@@ -149,6 +159,12 @@ in {
       nodeId = 7;
     }
   ];
+
+in {
+
+  inherit coreNodes;
+
+  privateRelayNodes = recoveryCoreNodes ++ recoveryRelayNodes;
 
   relayNodes = [
     # Group 1 (original group)
