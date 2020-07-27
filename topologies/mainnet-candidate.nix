@@ -101,8 +101,8 @@ in {
   };
 
   explorer = withDailyRestart {
-    services.nginx.virtualHosts."${globals.explorerHostName}.${globals.domain}".locations."/p" = {
-      root = ../static/iohk-pools;
+    services.nginx.virtualHosts."${globals.explorerHostName}.${globals.domain}".locations."/p" = lib.mkIf (__pathExists ../static/pool-metadata) {
+      root = ../static/pool-metadata;
     };
   };
 
