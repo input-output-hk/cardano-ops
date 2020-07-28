@@ -1,4 +1,12 @@
 pkgs: with pkgs; with lib; {
+
+  relayGroupForRegion = region:
+      let prefix =
+        if (hasPrefix "ap" region) then "asia-pacific"
+        else if (hasPrefix "us" region) then "north-america"
+        else "europe";
+      in "${prefix}.${globals.relaysNew}";
+
   mkRelayTopology = {
     regions
   , relayPrefix ? "rel"
