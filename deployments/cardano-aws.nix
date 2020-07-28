@@ -20,7 +20,8 @@ let
     t3-xlarge = aws.t3-xlarge;                   # High load relay
     m5ad-xlarge = aws.m5ad-xlarge;               # Test node
     xlarge-monitor = aws.t3a-xlargeMonitor;      # Standard monitor
-    t3-2xlarge-monitor = aws.t3-2xlargeMonitor;  # High capacity monitor, explorer
+    t3-2xlarge-monitor = aws.t3-2xlargeMonitor;  # High capacity monitor
+    c5-4xlarge = aws.c5-4xlarge;                 # High capacity explorer (postgres CPU intensive)
   };
 
   nodes = filterAttrs (name: node:
