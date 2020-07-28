@@ -19,7 +19,9 @@ pkgs: {
 
   environmentName = "mainnet";
 
-  topology = import ./topologies/mainnet.nix;
+  topology = import ./topologies/mainnet.nix pkgs;
+
+  maxPrivilegedRelays = 36;
 
   ec2 = {
     credentials = {
