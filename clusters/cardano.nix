@@ -7,7 +7,8 @@
 , t3-xlarge            # High load relay
 , m5ad-xlarge          # Test node
 , xlarge-monitor       # Standard monitor
-, t3-2xlarge-monitor   # High capacity monitor, explorer
+, t3-2xlarge-monitor   # High capacity monitor
+, c5-4xlarge           # High capacity explorer (postgres CPU intensive)
 , ...
 }:
 with pkgs;
@@ -104,7 +105,7 @@ let
         ebsInitialRootDiskSize = if globals.withHighCapacityExplorer then 1000 else 100;
       };
       imports = [
-        (if globals.withHighCapacityExplorer then t3-2xlarge-monitor else xlarge)
+        (if globals.withHighCapacityExplorer then c5-4xlarge else xlarge)
         cardano-ops.roles.explorer
       ]
       # TODO: remove module when the new explorer is available
