@@ -240,7 +240,8 @@ in {
               rewrite ^([^.]*[^/])$ $1.html redirect;
             '';
           };
-          "/api/submit/tx" = {
+          # To avoid 502 alerts when withSubmitApi is false
+          "/api/submit/tx" = lib.mkIf globals.withSubmitApi {
             proxyPass = "http://127.0.0.1:8101/api/submit/tx";
           };
           "/api" = {
