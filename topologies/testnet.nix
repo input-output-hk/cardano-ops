@@ -232,7 +232,8 @@ in {
       secondsBetweenRequestsApiKeyAuth = 86400;
       lovelacesToGiveAnonymous = 1000000000;
       lovelacesToGiveApiKeyAuth = 1000000000000;
-      faucetFrontendUrl = "https://testnets.cardano.org/en/byron/tools/faucet/";
+      useByronWallet = false;
+      faucetFrontendUrl = "https://testnets.cardano.org/en/cardano/tools/faucet/";
     };
   };
 
