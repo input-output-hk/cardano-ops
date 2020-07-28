@@ -5,7 +5,7 @@ sanity_check_list=()
 
 sanity_check_list+=(sanity_check_start_log_spread)
 sanity_check_start_log_spread() {
-        local dir=$1 t=${2:-${default_tolerances}}
+        local dir=$1 t=${2:-$(jq .meta.profile_content.tolerances $dir/meta.json)}
         sanity_check "$t" "$dir" '
           $analysis.logs
           | map
@@ -23,7 +23,7 @@ sanity_check_start_log_spread() {
 }
 sanity_check_list+=(sanity_check_slot_spread_dbsync)
 sanity_check_slot_spread_dbsync() {
-        local dir=$1 t=${2:-${default_tolerances}}
+        local dir=$1 t=${2:-$(jq .meta.profile_content.tolerances $dir/meta.json)}
         sanity_check "$t" "$dir" '
           $analysis.slot_spans
           | (.db_sync.first - .nodes.first | fabs
@@ -48,7 +48,7 @@ sanity_check_slot_spread_dbsync() {
 }
 sanity_check_list+=(sanity_check_last_log_spread)
 sanity_check_last_log_spread() {
-        local dir=$1 t=${2:-${default_tolerances}}
+        local dir=$1 t=${2:-$(jq .meta.profile_content.tolerances $dir/meta.json)}
         sanity_check "$t" "$dir" '
           $analysis.logs
           | map  ## Generator always finishes a bit early, and
@@ -69,7 +69,7 @@ sanity_check_last_log_spread() {
 }
 sanity_check_list+=(sanity_check_not_even_started)
 sanity_check_not_even_started() {
-        local dir=$1 t=${2:-${default_tolerances}}
+        local dir=$1 t=${2:-$(jq .meta.profile_content.tolerances $dir/meta.json)}
         sanity_check "$t" "$dir" '
           $blocks
           | length == 0
@@ -79,7 +79,7 @@ sanity_check_not_even_started() {
 }
 sanity_check_list+=(sanity_check_silence_since_last_block)
 sanity_check_silence_since_last_block() {
-        local dir=$1 t=${2:-${default_tolerances}}
+        local dir=$1 t=${2:-$(jq .meta.profile_content.tolerances $dir/meta.json)}
         sanity_check "$t" "$dir" '
           $blocks[-1] // { timestamp: $analysis.first_node_log_timestamp }
           | ($analysis.final_node_log_timestamp - .timestamp)
@@ -94,7 +94,7 @@ sanity_check_silence_since_last_block() {
 }
 sanity_check_list+=(sanity_check_no_txs_in_blocks)
 sanity_check_no_txs_in_blocks() {
-        local dir=$1 t=${2:-${default_tolerances}}
+        local dir=$1 t=${2:-$(jq .meta.profile_content.tolerances $dir/meta.json)}
         sanity_check "$t" "$dir" '
           $txstats.tx_seen_in_blocks == 0' '
           { kind:         "no-txs-in-blocks"
@@ -102,7 +102,7 @@ sanity_check_no_txs_in_blocks() {
 }
 sanity_check_list+=(sanity_check_announced_less_txs_than_specified)
 sanity_check_announced_less_txs_than_specified() {
-        local dir=$1 t=${2:-${default_tolerances}}
+        local dir=$1 t=${2:-$(jq .meta.profile_content.tolerances $dir/meta.json)}
         sanity_check "$t" "$dir" '
           ## Guard against old logs, where tx_annced is 0:
           $txstats.tx_annced >= $txstats.tx_sent and
@@ -114,7 +114,7 @@ sanity_check_announced_less_txs_than_specified() {
 }
 sanity_check_list+=(sanity_check_sent_less_txs_than_specified)
 sanity_check_sent_less_txs_than_specified() {
-        local dir=$1 t=${2:-${default_tolerances}}
+        local dir=$1 t=${2:-$(jq .meta.profile_content.tolerances $dir/meta.json)}
         sanity_check "$t" "$dir" '
           $prof.generator.tx_count > $txstats.tx_sent' '
           { kind:         "sent-less-txs-than-specified"
@@ -124,7 +124,7 @@ sanity_check_sent_less_txs_than_specified() {
 }
 sanity_check_list+=(sanity_check_tx_loss_over_threshold)
 sanity_check_tx_loss_over_threshold() {
-        local dir=$1 t=${2:-${default_tolerances}}
+        local dir=$1 t=${2:-$(jq .meta.profile_content.tolerances $dir/meta.json)}
         sanity_check "$t" "$dir" '
           $txstats.tx_sent * (1.0 - $allowed.tx_loss_ratio)
             > $txstats.tx_seen_in_blocks' '
@@ -136,32 +136,32 @@ sanity_check_tx_loss_over_threshold() {
 }
 sanity_check_list+=(sanity_check_chain_density)
 sanity_check_chain_density() {
-        local dir=$1 t=${2:-${default_tolerances}}
+        local dir=$1 t=${2:-$(jq .meta.profile_content.tolerances $dir/meta.json)}
         sanity_check "$t" "$dir" '
             ($blocks | length)
               as $block_count
           | ($analysis.final_node_log_timestamp
              - $analysis.first_node_log_timestamp)
               as $cluster_lifetime_s
-          | ($cluster_lifetime_s * 1000 / $genesis.slot_duration | floor)
+          | ($cluster_lifetime_s / $genesis.slot_duration | floor)
               as $cluster_lifetime_slots
           | ($block_count / ($cluster_lifetime_slots))
               as $chain_density
-          | ($cluster_lifetime_slots - $block_count)
-              as $missed_slots
-          | if $chain_density < $allowed.minimum_chain_density or
-               $missed_slots > $allowed.maximum_missed_slots
+          # | ($cluster_lifetime_slots - $block_count)
+          #     as $missed_slots
+          | if $chain_density < $allowed.minimum_chain_density
+               # or $missed_slots > $allowed.maximum_missed_slots
             then { lifetime_s:     $cluster_lifetime_s
                  , lifetime_slots: $cluster_lifetime_slots
                  , block_count:    $block_count
-                 , missed_slots:   $missed_slots
+                 # , missed_slots:   $missed_slots
                  , chain_density:  $chain_density
                  } else empty end' '
           { kind:                 "insufficient_overall_chain_density"
           , lifetime_s:           .lifetime_s
           , lifetime_slots:       .lifetime_slots
           , block_count:          .block_count
-          , missed_slots:         .missed_slots
+          # , missed_slots:         .missed_slots
           , chain_density:        .chain_density
           }' --slurpfile blocks "$dir"/analysis/explorer.MsgBlock.json
 }
@@ -170,30 +170,18 @@ sanity_check_chain_density() {
 #         local t=$1 dir=$2
 # }
 
-default_tolerances='
-{ "tx_loss_ratio":                  0.0
-, "start_log_spread_s":             60
-, "last_log_spread_s":              60
-, "slot_spread_dbsync_first":       5
-, "slot_spread_dbsync_last":        5
-, "silence_since_last_block_s":     40
-, "cluster_startup_overhead_s":     60
-, "minimum_chain_density":          0.9
-, "maximum_missed_slots":           5
-}'
-
 sanity_check_run() {
         local dir=${1:-.} tolerances t
 
         for check in ${sanity_check_list[*]}
         do echo -n " $check" | sed 's/sanity_//' >&2
-           $check "$dir" "${default_tolerances}"
+           $check "$dir" "$(jq .meta.profile_content.tolerances $dir/meta.json)"
         done | jq --slurp '
           if length != 0
           then . +
             [{ kind:      "tolerances" }
              + $tolerances] else . end
-            ' --argjson tolerances "$default_tolerances"
+            ' --argjson tolerances "$(jq .meta.profile_content.tolerances $dir/meta.json)"
 }
 
 sanity_check() {

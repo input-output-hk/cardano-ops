@@ -35,7 +35,7 @@ def era_genesis_params($era; $composition):
   , avvm_entries:            128
   , avvm_entry_balance:      100000000000000
   , secret:                  2718281828
-  , slot_duration:           20000
+  , slot_duration:           20
   }
 , shelley:
   { parameter_k:             10
@@ -93,14 +93,25 @@ def era_generator_profiles($era):
   ]
 } | .[$era];
 
-def era_tolerances($era):
+def era_tolerances($era; $genesis):
 { common:
-  {}
+  { tx_loss_ratio:                  0.0
+  , start_log_spread_s:             60
+  , last_log_spread_s:              60
+  , slot_spread_dbsync_first:       5
+  , slot_spread_dbsync_last:        5
+  , silence_since_last_block_s:     40
+  , cluster_startup_overhead_s:     60
+  }
 , byron:
-  { finish_patience:         7
+  { finish_patience:                7
+  , maximum_missed_slots:           5
+  , minimum_chain_density:          0.9
   }
 , shelley:
-  { finish_patience:         15
+  { finish_patience:                15
+  , maximum_missed_slots:           0
+  , minimum_chain_density:          ($genesis.active_slots_coeff * 0.5)
   }
 } | (.common + .[$era]);
 

@@ -104,13 +104,13 @@ analysis_submission_threads() {
         local dir=${1:-.} sub_tids tnum
 
         sub_tids="$("$dir"/tools/generator-logs.sh log-tids \
-                      "$dir"/analysis/logs-explorer/generator.json || true)"
+                      "$dir"/analysis/logs-explorer/generator-*.json || true)"
         json_file_append "$dir"/analysis.json \
           '{ submission_tids: '"$(jq --slurp <<<$sub_tids)"' }' <<<0
 
         for tnum in $(seq 0 $(($(echo "$sub_tids" | wc -w) - 1)))
         do "$dir"/tools/generator-logs.sh tid-trace "${tnum}" \
-             "$dir"/analysis/logs-explorer/generator.json \
+             "$dir"/analysis/logs-explorer/generator-*.json \
              > "$dir"/analysis/generator.submission-thread-trace."${tnum}".json
         done
 }
@@ -146,7 +146,7 @@ analysis_from_benchmarking() {
                   < "$dir"/analysis/explorer."$aname".json \
                   > "$dir"/analysis/explorer."$aname".csv; done; fi
 
-        files=($(ls -- "$dir"/analysis/logs-explorer/generator*json 2>/dev/null || true))
+        files=($(ls -- "$dir"/analysis/logs-explorer/generator-*.json 2>/dev/null || true))
         if test ${#files[*]} -gt 0
         then for analysis in $(ls -- "$dir"/tools/generator.*.sh 2>/dev/null || true)
              do aname=$(sed 's_^.*/generator\.\(.*\)\.sh$_\1_' <<<$analysis)

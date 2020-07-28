@@ -103,8 +103,6 @@ def profile_name($gtor; $gsis):
 | era_generator_params($era)             as $generator_params
 | era_genesis_params($era; $composition) as $genesis_params
 
-| era_tolerances($era)                   as $era_tolerances
-
 ## For all IO arities and block sizes:
 | [[ $genesis_profiles
    , ($generator_profiles
@@ -121,8 +119,9 @@ def profile_name($gtor; $gsis):
                      no genesis profile with index \(.genesis_profile)")
          , . | del(.genesis_profile)]))
 | map
-  ( .[0] as $genesis
-  | .[1] as $generator
+  ( ($genesis_params + .[0])       as $genesis
+  | .[1]                           as $generator
+  | era_tolerances($era; $genesis) as $tolerances
   | { "\($generator.name // profile_name($generator; $genesis))":
       { generator:
         ($generator_params +
@@ -132,13 +131,12 @@ def profile_name($gtor; $gsis):
         , inputs_per_tx:   $generator.io_arity
         , outputs_per_tx:  $generator.io_arity
         })
-      , genesis:
-        ($genesis_params + $genesis)
+      , genesis: $genesis
       , tolerances:
-        ($era_tolerances +
+        ($tolerances +
         { finish_patience:
             ## TODO:  fix ugly
-            ($generator.finish_patience // $era_tolerances.finish_patience)
+            ($generator.finish_patience // $tolerances.finish_patience)
         })
       }}
   )

@@ -8,6 +8,7 @@ __BENCH_BASEPATH=$(dirname "$(realpath "$0")")
 . "$__BENCH_BASEPATH"/lib-analysis.sh
 . "$__BENCH_BASEPATH"/lib-benchrun.sh
 . "$__BENCH_BASEPATH"/lib-deploy.sh
+. "$__BENCH_BASEPATH"/lib-fetch.sh
 . "$__BENCH_BASEPATH"/lib-genesis.sh
 . "$__BENCH_BASEPATH"/lib-params.sh
 . "$__BENCH_BASEPATH"/lib-profile.sh
@@ -68,9 +69,9 @@ usage_extra() {
 
     --fast-unsafe         Ignore safety, go fast.  Deploys won't be made,
                             unprocessed logs will be lost.
-    --force-deploy        Force redeployment, event if benchmarking
+    --deploy              Force redeployment, event if benchmarking
                             a single profile.
-    --force-genesis       Force genesis regeneration, event if not required
+    --genesis             Force genesis regeneration, event if not required
                             by profile settings and deployment state.
     --watch-deploy        Do not hide the Nixops deploy log.
     --cls                 Clear screen, before acting further.
@@ -108,6 +109,7 @@ EOF
 
 verbose= debug= trace=
 no_deploy=
+no_wait=
 force_deploy=
 force_genesis=
 watch_deploy=
@@ -121,11 +123,9 @@ main() {
 
         while test $# -ge 1
         do case "$1" in
-           --fast-unsafe | --fu ) no_deploy=t;;
-           --deploy | --force-deploy )
-                   force_deploy=t;;
-           --genesis | --force-genesis )
-                                  force_genesis=t;;
+           --fast-unsafe | --fu ) no_deploy=t no_wait=t;;
+           --deploy )             force_deploy=t;;
+           --genesis )            force_genesis=t;;
            --watch | --watch-deploy )
                                   watch_deploy=t;;
            --select )             jq_select="jq 'select ($2)'"; shift;;
@@ -259,6 +259,7 @@ main() {
 ###
 
 op_bench() {
+        local prof=${1:?Usage:  bench profile PROFILE}
         local benchmark_schedule
 
         if   test "$1" = 'all'
@@ -286,8 +287,8 @@ bench_profile() {
 
         oprint "benchmarking profile:  ${prof:?Unknown profile $profspec, see ${paramsfile}}"
         deploylog='./last-deploy.log'
-        if ! test -f "${deploylog}" -a -n "${no_deploy}"
-        then profile_deploy "${prof}"; fi
+        oprint "deploying profile.."
+        profile_deploy "${prof}"
 
         op_bench_start "${prof}" "${deploylog}"
         ret=$?
@@ -339,8 +340,9 @@ op_bench_start() {
 
         deploystate_check_deployed_genesis_age
 
-        oprint "waiting ${generator_startup_delay}s for the nodes to establish business.."
-        sleep ${generator_startup_delay}
+        if test -z "$no_wait"
+        then oprint "waiting ${generator_startup_delay}s for the nodes to establish business.."
+             sleep ${generator_startup_delay}; fi
 
         tag=$(generate_run_tag "${prof}")
         dir="./runs/${tag}"
@@ -415,15 +417,16 @@ EOF
         cp "${deploylog}"     "${dir}"/logs/deploy.log
         mv "${deploylog}"     runs/"${tag}".deploy.log
 
+        oprint "recording (local) genesis"
         ## TODO:  ideally, fetch this from the machines:
         cp "keys/genesis.json" "${dir}"
 
+        oprint "recording effective service configs"
+        local producers=$(params producers)
+        fetch_effective_service_node_configs "$dir" ${producers[*]}
+
         local date=$(date "+%Y-%m-%d-%H.%M.%S") stamp=$(date +%s)
         touch                 "${dir}/${date}"
-
-        local nixops_meta
-        nixops_meta=$(grep DEPLOYMENT_METADATA= runs/"${tag}".deploy.log |
-                        head -n1 | cut -d= -f2)
 
         local        metafile="${dir}"/meta.json
         ln -sf    "${metafile}" last-meta.json

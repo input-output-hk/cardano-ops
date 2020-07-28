@@ -6,7 +6,7 @@ def byron_genesis_protocol_params($p):
 , maxTxSize:         "4096"
 , mpcThd:            "20000000000000"
 , scriptVersion:     0
-, slotDuration:      "\($p.slot_duration)"
+, slotDuration:      "\($p.slot_duration * 1000)"
 , softforkRule:
   { initThd:         "900000000000000"
   , minThd:          "600000000000000"

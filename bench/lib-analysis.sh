@@ -17,7 +17,7 @@ collect_jsonlog_inventory() {
         for mach in ${constituents[*]}
         do jsons=($(ls -- "$dir"/logs-"$mach"/node-*.json))
            jsonlog_inventory "$mach" "${jsons[@]}"; done
-        jsonlog_inventory "generator" "$dir"/logs-explorer/generator.json
+        jsonlog_inventory "generator" "$dir"/logs-explorer/generator-*.json
 }
 
 analysis_append() {
@@ -73,7 +73,7 @@ analyse_run() {
 
         patch_run "$dir"
 
-        rm -rf "$dir"/analysis/{analysis,logs-node-*,logs-explorer,startup}
+        # rm -rf "$dir"/analysis/{analysis,logs-node-*,logs-explorer,startup}
 
         oprint "analysed tag:  ${tag}"
 }

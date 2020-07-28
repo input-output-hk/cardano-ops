@@ -22,9 +22,12 @@ update_deployfiles() {
         local date=$(date "+%Y-%m-%d-%H.%M.%S") stamp=$(date +%s)
         local nixops_meta machine_info cores files targets
 
-        echo "--( collecting NixOps metadata.."
-        nixops_meta=$(grep DEPLOYMENT_METADATA= "$deploylog" |
-                              head -n1 | cut -d= -f2 | xargs jq .)
+        if test -z "$no_deploy"
+        then echo "--( collecting NixOps metadata.."
+             nixops_meta=$(grep DEPLOYMENT_METADATA= "$deploylog" |
+                                   head -n1 | cut -d= -f2 | xargs jq .)
+        else nixops_meta="{ fake: true }"
+        fi
         cores=($(params producers))
         case "$include" in
                 '' | "explorer ${cores[*]}" | "${cores[*]} explorer" )

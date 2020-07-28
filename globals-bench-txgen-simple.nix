@@ -146,6 +146,9 @@ in reportDeployment (rec {
         pkgs.cardano-ops.roles.tx-generator
         ({ config, ...}: {
           services.cardano-db-sync.enable = mkForce false;
+          services.cardano-explorer-api.enable = mkForce false;
+          services.cardano-submit-api.enable = mkForce false;
+          systemd.services.cardano-explorer-api.enable = mkForce false;
           # services.cardano-submit-api = {
           #   environment = pkgs.globals.environmentConfig;
           #   socketPath = config.services.cardano-node.socketPath;
@@ -199,7 +202,7 @@ in reportDeployment (rec {
                TracingVerbosity = "MaximalVerbosity";
                minSeverity = "Debug";
                TurnOnLogMetrics = true;
-               TraceMempool     = false;
+               TraceMempool     = true;
              } // coreEraOverlay));
     }) (benchmarkingTopology.coreNodes or []);
   };

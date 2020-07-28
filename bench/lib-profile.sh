@@ -106,13 +106,17 @@ profile_deploy() {
         then qualifier='producers'
         else qualifier='explorer'; fi
 
-        if test -z "${redeploy_causes[*]}" ||
-           test -n "${no_deploy}"
+        if test -z "${redeploy_causes[*]}"
         then return; fi
 
         oprint "redeploying, because:  ${redeploy_causes[*]}"
         deploylog=runs/$(timestamp).deploy.$qualifier.$prof.log
-        deploystate_deploy_profile "$prof" "$final_include" "$deploylog"
+        if test -z "$no_deploy"
+        then deploystate_deploy_profile "$prof" "$final_include" "$deploylog"
+        else oprint "skippin' deploy, because:  CLI override"
+             echo "DEPLOYMENT_METADATA=" > "$deploylog"
+             ln -sf "$deploylog" 'last-deploy.log'
+        fi
 }
 
 ###
