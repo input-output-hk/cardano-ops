@@ -1,4 +1,4 @@
-pkgs: with pkgs; with lib; {
+pkgs: with pkgs; with lib; rec {
 
   relayGroupForRegion = region:
       let prefix =
@@ -6,6 +6,27 @@ pkgs: with pkgs; with lib; {
         else if (hasPrefix "us" region) then "north-america"
         else "europe";
       in "${prefix}.${globals.relaysNew}";
+
+  withinOneHop =
+    let
+      # list of max number of nodes that can be connected within one hop using 'nbPeers':
+      maxNbNodes = genList (p: { maxNbNodes = p * (p + 1); nbPeers = p;}) 100;
+    in nodes: let
+      nbNodes = length nodes;
+      nbPeers = (findFirst (i: nbNodes <= i.maxNbNodes) (throw "too many nodes") maxNbNodes).nbPeers;
+      indexedNodes = imap0 (idx: node: { inherit idx node;}) nodes;
+      names = let names = map (n: n.name) nodes; in names ++ names; # to avoid overflows
+      topologies = map ({node, idx}:
+        rec { inherit node;
+            startIndex = if idx == 0 then 1 else mod ((elemAt topologies (idx - 1)).endIndexExcluded) nbNodes;
+            endIndexExcluded = let unfiltrerProducers = sublist startIndex nbPeers names;
+              in startIndex + nbPeers + (if (elem node.name unfiltrerProducers) then 1 else 0);
+            producers = filter (p: p != node.name) (sublist startIndex (endIndexExcluded - startIndex) names);
+        }
+      ) indexedNodes;
+      in map (n: n.node // {
+        producers = n.node.producers ++ n.producers;
+      }) topologies;
 
   mkRelayTopology = {
     regions
@@ -75,23 +96,23 @@ pkgs: with pkgs; with lib; {
         let
           nbRelays = nbRelaysPerRegions.${rLetter};
           relayIndexesInRegion = genList (i: i + 1) nbRelays;
-        in map (nodeIndex:
-          let
-            name = "${relayPrefix}-${rLetter}-${toString nodeIndex}";
-          in {
-            inherit region name nodeIndex;
-            producers =
-              # a share of the core nodes:
-              (map (c: c.name) (filter (c: mod c.index nbRelays == (nodeIndex - 1)) indexedCoreNodes))
-              # all relay in same region:
-              ++ map (i: "${relayPrefix}-${rLetter}-${toString i}") (filter (i: i != nodeIndex) relayIndexesInRegion)
-              # one relay in each other regions:
-              ++ map (r: "${relayPrefix}-${r}-${toString (mod (nodeIndex - 1) nbRelaysPerRegions.${r} + 1)}") (filter (r: r != rLetter) regionLetters)
-              # a share of the third-party relays:
-              ++ (filter (p: mod p.index nbRelays == (nodeIndex - 1)) (indexedThirdPartyRelays.${region} or []));
-            org = "IOHK";
-          }
-        ) relayIndexesInRegion
+          relaysForRegion = map (nodeIndex:
+            let
+              name = "${relayPrefix}-${rLetter}-${toString nodeIndex}";
+            in {
+              inherit region name nodeIndex;
+              producers =
+                # a share of the core nodes:
+                (map (c: c.name) (filter (c: mod c.index nbRelays == (nodeIndex - 1)) indexedCoreNodes))
+                # one relay in each other regions:
+                ++ map (r: "${relayPrefix}-${r}-${toString (mod (nodeIndex - 1) nbRelaysPerRegions.${r} + 1)}") (filter (r: r != rLetter) regionLetters)
+                # a share of the third-party relays:
+                ++ (filter (p: mod p.index nbRelays == (nodeIndex - 1)) (indexedThirdPartyRelays.${region} or []));
+              org = "IOHK";
+            }
+          ) relayIndexesInRegion;
+        # Ensure every relay inside the region is at most at one hop away from one another:
+        in withinOneHop relaysForRegion
       ) indexedRegions));
 
 }
