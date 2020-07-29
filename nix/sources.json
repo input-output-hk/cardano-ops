@@ -48,15 +48,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer-app": {
-        "branch": "develop",
+        "branch": "refs/tags/1.0.1",
         "description": "Cardano Explorer App",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-explorer-app",
-        "rev": "613a34b4254b06e2cabb8bb51ce96c592db0bb4e",
-        "sha256": "02hxahxb84l0rkkmc2b8j47s2vl5kckn3rraz0c34h2nydbqgyim",
+        "rev": "8948ec90254bc1139cc9c397b45a83928d87a501",
+        "sha256": "0zj6yqa5y561j22x5fsqjrricr9yj14ins08gy9az20lr2baajw3",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/613a34b4254b06e2cabb8bb51ce96c592db0bb4e.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/8948ec90254bc1139cc9c397b45a83928d87a501.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
