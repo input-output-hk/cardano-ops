@@ -147,7 +147,7 @@ class KesRotate
     if @network
       coreNodes       = @network.select { |n| /^c-[a-z]-[0-9]+$/ =~ n }
       bftNodes        = @network.select { |n| /^bft-[a-z]-[0-9]+$/ =~ n }
-      stkNodes        = @network.select { |n| /^stk-[a-z]-[0-9]+-\w+$/ =~ n }
+      stkNodes        = @network.select { |n| /^stk-[a-z]-[0-9]+.*$/ =~ n }
       edgeNodes       = @network.select { |n| /^e-[a-z]-[0-9]+$/ =~ n }
       relayNodes      = @network.select { |n| /^rel-[a-z]-[0-9]+$/ =~ n }
       faucetNodes     = @network.select { |n| /^faucet/ =~ n }
