@@ -260,7 +260,7 @@ let
       region = "eu-central-1";
       org = "IOHK";
       nodeId = 8;
-      producers = [ "bft-a-1" "c-a-2" "e-a-2" "e-a-3" "e-a-4" "e-a-5" "e-b-1" "e-c-1" "e-d-1" ];
+      producers = [ "c-a-2" "e-a-2" "e-a-3" "e-a-4" "e-a-5" "e-b-1" "e-c-1" "e-d-1" ];
     }
     {
       name = "e-a-2";
