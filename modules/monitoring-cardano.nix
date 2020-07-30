@@ -49,7 +49,7 @@ in {
     }
     {
       alert = "cardano_new_node_block_divergence";
-      expr = "abs(max(cardano_node_ChainDB_metrics_blockNum_int) - ignoring(alias,instance,job,role) group_right(instance) cardano_node_ChainDB_metrics_blockNum_int) > 2";
+      expr = "abs(max(cardano_node_ChainDB_metrics_blockNum_int{alias!~\"bft-dr.*|rel-dr.*\"}) - ignoring(alias,instance,job,role) group_right(instance) cardano_node_ChainDB_metrics_blockNum_int{alias!~\"bft-dr.*|rel-dr.*\"}) > 2";
       for = "5m";
       labels = {
         severity = "page";
@@ -57,6 +57,18 @@ in {
       annotations = {
         summary = "{{$labels.alias}}: cardano-node block divergence detected for more than 5 minutes";
         description = "{{$labels.alias}}: cardano-node block divergence detected for more than 5 minutes";
+      };
+    }
+    {
+      alert = "cardano_shadow_node_block_divergence";
+      expr = "abs(max(cardano_node_ChainDB_metrics_blockNum_int{alias=~\"bft-dr.*|rel-dr.*\"}) - ignoring(alias,instance,job,role) group_right(instance) cardano_node_ChainDB_metrics_blockNum_int{alias=~\"bft-dr.*|rel-dr.*\"}) > 2";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: cardano-shadow-node block divergence detected for more than 5 minutes";
+        description = "{{$labels.alias}}: cardano-shadow-node block divergence detected for more than 5 minutes";
       };
     }
     {
