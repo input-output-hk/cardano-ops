@@ -157,11 +157,14 @@ main() {
         case "${op}" in
                 init-params | init )  params_init "$@";;
                 reinit-params | reinit )
-                                      local node_count
+                                      local node_count era
                                       node_count=$(parmetajq '.node_names | length')
+                                      era=$(parmetajq '.era')
                                       if test -z "$node_count"
                                       then fail "reinit:  cannot get node count from params file -- use init instead."; fi
-                                      params_init "$node_count" "$@";;
+                                      if test -z "$era"
+                                      then fail "reinit:  cannot get era from params file -- use init instead."; fi
+                                      params_init "$node_count" "$era" "$@";;
                 recreate-cluster | recreate )
                                       params_recreate_cluster "$@";;
 
@@ -321,17 +324,17 @@ op_bench_start() {
         oprint "stopping nodes & explorer.."
         op_stop
 
-        oprint "cleaning explorer DB.."
-        nixops ssh explorer -- sh -c "'PGPASSFILE=/var/lib/cexplorer/pgpass psql cexplorer cexplorer --command \"delete from tx_in *; delete from tx_out *; delete from tx *; delete from block; delete from slot_leader *; delete from epoch *; delete from meta *; delete from schema_version *;\"'"
+        # oprint "cleaning explorer DB.."
+        # nixops ssh explorer -- sh -c "'PGPASSFILE=/var/lib/cexplorer/pgpass psql cexplorer cexplorer --command \"delete from tx_in *; delete from tx_out *; delete from tx *; delete from block; delete from slot_leader *; delete from epoch *; delete from meta *; delete from schema_version *;\"'"
 
         oprint "resetting node states: node DBs & logs.."
-        nixops ssh-for-each --parallel "rm -rf /var/lib/cardano-node/db* /var/lib/cardano-node/logs/* /var/log/journal/*"
+        nixops ssh-for-each --parallel "rm -rf /var/log/journal/* /var/lib/cardano-node/db* /var/lib/cardano-node/logs/*"
 
         oprint "$(date), restarting nodes.."
         nixops ssh-for-each --parallel "systemctl start systemd-journald"
         sleep 3s
         nixops ssh-for-each --parallel "systemctl start cardano-node"
-        nixops ssh explorer "systemctl start cardano-db-sync"
+        # nixops ssh explorer "systemctl start cardano-db-sync"
 
         deploystate_check_deployed_genesis_age
 
@@ -370,8 +373,8 @@ fetch_systemd_unit_startup_logs() {
           > 'logs/startup/unit-startup-generator.log'
         nixops ssh explorer "journalctl --boot 0 -u cardano-node | head -n 100" \
           > 'logs/startup/unit-startup-explorer.log'
-        nixops ssh explorer "journalctl --boot 0 -u cardano-db-sync | head -n 100" \
-          > 'logs/startup/unit-startup-db-sync.log'
+        # nixops ssh explorer "journalctl --boot 0 -u cardano-db-sync | head -n 100" \
+        #   > 'logs/startup/unit-startup-db-sync.log'
 
         for node in $(params producers)
         do nixops ssh "${node}" "journalctl --boot 0 -u cardano-node | head -n 100" \
@@ -485,7 +488,7 @@ op_wait_for_nonempty_block() {
            sleep 5; done
 
         echo " patience ran out, stopping the cluster and collecting logs from the botched run."
-        process_broken_run "$tag"
+        process_broken_run "runs/$tag"
         errprint "No non-empty blocks reached the explorer in ${patience} seconds -- is the cluster dead (genesis mismatch?)?"
 }
 
@@ -500,15 +503,16 @@ op_wait_for_empty_blocks() {
         local last_blkid='absolut4ly_n=wher'
         local news=
         while test $patience -gt 1 -a $anyblock_patience -gt 1
-        do while news=$(nixops ssh explorer -- sh -c "'set -euo pipefail; { echo \"{ data: { msg: { blkid: 0, \\\"tx ids\\\": [] }}}\"; tac /var/lib/cardano-node/logs/node.json; } | grep -F MsgBlock | jq --compact-output \".data.msg | { blkid: .\\\"block hash\\\", tx_count: (.\\\"tx ids\\\" | length) } \"'" |
+        do while news=$(nixops ssh explorer -- sh -c "'set -euo pipefail; { echo \"{ data: { msg: { blkid: 0, \\\"tx ids\\\": [] }}}\"; tac /var/lib/cardano-node/logs/node.json; } | grep -F MsgBlock | jq --compact-output \".data.msg | { blkid: (.\\\"block hash\\\" | ltrimstr(\\\"\\\\\\\"\\\") | rtrimstr(\\\"\\\\\\\"\\\")), tx_count: (.\\\"tx ids\\\" | length) } \"'" |
                         sed -n '0,/'$last_blkid'/ p' |
                         head -n-1 |
                         jq --slurp 'reverse | ## undo order inversion..
                           { txcounts: map (.tx_count)
                           , blks_txs: map ("\(.tx_count):\(.blkid)")
-                          , last_blkid: (.[-1] // { blkid: "'${last_blkid}'"}
+                          , last_blkid: (.[-1] // { blkid: $blkid}
                                         | .blkid)
-                          }')
+                          }
+                          ' --arg blkid ${last_blkid})
                  last_blkid=$(jq --raw-output .last_blkid <<<$news)
                  if test -n "${oneshot_action}"
                  then $oneshot_action; oneshot_action=; fi
@@ -594,7 +598,7 @@ EOF
         local explorer_extra_logs=(
                 unit-startup-generator.log
                 unit-startup-explorer.log
-                unit-startup-db-sync.log
+                # unit-startup-db-sync.log
         )
 
         { find logs-explorer/ \

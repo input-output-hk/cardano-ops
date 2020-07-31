@@ -19,9 +19,10 @@
 
 def era_genesis_params($era; $composition):
 { common:
-  { protocol_magic:          459045235
-  , secret:                  2718281828
-  , total_balance:           9000000000000000
+  { protocol_magic:          42
+    ## XXX: for some reason, Shelley genesis generator does not respect
+    ##      --testnet-magic
+  , total_balance:           900000000000000
   }
 , byron:
   { parameter_k:             2160
@@ -30,16 +31,17 @@ def era_genesis_params($era; $composition):
     ## Note, that the delegate count doesnt have to match cluster size.
   , delegate_share:          0.9
   , avvm_entries:            128
-  , avvm_entry_balance:      10000000000000
+  , avvm_entry_balance:      100000000000000
+  , secret:                  2718281828
   , slot_duration:           20000
   }
 , shelley:
-  { parameter_k:             10
-  , epoch_length:            1000
+  { parameter_k:             20
+  , epoch_length:            4000   # Ought to be at least (10 * k / f).
   , slot_duration:           1
   , decentralisation_param:  0.5
   , max_tx_size:             16384
-  , pools_balance:           8000000000000000
+  , pools_balance:           800000000000000
   , active_slots_coeff:      0.05
   }
 } | (.common + .[$era]);
@@ -82,7 +84,9 @@ def era_generator_profiles($era):
   , { txs: 50000, add_tx_size: 100, io_arity: 16, tps: 100 }
   ]
 , shelley:
-  [ { txs: 50000, add_tx_size:   0, io_arity: 1,  tps: 100 }
+  [ { txs: 50000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , { txs:  3000, add_tx_size: 100, io_arity: 1,  tps: 100 }
   ]
 } | .[$era];
 

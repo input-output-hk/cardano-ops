@@ -31,6 +31,10 @@ profile_genesis() {
         profile_genesis_$(get_era) "$@"
 }
 
+profile_genesis_hash() {
+        profile_genesis_hash_$(get_era) "$@"
+}
+
 profile_byron_genesis_protocol_params() {
         local prof=$1
         jq --argjson prof "$(profgenjq "${prof}" .)" '
@@ -109,6 +113,42 @@ profile_shelley_genesis_cli_args() {
         ' --null-input --raw-output
 }
 
+__KEY_ROOT=
+key() {
+        local type=$1 kind=$2 id=$3
+        case "$kind" in
+                ver )      suffix='.vkey';;
+                sig )      suffix='.skey';;
+                none )     suffix='';;
+                count )    suffix='.counter';;
+                * )        fail "unknown key kind: '$kind'";; esac
+        case "$type" in
+                KES )      stem=node-keys/node-kes${id};;
+                VRF )      stem=node-keys/node-vrf${id};;
+                opcert )   stem=node-keys/node${id}.opcert;;
+                cold )     stem=node-keys/cold/operator${id};;
+                deleg )    stem=delegate-keys/delegate${id};;
+                delegVRF ) stem=delegate-keys/delegate${id}.vrf;;
+                * )        fail "unknown key type: '$type'";; esac
+        echo "$__KEY_ROOT"/${stem}${suffix}
+}
+
+keypair_args() {
+        local type=$1 id=$2 cliargprefix=${3:-}
+        args=(--"${cliargprefix}"verification-key-file "$(key "$type" ver "$id")"
+              --"${cliargprefix}"signing-key-file      "$(key "$type" sig "$id")"
+             )
+        if test "$type" = 'cold'
+        then args+=(--operational-certificate-issue-counter-file
+                    "$(key cold count "$id")"); fi
+        echo ${args[*]}
+}
+
+cli() {
+        echo "--|  cardano-cli $*" >&2
+        cardano-cli "$@"
+}
+
 profile_genesis_shelley() {
         local prof="${1:-default}"
         local target_dir="${2:-./keys}"
@@ -136,11 +176,12 @@ profile_genesis_shelley() {
 
         mkdir -p "$target_dir"
         rm -rf -- ./"$target_dir"
+        __KEY_ROOT="$target_dir"
 
         params=(--genesis-dir      "$target_dir"
                 --gen-utxo-keys    1
                 $(profile_shelley_genesis_cli_args "$prof" "$composition" 'create0'))
-        cardano-cli shelley genesis create "${params[@]}"
+        cli shelley genesis create "${params[@]}"
 
         ## set parameters in template
         profile_shelley_genesis_protocol_params "$prof" \
@@ -151,41 +192,37 @@ profile_genesis_shelley() {
                 --start-time       "$(date --iso-8601=s --date="now + ${start_future_offset}" --utc | cut -c-19)Z"
                 $(profile_shelley_genesis_cli_args "$prof" "$composition" 'create1'))
         ## update genesis from template
-        cardano-cli shelley genesis create "${params[@]}"
+        cli shelley genesis create "${params[@]}"
 
+        local deleg_id=1
         for id in ${ids[*]}
         do
-            mkdir -p "$target_dir"/node${id}/cold
+            mkdir -p "$target_dir"/node-keys/cold
 
-            cardano-cli shelley node key-gen-KES \
-              --verification-key-file "$target_dir"/node${id}/kes.vkey \
-              --signing-key-file "$target_dir"/node${id}/kes.skey
+            cli shelley node key-gen-KES $(keypair_args KES $id)
 
             #### cold keys (do not copy to production system)
             if jqtest ".[\"$id\"]" <<<$ids_pool_map; then   ## Stakepool node
-                cardano-cli shelley node key-gen \
-                --cold-verification-key-file "$target_dir"/node${id}/cold/operator.vkey \
-                --cold-signing-key-file "$target_dir"/node${id}/cold/operator.skey \
-                --operational-certificate-issue-counter-file "$target_dir"/node${id}/cold/operator.counter
-                cardano-cli shelley node key-gen-VRF \
-                --verification-key-file "$target_dir"/node${id}/vrf.vkey \
-                --signing-key-file "$target_dir"/node${id}/vrf.skey
+                cli shelley node key-gen \
+                  $(keypair_args cold $id 'cold-')
+                cli shelley node key-gen-VRF \
+                  $(keypair_args VRF  $id)
             else ## BFT node
-                local deleg=1
-                ln -s ../../delegate-keys/delegate${deleg}.skey    "$target_dir"/node${id}/cold/operator.skey
-                ln -s ../../delegate-keys/delegate${deleg}.vkey    "$target_dir"/node${id}/cold/operator.vkey
-                ln -s ../../delegate-keys/delegate${deleg}.counter "$target_dir"/node${id}/cold/operator.counter
-                ln -s ../delegate-keys/delegate${deleg}.vrf.skey   "$target_dir"/node${id}/vrf.skey
-                ln -s ../delegate-keys/delegate${deleg}.vrf.vkey   "$target_dir"/node${id}/vrf.vkey
+                cp -a $(key deleg sig    $deleg_id) $(key cold sig   $id)
+                cp -a $(key deleg ver    $deleg_id) $(key cold ver   $id)
+                cp -a $(key deleg count  $deleg_id) $(key cold count $id)
+                cp -a $(key delegVRF sig $deleg_id) $(key VRF  sig   $id)
+                cp -a $(key delegVRF ver $deleg_id) $(key VRF  ver   $id)
+                deleg_id=$((deleg_id + 1))
             fi
 
             # certificate (adapt kes-period for later certs)
-            cardano-cli shelley node issue-op-cert \
-              --hot-kes-verification-key-file         "$target_dir"/node${id}/kes.vkey \
-              --cold-signing-key-file                 "$target_dir"/node${id}/cold/operator.skey \
-              --operational-certificate-issue-counter "$target_dir"/node${id}/cold/operator.counter \
+            cli shelley node issue-op-cert \
               --kes-period 0 \
-              --out-file "$target_dir"/node${id}/node.cert
+              --hot-kes-verification-key-file         $(key KES  ver    $id) \
+              --cold-signing-key-file                 $(key cold sig    $id) \
+              --operational-certificate-issue-counter $(key cold count  $id) \
+              --out-file                              $(key opcert none $id)
         done
 
         # === delegation ===
@@ -199,29 +236,29 @@ profile_genesis_shelley() {
         for id in ${ids_pool[*]}
         do
            ### Payment address keys
-           cardano-cli shelley address key-gen \
+           cli shelley address key-gen \
                 --verification-key-file         "$target_dir"/addresses/pool-owner${id}.vkey \
                 --signing-key-file              "$target_dir"/addresses/pool-owner${id}.skey
 
            ### Stake address keys
-           cardano-cli shelley stake-address key-gen \
+           cli shelley stake-address key-gen \
                 --verification-key-file         "$target_dir"/addresses/pool-owner${id}-stake.vkey \
                 --signing-key-file              "$target_dir"/addresses/pool-owner${id}-stake.skey
 
            ### Payment addresses
-           cardano-cli shelley address build \
+           cli shelley address build \
                 --payment-verification-key-file "$target_dir"/addresses/pool-owner${id}.vkey \
                 --stake-verification-key-file   "$target_dir"/addresses/pool-owner${id}-stake.vkey \
                 --testnet-magic "$magic" \
                 --out-file "$target_dir"/addresses/pool-owner${id}.addr
 
-            pool_id=$(cardano-cli shelley stake-pool id \
-                      --verification-key-file   "$target_dir"/node${id}/cold/operator.vkey)
-            pool_vrf=$(cardano-cli shelley node key-hash-VRF \
-                       --verification-key-file  "$target_dir"/node${id}/vrf.vkey)
-            deleg_staking=$(cardano-cli shelley stake-address key-hash \
+            pool_id=$(cli shelley stake-pool id \
+                      --verification-key-file   $(key cold ver $id))
+            pool_vrf=$(cli shelley node key-hash-VRF \
+                       --verification-key-file  $(key VRF  ver $id))
+            deleg_staking=$(cli shelley stake-address key-hash \
                             --stake-verification-key-file "$target_dir"/addresses/pool-owner${id}-stake.vkey)
-            initial_addr=$(cardano-cli shelley address info --address $(cat "$target_dir"/addresses/pool-owner${id}.addr) |
+            initial_addr=$(cli shelley address info --address $(cat "$target_dir"/addresses/pool-owner${id}.addr) |
                            jq '.base16' --raw-output)
             params=(
             --arg      poolId          "$pool_id"
@@ -270,10 +307,10 @@ profile_genesis_shelley() {
             "$target_dir"/utxo-keys/utxo1.vkey
         sed -i 's_Genesis UTxO signing key_PaymentSigningKeyShelley_' \
             "$target_dir"/utxo-keys/utxo1.skey
-        initial_addr_non_pool_bech32=$(cardano-cli shelley address build \
+        initial_addr_non_pool_bech32=$(cli shelley address build \
                                        --payment-verification-key-file "$target_dir"/utxo-keys/utxo1.vkey \
                                        --testnet-magic "$magic")
-        initial_addr_non_pool_base16=$(cardano-cli shelley address info --address "$initial_addr_non_pool_bech32" |
+        initial_addr_non_pool_base16=$(cli shelley address info --address "$initial_addr_non_pool_bech32" |
                                        jq '.base16' --raw-output)
 
         params=(--argjson pools                   "$pools_json"
@@ -298,4 +335,15 @@ profile_genesis_shelley() {
 
         ## Fix up the key, so the generator can read it:
         sed -i 's_PaymentSigningKeyShelley_SigningKeyShelley_' "$target_dir"/utxo-keys/utxo1.skey
+}
+
+profile_genesis_hash_byron() {
+        local genesis_dir="${1:-./keys}"
+        cat ${genesis_dir}/GENHASH
+}
+
+profile_genesis_hash_shelley() {
+        local genesis_dir="${1:-./keys}"
+
+        cardano-cli shelley genesis hash --genesis ${genesis_dir}/genesis.json | tr -d '"'
 }

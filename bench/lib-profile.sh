@@ -40,7 +40,9 @@ profile_deploy() {
 
         if test -n "${regenesis_causes[*]}"
         then oprint "regenerating genesis, because:  ${regenesis_causes[*]}"
-             profile_genesis "$prof"; fi
+             local genesislog
+             genesislog=runs/$(timestamp).genesis.$prof.log
+             profile_genesis "$prof" >"$genesislog" 2>&1; fi
 
         redeploy_causes=(mandatory)
         include=('explorer')

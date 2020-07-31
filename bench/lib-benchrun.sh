@@ -57,6 +57,7 @@ process_broken_run() {
         local dir=${1:-.}
 
         op_stop
+        set -x
         fetch_run      "$dir"
         analyse_run    "$dir"
         package_run    "$dir" "$(realpath ../bench-results-bad)"
