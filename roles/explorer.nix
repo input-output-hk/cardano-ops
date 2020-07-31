@@ -249,6 +249,13 @@ in {
           };
           "/graphql" = {
             proxyPass = "http://127.0.0.1:3100/graphql";
+            extraConfig = ''
+              # Temporary workaround until
+              # https://github.com/input-output-hk/cardano-graphql/issues/266
+              # is fixed so that we don't get alerted when someone
+              # submits an invalid query.
+              error_page 500 =400 error.html
+            '';
           };
           "/relays" = {
             root = "/var/lib/registered-relays-dump";
