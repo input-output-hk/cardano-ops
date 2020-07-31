@@ -7,30 +7,33 @@ pkgs: with pkgs; with lib; rec {
         else "europe";
       in "${prefix}.${globals.relaysNew}";
 
-  withinOneHop =
+  nbPeersOneHopCluster =
     let
       # list of max number of nodes that can be connected within one hop using 'nbPeers':
       maxNbNodes = genList (p: { maxNbNodes = p * (p + 1); nbPeers = p;}) 100;
-    in nodes: let
-      nbNodes = length nodes;
-      nbPeers = (findFirst (i: nbNodes <= i.maxNbNodes) (throw "too many nodes") maxNbNodes).nbPeers;
-      indexedNodes = imap0 (idx: node: { inherit idx node;}) nodes;
-      names = let names = map (n: n.name) nodes; in names ++ names; # to avoid overflows
-      topologies = map ({node, idx}:
-        rec { inherit node;
-            startIndex = if idx == 0 then 1 else mod ((elemAt topologies (idx - 1)).endIndexExcluded) nbNodes;
-            endIndexExcluded = let unfiltrerProducers = sublist startIndex nbPeers names;
-              in startIndex + nbPeers + (if (elem node.name unfiltrerProducers) then 1 else 0);
-            producers = filter (p: p != node.name) (sublist startIndex (endIndexExcluded - startIndex) names);
-        }
-      ) indexedNodes;
-      in map (n: n.node // {
-        producers = n.node.producers ++ n.producers;
-      }) topologies;
+    in clusterSize: (findFirst (i: clusterSize <= i.maxNbNodes) (throw "too many nodes") maxNbNodes).nbPeers;
+
+  withinOneHop = nodes: let
+    nbNodes = length nodes;
+    nbPeers = nbPeersOneHopCluster nbNodes;
+    indexedNodes = imap0 (idx: node: { inherit idx node;}) nodes;
+    names = let names = map (n: n.name) nodes; in names ++ names; # to avoid overflows
+    topologies = map ({node, idx}:
+      rec { inherit node;
+          startIndex = if idx == 0 then 1 else mod ((elemAt topologies (idx - 1)).endIndexExcluded) nbNodes;
+          endIndexExcluded = let unfiltrerProducers = sublist startIndex nbPeers names;
+            in startIndex + nbPeers + (if (elem node.name unfiltrerProducers) then 1 else 0);
+          producers = filter (p: p != node.name) (sublist startIndex (endIndexExcluded - startIndex) names);
+      }
+    ) indexedNodes;
+    in map (n: n.node // {
+      producers = n.node.producers ++ n.producers;
+    }) topologies;
 
   mkRelayTopology = {
     regions
   , relayPrefix ? "rel"
+  , maxProducersPerNode ? 20
   , coreNodes
     # Since we don't have relays in every regions,
     # we define a substitute region for each region we don't deploy to;
@@ -57,6 +60,8 @@ pkgs: with pkgs; with lib; rec {
     let
 
       inUseRegions = mapAttrsToList (_: r: r.name) regions;
+      nbRegions = length inUseRegions;
+      nbCoreNodes = length coreNodes;
       regionLetters = (attrNames regions);
       indexedRegions = imap0 (rIndex: rLetter:
         { inherit rIndex rLetter;
@@ -86,8 +91,14 @@ pkgs: with pkgs; with lib; rec {
       indexedCoreNodes = imap0 (index: mergeAttrs {inherit index;}) coreNodes;
 
       nbRelaysPerRegions = mapAttrs (_: {minRelays, name, ...}:
-        # we scale so that relays have less than 20 producers, with a given minimum:
-        minRelays + (builtins.div (length (thirdPartyRelaysByRegions.${name} or [])) 20)
+        # we scale so that relays have less than `maxRelaysPerNode` producer relays per node, with a given minimum of relays:
+        let
+          nbThirdPartyRelays = length (thirdPartyRelaysByRegions.${name} or []);
+          nbRelaysFirstApprox = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - nbRegions - (nbPeersOneHopCluster minRelays) - 1);
+          nbLocalPeersApprox = nbPeersOneHopCluster nbRelaysFirstApprox;
+          nbRelaysAutoScale = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - nbRegions - nbLocalPeersApprox);
+        in
+          max minRelays nbRelaysAutoScale
       ) regions;
     in
       imap1 (i: r:
@@ -96,6 +107,7 @@ pkgs: with pkgs; with lib; rec {
         let
           nbRelays = nbRelaysPerRegions.${rLetter};
           relayIndexesInRegion = genList (i: i + 1) nbRelays;
+          coreNodesInterval = nbRelays / nbCoreNodes;
           relaysForRegion = map (nodeIndex:
             let
               name = "${relayPrefix}-${rLetter}-${toString nodeIndex}";
@@ -103,7 +115,10 @@ pkgs: with pkgs; with lib; rec {
               inherit region name nodeIndex;
               producers =
                 # a share of the core nodes:
-                (map (c: c.name) (filter (c: mod c.index nbRelays == (nodeIndex - 1)) indexedCoreNodes))
+                (if nbRelays <= nbCoreNodes
+                  then map (c: c.name) (filter (c: mod c.index nbRelays == (nodeIndex - 1)) indexedCoreNodes)
+                  else optional (mod (nodeIndex - 1) coreNodesInterval == 0 && (nodeIndex - 1) / coreNodesInterval < nbCoreNodes)
+                    (elemAt coreNodes ((nodeIndex - 1) / coreNodesInterval)).name)
                 # one relay in each other regions:
                 ++ map (r: "${relayPrefix}-${r}-${toString (mod (nodeIndex - 1) nbRelaysPerRegions.${r} + 1)}") (filter (r: r != rLetter) regionLetters)
                 # a share of the third-party relays:
