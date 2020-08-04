@@ -276,9 +276,13 @@ let
         "producers"
         "staticRoutes"
         "dynamicSubscribe"
+        "stakePool"
       ]);
 
 in {
-  network.description = "Cardano cluster - ${globals.deploymentName}";
+  network.description =
+    globals.networkName
+      or
+    "Cardano cluster - ${globals.deploymentName}";
   network.enableRollback = true;
 } // nodes

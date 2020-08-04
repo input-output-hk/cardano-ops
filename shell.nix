@@ -72,9 +72,27 @@ let
       cardano-cli --version
     '';
 in  mkShell {
-  buildInputs = [ iohkNix.niv nivOverrides nixops nix cardano-cli telnet dnsutils mkDevGenesis nix-diff migrate-keys pandoc
-    renew-kes-keys create-shelley-genesis-and-keys test-cronjob-script kes-rotation relay-update
-  ] ++ (with cardano-sl-pkgs.nix-tools.exes; lib.optionals (globals.topology.legacyCoreNodes != []) [ cardano-sl-auxx cardano-sl-tools ]);
+  buildInputs = [
+    cardano-cli
+    create-shelley-genesis-and-keys
+    dnsutils
+    iohkNix.niv
+    kes-rotation
+    migrate-keys
+    mkDevGenesis
+    nivOverrides
+    nix
+    nix-diff
+    nixops
+    pandoc
+    pstree
+    relay-update
+    renew-kes-keys
+    telnet
+    test-cronjob-script
+  ] ++ (with cardano-sl-pkgs.nix-tools.exes;
+          lib.optionals (globals.topology.legacyCoreNodes != [])
+          [ cardano-sl-auxx cardano-sl-tools ]);
   NIX_PATH = "nixpkgs=${path}";
   NIXOPS_DEPLOYMENT = "${globals.deploymentName}";
   passthru = {
