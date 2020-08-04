@@ -122,29 +122,38 @@ in {
         ) t
       ) t;
     '';
+    relays_exclude_file = builtins.toFile "relays-exclude.txt" (lib.concatStringsSep "\n" globals.static.relaysExcludeList);
   in {
-    path = [ config.services.postgresql.package jq netcat curl ];
+    path = [ config.services.postgresql.package jq netcat curl dnsutils ];
     script = ''
       set -uo pipefail
+      excludeList="$(sort ${relays_exclude_file})"
       cd $STATE_DIRECTORY
       for r in $(psql -t < ${extract_relays_sql} | jq -c '.[]'); do
         addr=$(echo $r | jq -r '.addr')
         port=$(echo $r | jq -r '.port')
-        set +e
-        nc -w 2 -z $addr $port  > /dev/null
-        res=$?
-        set -e
-        if [ $res -eq 0 ]; then
-          geoinfo=$(curl -s https://json.geoiplookup.io/$addr)
-          continent=$(echo $geoinfo | jq -r '.continent_name')
-          country_code=$(echo $geoinfo | jq -r '.country_code')
-          if [ "$country_code" == "US" ]; then
-            state=$(echo $geoinfo | jq -r '.region')
-          else
-            state=$country_code
+        allAddresses="$addr\n$(dig +short $addr)"
+        excludedAddresses=$(comm -12 <(echo "$allAddresses" | sort) <(echo "$excludeList"))
+        nbExcludedAddresses=$(echo $excludedAddresses | wc -w)
+        if [[ $nbExcludedAddresses == 0 ]]; then
+          set +e
+          nc -w 1 -z $addr $port  > /dev/null
+          res=$?
+          set -e
+          if [ $res -eq 0 ]; then
+            geoinfo=$(curl -s https://json.geoiplookup.io/$addr)
+            continent=$(echo $geoinfo | jq -r '.continent_name')
+            country_code=$(echo $geoinfo | jq -r '.country_code')
+            if [ "$country_code" == "US" ]; then
+              state=$(echo $geoinfo | jq -r '.region')
+            else
+              state=$country_code
+            fi
+            echo $r | jq --arg continent "$continent" \
+              --arg state "$state" '. + {continent: $continent, state: $state}'
           fi
-          echo $r | jq --arg continent "$continent" \
-            --arg state "$state" '. + {continent: $continent, state: $state}'
+        else
+          >&2 echo "$addr excluded due to dns name or IPs being in exclude list:\n$excludedAddresses"
         fi
       done | jq -n '. + [inputs]' | jq '{ Producers : . }' > topology.json
       mkdir -p relays
