@@ -46,7 +46,7 @@ in {
     enable = true;
     genesisByron = nodeCfg.nodeConfig.ByronGenesisFile;
     genesisShelley = nodeCfg.nodeConfig.ShelleyGenesisFile;
-    whitelistPath = cardano-explorer-app-pkgs.whitelist;
+    allowListPath = cardano-explorer-app-pkgs.allowList;
     cardanoNodeSocketPath = nodeCfg.socketPath;
   };
   services.cardano-node.rtsArgs = lib.mkForce
