@@ -17,7 +17,7 @@ in {
   ];
 
   environment.systemPackages = with pkgs; [
-    bat fd lsof netcat ncdu ripgrep tree vim cardano-cli
+    bat fd lsof netcat ncdu ripgrep tree vim dnsutils cardano-cli
     cardano-db-sync-pkgs.haskellPackages.cardano-db.components.exes.cardano-db-tool
   ];
   services.cardano-postgres.enable = true;
@@ -49,6 +49,13 @@ in {
     whitelistPath = cardano-explorer-app-pkgs.whitelist;
     cardanoNodeSocketPath = nodeCfg.socketPath;
   };
+
+  # Temporarily required until the following cardano-graphql issue is fixed:
+  # https://github.com/input-output-hk/cardano-graphql/issues/268
+  systemd.services.cardano-graphql.startLimitIntervalSec = 0;
+  systemd.services.cardano-graphql.serviceConfig.Restart = "always";
+  systemd.services.cardano-graphql.serviceConfig.RestartSec = "10s";
+
   services.cardano-node.rtsArgs = lib.mkForce
     (if globals.withHighCapacityExplorer then
       [ "-N2" "-A10m" "-qg" "-qb" "-M10G" ]
