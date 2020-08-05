@@ -27,7 +27,8 @@ pkgs: with pkgs; with lib; rec {
       }
     ) indexedNodes;
     in map (n: n.node // {
-      producers = n.node.producers ++ n.producers;
+      producers = filter (p: !(elem p n.node.producers)) n.producers
+         ++ n.node.producers;
     }) topologies;
 
   mkRelayTopology = {
