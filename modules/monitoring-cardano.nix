@@ -13,7 +13,7 @@ in {
   services.monitoring-services.applicationRules = [
     {
       alert = "chain_quality_degraded";
-      expr = "(cardano_node_ChainDB_metrics_density_real{alias!~\"bft-dr-.*\"} / on(alias) cardano_node_genesis_activeSlotsCoeff * 100) < ${chainDensityLow}";
+      expr = "(cardano_node_ChainDB_metrics_density_real{alias!~\"bft-dr-.*|rel-dr-.*\"} / on(alias) cardano_node_genesis_activeSlotsCoeff * 100) < ${chainDensityLow}";
       for = "5m";
       labels = {
         severity = "page";
@@ -25,7 +25,7 @@ in {
     }
     {
       alert = "shadow_chain_quality_degraded";
-      expr = "(cardano_node_ChainDB_metrics_density_real{alias=~\"bft-dr-.*\"} / on(alias) cardano_node_genesis_activeSlotsCoeff * 100) < 90";
+      expr = "(cardano_node_ChainDB_metrics_density_real{alias=~\"bft-dr-.*|rel-dr-.*\"} / on(alias) cardano_node_genesis_activeSlotsCoeff * 100) < 90";
       for = "5m";
       labels = {
         severity = "page";
