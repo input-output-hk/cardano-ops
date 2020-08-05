@@ -263,7 +263,8 @@ in {
               # https://github.com/input-output-hk/cardano-graphql/issues/266
               # is fixed so that we don't get alerted when someone
               # submits an invalid query.
-              error_page 500 =400 error.html
+              proxy_intercept_errors on;
+              error_page 500 =400 /;
             '';
           };
           "/relays" = {
