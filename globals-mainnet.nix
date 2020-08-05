@@ -21,7 +21,7 @@ pkgs: {
 
   topology = import ./topologies/mainnet.nix pkgs;
 
-  maxPrivilegedRelays = 36;
+  maxPrivilegedRelays = 24;
 
   ec2 = {
     credentials = {
@@ -34,6 +34,7 @@ pkgs: {
     };
   };
 
-  alertTcpHigh = "200";
-  alertTcpCrit = "250";
+  alertChainDensityLow = "98";
+  alertTcpHigh = "250";
+  alertTcpCrit = "300";
 }
