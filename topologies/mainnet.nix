@@ -4,19 +4,19 @@ let
   withAutoRestart = def: lib.recursiveUpdate {
     systemd.services.cardano-node.serviceConfig = {
       RuntimeMaxSec = 6 *
-        60 * 60 + 60 * (5 * (def.nodeId or 0));
+        60 * 60 + 60 * (def.nodeId or 0);
     };
   } def;
 
   regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
-      minRelays = 2;
+      minRelays = 35;
     };
     b = { name = "us-east-2";      # US East (Ohio)
-      minRelays = 2;
+      minRelays = 25;
     };
     c = { name = "ap-southeast-1"; # Asia Pacific (Singapore)
-      minRelays = 2;
+      minRelays = 20;
     };
     d = { name = "eu-west-2";      # Europe (London)
       minRelays = 25;
@@ -25,191 +25,153 @@ let
       minRelays = 25;
     };
     f = { name = "ap-northeast-1"; # Asia Pacific (Tokyo)
-      minRelays = 2;
+      minRelays = 10;
     };
   };
 
-  bftCoreNodes = [
-    # OBFT centralized nodes
-    {
-      name = "bft-a-1";
-      region = regions.a.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-a-1" "rel-a-3" ];
+  bftCoreNodes = let
+    mkBftCoreNode = r: idx: attrs:
+      rec {
+        name = "bft-${r}-${toString idx}";
+        region = regions.${r}.name;
+        producers = # a share of the staking pool nodes:
+          map (s: s.name) (filter (s: mod (s.nodeId - 8) 7 == (attrs.nodeId - 1)) stakingPoolNodes)
+          ++ # some nearby relays:
+          [{
+            addr = relayGroupForRegion region;
+            port = globals.cardanoNodePort;
+            valency = 3;
+          }];
+      } // attrs;
+  in withinOneHop [
+    # OBFT centralized nodes recovery nodes
+    (mkBftCoreNode "a" 1 {
       org = "IOHK";
       nodeId = 1;
-    }
-    {
-      name = "bft-b-1";
-      region = regions.b.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-b-1" "rel-b-3" ];
+    })
+    (mkBftCoreNode "b" 1 {
       org = "IOHK";
       nodeId = 2;
-    }
-    {
-      name = "bft-f-1";
-      region = regions.f.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-f-1" "rel-f-3" ];
+    })
+    (mkBftCoreNode "c" 1 {
       org = "Emurgo";
       nodeId = 3;
-    }
-    {
-      name = "bft-f-2";
-      region = regions.f.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-f-2" "rel-f-4" ];
+    })
+    (mkBftCoreNode "d" 1 {
       org = "Emurgo";
       nodeId = 4;
-    }
-    {
-      name = "bft-c-1";
-      region = regions.c.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-c-1" "rel-c-3" ];
+    })
+    (mkBftCoreNode "e" 1 {
       org = "CF";
       nodeId = 5;
-    }
-    {
-      name = "bft-c-2";
-      region = regions.c.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-c-2" "rel-c-4" ];
+    })
+    (mkBftCoreNode "f" 1 {
       org = "CF";
       nodeId = 6;
-    }
-    {
-      name = "bft-d-1";
-      region = regions.d.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-d-1" "rel-d-2" ];
+    })
+    (mkBftCoreNode "a" 2 {
       org = "IOHK";
       nodeId = 7;
-    }
+    })
   ];
 
-  stakingPoolNodes = [
-    {
-      name = "stk-a-1";
-      region = regions.a.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-a-2" "rel-a-4" ];
-      org = "IOHK";
-      nodeId = 8;
-    }
-    {
-      name = "stk-b-1";
-      region = regions.b.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-c-1" "rel-c-2" ];
-      org = "IOHK";
-      nodeId = 9;
-    }
-    {
-      name = "stk-e-1";
-      region = regions.e.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-e-1" "rel-e-1" ];
-      org = "IOHK";
-      nodeId = 10;
-    }
+  stakingPoolNodes =
+    let
+      bftCoreNodesInterval = (length stakingPoolNodes) / (length bftCoreNodes);
+      mkStakingPool = r: idx: attrs: rec {
+        name = "stk-${r}-${toString idx}";
+        region = regions.${r}.name;
+        producers = # a share of the bft core nodes:
+          optional (mod (attrs.nodeId - 8) bftCoreNodesInterval == 0 && (attrs.nodeId - 8) / bftCoreNodesInterval < (length bftCoreNodes))
+            (elemAt bftCoreNodes ((attrs.nodeId - 8) / bftCoreNodesInterval)).name
+          ++ # some nearby relays:
+          [{
+            addr = relayGroupForRegion region;
+            port = globals.cardanoNodePort;
+            valency = 3;
+          }];
+        org = "IOHK";
+      } // attrs;
+  in withinOneHop [
+    (mkStakingPool "a" 1 { nodeId = 8; })
+    (mkStakingPool "b" 1 { nodeId = 9; })
+    (mkStakingPool "c" 1 { nodeId = 10; })
+    (mkStakingPool "d" 1 { nodeId = 11; })
+    (mkStakingPool "e" 1 { nodeId = 12; })
+    (mkStakingPool "f" 1 { nodeId = 13; })
+    (mkStakingPool "a" 2 { nodeId = 14; })
+    (mkStakingPool "b" 2 { nodeId = 15; })
+    (mkStakingPool "c" 2 { nodeId = 16; })
+    (mkStakingPool "d" 2 { nodeId = 17; })
+    (mkStakingPool "e" 2 { nodeId = 18; })
+    (mkStakingPool "f" 2 { nodeId = 19; })
+    (mkStakingPool "a" 3 { nodeId = 20; })
+    (mkStakingPool "b" 3 { nodeId = 21; })
+    (mkStakingPool "c" 3 { nodeId = 22; })
+    (mkStakingPool "d" 3 { nodeId = 23; })
+    (mkStakingPool "e" 3 { nodeId = 24; })
+    (mkStakingPool "f" 3 { nodeId = 25; })
+    (mkStakingPool "a" 4 { nodeId = 26; })
+    (mkStakingPool "b" 4 { nodeId = 27; })
   ];
 
   coreNodes = bftCoreNodes ++ stakingPoolNodes;
 
-  londonRelayNodes = mkRelayTopology {
-    regions = { inherit (regions) d; };
-    coreNodes = filter (r: r.region == regions.a.name) oldRelayNodes;
-  };
+  relayNodes = map withAutoRestart (mkRelayTopology {
+    inherit regions;
+    coreNodes = oldCoreNodes ++ coreNodes;
+    maxProducersPerNode = 25;
+  });
 
-  californiaRelayNodes = mkRelayTopology {
-     regions = { inherit (regions) e; };
-     coreNodes = filter (r: r.region == regions.b.name) oldRelayNodes;
-  };
-
-  oldCoreNodes = [
-    {
-      name = "c-a-1";
-      region = "eu-central-1";
-      producers = [
-        "c-a-2"
-        "c-b-1" "c-c-1" "c-d-1"
-        "e-a-1" "e-a-3" "e-a-5"
-        "e-b-7" "e-c-7" "e-d-4"
-        "rel-d-1"
-      ];
-      org = "IOHK";
-      nodeId = 1;
-    }
-    {
-      name = "c-a-2";
-      region = "eu-central-1";
-      producers = [
-        "c-a-1"
-        "c-b-2" "c-c-2"
-        "e-a-2" "e-a-4" "e-a-6"
-        "e-b-8" "e-c-8" "e-d-5"
-        "rel-d-2"
-      ];
-      org = "IOHK";
-      nodeId = 2;
-    }
-    {
-      name = "c-b-1";
-      region = "ap-northeast-1";
-      producers = [
-        "b-b-1"
-        "c-b-2"
-        "c-a-1" "c-c-1" "c-d-1"
-        "e-b-1" "e-b-3" "e-b-5"
-        "e-a-7" "e-c-9" "e-d-6"
-      ];
-      org = "Emurgo";
-      nodeId = 3;
-    }
-    {
-      name = "c-b-2";
-      region = "ap-northeast-1";
-      producers = [
-        "b-b-1"
-        "c-b-1"
-        "c-a-2" "c-c-2"
-        "e-b-2" "e-b-4" "e-b-6"
-        "e-a-8" "e-c-10" "e-d-7"
-      ];
-      org = "Emurgo";
-      nodeId = 4;
-    }
-    {
-      name = "c-c-1";
-      region = "ap-southeast-1";
-      producers = [
-        "b-c-1"
-        "c-c-2"
-        "c-a-1" "c-b-1" "c-d-1"
-        "e-c-1" "e-c-3" "e-c-5"
-        "e-a-9" "e-b-9" "e-d-8"
-      ];
-      org = "CF";
-      nodeId = 5;
-    }
-    {
-      name = "c-c-2";
-      region = "ap-southeast-1";
-      producers = [
-        "b-c-1"
-        "c-c-1"
-        "c-a-2" "c-b-2"
-        "e-c-2" "e-c-4" "e-c-6"
-        "e-a-10" "e-b-10" "e-d-9"
-      ];
-      org = "CF";
-      nodeId = 6;
-    }
-    {
-      name = "c-d-1";
-      region = "us-east-2";
-      producers = [
-        "c-a-2" "c-b-2" "c-d-2"
-        "e-d-1" "e-d-2" "e-d-3"
-        "e-a-11" "e-b-11" "e-c-11"
-        "rel-e-1"
-      ];
-      org = "IOHK";
-      nodeId = 7;
-    }
-  ];
+  oldCoreNodes =
+    let mkCoreNode = r: idx: attrs:
+      rec {
+        name = "c-${r}-${toString idx}";
+        producers = filter (n: n != name) (map (c: c.name) oldCoreNodes)
+          ++ [{
+            addr = relayGroupForRegion attrs.region;
+            port = globals.cardanoNodePort;
+            valency = 3;
+          }];
+      } // attrs;
+    in [
+      # OBFT centralized nodes nodes
+      (mkCoreNode "a" 1 {
+        org = "IOHK";
+        region = "eu-central-1";
+        nodeId = 1;
+      })
+      (mkCoreNode "a" 2 {
+        org = "IOHK";
+        region = "eu-central-1";
+        nodeId = 2;
+      })
+      (mkCoreNode "b" 1 {
+        org = "Emurgo";
+        region = "ap-northeast-1";
+        nodeId = 3;
+      })
+      (mkCoreNode "b" 2 {
+        org = "Emurgo";
+        region = "ap-northeast-1";
+        nodeId = 4;
+      })
+      (mkCoreNode "c" 1 {
+        org = "CF";
+        region = "ap-southeast-1";
+        nodeId = 5;
+      })
+      (mkCoreNode "c" 2 {
+        org = "CF";
+        region = "ap-southeast-1";
+        nodeId = 6;
+      })
+      (mkCoreNode "d" 1 {
+        org = "IOHK";
+        region = "us-east-2";
+        nodeId = 7;
+      })
+    ];
 
   # Recovery nodes:
   withTestShelleyHardForkAtVersion3 = lib.recursiveUpdate {
@@ -254,7 +216,7 @@ let
     })
     (mkCoreNode "b" 1 {
       org = "IOHK";
-      nodeId = 1;
+      nodeId = 7;
     })
   ];
 
@@ -1000,13 +962,11 @@ let
 
 in {
 
-  # Comment the following line after hard fork to remove dr nodes from relay role
-  #privateRelayNodes = recoveryCoreNodes;
+  privateRelayNodes = stakingPoolNodes;# ++ oldCoreNodes;
 
-  # Remove comment after hard fork and redeploy dr nodes
-  coreNodes = oldCoreNodes ++ recoveryCoreNodes;
+  coreNodes = bftCoreNodes ++ recoveryCoreNodes;
 
-  relayNodes = oldRelayNodes ++ londonRelayNodes ++ californiaRelayNodes;
+  relayNodes = relayNodes;# ++ oldRelayNodes;
 
   legacyRelayNodes = [];
   byronProxies = [];
