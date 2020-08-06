@@ -221,9 +221,7 @@ let
 
 in {
 
-  privateRelayNodes = stakingPoolNodes;
-
-  coreNodes = bftCoreNodes ++ recoveryCoreNodes;
+  coreNodes = coreNodes ++ recoveryCoreNodes;
 
   inherit relayNodes;
 
