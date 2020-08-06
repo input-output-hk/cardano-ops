@@ -11,7 +11,7 @@ let
   };
   cardano-explorer-app-pkgs = import self.sourcePaths.cardano-explorer-app {};
   cardano-rest-pkgs = import (self.sourcePaths.cardano-rest + "/nix") {};
-  cardanoNodePkgs = import (self.sourcePaths.cardano-node + "/nix") {};
+  cardanoNodePkgs = import (self.sourcePaths.cardano-node + "/nix") { gitrev = self.sourcePaths.cardano-node.rev; };
 in rec {
   inherit cardano-sl-pkgs cardano-db-sync-pkgs cardano-byron-proxy-pkgs cardano-explorer-app-pkgs
     cardano-rest-pkgs cardanoNodePkgs;
