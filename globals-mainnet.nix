@@ -22,6 +22,7 @@ pkgs: {
   topology = import ./topologies/mainnet.nix pkgs;
 
   maxRulesPerSg = {
+    IOHK = 60;
     Emurgo = 36;
     CF = 36;
   };
