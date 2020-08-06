@@ -21,7 +21,10 @@ pkgs: {
 
   topology = import ./topologies/mainnet.nix pkgs;
 
-  maxPrivilegedRelays = 24;
+  maxRulesPerSg = {
+    Emurgo = 36;
+    CF = 36;
+  };
 
   ec2 = {
     credentials = {

@@ -24,8 +24,6 @@ in {
   explorerForceSSL = true;
   explorerAliases = [];
 
-  maxPrivilegedRelays = 48;
-
   withMonitoring = true;
   withExplorer = true;
   withLegacyExplorer = false;
