@@ -72,7 +72,7 @@ let
       cardano-cli --version
     '';
 in  mkShell {
-  buildInputs = [ iohkNix.niv nivOverrides nixops nix cardano-cli telnet dnsutils mkDevGenesis nix-diff migrate-keys pandoc
+  buildInputs = [ iohkNix.niv nivOverrides nixops nixops2Wrapped nix cardano-cli telnet dnsutils mkDevGenesis nix-diff migrate-keys pandoc
     renew-kes-keys create-shelley-genesis-and-keys test-cronjob-script kes-rotation relay-update
   ] ++ (with cardano-sl-pkgs.nix-tools.exes; lib.optionals (globals.topology.legacyCoreNodes != []) [ cardano-sl-auxx cardano-sl-tools ]);
   NIX_PATH = "nixpkgs=${path}";
@@ -80,4 +80,8 @@ in  mkShell {
   passthru = {
     gen-graylog-creds = iohk-ops-lib.scripts.gen-graylog-creds { staticPath = ./static; };
   };
+  shellHook = ''
+    # To allow nixops and nixops2 to function side-by-side
+    unset PYTHONPATH
+  '';
 }
