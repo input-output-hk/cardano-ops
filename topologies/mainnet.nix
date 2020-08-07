@@ -119,7 +119,7 @@ let
 
   relayNodes = map withAutoRestart (mkRelayTopology {
     inherit regions coreNodes;
-    maxProducersPerNode = 25;
+    autoscaling = false;
   });
 
   oldCoreNodes =
