@@ -33,9 +33,10 @@ pkgs: with pkgs; with lib; rec {
 
   mkRelayTopology = {
     regions
+  , coreNodes
   , relayPrefix ? "rel"
   , maxProducersPerNode ? 20
-  , coreNodes
+  , autoscaling ? true
     # Since we don't have relays in every regions,
     # we define a substitute region for each region we don't deploy to;
   , regionsSubstitutesExtra ? {}
@@ -99,7 +100,8 @@ pkgs: with pkgs; with lib; rec {
           nbLocalPeersApprox = nbPeersOneHopCluster nbRelaysFirstApprox;
           nbRelaysAutoScale = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - nbRegions - nbLocalPeersApprox);
         in
-          max minRelays nbRelaysAutoScale
+          if autoscaling then minRelays
+          else max minRelays nbRelaysAutoScale
       ) regions;
     in
       imap1 (i: r:
