@@ -538,4 +538,10 @@
     port = 3002;
     valency = 1;
   }
+  {
+    operator = "GerolamoNetwork";
+    addr = "jagger.gerolamo.network;
+    port = 3001;
+    valency = 1;
+  }
 ]
