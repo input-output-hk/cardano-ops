@@ -1,7 +1,6 @@
 pkgs: rec {
 
   withMonitoring = false;
-  withLegacyExplorer = false;
 
   environmentName = "shelley-dev";
 
@@ -13,7 +12,6 @@ pkgs: rec {
       "52.58.137.138"
     ];
     edgePort = pkgs.globals.cardanoNodePort;
-    confKey = abort "legacy nodes not supported by shelley-dev environment";
     genesisFile = ./keys/genesis.json;
     genesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/GENHASH);
     private = true;

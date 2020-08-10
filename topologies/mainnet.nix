@@ -228,8 +228,4 @@ in {
   monitoring = {
     services.monitoring-services.publicGrafana = false;
   };
-
-  legacyRelayNodes = [];
-  byronProxies = [];
-  legacyCoreNodes = [];
 }

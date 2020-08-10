@@ -90,9 +90,7 @@ in  mkShell {
     renew-kes-keys
     telnet
     test-cronjob-script
-  ] ++ (with cardano-sl-pkgs.nix-tools.exes;
-          lib.optionals (globals.topology.legacyCoreNodes != [])
-          [ cardano-sl-auxx cardano-sl-tools ]);
+  ];
   NIX_PATH = "nixpkgs=${path}";
   NIXOPS_DEPLOYMENT = "${globals.deploymentName}";
   passthru = {

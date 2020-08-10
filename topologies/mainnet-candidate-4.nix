@@ -106,8 +106,4 @@ in {
       root = ../static/pool-metadata;
     };
   };
-
-  legacyCoreNodes = [];
-  legacyRelayNodes = [];
-  byronProxies = [];
 }

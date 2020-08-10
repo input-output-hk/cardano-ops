@@ -15,19 +15,13 @@ with pkgs;
 let
 
   inherit (globals) topology byronProxyPort;
-  inherit (topology) legacyCoreNodes legacyRelayNodes byronProxies coreNodes relayNodes;
+  inherit (topology) coreNodes relayNodes;
   privateRelayNodes = topology.privateRelayNodes or [];
   inherit (lib) recursiveUpdate mapAttrs listToAttrs imap1 concatLists;
 
-  # for now, keys need to be generated for each core nodes with:
-  # for i in {1..2}; do cardano-cli --byron-legacy keygen --secret ./keys/$i.sk --no-password; done
-
   cardanoNodes = listToAttrs (concatLists [
-    (map mkLegacyCoreNode legacyCoreNodes)
-    (map mkLegacyRelayNode legacyRelayNodes)
     (map mkCoreNode coreNodes)
     (map mkRelayNode (relayNodes ++ privateRelayNodes))
-    (map mkByronProxyNode byronProxies)
     (map mkTestNode (topology.testNodes or []))
   ]);
 
@@ -65,17 +59,7 @@ let
               labels = { alias = "cardano-graphql-exporter"; };
             }];
           }
-          ])) ++ (lib.optional globals.withLegacyExplorer (
-          # TODO: remove once explorer python api is deprecated
-          {
-            job_name = "explorer-python-api";
-            scrape_interval = "10s";
-            metrics_path = "/metrics/explorer-python-api";
-            static_configs = [{
-              targets = [ "explorer-ip" ];
-              labels = { alias = "explorer-python-api"; };
-            }];
-          })) ++ (lib.optional globals.withFaucet (
+          ])) ++ (lib.optional globals.withFaucet (
           {
             job_name = "cardano-faucet";
             scrape_interval = "10s";
@@ -107,9 +91,7 @@ let
       imports = [
         (if globals.withHighCapacityExplorer then c5-4xlarge else xlarge)
         cardano-ops.roles.explorer
-      ]
-      # TODO: remove module when the new explorer is available
-      ++ lib.optional (globals.withLegacyExplorer) cardano-ops.roles.explorer-legacy;
+      ];
 
       services.monitoring-exporters.extraPrometheusExportersPorts =
         [ globals.cardanoNodePrometheusExporterPort ];
@@ -193,59 +175,6 @@ let
       ] else [
         medium cardano-ops.roles.relay
       ];
-    } def;
-  };
-
-  mkByronProxyNode = def: {
-    inherit (def) name;
-    value = mkNode {
-      node = {
-        roles.isByronProxy = true;
-        inherit (def) org nodeId;
-      };
-      services.byron-proxy = {
-        inherit (def) producers;
-      };
-      deployment.ec2.region = def.region;
-      imports = [
-        medium
-        cardano-ops.roles.byron-proxy
-      ];
-      services.cardano-node-legacy.staticRoutes = def.staticRoutes or [];
-      services.cardano-node-legacy.dynamicSubscribe = def.dynamicSubscribe or [];
-
-      services.monitoring-exporters.extraPrometheusExportersPorts = [ globals.byronProxyPrometheusExporterPort ];
-
-    } def;
-  };
-
-  mkLegacyCoreNode = def: {
-    inherit (def) name;
-    value = mkNode {
-      node = {
-        roles.isCardanoLegacyCore = true;
-        inherit (def) org nodeId;
-      };
-      deployment.ec2.region = def.region;
-      imports = [ medium cardano-ops.roles.legacy-core ];
-      # Temporary for legacy migration:
-      #imports = [ medium cardano-ops.roles.legacy-core
-      # cardano-ops.roles.sync-nonlegacy-chain-state ];
-      services.cardano-node-legacy.staticRoutes = def.staticRoutes;
-    } def;
-  };
-
-  mkLegacyRelayNode = def: {
-    inherit (def) name;
-    value = mkNode {
-      node = {
-        roles.isCardanoLegacyRelay = true;
-        inherit (def) org;
-      };
-      deployment.ec2.region = def.region;
-      imports = [ medium cardano-ops.roles.legacy-relay ];
-      services.cardano-node-legacy.staticRoutes = def.staticRoutes or [];
-      services.cardano-node-legacy.dynamicSubscribe = def.dynamicSubscribe or [];
     } def;
   };
 

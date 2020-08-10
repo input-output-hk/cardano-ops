@@ -48,18 +48,6 @@ in {
       };
     }
     {
-      alert = "cardano_node_block_divergence";
-      expr = "abs(max(cardano_byron_proxy_ChainDB_blockNum_int) - ignoring(alias,instance,job,role) group_right(instance) cardano_node_ChainDB_metrics_blockNum_int) > 2";
-      for = "5m";
-      labels = {
-        severity = "page";
-      };
-      annotations = {
-        summary = "{{$labels.alias}}: cardano-node block divergence with byron proxies detected for more than 5 minutes";
-        description = "{{$labels.alias}}: cardano-node block divergence with byron proxies detected for more than 5 minutes";
-      };
-    }
-    {
       alert = "cardano_new_node_block_divergence";
       expr = "abs(max(cardano_node_ChainDB_metrics_blockNum_int{alias!~\"bft-dr.*|rel-dr.*\"}) - ignoring(alias,instance,job,role) group_right(instance) cardano_node_ChainDB_metrics_blockNum_int{alias!~\"bft-dr.*|rel-dr.*\"}) > 2";
       for = "5m";
@@ -148,18 +136,6 @@ in {
       };
     }
     {
-      alert = "byron_proxy_block_divergence";
-      expr = "abs(max(cardano_total_main_blocks) - ignoring(alias,instance,job,role) group_right(instance) cardano_byron_proxy_ChainDB_blockNum_int) > 2";
-      for = "5m";
-      labels = {
-        severity = "page";
-      };
-      annotations = {
-        summary = "{{$labels.alias}}: byron-proxy block divergence detected for more than 5 minutes";
-        description = "{{$labels.alias}}: byron-proxy block divergence detected for more than 5 minutes";
-      };
-    }
-    {
       alert = "explorer_node_db_block_divergence";
       expr = "abs(cardano_node_ChainDB_metrics_blockNum_int{alias=~\"explorer.*\"} - on() db_block_height{alias=~\"explorer.*\"}) > 5";
       for = "5m";
@@ -186,8 +162,8 @@ in {
   ] ++ (builtins.concatMap ({region, regionLetter}: [
     {
       alert = "high_tcp_connections_${region}";
-      expr = "avg(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*|rel-${regionLetter}-.*\"}) " +
-             "- count(count(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*|rel-${regionLetter}-.*\"}) by (alias)) > ${tcpHigh}";
+      expr = "avg(node_netstat_Tcp_CurrEstab{alias=~\"rel-${regionLetter}-.*\"}) " +
+             "- count(count(node_netstat_Tcp_CurrEstab{alias=~\"rel-${regionLetter}-.*\"}) by (alias)) > ${tcpHigh}";
       for = "5m";
       labels = {
         severity = "page";
@@ -199,8 +175,8 @@ in {
     }
     {
       alert = "critical_tcp_connections_${region}";
-      expr = "avg(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*|rel-${regionLetter}-.*\"}) " +
-             "- count(count(node_netstat_Tcp_CurrEstab{alias=~\"e-${regionLetter}-.*|rel-${regionLetter}-.*\"}) by (alias)) > ${tcpCrit}";
+      expr = "avg(node_netstat_Tcp_CurrEstab{alias=~\"rel-${regionLetter}-.*\"}) " +
+             "- count(count(node_netstat_Tcp_CurrEstab{alias=~\"rel-${regionLetter}-.*\"}) by (alias)) > ${tcpCrit}";
       for = "15m";
       labels = {
         severity = "page";
@@ -212,7 +188,7 @@ in {
     }
     {
       alert = "high_egress_${region}";
-      expr = "avg(rate(node_network_transmit_bytes_total{alias=~\"e-${regionLetter}-.*|rel-${regionLetter}-.*\",device!~\"lo\"}[20s]) * 8) > ${MbpsHigh} * 1000 * 1000";
+      expr = "avg(rate(node_network_transmit_bytes_total{alias=~\"rel-${regionLetter}-.*\",device!~\"lo\"}[20s]) * 8) > ${MbpsHigh} * 1000 * 1000";
       for = "5m";
       labels = {
         severity = "page";
@@ -224,7 +200,7 @@ in {
     }
     {
       alert = "critical_egress_${region}";
-      expr = "avg(rate(node_network_transmit_bytes_total{alias=~\"e-${regionLetter}-.*|rel-${regionLetter}-.*\",device!~\"lo\"}[20s]) * 8) > ${MbpsCrit} * 1000 * 1000";
+      expr = "avg(rate(node_network_transmit_bytes_total{alias=~\"rel-${regionLetter}-.*\",device!~\"lo\"}[20s]) * 8) > ${MbpsCrit} * 1000 * 1000";
       for = "15m";
       labels = {
         severity = "page";
@@ -235,10 +211,10 @@ in {
       };
     }])
   [{ region = "eu-central-1";   regionLetter = "a"; }
-   { region = "ap-northeast-1"; regionLetter = "b"; }
+   { region = "us-east-2";      regionLetter = "b"; }
    { region = "ap-southeast-1"; regionLetter = "c"; }
-   { region = "us-east-2";      regionLetter = "d"; }
+   { region = "eu-west-2";      regionLetter = "d"; }
    { region = "us-west-1";      regionLetter = "e"; }
-   { region = "eu-west-1";      regionLetter = "f"; }
+   { region = "ap-northeast-1"; regionLetter = "f"; }
   ]);
 }

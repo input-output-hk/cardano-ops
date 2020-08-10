@@ -23,18 +23,6 @@
         "url": "https://github.com/input-output-hk/cardano-benchmarking/archive/5d67c4764f27aab974bfa126178bc60827c19561.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-byron-proxy": {
-        "branch": "tags/1.0.5",
-        "description": "A bydirectional proxy between the Shelly and Byron versions of the Cardano network",
-        "homepage": null,
-        "owner": "input-output-hk",
-        "repo": "cardano-byron-proxy",
-        "rev": "5538821647728516d5702cbfd9fb3000fcf41082",
-        "sha256": "10s3ivzv6hb7mb32imi2dga02vlaibsx8z1m2h7ns8cfkj4yng30",
-        "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-byron-proxy/archive/5538821647728516d5702cbfd9fb3000fcf41082.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "cardano-db-sync": {
         "branch": "refs/tags/3.1.0",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
@@ -107,42 +95,6 @@
         "url": "https://github.com/input-output-hk/cardano-rest/archive/7e417e9f651cb8a9012ca975454d6b22452c42d0.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-sl": {
-        "branch": "3.1.0",
-        "description": "Cryptographic currency implementing Ouroboros PoS protocol",
-        "homepage": "",
-        "owner": "input-output-hk",
-        "repo": "cardano-sl",
-        "rev": "1a792d7cd0f0c93a0f0c28f66372bce3c3808dbd",
-        "sha256": "1vk71zn9bnkgkhgcyj59wzrp28crjwcd0lgnm013mhzpvxycgn61",
-        "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-sl/archive/1a792d7cd0f0c93a0f0c28f66372bce3c3808dbd.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "cardano-sl-explorer": {
-        "branch": "develop",
-        "description": "Cryptographic currency implementing Ouroboros PoS protocol",
-        "homepage": "",
-        "owner": "input-output-hk",
-        "repo": "cardano-sl",
-        "rev": "f778004a2d9940567732528ab9d0229d0d4984e2",
-        "sha256": "1n1idcqc6w8r744fgqq1mxxbcc5a869d94mw98d6j2n4wzm2da7y",
-        "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-sl/archive/f778004a2d9940567732528ab9d0229d0d4984e2.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "gitignore": {
-        "branch": "master",
-        "description": "Nix function for filtering local git sources",
-        "homepage": "",
-        "owner": "hercules-ci",
-        "repo": "gitignore",
-        "rev": "f9e996052b5af4032fe6150bba4a6fe4f7b9d698",
-        "sha256": "0jrh5ghisaqdd0vldbywags20m2cxpkbbk5jjjmwaw0gr8nhsafv",
-        "type": "tarball",
-        "url": "https://github.com/hercules-ci/gitignore/archive/f9e996052b5af4032fe6150bba4a6fe4f7b9d698.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "iohk-nix": {
         "branch": "master",
         "description": "nix scripts shared across projects",
@@ -165,18 +117,6 @@
         "sha256": "1g95hqvc8hpjijwc2nrxvgnvasfjn2hrjd8g4x9cklphcz2mz0v8",
         "type": "tarball",
         "url": "https://github.com/NixOS/nixpkgs-channels/archive/39b92f6e45534658b49e79c78154df6333af8472.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "nixpkgs-postgresql12": {
-        "branch": "nixpkgs-unstable",
-        "description": "Nix Packages collection",
-        "homepage": null,
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "cc6cf0a96a627e678ffc996a8f9d1416200d6c81",
-        "sha256": "1srjikizp8ip4h42x7kr4qf00lxcp1l8zp6h0r1ddfdyw8gv9001",
-        "type": "tarball",
-        "url": "https://github.com/nixos/nixpkgs/archive/cc6cf0a96a627e678ffc996a8f9d1416200d6c81.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {

@@ -7,7 +7,6 @@ pkgs: {
   topology = import ./topologies/mainnet-candidate.nix pkgs;
 
   withExplorer = true;
-  withLegacyExplorer = false;
   withHighLoadRelays = true;
   withSmash = true;
   withSubmitApi = true;

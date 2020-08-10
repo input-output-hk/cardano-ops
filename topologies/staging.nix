@@ -208,8 +208,4 @@ in {
 
   # Uncomment to access stopped old core nodes (for archeology purposes)
   #privateRelayNodes = oldCoreNodes;
-
-  legacyCoreNodes = [];
-  legacyRelayNodes = [];
-  byronProxies = [];
 }

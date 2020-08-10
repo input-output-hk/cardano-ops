@@ -5,7 +5,7 @@ let
     mapAttrs' mapAttrs nameValuePair recursiveUpdate unique optional any concatMap
     getAttrs optionalString hasPrefix;
 
-  inherit (globals.topology) legacyCoreNodes legacyRelayNodes byronProxies coreNodes relayNodes;
+  inherit (globals.topology) coreNodes relayNodes;
   privateRelayNodes = globals.topology.privateRelayNodes or [];
   inherit (globals.ec2.credentials) accessKeyIds;
   inherit (iohk-ops-lib.physical) aws;
@@ -38,15 +38,7 @@ let
 
   securityGroups = with aws.security-groups; [
     {
-      nodes = getAttrs (map (n: n.name) (legacyCoreNodes ++ byronProxies)) nodes;
-      groups = [ (import ../physical/aws/security-groups/allow-legacy-peers.nix) ];
-    }
-    {
-      nodes = getAttrs (map (n: n.name) legacyRelayNodes) nodes;
-      groups = [ (import ../physical/aws/security-groups/allow-legacy-public.nix) ];
-    }
-    {
-      nodes = getAttrs (map (n: n.name) (coreNodes ++ byronProxies ++ privateRelayNodes)) nodes;
+      nodes = getAttrs (map (n: n.name) (coreNodes ++ privateRelayNodes)) nodes;
       groups = [ (import ../physical/aws/security-groups/allow-peers.nix) ];
     }
     {

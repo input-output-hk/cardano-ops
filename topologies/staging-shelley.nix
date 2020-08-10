@@ -1,10 +1,4 @@
 {
-  legacyCoreNodes = [];
-
-  legacyRelayNodes = [];
-
-  byronProxies = [];
-
   coreNodes = [
    {
       name = "c-a-1";

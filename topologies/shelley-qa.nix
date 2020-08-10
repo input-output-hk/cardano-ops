@@ -1,10 +1,4 @@
 {
-  legacyCoreNodes = [];
-
-  legacyRelayNodes = [];
-
-  byronProxies = [];
-
   monitoring = {
     services.monitoring-services.publicGrafana = false;
   };

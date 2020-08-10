@@ -236,10 +236,4 @@ in {
       faucetFrontendUrl = "https://testnets.cardano.org/en/cardano/tools/faucet/";
     };
   };
-
-  legacyCoreNodes = [];
-
-  legacyRelayNodes = [];
-
-  byronProxies = [];
 }

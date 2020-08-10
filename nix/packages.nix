@@ -1,6 +1,4 @@
 self: super: {
-  # TODO: remove when 20.03
-  inherit (import self.sourcePaths.nixpkgs-postgresql12 {}) postgresql_12;
 
   pp = v: __trace (__toJSON v) v;
   leftPad = number: width: self.lib.fixedWidthString width "0" (toString number);

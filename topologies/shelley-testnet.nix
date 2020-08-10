@@ -81,13 +81,6 @@ let
   ];
 
 in {
-
-  legacyCoreNodes = [];
-
-  legacyRelayNodes = [];
-
-  byronProxies = [];
-
   monitoring = {
     services.monitoring-services.publicGrafana = true;
   };

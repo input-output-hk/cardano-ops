@@ -7,7 +7,6 @@ pkgs: {
   topology = import ./topologies/shelley-testnet.nix pkgs;
 
   withExplorer = true;
-  withLegacyExplorer = false;
   withHighLoadRelays = true;
   withSmash = true;
 
