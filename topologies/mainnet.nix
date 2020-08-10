@@ -225,6 +225,10 @@ in {
 
   inherit relayNodes;
 
+  monitoring = {
+    services.monitoring-services.publicGrafana = false;
+  };
+
   legacyRelayNodes = [];
   byronProxies = [];
   legacyCoreNodes = [];
