@@ -32,7 +32,7 @@ let
         pk=$(cardano-cli signing-key-public --real-pbft --secret $signing_key | fgrep 'public key (base64):' | cut -d: -f2 | xargs echo -n)
         delegate_cert=keys/delegation-cert.00$i.json
         echo "generating delegation certificate for $pk in $delegate_cert"
-        ${jq}/bin/jq ".heavyDelegation | .[] | select(.delegatePk == \"$pk\")" < ${genesisFile} > $delegate_cert
+        ${jq}/bin/jq ".heavyDelegation | .[] | select(.delegatePk == \"$pk\")" < ${toString genesisFile} > $delegate_cert
       done
     '';
   create-shelley-genesis-and-keys =
