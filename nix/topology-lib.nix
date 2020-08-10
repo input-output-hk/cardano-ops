@@ -100,7 +100,7 @@ pkgs: with pkgs; with lib; rec {
           nbLocalPeersApprox = nbPeersOneHopCluster nbRelaysFirstApprox;
           nbRelaysAutoScale = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - nbRegions - nbLocalPeersApprox);
         in
-          if autoscaling then minRelays
+          if (!autoscaling) then minRelays
           else max minRelays nbRelaysAutoScale
       ) regions;
     in
