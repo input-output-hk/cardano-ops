@@ -10,10 +10,10 @@ let
 
   regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
-      minRelays = 35;
+      minRelays = 66;
     };
     b = { name = "us-east-2";      # US East (Ohio)
-      minRelays = 25;
+      minRelays = 33;
     };
     c = { name = "ap-southeast-1"; # Asia Pacific (Singapore)
       minRelays = 20;
@@ -120,6 +120,7 @@ let
   relayNodes = map withAutoRestart (mkRelayTopology {
     inherit regions coreNodes;
     autoscaling = false;
+    maxProducersPerNode = 21;
   });
 
   oldCoreNodes =
