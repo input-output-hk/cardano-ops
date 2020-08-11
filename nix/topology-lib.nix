@@ -133,4 +133,7 @@ pkgs: with pkgs; with lib; rec {
         in withinOneHop relaysForRegion
       ) indexedRegions));
 
+  relaysBatchesOf = n:
+    let byRegions = attrValues (mapAttrs (_: rs: let irs = imap0 (i: mergeAttrs {inherit i;}) rs; in genList (i: (map (r: r.name) (filter (r: mod r.i n == i) irs))) n) (groupBy (r: r.region) globals.topology.relayNodes));
+    in genList (i: concatMap (rs: elemAt rs i) byRegions) n;
 }
