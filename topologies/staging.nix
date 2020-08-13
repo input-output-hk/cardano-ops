@@ -29,66 +29,6 @@ let
     };
   };
 
-  withTestShelleyHardForkAtVersion3 = lib.recursiveUpdate {
-    services.cardano-node.nodeConfig = {
-      TestShelleyHardForkAtVersion = 3;
-    };
-  };
-
-  recoveryCoreNodes = map withTestShelleyHardForkAtVersion3 [
-    # OBFT centralized nodes
-    {
-      name = "bft-dr-a-1";
-      region = regions.a.name;
-      producers = map (c: c.name) recoveryCoreNodes;
-      org = "IOHK";
-      nodeId = 1;
-    }
-    {
-      name = "bft-dr-b-1";
-      region = regions.b.name;
-      producers = map (c: c.name) recoveryCoreNodes;
-      org = "IOHK";
-      nodeId = 2;
-    }
-    {
-      name = "bft-dr-c-1";
-      region = regions.c.name;
-      producers = map (c: c.name) recoveryCoreNodes
-        ++ [ "rel-dr-c-1" ];
-      org = "IOHK";
-      nodeId = 3;
-    }
-    {
-      name = "bft-dr-d-1";
-      region = regions.b.name;
-      producers = map (c: c.name) recoveryCoreNodes;
-      org = "IOHK";
-      nodeId = 4;
-    }
-    {
-      name = "bft-dr-e-1";
-      region = regions.c.name;
-      producers = map (c: c.name) recoveryCoreNodes;
-      org = "IOHK";
-      nodeId = 5;
-    }
-    {
-      name = "bft-dr-f-1";
-      region = regions.f.name;
-      producers = map (c: c.name) recoveryCoreNodes;
-      org = "IOHK";
-      nodeId = 6;
-    }
-    {
-      name = "bft-dr-a-2";
-      region = regions.a.name;
-      producers = map (c: c.name) recoveryCoreNodes;
-      org = "IOHK";
-      nodeId = 7;
-    }
-  ];
-
   bftCoreNodes = let
     mkBftCoreNode = r: idx: attrs:
       rec {
@@ -203,7 +143,7 @@ let
 
 in {
 
-  coreNodes = coreNodes ++ recoveryCoreNodes;
+  coreNodes = coreNodes;
   relayNodes = relayNodes;
 
   # Uncomment to access stopped old core nodes (for archeology purposes)
