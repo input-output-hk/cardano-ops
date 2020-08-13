@@ -485,13 +485,13 @@ op_wait_for_nonempty_block() {
 
         echo -n "--( waiting for a non-empty block on explorer (patience for ${patience}s).  Seen empty: 00"
         while now=$(date +%s); test "${now}" -lt ${patience_until}
-        do r=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq --compact-output \"select(.data.msg.\\\"tx ids\\\" != [])\" | wc -l'")
+        do r=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq --compact-output \"select(.data.msg.\\\"txIds\\\" != [])\" | wc -l'")
            if test "$r" -ne 0
-           then l=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq \".data.msg.\\\"tx ids\\\" | select(. != []) | length\" | jq . --slurp --compact-output'")
+           then l=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq \".data.msg.\\\"txIds\\\" | select(. != []) | length\" | jq . --slurp --compact-output'")
                 echo ", got $l, after $((now - start)) seconds"
                 return 0; fi
            e=$(nixops ssh explorer -- sh -c \
-                   "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq --slurp \"map (.data.msg.\\\"tx ids\\\" | select(. == [])) | length\"'")
+                   "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq --slurp \"map (.data.msg.\\\"txIds\\\" | select(. == [])) | length\"'")
            echo -ne "\b\b"; printf "%02d" "$e"
            sleep 5; done
 
@@ -511,7 +511,7 @@ op_wait_for_empty_blocks() {
         local last_blkid='absolut4ly_n=wher'
         local news=
         while test $patience -gt 1 -a $anyblock_patience -gt 1
-        do while news=$(nixops ssh explorer -- sh -c "'set -euo pipefail; { echo \"{ data: { msg: { blkid: 0, \\\"tx ids\\\": [] }}}\"; tac /var/lib/cardano-node/logs/node.json; } | grep -F MsgBlock | jq --compact-output \".data.msg | { blkid: (.\\\"block hash\\\" | ltrimstr(\\\"\\\\\\\"\\\") | rtrimstr(\\\"\\\\\\\"\\\")), tx_count: (.\\\"tx ids\\\" | length) } \"'" |
+        do while news=$(nixops ssh explorer -- sh -c "'set -euo pipefail; { echo \"{ data: { msg: { blkid: 0, txIds: [] }}}\"; tac /var/lib/cardano-node/logs/node.json; } | grep -F MsgBlock | jq --compact-output \".data.msg | { blkid: (.blockHash | ltrimstr(\\\"\\\\\\\"\\\") | rtrimstr(\\\"\\\\\\\"\\\")), tx_count: (.txIds | length) } \"'" |
                         sed -n '0,/'$last_blkid'/ p' |
                         head -n-1 |
                         jq --slurp 'reverse | ## undo order inversion..
