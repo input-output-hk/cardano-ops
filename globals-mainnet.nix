@@ -14,6 +14,7 @@ pkgs: {
   withHighCapacityMonitoring = true;
   withHighCapacityExplorer = true;
   withHighLoadRelays = true;
+  withSmash = true;
 
   initialPythonExplorerDBSyncDone = true;
 
