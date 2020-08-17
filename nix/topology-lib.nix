@@ -100,7 +100,11 @@ pkgs: with pkgs; with lib; rec {
           nbLocalPeersApprox = nbPeersOneHopCluster nbRelaysFirstApprox;
           nbRelaysAutoScale = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - nbRegions - nbLocalPeersApprox);
         in
-          if (!autoscaling) then minRelays
+          if (!autoscaling) then
+            if (minRelays < nbRelaysAutoScale) then builtins.trace "Warning: only ${toString minRelays} relays in ${name} but ${toString nbRelaysAutoScale} would be necessary to stay under ${toString maxProducersPerNode} producers per relay."
+              minRelays
+            else
+              minRelays
           else max minRelays nbRelaysAutoScale
       ) regions;
     in
