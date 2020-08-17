@@ -39,7 +39,7 @@ pkgs: {
     };
   };
 
-  alertChainDensityLow = "98";
+  alertChainDensityLow = "92";
   alertTcpHigh = "250";
   alertTcpCrit = "300";
 }
