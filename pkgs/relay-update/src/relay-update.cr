@@ -19,7 +19,7 @@ MOCK_ENABLED            = ENV.fetch("MOCK_ENABLED", "FALSE") == "TRUE" ? true : 
 PATH_MOD                = ENV.fetch("PATH_MOD", ".")
 RELATIVE_TOPOLOGY_PATH  = ENV.fetch("RELATIVE_TOPOLOGY_PATH", "static/registered_relays_topology.json")
 IP_METADATA_URL         = ENV.fetch("IP_METADATA_URL", "http://169.254.169.254/latest/meta-data/public-ipv4")
-BLACKLISTED_CLUSTERS    = [ "mainnet", "testnet", "staging" ]
+BLACKLISTED_CLUSTERS    = [ "mainnet" ]
 
 EMAIL_FROM              = "devops@ci.iohkdev.io"
 EMAIL_TO                = "devops@iohk.io"
