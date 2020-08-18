@@ -15,7 +15,7 @@ require "option_parser"
 EMAIL_ENABLED           = ENV.fetch("EMAIL_ENABLED", "TRUE") == "TRUE" ? true : false
 MOCK_ENABLED            = ENV.fetch("MOCK_ENABLED", "FALSE") == "TRUE" ? true : false
 PATH_MOD                = ENV.fetch("PATH_MOD", ".")
-DENIED_CLUSTERS         = [ "mainnet" ]
+DENIED_CLUSTERS         = [ "mainnet" ] of String
 
 EMAIL_FROM              = "devops@ci.iohkdev.io"
 EMAIL_TO                = "devops@iohk.io"
