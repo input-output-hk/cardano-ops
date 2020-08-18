@@ -115,9 +115,7 @@ let
   });
 
 in {
-  coreNodes = bftCoreNodes;
-  inherit relayNodes;
-  privateRelayNodes = stakingPoolNodes;
+  inherit coreNodes relayNodes;
 
   "${globals.faucetHostname}" = {
     services.cardano-faucet = {
@@ -129,6 +127,11 @@ in {
       lovelacesToGiveApiKeyAuth = 1000000000000;
       useByronWallet = false;
       faucetFrontendUrl = "https://testnets.cardano.org/en/cardano/tools/faucet/";
+    };
+  };
+  explorer = {
+    services.nginx.virtualHosts."${globals.explorerHostName}.${globals.domain}".locations."/p" = lib.mkIf (__pathExists ../static/pool-metadata) {
+      root = ../static/pool-metadata;
     };
   };
 }
