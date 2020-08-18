@@ -19,7 +19,7 @@ MOCK_ENABLED            = ENV.fetch("MOCK_ENABLED", "FALSE") == "TRUE" ? true : 
 PATH_MOD                = ENV.fetch("PATH_MOD", ".")
 RELATIVE_TOPOLOGY_PATH  = ENV.fetch("RELATIVE_TOPOLOGY_PATH", "static/registered_relays_topology.json")
 IP_METADATA_URL         = ENV.fetch("IP_METADATA_URL", "http://169.254.169.254/latest/meta-data/public-ipv4")
-BLACKLISTED_CLUSTERS    = []
+DENIED_CLUSTERS         = []
 
 EMAIL_FROM              = "devops@ci.iohkdev.io"
 EMAIL_TO                = "devops@iohk.io"
@@ -81,7 +81,7 @@ class RelayUpdate
       updateAbort("Unable to process the environment name from the globals file.")
     end
 
-    if BLACKLISTED_CLUSTERS.includes?(@cluster)
+    if DENIED_CLUSTERS.includes?(@cluster)
       updateAbort("The current cluster \"#{@cluster}\" is not allowed to use this script.")
     end
 

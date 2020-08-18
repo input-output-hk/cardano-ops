@@ -15,7 +15,7 @@ require "option_parser"
 EMAIL_ENABLED           = ENV.fetch("EMAIL_ENABLED", "TRUE") == "TRUE" ? true : false
 MOCK_ENABLED            = ENV.fetch("MOCK_ENABLED", "FALSE") == "TRUE" ? true : false
 PATH_MOD                = ENV.fetch("PATH_MOD", ".")
-BLACKLISTED_CLUSTERS    = [ "mainnet", "testnet", "staging" ]
+DENIED_CLUSTERS         = [ "mainnet" ]
 
 EMAIL_FROM              = "devops@ci.iohkdev.io"
 EMAIL_TO                = "devops@iohk.io"
@@ -73,7 +73,7 @@ class KesRotate
       kesAbort("Unable to process the environment name from the globals file.")
     end
 
-    if BLACKLISTED_CLUSTERS.includes?(@cluster)
+    if DENIED_CLUSTERS.includes?(@cluster)
       kesAbort("The current cluster \"#{@cluster}\" is not allowed to use this script.")
     end
 
