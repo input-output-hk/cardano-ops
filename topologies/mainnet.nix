@@ -43,7 +43,7 @@ let
             valency = 3;
           }];
       } // attrs;
-  in withinOneHop [
+  in connectNodesWithin 6 [
     # OBFT centralized nodes recovery nodes
     (mkBftCoreNode "a" 1 {
       org = "IOHK";
@@ -92,7 +92,7 @@ let
           }];
         org = "IOHK";
       } // attrs;
-  in withinOneHop [
+  in connectNodesWithin 6 [
     (mkStakingPool "a" 1 "IOG1" { nodeId = 8; })
     (mkStakingPool "b" 1 "IOG2" { nodeId = 9; })
     (mkStakingPool "c" 1 "IOG3" { nodeId = 10; })
@@ -120,7 +120,8 @@ let
   relayNodes = map withAutoRestart (mkRelayTopology {
     inherit regions coreNodes;
     autoscaling = false;
-    maxProducersPerNode = 21;
+    maxProducersPerNode = 20;
+    maxInRegionPeers = 6;
   });
 
   oldCoreNodes =

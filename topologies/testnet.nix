@@ -111,7 +111,7 @@ let
   relayNodes = map withAutoRestart (mkRelayTopology {
     inherit regions coreNodes;
     autoscaling = false;
-    maxProducersPerNode = 21;
+    maxProducersPerNode = 20;
   });
 
 in {

@@ -10,12 +10,24 @@ pkgs: with pkgs; with lib; rec {
   nbPeersOneHopCluster =
     let
       # list of max number of nodes that can be connected within one hop using 'nbPeers':
-      maxNbNodes = genList (p: { maxNbNodes = p * (p + 1); nbPeers = p;}) 100;
+      maxNbNodes = genList (p: { maxNbNodes = p * p + p; nbPeers = p;}) 100;
     in clusterSize: (findFirst (i: clusterSize <= i.maxNbNodes) (throw "too many nodes") maxNbNodes).nbPeers;
 
-  withinOneHop = nodes: let
+  nbPeersTwoHopsCluster =
+    let
+      # list of max number of nodes that can be connected within two hop using 'nbPeers':
+      maxNbNodes = genList (p: { maxNbNodes = p * p * p + p * p + p; nbPeers = p;}) 100;
+    in clusterSize: (findFirst (i: clusterSize <= i.maxNbNodes) (throw "too many nodes") maxNbNodes).nbPeers;
+
+  nbPeersWithin = maxPeers: nbNodes: let
+    nbPeers1Hop = nbPeersOneHopCluster nbNodes;
+    in if (nbNodes <= (maxPeers + 1)) then nbNodes - 1
+      else if (nbPeers1Hop <= maxPeers) then nbPeers1Hop
+      else nbPeersTwoHopsCluster nbNodes;
+
+  connectNodesWithin = maxPeers: nodes: let
     nbNodes = length nodes;
-    nbPeers = nbPeersOneHopCluster nbNodes;
+    nbPeers = nbPeersWithin maxPeers nbNodes;
     indexedNodes = imap0 (idx: node: { inherit idx node;}) nodes;
     names = let names = map (n: n.name) nodes; in names ++ names; # to avoid overflows
     topologies = map ({node, idx}:
@@ -35,6 +47,7 @@ pkgs: with pkgs; with lib; rec {
     regions
   , coreNodes
   , relayPrefix ? "rel"
+  , maxInRegionPeers ? 6
   , maxProducersPerNode ? 20
   , autoscaling ? true
     # Since we don't have relays in every regions,
@@ -96,16 +109,19 @@ pkgs: with pkgs; with lib; rec {
         # we scale so that relays have less than `maxRelaysPerNode` producer relays per node, with a given minimum of relays:
         let
           nbThirdPartyRelays = length (thirdPartyRelaysByRegions.${name} or []);
-          nbRelaysFirstApprox = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - nbRegions - (nbPeersOneHopCluster minRelays) - 1);
-          nbLocalPeersApprox = nbPeersOneHopCluster nbRelaysFirstApprox;
-          nbRelaysAutoScale = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - nbRegions - nbLocalPeersApprox);
+          nbRelaysFirstApprox = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - nbRegions - (nbPeersWithin maxInRegionPeers minRelays)) + 1;
+          nbLocalPeersApprox = nbPeersWithin maxInRegionPeers nbRelaysFirstApprox;
+          nbRelaysAutoScaleFirstApprox = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - nbRegions - nbLocalPeersApprox) + 1;
+          nbLocalPeersSecondApprox = nbPeersWithin maxInRegionPeers nbLocalPeersApprox;
+          nbRelaysAutoScale = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - nbRegions - nbLocalPeersSecondApprox) + 1;
         in
           if (!autoscaling) then
-            if (minRelays < nbRelaysAutoScale) then builtins.trace "Warning: only ${toString minRelays} relays in ${name} but ${toString nbRelaysAutoScale} would be necessary to stay under ${toString maxProducersPerNode} producers per relay."
-              minRelays
-            else
-              minRelays
-          else max minRelays nbRelaysAutoScale
+            builtins.trace (if (minRelays < nbRelaysAutoScale) then  "Warning: only ${toString minRelays} relays in ${name} but ${toString nbRelaysAutoScale} would be necessary to handle the ${toString nbThirdPartyRelays} third-party relays."
+              else "Using given ${toString minRelays} min relays for ${name} (autoscaling would use only ${toString nbRelaysAutoScale} to handle the ${toString nbThirdPartyRelays} third-party relays).")
+            minRelays
+          else builtins.trace (if (minRelays > nbRelaysAutoScale) then "Using given ${toString minRelays} min relays for ${name} (autoscaling would use only ${toString nbRelaysAutoScale} to handle the ${toString nbThirdPartyRelays} third-party relays)."
+            else "Autoscaling for region ${name}: using ${toString nbRelaysAutoScale} relays to handle the ${toString nbThirdPartyRelays} third-party relays.")
+            (max minRelays nbRelaysAutoScale)
       ) regions;
     in
       imap1 (i: r:
@@ -123,18 +139,18 @@ pkgs: with pkgs; with lib; rec {
               producers =
                 # a share of the core nodes:
                 (if nbRelays <= nbCoreNodes
-                  then map (c: c.name) (filter (c: mod c.index nbRelays == (nodeIndex - 1)) indexedCoreNodes)
+                  then map (c: c.name) (filter (c: mod (c.index + rIndex) nbRelays == (nodeIndex - 1)) indexedCoreNodes)
                   else optional (mod (nodeIndex - 1) coreNodesInterval == 0 && (nodeIndex - 1) / coreNodesInterval < nbCoreNodes)
-                    (elemAt coreNodes ((nodeIndex - 1) / coreNodesInterval)).name)
+                    (elemAt (drop rIndex coreNodes ++ take rIndex coreNodes) ((nodeIndex - 1) / coreNodesInterval)).name)
                 # one relay in each other regions:
-                ++ map (r: "${relayPrefix}-${r}-${toString (mod (nodeIndex - 1) nbRelaysPerRegions.${r} + 1)}") (filter (r: r != rLetter) regionLetters)
+                ++ map (r: "${relayPrefix}-${r}-${toString (mod (((nodeIndex - 1) * (if nbRelays < nbRelaysPerRegions.${r} then nbRelaysPerRegions.${r} / nbRelays else 1)) + ((rIndex + 1) * (nbRelaysPerRegions.${r} / nbRelays + 1))) nbRelaysPerRegions.${r} + 1)}") (filter (r: r != rLetter) regionLetters)
                 # a share of the third-party relays:
                 ++ (filter (p: mod p.index nbRelays == (nodeIndex - 1)) (indexedThirdPartyRelays.${region} or []));
               org = "IOHK";
             }
           ) relayIndexesInRegion;
-        # Ensure every relay inside the region is at most at one hop away from one another:
-        in withinOneHop relaysForRegion
+        # Ensure every relay inside the region is as connected as possible within `maxInRegionPeers`:
+        in connectNodesWithin maxInRegionPeers relaysForRegion
       ) indexedRegions));
 
   relaysBatchesOf = n:

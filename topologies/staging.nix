@@ -42,7 +42,7 @@ let
             valency = 3;
           }];
       } // attrs;
-  in withinOneHop [
+  in connectNodesWithin 6 [
     # OBFT centralized nodes recovery nodes
     (mkBftCoreNode "a" 1 {
       org = "IOHK";
