@@ -341,56 +341,58 @@ class RelayUpdate
 
     deployBatches.each do |b|
       batchTargetNodes = b.select { |n| targetNodes.includes?(n) }
-      if MOCK_ENABLED
-        updateCmd = "echo \"MOCK UPDATING TOPOLOGY to target nodes #{batchTargetNodes.join(" ")}\""
-      else
-        updateCmd = "nixops deploy --include #{batchTargetNodes.join(" ")}"
-      end
-
-      IO_TEE_OUT.puts "Deploying new peer topology to target nodes: #{batchTargetNodes.join(" ")} (#{updateCmd})"
-      if scriptCmdPrivate(updateCmd).success?
-        IO_TEE_OUT.puts IO_CMD_OUT.to_s
-        IO_TEE_OUT.puts IO_CMD_ERR.to_s
-      else
-        updateAbort("Failed to deploy the new peer topology to target nodes: #{batchTargetNodes.join(" ")} (#{updateCmd})")
-      end
-      batchTargetNodes.each do |n|
-        IO_TEE_OUT.puts "Waiting for metrics to re-appear on target node: #{n}"
+      if !batchTargetNodes.empty?
         if MOCK_ENABLED
-          deployFinished = true
+          updateCmd = "echo \"MOCK UPDATING TOPOLOGY to target nodes #{batchTargetNodes.join(" ")}\""
         else
-          sleep(10)
-          deployFinished = false
-          prevSlot = 0
-          i = 0
-          while i < METRICS_WAIT_ITERATIONS
-            if scriptCmdPrivate("nixops ssh #{n} -- 'curl -s #{n}:#{NODE_METRICS_PORT}/metrics | grep -oP \"cardano_node_ChainDB_metrics_slotNum_int \\K[0-9]+\"'").success?
-              slot = IO_CMD_OUT.to_s
-              IO_TEE_OUT.puts "Found slotNum_int metrics post topology update deploy on target node: #{n} at #{slot}"
-              if (slot.to_i >= lastSlot)
-                lastSlot = slot.to_i
-                deployFinished = true
-                break
-              else
-                IO_TEE_OUT.puts "... not yet synced.. sleeping #{METRICS_WAIT_INTERVAL} seconds ..."
-                if (slot.to_i > prevSlot)
-                  # Only allow more wait if there is actual progress:
-                  i = 0
-                  prevSlot = slot.to_i
+          updateCmd = "nixops deploy --include #{batchTargetNodes.join(" ")}"
+        end
+
+        IO_TEE_OUT.puts "Deploying new peer topology to target nodes: #{batchTargetNodes.join(" ")} (#{updateCmd})"
+        if scriptCmdPrivate(updateCmd).success?
+          IO_TEE_OUT.puts IO_CMD_OUT.to_s
+          IO_TEE_OUT.puts IO_CMD_ERR.to_s
+        else
+          updateAbort("Failed to deploy the new peer topology to target nodes: #{batchTargetNodes.join(" ")} (#{updateCmd})")
+        end
+        batchTargetNodes.each do |n|
+          IO_TEE_OUT.puts "Waiting for metrics to re-appear on target node: #{n}"
+          if MOCK_ENABLED
+            deployFinished = true
+          else
+            sleep(10)
+            deployFinished = false
+            prevSlot = 0
+            i = 0
+            while i < METRICS_WAIT_ITERATIONS
+              if scriptCmdPrivate("nixops ssh #{n} -- 'curl -s #{n}:#{NODE_METRICS_PORT}/metrics | grep -oP \"cardano_node_ChainDB_metrics_slotNum_int \\K[0-9]+\"'").success?
+                slot = IO_CMD_OUT.to_s
+                IO_TEE_OUT.puts "Found slotNum_int metrics post topology update deploy on target node: #{n} at #{slot}"
+                if (slot.to_i >= lastSlot)
+                  lastSlot = slot.to_i
+                  deployFinished = true
+                  break
                 else
-                  i = i + 1
+                  IO_TEE_OUT.puts "... not yet synced.. sleeping #{METRICS_WAIT_INTERVAL} seconds ..."
+                  if (slot.to_i > prevSlot)
+                    # Only allow more wait if there is actual progress:
+                    i = 0
+                    prevSlot = slot.to_i
+                  else
+                    i = i + 1
+                  end
+                  sleep(METRICS_WAIT_INTERVAL)
                 end
+              else
+                i = i + 1
+                IO_TEE_OUT.puts "... sleeping #{METRICS_WAIT_INTERVAL} seconds ..."
                 sleep(METRICS_WAIT_INTERVAL)
               end
-            else
-              i = i + 1
-              IO_TEE_OUT.puts "... sleeping #{METRICS_WAIT_INTERVAL} seconds ..."
-              sleep(METRICS_WAIT_INTERVAL)
             end
           end
+          updateAbort("Failed to find returned slotNum metrics on target node: #{n}") unless deployFinished
+          IO_TEE_OUT.puts "\n"
         end
-        updateAbort("Failed to find returned slotNum metrics on target node: #{n}") unless deployFinished
-        IO_TEE_OUT.puts "\n"
       end
     end
 
