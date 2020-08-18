@@ -109,11 +109,11 @@ pkgs: with pkgs; with lib; rec {
         # we scale so that relays have less than `maxRelaysPerNode` producer relays per node, with a given minimum of relays:
         let
           nbThirdPartyRelays = length (thirdPartyRelaysByRegions.${name} or []);
-          nbRelaysFirstApprox = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - nbRegions - (nbPeersWithin maxInRegionPeers minRelays)) + 1;
+          nbRelaysFirstApprox = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - (nbRegions - 1) - (nbPeersWithin maxInRegionPeers minRelays)) + 1;
           nbLocalPeersApprox = nbPeersWithin maxInRegionPeers nbRelaysFirstApprox;
-          nbRelaysAutoScaleFirstApprox = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - nbRegions - nbLocalPeersApprox) + 1;
-          nbLocalPeersSecondApprox = nbPeersWithin maxInRegionPeers nbLocalPeersApprox;
-          nbRelaysAutoScale = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - nbRegions - nbLocalPeersSecondApprox) + 1;
+          nbRelaysAutoScaleFirstApprox = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - (nbRegions - 1) - nbLocalPeersApprox) + 1;
+          nbLocalPeersSecondApprox = nbPeersWithin maxInRegionPeers nbRelaysAutoScaleFirstApprox;
+          nbRelaysAutoScale = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - (nbRegions - 1) - nbLocalPeersSecondApprox) + 1;
         in
           if (!autoscaling) then
             builtins.trace (if (minRelays < nbRelaysAutoScale) then  "Warning: only ${toString minRelays} relays in ${name} but ${toString nbRelaysAutoScale} would be necessary to handle the ${toString nbThirdPartyRelays} third-party relays."

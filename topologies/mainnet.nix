@@ -121,7 +121,7 @@ let
     inherit regions coreNodes;
     autoscaling = false;
     maxProducersPerNode = 20;
-    maxInRegionPeers = 6;
+    maxInRegionPeers = 5;
   });
 
   oldCoreNodes =
