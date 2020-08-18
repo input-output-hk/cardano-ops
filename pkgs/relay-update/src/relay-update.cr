@@ -355,12 +355,12 @@ class RelayUpdate
         else
           updateAbort("Failed to deploy the new peer topology to target nodes: #{batchTargetNodes.join(" ")} (#{updateCmd})")
         end
+        sleep(10)
         batchTargetNodes.each do |n|
           IO_TEE_OUT.puts "Waiting for metrics to re-appear on target node: #{n}"
           if MOCK_ENABLED
             deployFinished = true
           else
-            sleep(10)
             deployFinished = false
             prevSlot = 0
             i = 0
