@@ -8,7 +8,12 @@ let
   nivOverrides = writeShellScriptBin "niv-overrides" ''
     niv --sources-file ${toString globals.sourcesJsonOverride} $@
   '';
-  genesisFile = globals.environmentConfig.genesisFile or "please set globals.environmentName or globals.environmentConfig.genesisFile";
+  genesisFile = let
+    protocol."Cardano" = globals.environmentConfig.nodeConfig.ByronGenesisFile or "please set globals.environmentName or globals.environmentConfig.genesisFile";
+    protocol."RealPBFT" = globals.environmentConfig.nodeConfig.ByronGenesisFile or "please set globals.environmentName or globals.environmentConfig.genesisFile";
+    protocol."Byron" = globals.environmentConfig.nodeConfig.ByronGenesisFile or "please set globals.environmentName or globals.environmentConfig.genesisFile";
+    protocol."TPraos" = null;
+    in protocol.${globals.environmentConfig.nodeConfig.Protocol};
 
   mkDevGenesis = writeShellScriptBin "make-dev-genesis" (builtins.replaceStrings
     [ "\${RUNNER}"
