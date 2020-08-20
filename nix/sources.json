@@ -48,15 +48,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
-        "branch": "1.18.0-support",
+        "branch": "1.19.0-support",
         "description": "Faucet for Cardano",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "59715152c8b2691728b175358c34e7375d7f76f1",
-        "sha256": "1jl11bgzzbqz0rw7gyciysddaf812vasadvd9y606amcsjhaxlsk",
+        "rev": "a32d8e24f3784bc85f229e10ef25d63ceddce75c",
+        "sha256": "1f4fzkmsacbldy74rld8h4h8qpbkyapk6w0vcfmw3dag70i5845c",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/59715152c8b2691728b175358c34e7375d7f76f1.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/a32d8e24f3784bc85f229e10ef25d63ceddce75c.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
@@ -72,15 +72,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
-        "branch": "producer-release/1.18.0",
+        "branch": "release/1.19.x-with-script-embargo",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "a46ba1228591c23c0d822f711c876a63f24c2165",
-        "sha256": "0zyapamv88pksvifi9m13p963h4fdsx9l0s9y6jcr3c1bd0llfl5",
+        "rev": "faf612e1c099b245157dc191ca97068ccdda5e77",
+        "sha256": "1gvgjw81hzwf9gd54lnlnl7dsfh0bkym2vpa6ag44a3cqx0hcx8d",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/a46ba1228591c23c0d822f711c876a63f24c2165.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/faf612e1c099b245157dc191ca97068ccdda5e77.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rest": {
