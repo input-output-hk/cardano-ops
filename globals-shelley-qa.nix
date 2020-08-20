@@ -3,12 +3,13 @@ pkgs: {
   deploymentName = "shelley-qa";
   environmentName = "shelley_qa";
 
-  topology = import ./topologies/shelley-qa.nix;
+  topology = import ./topologies/shelley-qa.nix pkgs;
   environmentConfig = pkgs.iohkNix.cardanoLib.environments.shelley_qa;
 
   withFaucet = true;
   withExplorer = true;
   withCardanoDBExtended = false;
+  withSmash = true;
   withSubmitApi = true;
   faucetHostname = "faucet";
 
