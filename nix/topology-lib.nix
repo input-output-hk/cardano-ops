@@ -43,6 +43,12 @@ pkgs: with pkgs; with lib; rec {
          ++ n.node.producers;
     }) topologies;
 
+  thirdPartyRelays = globals.static.additionalPeers ++
+    (filter (r: !(hasSuffix globals.relaysNew r.addr))
+      (if builtins.pathExists ../static/registered_relays_topology.json then
+        (builtins.fromJSON (builtins.readFile ../static/registered_relays_topology.json)).Producers
+      else []));
+
   mkRelayTopology = {
     regions
   , coreNodes
@@ -82,12 +88,6 @@ pkgs: with pkgs; with lib; rec {
         { inherit rIndex rLetter;
           region = regions.${rLetter}.name; }
       ) regionLetters;
-
-      thirdPartyRelays = globals.static.additionalPeers ++
-        (filter (r: !(hasSuffix globals.relaysNew r.addr))
-          (if builtins.pathExists ../static/registered_relays_topology.json then
-            (builtins.fromJSON (builtins.readFile ../static/registered_relays_topology.json)).Producers
-          else []));
 
       stateAwsAffinityIndex = builtins.fromJSON (builtins.readFile (pkgs.aws-affinity-indexes + "/state-index.json"));
 
