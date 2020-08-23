@@ -28,7 +28,7 @@ NOW                     = Time.utc.to_s("%F %R %z")
 METRICS_WAIT_INTERVAL   = 60
 METRICS_WAIT_ITERATIONS = 15
 MINIMUM_PRODUCERS       = 100
-MAX_NODES_PER_DEPLOY    = 12
+MAX_NODES_PER_DEPLOY    = 10
 MIN_DEPLOY_BATCHES      = 3
 
 IO_CMD_OUT    = IO::Memory.new
