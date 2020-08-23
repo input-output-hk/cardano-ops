@@ -25,7 +25,7 @@ let
       minRelays = 25;
     };
     f = { name = "ap-northeast-1"; # Asia Pacific (Tokyo)
-      minRelays = 10;
+      minRelays = 15;
     };
   };
 
