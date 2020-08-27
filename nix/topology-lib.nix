@@ -1,5 +1,16 @@
 pkgs: with pkgs; with lib; rec {
 
+  /* Auto restart cardano-node service every given hours
+    (plus 'nodeId' minutes to reduce likelyhood of simultaneous restart of many nodes).
+  */
+  withAutoRestartEvery = h: def: lib.recursiveUpdate {
+    systemd.services.cardano-node.serviceConfig.RuntimeMaxSec = h *
+        60 * 60 + 60 * (def.nodeId or 0);
+  } def;
+
+  /* return the dns name of the continental group of relay
+     that is the nearest to the given region.
+  */
   relayGroupForRegion = region:
       let prefix =
         if (hasPrefix "ap" region) then "asia-pacific"
@@ -7,32 +18,83 @@ pkgs: with pkgs; with lib; rec {
         else "europe";
       in "${prefix}.${globals.relaysNew}";
 
-  nbPeersOneHopCluster =
+  /* Connect a group of nodes (second arg) with the given group (first arg),
+     so that every nodes of the first group appears exactly once
+     among all the producers arrays of the nodes in the second group.
+  */
+  connectGroupWith = withGroup: let
+    withGroupSize = length withGroup;
+    indexedWithGroup = imap0 (idx: node: { inherit idx node;}) withGroup;
+  in group: let
+    groupSize = length group;
+    interval = groupSize / withGroupSize;
+    indexedGroup = imap0 (idx: node: { inherit idx node;}) group;
+    withGroupProducers = if (groupSize <= withGroupSize)
+    then idx: filter (n: mod n.idx groupSize == idx) indexedWithGroup
+    else idx: optional (mod idx interval == 0 && idx / interval < withGroupSize)
+      (elemAt indexedWithGroup (idx / interval));
+  in
+    map ({idx, node}: node // {
+      producers = node.producers ++ map (n: n.node.name) (withGroupProducers idx);
+    }) indexedGroup;
+
+  /* Same as 'connectGroupWith' but with regional affinity:
+     nodes only connect to nodes in the same region.
+  */
+  regionalConnectGroupWith = withGroup: let
+    withGroupByRegion = mapAttrs (_: connectGroupWith) (groupBy (n: n.region) withGroup);
+    in group: let
+      byRegion = groupBy (n: n.region) group;
+      byName = groupBy (n: n.name)
+        (concatLists (mapAttrsToList (r: (withGroupByRegion.${r} or id)) byRegion));
+    in map (node: node // {
+      producers = (head byName.${node.name}).producers;
+    }) group;
+
+  /* given a node group size, this function return the minimal number of peers required so
+     that every node in the group is connected within one "hop" to every other nodes in that group.
+  */
+  nbPeersOneHopGroup =
     let
       # list of max number of nodes that can be connected within one hop using 'nbPeers':
-      maxNbNodes = genList (p: { maxNbNodes = p * p + p; nbPeers = p;}) 100;
-    in clusterSize: (findFirst (i: clusterSize <= i.maxNbNodes) (throw "too many nodes") maxNbNodes).nbPeers;
+      maxNbNodes = genList (nbPeers: { maxNbNodes = nbPeers * nbPeers + nbPeers; inherit nbPeers;}) 100;
+    in groupSize: (findFirst (i: groupSize <= i.maxNbNodes) (throw "too many nodes") maxNbNodes).nbPeers;
 
-  nbPeersTwoHopsCluster =
+  /* given a node group size, this function return the minimal number of peers required so
+     that every node in the group is connected within two "hops" to every other nodes in that group.
+  */
+  nbPeersTwoHopsGroup =
     let
       # list of max number of nodes that can be connected within two hop using 'nbPeers':
-      maxNbNodes = genList (p: { maxNbNodes = p * p * p + p * p + p; nbPeers = p;}) 100;
-    in clusterSize: (findFirst (i: clusterSize <= i.maxNbNodes) (throw "too many nodes") maxNbNodes).nbPeers;
+      maxNbNodes = genList (nbPeers: { maxNbNodes = nbPeers * nbPeers * nbPeers + nbPeers * nbPeers + nbPeers; inherit nbPeers;}) 100;
+    in groupSize: (findFirst (i: groupSize <= i.maxNbNodes) (throw "too many nodes") maxNbNodes).nbPeers;
 
-  nbPeersWithin = maxPeers: nbNodes: let
-    nbPeers1Hop = nbPeersOneHopCluster nbNodes;
-    in if (nbNodes <= (maxPeers + 1)) then nbNodes - 1
+  /* given a constraint in maximum number of peers and a node group size,
+     this function return the minimal number of peers required so that every node in the group
+     is connected within one hop (if possible within 'maxPeers') or two hops (otherwise)
+     to every other nodes in that group.
+  */
+  nbPeersWithin = maxPeers: groupSize: let
+    nbPeers1Hop = nbPeersOneHopGroup groupSize;
+    in if (groupSize <= (maxPeers + 1)) then groupSize - 1
       else if (nbPeers1Hop <= maxPeers) then nbPeers1Hop
-      else nbPeersTwoHopsCluster nbNodes;
+      else nbPeersTwoHopsGroup groupSize;
 
-  connectNodesWithin = maxPeers: nodes: let
-    nbNodes = length nodes;
-    nbPeers = nbPeersWithin maxPeers nbNodes;
-    indexedNodes = imap0 (idx: node: { inherit idx node;}) nodes;
-    names = let names = map (n: n.name) nodes; in names ++ names; # to avoid overflows
+  /* given a constraint in maximum number of peers, this function connect the given node group
+     so that every node in the group is connected within one hop (if possible within 'maxPeers')
+     or two hops (otherwise) to every other nodes in that group.
+  */
+  connectNodesWithin = maxPeers: nodeGroup: let
+    groupSize = length nodeGroup;
+    nbPeers = nbPeersWithin maxPeers groupSize;
+    indexedNodes = imap0 (idx: node: { inherit idx node;}) nodeGroup;
+    names = let names = map (n: n.name) nodeGroup; in names ++ names; # to avoid overflows
     topologies = map ({node, idx}:
       rec { inherit node;
-          startIndex = if idx == 0 then 1 else mod ((elemAt topologies (idx - 1)).endIndexExcluded) nbNodes;
+          # the producers are taken from the nodeGroup (excluding it-self), in order, by chucks of 'nbPeers' peers,
+          # for this we keep track of the chuck location ('endIndexExcluded') used by each node, so that the next one can start
+          # from the end of the previous node chuck of peers.
+          startIndex = if idx == 0 then 1 else mod ((elemAt topologies (idx - 1)).endIndexExcluded) groupSize;
           endIndexExcluded = let unfiltrerProducers = sublist startIndex nbPeers names;
             in startIndex + nbPeers + (if (elem node.name unfiltrerProducers) then 1 else 0);
           producers = filter (p: p != node.name) (sublist startIndex (endIndexExcluded - startIndex) names);
@@ -43,18 +105,73 @@ pkgs: with pkgs; with lib; rec {
          ++ n.node.producers;
     }) topologies;
 
+  /* return registered tird-party relays, as saved in static/registered_relays_topology.json from
+     https://${globals.explorerHostName}.${globals.domain}/relays/topology.json
+  */
   thirdPartyRelays = globals.static.additionalPeers ++
     (filter (r: !(hasSuffix globals.relaysNew r.addr))
       (if builtins.pathExists ../static/registered_relays_topology.json then
         (builtins.fromJSON (builtins.readFile ../static/registered_relays_topology.json)).Producers
       else []));
 
+  /* return the relays regional dns entry that is closest to the given region,
+     as a producer with given valency.
+     For use by core nodes to avoid relying on specific relay nodes,
+     thus allowing restarting relays and scaling up/down easily without affecting core nodes.
+  */
+  regionalRelaysProducer = region: valency: {
+    addr = relayGroupForRegion region;
+    port = globals.cardanoNodePort;
+    inherit valency;
+  };
+
+  /* given regions (eg. { a = { name = "eu-central-1"; }; b = { name = "us-east-2"; };})
+     return a function that return the basis of a bft core node definition,
+     with name, region and relays as producers, from the region letter, an index (relative to region)
+     and given additional attributes.
+  */
+  mkBftCoreNodeForRegions = regions: r: idx: attrs: rec {
+    name = "bft-${r}-${toString idx}";
+    region = regions.${r}.name;
+    producers = # some nearby relays:
+      [ (regionalRelaysProducer region 3) ];
+  } // attrs;
+
+  /* given regions (eg. { a = { name = "eu-central-1"; }; b = { name = "us-east-2"; };})
+     return a function that return the basis of a bft core node definition,
+     with name, region and relays as producers, from the region letter, an index (relative to region)
+     a ticker id and given additional attributes.
+  */
+  mkStakingPoolForRegions = regions: r: idx: ticker: attrs: rec {
+    name = "stk-${r}-${toString idx}-${ticker}";
+    region = regions.${r}.name;
+    producers =  # some nearby relays:
+      [ (regionalRelaysProducer region 3) ];
+    org = "IOHK";
+  } // attrs;
+
+  /* Generate relay nodes definitions,
+     potentially with auto-scaling so that relay nodes can support all third-party block producers.
+     Third-party producers are allocated to relays in the nearest provided region (using https://github.com/turnkeylinux/aws-datacenters).
+  */
   mkRelayTopology = {
+    # Regions were relays will be deployed (at least one if minRelays not defined), eg.:
+    # { a = { name = "eu-central-1"; minRelays = 3; };
+    #   b = { name = "us-east-2"; minRelays = 2; }; }
     regions
+   # core nodes to be included in producers arrays of relays
+   # each core node appears exactly once accross relays of each region:
   , coreNodes
+  # relays are named using a ${relayPrefix}-${regionLetter}-${index} scheme:
   , relayPrefix ? "rel"
+  # each relay as a maximum of 'maxInRegionPeers' other relays of same region in producers array.
+  # Reducing this parameter increase room for third-party relays.
   , maxInRegionPeers ? 6
+  # Limit producers array size to 'maxProducersPerNode' on average (plus or minus 1 depending on nodes).
+  # Increasing this parameter gives room for more third-party relays, at the expense of (linearly) more CPU/ram comsumption.
   , maxProducersPerNode ? 20
+  # if true (default) the number of relays in each will computed so that it can handle all third party relays while
+  # staying below 'maxProducersPerNode' constraint (but in all case above "minRelays" defined for region).
   , autoscaling ? true
     # Since we don't have relays in every regions,
     # we define a substitute region for each region we don't deploy to;
@@ -83,7 +200,7 @@ pkgs: with pkgs; with lib; rec {
       inUseRegions = mapAttrsToList (_: r: r.name) regions;
       nbRegions = length inUseRegions;
       nbCoreNodes = length coreNodes;
-      regionLetters = (attrNames regions);
+      regionLetters = attrNames regions;
       indexedRegions = imap0 (rIndex: rLetter:
         { inherit rIndex rLetter;
           region = regions.${rLetter}.name; }
@@ -103,23 +220,24 @@ pkgs: with pkgs; with lib; rec {
 
       indexedThirdPartyRelays = mapAttrs (_: (imap0 (index: mergeAttrs {inherit index;}))) thirdPartyRelaysByRegions;
 
-      indexedCoreNodes = imap0 (index: mergeAttrs {inherit index;}) coreNodes;
-
-      nbRelaysPerRegions = mapAttrs (_: {minRelays, name, ...}:
+      nbRelaysPerRegions = mapAttrs (_: {minRelays ? 1, name, ...}:
         # we scale so that relays have less than `maxRelaysPerNode` producer relays per node, with a given minimum of relays:
         let
           nbThirdPartyRelays = length (thirdPartyRelaysByRegions.${name} or []);
-          nbRelaysFirstApprox = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - (nbRegions - 1) - (nbPeersWithin maxInRegionPeers minRelays)) + 1;
-          nbLocalPeersApprox = nbPeersWithin maxInRegionPeers nbRelaysFirstApprox;
-          nbRelaysAutoScaleFirstApprox = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - (nbRegions - 1) - nbLocalPeersApprox) + 1;
-          nbLocalPeersSecondApprox = nbPeersWithin maxInRegionPeers nbRelaysAutoScaleFirstApprox;
-          nbRelaysAutoScale = (nbThirdPartyRelays + nbCoreNodes) / (maxProducersPerNode - (nbRegions - 1) - nbLocalPeersSecondApprox) + 1;
+          nbProducersToShare = nbCoreNodes + nbThirdPartyRelays;
+          autoScale = nbRelaysInput:
+            # producer slots available, excluding peers to other regions and the local region peers:
+            let availableProducersSlots = maxProducersPerNode - (nbRegions - 1) - (nbPeersWithin maxInRegionPeers nbRelaysInput);
+            nbRelays = nbProducersToShare / availableProducersSlots + # round up the division:
+              (if (mod nbProducersToShare availableProducersSlots == 0) then 0 else 1);
+            in max nbRelaysInput nbRelays; # 'max' is used to ensure convergence (this can oversize a bit, but also allows some growth without re-scaling)
+          nbRelaysAutoScale = converge autoScale 1;
         in
           if (!autoscaling) then
             builtins.trace (if (minRelays < nbRelaysAutoScale) then  "Warning: only ${toString minRelays} relays in ${name} but ${toString nbRelaysAutoScale} would be necessary to handle the ${toString nbThirdPartyRelays} third-party relays."
-              else "Using given ${toString minRelays} min relays for ${name} (autoscaling would use only ${toString nbRelaysAutoScale} to handle the ${toString nbThirdPartyRelays} third-party relays).")
+              else "Using given ${toString minRelays} min relays for ${name} (autoscaling would use ${toString nbRelaysAutoScale} to handle the ${toString nbThirdPartyRelays} third-party relays).")
             minRelays
-          else builtins.trace (if (minRelays > nbRelaysAutoScale) then "Using given ${toString minRelays} min relays for ${name} (autoscaling would use only ${toString nbRelaysAutoScale} to handle the ${toString nbThirdPartyRelays} third-party relays)."
+          else builtins.trace (if (minRelays > nbRelaysAutoScale) then "Using given ${toString minRelays} min relays for ${name} (autoscaling would use ${toString nbRelaysAutoScale} to handle the ${toString nbThirdPartyRelays} third-party relays)."
             else "Autoscaling for region ${name}: using ${toString nbRelaysAutoScale} relays to handle the ${toString nbThirdPartyRelays} third-party relays.")
             (max minRelays nbRelaysAutoScale)
       ) regions;
@@ -130,30 +248,33 @@ pkgs: with pkgs; with lib; rec {
         let
           nbRelays = nbRelaysPerRegions.${rLetter};
           relayIndexesInRegion = genList (i: i + 1) nbRelays;
-          coreNodesInterval = nbRelays / nbCoreNodes;
           relaysForRegion = map (nodeIndex:
             let
               name = "${relayPrefix}-${rLetter}-${toString nodeIndex}";
             in {
               inherit region name nodeIndex;
-              producers =
-                # a share of the core nodes:
-                (if nbRelays <= nbCoreNodes
-                  then map (c: c.name) (filter (c: mod (c.index + rIndex) nbRelays == (nodeIndex - 1)) indexedCoreNodes)
-                  else optional (mod (nodeIndex - 1) coreNodesInterval == 0 && (nodeIndex - 1) / coreNodesInterval < nbCoreNodes)
-                    (elemAt (drop rIndex coreNodes ++ take rIndex coreNodes) ((nodeIndex - 1) / coreNodesInterval)).name)
-                # one relay in each other regions:
-                ++ map (r: "${relayPrefix}-${r}-${toString (mod (((nodeIndex - 1) * (if nbRelays < nbRelaysPerRegions.${r} then nbRelaysPerRegions.${r} / nbRelays else 1)) + ((rIndex + 1) * (nbRelaysPerRegions.${r} / nbRelays + 1))) nbRelaysPerRegions.${r} + 1)}") (filter (r: r != rLetter) regionLetters)
+              producers = # one relay in each other regions, using a scale factor to spread accross all relays of other regions:
+                map (r: let scaleFactor = nbRelaysPerRegions.${r} / nbRelays; in
+                 "${relayPrefix}-${r}-${toString (mod ((nodeIndex - 1) * scaleFactor) nbRelaysPerRegions.${r} + 1)}")
+                  (filter (r: r != rLetter) regionLetters)
                 # a share of the third-party relays:
                 ++ (filter (p: mod p.index nbRelays == (nodeIndex - 1)) (indexedThirdPartyRelays.${region} or []));
               org = "IOHK";
             }
           ) relayIndexesInRegion;
-        # Ensure every relay inside the region is as connected as possible within `maxInRegionPeers`:
-        in connectNodesWithin maxInRegionPeers relaysForRegion
+          # coreNodes shift in a way that accomplish full rotation accross regions:
+          coreNodesShift = rIndex * nbCoreNodes / nbRegions;
+        in
+          # Ensure every core nodes appears in the producer array of one relay in each region,
+          # the shift is there to improve connectivity with core nodes
+          # (eg. so that rel-a-1 and rel-b-1 don't both connect to the same core node)
+          connectGroupWith (shiftList coreNodesShift coreNodes)
+          # Ensure every relay inside the region is as connected as possible within `maxInRegionPeers`:
+         (connectNodesWithin maxInRegionPeers relaysForRegion)
       ) indexedRegions));
 
   relaysBatchesOf = n:
-    let byRegions = attrValues (mapAttrs (_: rs: let irs = imap0 (i: mergeAttrs {inherit i;}) rs; in genList (i: (map (r: r.name) (filter (r: mod r.i n == i) irs))) n) (groupBy (r: r.region) globals.topology.relayNodes));
+    let byRegions = attrValues (mapAttrs (_:
+      rs: let irs = imap0 (i: mergeAttrs {inherit i;}) rs; in genList (i: (map (r: r.name) (filter (r: mod r.i n == i) irs))) n) (groupBy (r: r.region) globals.topology.relayNodes));
     in genList (i: concatMap (rs: elemAt rs i) byRegions) n;
 }

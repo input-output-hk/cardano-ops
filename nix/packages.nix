@@ -2,6 +2,7 @@ self: super: {
 
   pp = v: __trace (__toJSON v) v;
   leftPad = number: width: self.lib.fixedWidthString width "0" (toString number);
+  shiftList = n: list: self.lib.drop n list ++ (self.lib.take n list);
   getPublicIp = resources: nodes: nodeName:
     resources.elasticIPs."${nodeName}-ip".address or
     (let
