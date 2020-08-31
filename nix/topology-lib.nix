@@ -208,6 +208,10 @@ pkgs: with pkgs; with lib; rec {
       af-south-1 = "eu-west-2";
       eu-west-1 = "eu-west-2";
       eu-west-3 = "eu-west-2";
+      # For when we use only 3 regions:
+      eu-west-2 = "eu-central-1";
+      us-west-1 = "us-east-2";
+      ap-northeast-1 = "ap-southeast-1";
     } // regionsSubstitutesExtra
   }:
     let
@@ -223,13 +227,15 @@ pkgs: with pkgs; with lib; rec {
 
       stateAwsAffinityIndex = builtins.fromJSON (builtins.readFile (pkgs.aws-affinity-indexes + "/state-index.json"));
 
+      allocateRegion = bestRegion: if (builtins.elem bestRegion inUseRegions) then bestRegion else allocateRegion (regionsSubstitutes.${bestRegion} or
+            (builtins.trace "WARNING: relay affected to unknown 'region': ${bestRegion} (to be added in 'regionsSubstitutes'). Using ${regions.a.name})" regions.a.name));
+
       thirdPartyRelaysByRegions = groupBy (r: r.region) (map
         (relay:
           let bestRegion = stateAwsAffinityIndex.${relay.state} or
             (builtins.trace "WARNING: relay has unknow 'state': ${relay.state}. Using ${regions.a.name})" regions.a.name);
           in relay // {
-            region = if (builtins.elem bestRegion inUseRegions) then bestRegion else regionsSubstitutes.${bestRegion} or
-            (builtins.trace "WARNING: relay affected to unknown 'region': ${bestRegion} (to be added in 'regionsSubstitutes'). Using ${regions.a.name})" regions.a.name);
+            region = converge allocateRegion bestRegion;
           }
         ) thirdPartyRelays);
 
