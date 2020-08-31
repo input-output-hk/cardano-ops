@@ -1,13 +1,6 @@
 pkgs: with pkgs; with lib; with topology-lib;
 let
 
-  withAutoRestart = def: lib.recursiveUpdate {
-    systemd.services.cardano-node.serviceConfig = {
-      RuntimeMaxSec = 6 *
-        60 * 60 + 60 * (def.nodeId or 0);
-    };
-  } def;
-
   regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
       minRelays = 66;
@@ -30,20 +23,9 @@ let
   };
 
   bftCoreNodes = let
-    mkBftCoreNode = r: idx: attrs:
-      rec {
-        name = "bft-${r}-${toString idx}";
-        region = regions.${r}.name;
-        producers = # a share of the staking pool nodes:
-          map (s: s.name) (filter (s: mod (s.nodeId - 8) 7 == (attrs.nodeId - 1)) stakingPoolNodes)
-          ++ # some nearby relays:
-          [{
-            addr = relayGroupForRegion region;
-            port = globals.cardanoNodePort;
-            valency = 3;
-          }];
-      } // attrs;
-  in connectNodesWithin 6 [
+    mkBftCoreNode = mkBftCoreNodeForRegions regions;
+  in regionalConnectGroupWith (reverseList stakingPoolNodes)
+  (fullyConnectNodes [
     # OBFT centralized nodes recovery nodes
     (mkBftCoreNode "a" 1 {
       org = "IOHK";
@@ -73,26 +55,12 @@ let
       org = "IOHK";
       nodeId = 7;
     })
-  ];
+  ]);
 
-  stakingPoolNodes =
-    let
-      bftCoreNodesInterval = (length stakingPoolNodes) / (length bftCoreNodes);
-      mkStakingPool = r: idx: ticker: attrs: rec {
-        name = "stk-${r}-${toString idx}-${ticker}";
-        region = regions.${r}.name;
-        producers = # a share of the bft core nodes:
-          optional (mod (attrs.nodeId - 8) bftCoreNodesInterval == 0 && (attrs.nodeId - 8) / bftCoreNodesInterval < (length bftCoreNodes))
-            (elemAt bftCoreNodes ((attrs.nodeId - 8) / bftCoreNodesInterval)).name
-          ++ # some nearby relays:
-          [{
-            addr = relayGroupForRegion region;
-            port = globals.cardanoNodePort;
-            valency = 3;
-          }];
-        org = "IOHK";
-      } // attrs;
-  in connectNodesWithin 6 [
+  stakingPoolNodes = let
+    mkStakingPool = mkStakingPoolForRegions regions;
+  in regionalConnectGroupWith bftCoreNodes
+  (oneHopConnectNodes [
     (mkStakingPool "a" 1 "IOG1" { nodeId = 8; })
     (mkStakingPool "b" 1 "IOG2" { nodeId = 9; })
     (mkStakingPool "c" 1 "IOG3" { nodeId = 10; })
@@ -113,11 +81,11 @@ let
     (mkStakingPool "f" 3 "IOG18" { nodeId = 25; })
     (mkStakingPool "a" 4 "IOG19" { nodeId = 26; })
     (mkStakingPool "b" 4 "IOG20" { nodeId = 27; })
-  ];
+  ]);
 
   coreNodes = bftCoreNodes ++ stakingPoolNodes;
 
-  relayNodes = map withAutoRestart (mkRelayTopology {
+  relayNodes = map (withAutoRestartEvery 6) (mkRelayTopology {
     inherit regions coreNodes;
     autoscaling = false;
     maxProducersPerNode = 20;

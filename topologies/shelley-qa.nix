@@ -1,14 +1,16 @@
 pkgs: with pkgs; with lib; with topology-lib;
 let
 
-  withAutoRestart = def: lib.recursiveUpdate {
-    systemd.services.cardano-node.serviceConfig = {
-      RuntimeMaxSec = 6 *
-        60 * 60 + 60 * (5 * (def.nodeId or 0));
-    };
-  } def;
+  regions = {
+    a = { name = "eu-central-1";   /* Europe (Frankfurt)       */ };
+    b = { name = "us-east-2";      /* US East (Ohio)           */ };
+    c = { name = "ap-southeast-1"; /* Asia Pacific (Singapore) */ };
+    d = { name = "eu-west-2";      /* Europe (London)          */ };
+  };
 
 in {
+
+
   monitoring = {
     services.monitoring-services.publicGrafana = false;
   };
@@ -25,6 +27,26 @@ in {
       useByronWallet = false;
     };
   };
+
+
+  bftCoreNodes = let
+    mkBftCoreNode = mkBftCoreNodeForRegions regions;
+  in regionalConnectGroupWith (reverseList stakingPoolNodes)
+  (fullyConnectNodes [
+    # OBFT centralized nodes recovery nodes
+    (mkBftCoreNode "a" 1 {
+      org = "IOHK";
+      nodeId = 1;
+    })
+    (mkBftCoreNode "b" 1 {
+      org = "IOHK";
+      nodeId = 2;
+    })
+    (mkBftCoreNode "c" 1 {
+      org = "IOHK";
+      nodeId = 3;
+    })
+  ]);
 
   coreNodes = [
     # backup OBFT centralized nodes
