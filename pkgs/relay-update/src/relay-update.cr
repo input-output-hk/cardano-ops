@@ -430,10 +430,10 @@ OptionParser.parse do |parser|
   parser.banner = "Usage: relay-update [arguments]"
   parser.on("-r", "--refresh", "Updates and deploys the latest explorer relay topology (required option)") { proceed = true }
   parser.on("-a", "--all", "Updates and deploys relay topology to all edges/relays") { allOpt = true }
-  parser.on("-m", "--mock", "Mock update (don't deploy anything)") { mockOpt = true }
+  parser.on("-t", "--test", "Test update (don't deploy anything)") { mockOpt = true }
   parser.on("--edge", "Updates and deploys relay topology to edge nodes (e-X-Y)") { edgeOpt = true }
   parser.on("--relay", "Updates and deploys relay topology to relay nodes (rel-X-Y)") { relOpt = true }
-  parser.on("-m POSINT", "--minProd POSINT", "The minimum producers to allow deployment (default: #{minOpt})") { |posint| minOpt = posint.to_i }
+  parser.on("-m POSINT", "--   POSINT", "The minimum producers to allow deployment (default: #{minOpt})") { |posint| minOpt = posint.to_i }
   parser.on("-n POSINT", "--maxNodes POSINT", "The maximual number of nodes that will be simultaneously deployed (default: #{maxNodesOpt})") { |posint| maxNodesOpt = posint.to_i }
   parser.on("-b POSINT", "--minBatches POSINT", "The minimal number of deployment batches (default: #{minBatchesOpt})") { |posint| minBatchesOpt = posint.to_i }
   parser.on("-e EMAIL", "--email EMAIL", "Send email to given address on script completion") { |email| emailOpt = email }
