@@ -14,50 +14,40 @@ require "option_parser"
 require "http/client"
 require "file_utils"
 
-EMAIL_ENABLED           = ENV.fetch("EMAIL_ENABLED", "TRUE") == "TRUE" ? true : false
-MOCK_ENABLED            = ENV.fetch("MOCK_ENABLED", "FALSE") == "TRUE" ? true : false
 PATH_MOD                = ENV.fetch("PATH_MOD", ".")
 RELATIVE_TOPOLOGY_PATH  = ENV.fetch("RELATIVE_TOPOLOGY_PATH", "static/registered_relays_topology.json")
 IP_METADATA_URL         = ENV.fetch("IP_METADATA_URL", "http://169.254.169.254/latest/meta-data/public-ipv4")
-DENIED_CLUSTERS         = [] of String
 
 EMAIL_FROM              = "devops@ci.iohkdev.io"
-EMAIL_TO                = "devops@iohk.io"
 NODE_METRICS_PORT       = 12798
 NOW                     = Time.utc.to_s("%F %R %z")
-METRICS_WAIT_INTERVAL   = 60
-METRICS_WAIT_ITERATIONS = 15
+METRICS_WAIT_INTERVAL   = 10
+METRICS_WAIT_ITERATIONS = 100
 MINIMUM_PRODUCERS       = 100
-MAX_NODES_PER_DEPLOY    = 10
+MAX_NODES_PER_DEPLOY    = 13
 MIN_DEPLOY_BATCHES      = 3
 
 IO_CMD_OUT    = IO::Memory.new
 IO_CMD_ERR    = IO::Memory.new
 IO_TEE_FULL   = IO::Memory.new
 IO_TEE_OUT    = IO::MultiWriter.new(IO_CMD_OUT, IO_TEE_FULL, STDOUT)
-IO_TEE_ERR    = IO::MultiWriter.new(IO_CMD_ERR, IO_TEE_FULL, STDOUT)
+IO_TEE_ERR    = IO::MultiWriter.new(IO_CMD_ERR, IO_TEE_FULL, STDERR)
 IO_TEE_STDOUT = IO::MultiWriter.new(IO_TEE_FULL, STDOUT)
-IO_NO_TEE_OUT = IO::MultiWriter.new(IO_CMD_OUT, IO_TEE_FULL)
-IO_NO_TEE_ERR = IO::MultiWriter.new(IO_CMD_ERR, IO_TEE_FULL)
+IO_NO_TEE_OUT = IO::MultiWriter.new(IO_CMD_OUT, STDOUT)
+IO_NO_TEE_ERR = IO::MultiWriter.new(IO_CMD_ERR, STDERR)
 
 class RelayUpdate
-  setter allOpt, edgeOpt, relOpt, minOpt
 
   @sesUsername : String
   @sesSecret : String
-  @deployerIp : String
   @cluster : String
   @deployment : String
   @explorerUrl : String
 
-  def initialize
+  def initialize(@allOpt : Bool, @edgeOpt : Bool, @relOpt : Bool, @minOpt : Int32,
+    @maxNodesOpt : Int32, @minBatchesOpt : Int32, @emailOpt : String, @noSensitiveOpt : Bool, @mockOpt : Bool)
 
-    @allOpt = false
-    @edgeOpt = false
-    @relOpt = false
-    @minOpt = 100
-
-    if EMAIL_ENABLED
+    if (@emailOpt != "" && !@mockOpt)
       if scriptCmdPrivate("nix-instantiate --eval -E --json '(import #{PATH_MOD}/static/ses.nix).sesSmtp.username'").success?
         @sesUsername = IO_CMD_OUT.to_s.strip('"')
       else
@@ -76,18 +66,12 @@ class RelayUpdate
 
     if scriptCmdPrivate("nix-instantiate --eval -E --json '(import #{PATH_MOD}/globals.nix {}).environmentName'").success?
       @cluster = IO_CMD_OUT.to_s.strip('"')
-      IO_TEE_OUT.puts "cluster: #{@cluster}"
     else
       updateAbort("Unable to process the environment name from the globals file.")
     end
 
-    if DENIED_CLUSTERS.includes?(@cluster)
-      updateAbort("The current cluster \"#{@cluster}\" is not allowed to use this script.")
-    end
-
     if scriptCmdPrivate("nix-instantiate --eval -E --json '(import #{PATH_MOD}/globals.nix {}).deploymentName'").success?
       @deployment = IO_CMD_OUT.to_s.strip('"')
-      IO_TEE_OUT.puts "deployment: #{@deployment}"
     else
       updateAbort("Unable to process the deployment name from the globals file.")
     end
@@ -98,46 +82,43 @@ class RelayUpdate
       updateAbort("Unable to process the explorer fqdn name from the globals file.")
     end
 
-    IO_TEE_STDOUT.puts "Getting deployer IP"
-    @deployerIp = ""
-    if (response = apiGet(IP_METADATA_URL)).success?
-      IO_TEE_STDOUT.puts "#{IO_CMD_OUT.to_s.split("\n").map { |i| "  " + i }.join("\n")}"
-      IO_TEE_STDOUT.puts "Checking for valid deployer IP regex"
-      IO_CMD_OUT.clear
-      IO_CMD_ERR.clear
-      if response.body.to_s =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/
-        @deployerIp = response.body.to_s
-        IO_TEE_STDOUT.puts "Deployer IP metadata is #{@deployerIp}"
-        if ENV.has_key?("DEPLOYER_IP")
-          IO_TEE_STDOUT.puts "Pre-existing DEPLOYER_IP env var: #{ENV["DEPLOYER_IP"]}"
+    if ENV.has_key?("DEPLOYER_IP")
+      IO_TEE_STDOUT.puts "Pre-existing DEPLOYER_IP env var: #{if @noSensitiveOpt "xx.xxx.xxx.xxx" else ENV["DEPLOYER_IP"] end}"
+    else
+      IO_TEE_STDOUT.puts "Getting deployer IP"
+      if (response = apiGet(IP_METADATA_URL)).success?
+        if !@noSensitiveOpt
+          IO_TEE_STDOUT.puts "#{IO_CMD_OUT.to_s.split("\n").map { |i| "  " + i }.join("\n")}"
+        end
+        IO_TEE_STDOUT.puts "Checking for valid deployer IP regex"
+        IO_CMD_OUT.clear
+        IO_CMD_ERR.clear
+        if response.body.to_s =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/
+          deployerIp = response.body.to_s
+          IO_TEE_STDOUT.puts "Deployer IP metadata is #{if @noSensitiveOpt "xx.xxx.xxx.xxx" else deployerIp end}"
+          IO_TEE_STDOUT.puts "No existing DEPLOYER_IP env var found; setting to #{if @noSensitiveOpt "xx.xxx.xxx.xxx" else deployerIp end}"
+          ENV["DEPLOYER_IP"] = deployerIp
         else
-          IO_TEE_STDOUT.puts "No existing DEPLOYER_IP env var found; setting to #{@deployerIp}"
-          ENV["DEPLOYER_IP"] = @deployerIp
+          updateAbort("The deployer IP is not available (does not match an IPv4 pattern) but is required for deployment.")
         end
       else
-        updateAbort("The deployer IP is not available (does not match an IPv4 pattern) but is required for deployment.")
+        updateAbort("Unable to access deployer metadata.")
       end
-    else
-      updateAbort("Unable to access deployer metadata.")
     end
   end
 
-  def scriptCmd(cmd)
-    IO_CMD_OUT.clear
-    IO_CMD_ERR.clear
-    result = Process.run(cmd, output: IO_TEE_OUT, error: IO_TEE_ERR, shell: true)
-  end
 
-  def scriptCmdPrivate(cmd)
+  def scriptCmdPrivate(cmd) : Process::Status
     IO_CMD_OUT.clear
     IO_CMD_ERR.clear
-    result = Process.run(cmd, output: IO_CMD_OUT, error: IO_CMD_ERR, shell: true)
-  end
-
-  def scriptCmdNoTee(cmd)
-    IO_CMD_OUT.clear
-    IO_CMD_ERR.clear
-    result = Process.run(cmd, output: IO_NO_TEE_OUT, error: IO_NO_TEE_ERR, shell: true)
+    IO_TEE_STDOUT.puts "+ #{cmd}"
+    if (@noSensitiveOpt && cmd =~ /^nix deploy.*/)
+      result = Process.run(cmd, output: IO_NO_TEE_OUT, error: IO_NO_TEE_ERR, shell: true)
+    else
+      result = Process.run(cmd, output: IO_TEE_OUT, error: IO_TEE_ERR, shell: true)
+    end
+    IO_TEE_STDOUT.puts "\n"
+    result
   end
 
   def apiGet(path)
@@ -160,7 +141,7 @@ class RelayUpdate
           "MESSAGE: #{msg}\n" \
           "STDOUT: #{IO_CMD_OUT}\n" \
           "STDERR: #{IO_CMD_ERR}"
-    if EMAIL_ENABLED
+    if (@emailOpt != "")
       sendEmail("relayUpdate ABORTED on #{@cluster} at #{NOW}", "#{msg}\n\nFULL LOG:\n#{IO_TEE_FULL}")
     else
       IO_TEE_OUT.puts msg
@@ -171,17 +152,21 @@ class RelayUpdate
   def sendEmail(subject, body)
     email = EMail::Message.new
     email.from(EMAIL_FROM)
-    email.to(EMAIL_TO)
+    email.to(@emailOpt)
     email.subject(subject)
     email.message(body)
-    config = EMail::Client::Config.new("email-smtp.us-east-1.amazonaws.com", 25)
-    config.use_tls(EMail::Client::TLSMode::STARTTLS)
-    config.tls_context
-    config.tls_context.add_options(OpenSSL::SSL::Options::NO_SSL_V2 | OpenSSL::SSL::Options::NO_SSL_V3 | OpenSSL::SSL::Options::NO_TLS_V1 | OpenSSL::SSL::Options::NO_TLS_V1_1)
-    config.use_auth("#{@sesUsername}", "#{@sesSecret}")
-    client = EMail::Client.new(config)
-    client.start do
-      send(email)
+    if @mockOpt
+      STDOUT.puts "MOCK sending email: \n#{subject}\n#{body}"
+    else
+      config = EMail::Client::Config.new("email-smtp.us-east-1.amazonaws.com", 25)
+      config.use_tls(EMail::Client::TLSMode::STARTTLS)
+      config.tls_context
+      config.tls_context.add_options(OpenSSL::SSL::Options::NO_SSL_V2 | OpenSSL::SSL::Options::NO_SSL_V3 | OpenSSL::SSL::Options::NO_TLS_V1 | OpenSSL::SSL::Options::NO_TLS_V1_1)
+      config.use_auth("#{@sesUsername}", "#{@sesSecret}")
+      client = EMail::Client.new(config)
+      client.start do
+        send(email)
+      end
     end
   end
 
@@ -237,6 +222,11 @@ class RelayUpdate
     IO_TEE_OUT.puts "edgeOpt = #{@edgeOpt}"
     IO_TEE_OUT.puts "relOpt = #{@relOpt}"
     IO_TEE_OUT.puts "minOpt = #{@minOpt}"
+    IO_TEE_OUT.puts "maxNodesOpt = #{@maxNodesOpt}"
+    IO_TEE_OUT.puts "minBatchesOpt = #{@minBatchesOpt}"
+    IO_TEE_OUT.puts "emailOpt = #{@emailOpt}"
+    IO_TEE_OUT.puts "noSensitiveOpt = #{@noSensitiveOpt}"
+    IO_TEE_OUT.puts "mockOpt = #{@mockOpt}"
 
     IO_TEE_STDOUT.puts "Explorer GET URL topology (#{@explorerUrl}):"
     if (response = apiGet(@explorerUrl)).success?
@@ -316,25 +306,28 @@ class RelayUpdate
     #p! monitoringNodes
     #p! networkAttrs
 
-    nbBatches = Math.max(targetNodes.size // MAX_NODES_PER_DEPLOY, MIN_DEPLOY_BATCHES)
+    if scriptCmdPrivate("nix eval --json \"(((import ./nix {}).topology-lib.nbBatches #{@maxNodesOpt}))\"").success?
+      nbBatchWithSizeConstraint = IO_CMD_OUT.to_s.to_i
+    else
+      updateAbort("Unable to process the min number of batches.")
+    end
 
-    if scriptCmdPrivate("nix eval --json \"(((import ./nix {}).topology-lib.relaysBatchesOf #{nbBatches}))\"").success?
+    nbBatches = Math.max(nbBatchWithSizeConstraint, @minBatchesOpt)
+
+    if scriptCmdPrivate("nix eval --json \"(((import ./nix {}).topology-lib.genRelayBatches #{nbBatches}))\"").success?
       deployBatches = Array(Array(String)).from_json(IO_CMD_OUT.to_s)
     else
       updateAbort("Unable to process the relays deploy batches from the deployment.")
     end
 
-    if MOCK_ENABLED
+    if @mockOpt
       updateCmd = "echo \"MOCK UPDATING SECURITY GROUPS AND IPS: #{securityGroups.join(" ")}\n #{elasticIps.join(" ")}\""
     else
       IO_TEE_STDOUT.puts "Deploying security groups and elastic ips:\n#{securityGroups.join(" ")}\n#{elasticIps.join(" ")}"
       updateCmd = "nixops deploy --include #{elasticIps.join(" ")} #{securityGroups.join(" ")}"
     end
-    if scriptCmdPrivate(updateCmd).success?
-      IO_TEE_OUT.puts IO_CMD_OUT.to_s
-      IO_TEE_OUT.puts IO_CMD_ERR.to_s
-    else
-      updateAbort("Failed to deploy the security groups updates (#{updateCmd})")
+    if !scriptCmdPrivate(updateCmd).success?
+      updateAbort("Failed to deploy the security groups updates")
     end
 
     IO_TEE_STDOUT.puts "Deploying to target nodes:\n#{targetNodes}\n (#{targetNodes.size} nodes in #{nbBatches} batches)."
@@ -342,23 +335,22 @@ class RelayUpdate
     deployBatches.each do |b|
       batchTargetNodes = b.select { |n| targetNodes.includes?(n) }
       if !batchTargetNodes.empty?
-        if MOCK_ENABLED
+        if @mockOpt
           updateCmd = "echo \"MOCK UPDATING TOPOLOGY to target nodes #{batchTargetNodes.join(" ")}\""
         else
           updateCmd = "nixops deploy --include #{batchTargetNodes.join(" ")}"
         end
 
-        IO_TEE_OUT.puts "Deploying new peer topology to target nodes: #{batchTargetNodes.join(" ")} (#{updateCmd})"
-        if scriptCmdPrivate(updateCmd).success?
-          IO_TEE_OUT.puts IO_CMD_OUT.to_s
-          IO_TEE_OUT.puts IO_CMD_ERR.to_s
-        else
+        IO_TEE_OUT.puts "Deploying new peer topology to target nodes: #{batchTargetNodes.join(" ")}"
+        if !scriptCmdPrivate(updateCmd).success?
           updateAbort("Failed to deploy the new peer topology to target nodes: #{batchTargetNodes.join(" ")} (#{updateCmd})")
         end
-        sleep(10)
+        if !@mockOpt
+          sleep(5)
+        end
         batchTargetNodes.each do |n|
           IO_TEE_OUT.puts "Waiting for metrics to re-appear on target node: #{n}"
-          if MOCK_ENABLED
+          if @mockOpt
             deployFinished = true
           else
             deployFinished = false
@@ -396,34 +388,28 @@ class RelayUpdate
       end
     end
 
-    if MOCK_ENABLED
+    if @mockOpt
       updateCmd = "echo \"MOCK MONITORING UPDATE\""
     else
       IO_TEE_STDOUT.puts "Deploying monitoring"
       updateCmd = "nixops deploy --include monitoring"
     end
-    if scriptCmdPrivate(updateCmd).success?
-      IO_TEE_OUT.puts IO_CMD_OUT.to_s
-      IO_TEE_OUT.puts IO_CMD_ERR.to_s
-    else
-      updateAbort("Failed to deploy monitoring updates (#{updateCmd})")
+    if !scriptCmdPrivate(updateCmd).success?
+      updateAbort("Failed to deploy monitoring updates")
     end
 
-    if MOCK_ENABLED
+    if @mockOpt
       updateCmd = "echo \"MOCK UPDATING DNS ENRIES: #{route53RecordSets.join(" ")}\""
     else
       IO_TEE_STDOUT.puts "Deploying route53 dns entries:\n#{route53RecordSets.join(" ")}"
       updateCmd = "nixops deploy --include #{route53RecordSets.join(" ")}"
     end
-    if scriptCmdPrivate(updateCmd).success?
-      IO_TEE_OUT.puts IO_CMD_OUT.to_s
-      IO_TEE_OUT.puts IO_CMD_ERR.to_s
-    else
-      updateAbort("Failed to deploy route53 dns entries updates (#{updateCmd})")
+    if !scriptCmdPrivate(updateCmd).success?
+      updateAbort("Failed to deploy route53 dns entries updates")
     end
 
     IO_TEE_OUT.puts "Peer topology update and deployment on cluster #{@cluster} at #{NOW}, completed."
-    if EMAIL_ENABLED
+    if (@emailOpt != "")
       sendEmail("relayUpdate SUCCESS on #{@cluster} at #{NOW}",
                 "Peer topology update and deployment on cluster #{@cluster} at #{NOW}, completed.\n\n#{IO_TEE_FULL}")
     end
@@ -435,13 +421,24 @@ allOpt = false
 edgeOpt = false
 relOpt = false
 minOpt = MINIMUM_PRODUCERS
+maxNodesOpt = MAX_NODES_PER_DEPLOY
+minBatchesOpt = MIN_DEPLOY_BATCHES
+emailOpt = ""
+noSensitiveOpt = true
+mockOpt = false
 OptionParser.parse do |parser|
   parser.banner = "Usage: relay-update [arguments]"
   parser.on("-r", "--refresh", "Updates and deploys the latest explorer relay topology (required option)") { proceed = true }
   parser.on("-a", "--all", "Updates and deploys relay topology to all edges/relays") { allOpt = true }
+  parser.on("-m", "--mock", "Mock update (don't deploy anything)") { mockOpt = true }
   parser.on("--edge", "Updates and deploys relay topology to edge nodes (e-X-Y)") { edgeOpt = true }
   parser.on("--relay", "Updates and deploys relay topology to relay nodes (rel-X-Y)") { relOpt = true }
-  parser.on("-m POSINT", "--minProd POSINT", "The minimum producers to allow deployment (default: #{MINIMUM_PRODUCERS})") { |posint| minOpt = posint.to_i }
+  parser.on("-m POSINT", "--minProd POSINT", "The minimum producers to allow deployment (default: #{minOpt})") { |posint| minOpt = posint.to_i }
+  parser.on("-n POSINT", "--maxNodes POSINT", "The maximual number of nodes that will be simultaneously deployed (default: #{maxNodesOpt})") { |posint| maxNodesOpt = posint.to_i }
+  parser.on("-b POSINT", "--minBatches POSINT", "The minimal number of deployment batches (default: #{minBatchesOpt})") { |posint| minBatchesOpt = posint.to_i }
+  parser.on("-e EMAIL", "--email EMAIL", "Send email to given address on script completion") { |email| emailOpt = email }
+  parser.on("-n", "--no-sensitive", "Email will include sensitive information") { noSensitiveOpt = false }
+
   parser.on("-h", "--help", "Show this help") do
     puts parser
     exit
@@ -454,11 +451,9 @@ OptionParser.parse do |parser|
 end
 
 if proceed
-  relayUpdate=RelayUpdate.new
-  relayUpdate.allOpt = allOpt
-  relayUpdate.edgeOpt = edgeOpt
-  relayUpdate.relOpt = relOpt
-  relayUpdate.minOpt = minOpt
+  relayUpdate=RelayUpdate.new allOpt: allOpt, edgeOpt: edgeOpt, relOpt: relOpt, minOpt: minOpt,
+    maxNodesOpt: maxNodesOpt, minBatchesOpt: minBatchesOpt, emailOpt: emailOpt, noSensitiveOpt: noSensitiveOpt, mockOpt: mockOpt
+
   relayUpdate.doUpdate
 end
 exit 0

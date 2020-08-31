@@ -80,6 +80,21 @@ pkgs: with pkgs; with lib; rec {
       else if (nbPeers1Hop <= maxPeers) then nbPeers1Hop
       else nbPeersTwoHopsGroup groupSize;
 
+  /* return the given node group so that it form a fully connected network
+  */
+  fullyConnectNodes = nodeGroup:
+    connectNodesWithin (length nodeGroup) nodeGroup;
+
+  /* return the given node group so that it form a network connected via one hop at max.
+  */
+  oneHopConnectNodes = nodeGroup:
+    connectNodesWithin (nbPeersOneHopGroup (length  nodeGroup)) nodeGroup;
+
+  /* return the given node group so that it form a network connected via two hops at max.
+  */
+  twoHopsConnectNodes = nodeGroup:
+    connectNodesWithin (nbPeersTwoHopsGroup (length  nodeGroup)) nodeGroup;
+
   /* given a constraint in maximum number of peers, this function connect the given node group
      so that every node in the group is connected within one hop (if possible within 'maxPeers')
      or two hops (otherwise) to every other nodes in that group.
@@ -273,8 +288,28 @@ pkgs: with pkgs; with lib; rec {
          (connectNodesWithin maxInRegionPeers relaysForRegion)
       ) indexedRegions));
 
-  relaysBatchesOf = n:
-    let byRegions = attrValues (mapAttrs (_:
-      rs: let irs = imap0 (i: mergeAttrs {inherit i;}) rs; in genList (i: (map (r: r.name) (filter (r: mod r.i n == i) irs))) n) (groupBy (r: r.region) globals.topology.relayNodes));
-    in genList (i: concatMap (rs: elemAt rs i) byRegions) n;
+  /* Generate n batches (if possible) of relay nodes, as a list of lists of node names,
+     in a way that minimize impact on connectivity within each regions.
+  */
+  genRelayBatches = n: let
+    byRegions = attrValues (mapAttrs (_: regionRelays:
+      let indexed = imap0 (i: mergeAttrs {inherit i;}) regionRelays;
+      # within each regions, create n lists using mod result, so that each batches does not includes consecutive relays (eg. rel-a-1 and rel-a-2),
+      # which could deteriorate connectivity within each region:
+      in genList (i: (map (r: r.name) (filter (r: mod r.i n == i) indexed))) n)
+    (groupBy (r: r.region) globals.topology.relayNodes));
+    # then join each list in same position in each region, to form final batches
+    # (also exclude empty batches, which can happen if n > #relays for each region)
+    in filter (b: b != []) (genList (i: concatMap (rs: elemAt rs i) byRegions) n);
+
+  /* Compute the minimum number of batches necessary to stay below
+     a given maximum number of nodes per batches.
+  */
+  nbBatches = let
+    regionSizes = mapAttrsToList (_: length) (groupBy (r: r.region) globals.topology.relayNodes);
+    batchSizes = genList (n: rec {
+        size = foldl (s: rs: s + (rs / nbBatches) + (if (mod rs nbBatches == 0) then 0 else 1)) 0 regionSizes;
+        nbBatches = n + 1;}) 100;
+    in maxBatchSize: (findFirst (i: i.size <= maxBatchSize)
+      (throw "max batch size cannot be under number of regions") batchSizes).nbBatches;
 }
