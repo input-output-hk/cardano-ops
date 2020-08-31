@@ -424,7 +424,7 @@ minOpt = MINIMUM_PRODUCERS
 maxNodesOpt = MAX_NODES_PER_DEPLOY
 minBatchesOpt = MIN_DEPLOY_BATCHES
 emailOpt = ""
-noSensitiveOpt = true
+noSensitiveOpt = false
 mockOpt = false
 OptionParser.parse do |parser|
   parser.banner = "Usage: relay-update [arguments]"
@@ -437,7 +437,7 @@ OptionParser.parse do |parser|
   parser.on("-n POSINT", "--maxNodes POSINT", "The maximual number of nodes that will be simultaneously deployed (default: #{maxNodesOpt})") { |posint| maxNodesOpt = posint.to_i }
   parser.on("-b POSINT", "--minBatches POSINT", "The minimal number of deployment batches (default: #{minBatchesOpt})") { |posint| minBatchesOpt = posint.to_i }
   parser.on("-e EMAIL", "--email EMAIL", "Send email to given address on script completion") { |email| emailOpt = email }
-  parser.on("-n", "--no-sensitive", "Email will include sensitive information") { noSensitiveOpt = false }
+  parser.on("-n", "--no-sensitive", "Email will no include sensitive information") { noSensitiveOpt = true }
 
   parser.on("-h", "--help", "Show this help") do
     puts parser
