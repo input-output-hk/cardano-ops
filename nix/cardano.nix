@@ -5,9 +5,11 @@ let
   };
   cardano-explorer-app-pkgs = import self.sourcePaths.cardano-explorer-app {};
   cardano-rest-pkgs = import (self.sourcePaths.cardano-rest + "/nix") {};
+  cardano-rosetta-pkgs = import (self.sourcePaths.cardano-rosetta + "/nix") {};
   cardanoNodePkgs = import (self.sourcePaths.cardano-node + "/nix") { gitrev = self.sourcePaths.cardano-node.rev; };
 in rec {
   inherit cardano-db-sync-pkgs cardano-explorer-app-pkgs cardano-rest-pkgs cardanoNodePkgs;
   inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.cardano-cli.components.exes) cardano-cli;
   inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.cardano-node.components.exes) cardano-node;
+  inherit (cardano-rosetta-pkgs) cardano-rosetta-server;
 }

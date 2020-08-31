@@ -12,6 +12,7 @@ in {
     (sourcePaths.cardano-graphql + "/nix/nixos")
     (sourcePaths.cardano-rest + "/nix/nixos")
     (sourcePaths.cardano-db-sync + "/nix/nixos")
+    (sourcePaths.cardano-rosetta + "/nix/nixos")
     cardano-ops.modules.base-service
     cardano-ops.modules.cardano-postgres
   ];
@@ -48,6 +49,17 @@ in {
     genesisShelley = nodeCfg.nodeConfig.ShelleyGenesisFile;
     whitelistPath = cardano-explorer-app-pkgs.whitelist;
     cardanoNodeSocketPath = nodeCfg.socketPath;
+  };
+
+  services.cardano-rosetta-server = {
+    enable = true;
+    topologyFilePath = nodeCfg.topology;
+    cardanoCliPath = pkgs.cardano-cli + /bin/cardano-cli;
+    genesisPath = nodeCfg.nodeConfig.ShelleyGenesisFile;
+    cardanoNodePath = pkgs.cardano-node + /bin/cardano-node;
+    cardanoNodeSocketPath = nodeCfg.socketPath;
+    bindAddress = "127.0.0.1";
+    port = 8082;
   };
 
   # Temporarily required until the following cardano-graphql issue is fixed:
@@ -276,6 +288,9 @@ in {
           };
           "/relays" = {
             root = "/var/lib/registered-relays-dump";
+          };
+          "/rosetta/" = {
+            proxyPass = "http://127.0.0.1:8082/";
           };
         };
       };
