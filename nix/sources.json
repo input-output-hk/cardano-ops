@@ -95,6 +95,18 @@
         "url": "https://github.com/input-output-hk/cardano-rest/archive/7e417e9f651cb8a9012ca975454d6b22452c42d0.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "cardano-rosetta": {
+        "branch": "refs/tags/0.2.0",
+        "description": "https://www.rosetta-api.org implementation for Cardano Node",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "cardano-rosetta",
+        "rev": "30970e71d1368c7650ad01c39cb1a336f9ba38e2",
+        "sha256": "07d9fng8iagpryz37a71xpx8p9qhy1mrpzpifg75hfwwxlafxp11",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/30970e71d1368c7650ad01c39cb1a336f9ba38e2.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "iohk-nix": {
         "branch": "master",
         "description": "nix scripts shared across projects",
