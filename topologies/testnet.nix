@@ -117,6 +117,8 @@ let
 in {
   inherit coreNodes relayNodes;
 
+  services.monitoring-services.publicGrafana = true;
+
   "${globals.faucetHostname}" = {
     services.cardano-faucet = {
       anonymousAccess = true;
