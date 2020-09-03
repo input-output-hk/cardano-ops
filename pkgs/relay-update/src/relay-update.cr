@@ -433,11 +433,11 @@ OptionParser.parse do |parser|
   parser.on("-t", "--test", "Test update (don't deploy anything)") { mockOpt = true }
   parser.on("--edge", "Updates and deploys relay topology to edge nodes (e-X-Y)") { edgeOpt = true }
   parser.on("--relay", "Updates and deploys relay topology to relay nodes (rel-X-Y)") { relOpt = true }
-  parser.on("-m POSINT", "--   POSINT", "The minimum producers to allow deployment (default: #{minOpt})") { |posint| minOpt = posint.to_i }
-  parser.on("-n POSINT", "--maxNodes POSINT", "The maximual number of nodes that will be simultaneously deployed (default: #{maxNodesOpt})") { |posint| maxNodesOpt = posint.to_i }
+  parser.on("-m POSINT", "--minProducers POSINT", "The minimum third-party producers to allow deployment (default: #{minOpt})") { |posint| minOpt = posint.to_i }
+  parser.on("-n POSINT", "--maxNodes POSINT", "The maximal number of nodes that will be simultaneously deployed (default: #{maxNodesOpt})") { |posint| maxNodesOpt = posint.to_i }
   parser.on("-b POSINT", "--minBatches POSINT", "The minimal number of deployment batches (default: #{minBatchesOpt})") { |posint| minBatchesOpt = posint.to_i }
   parser.on("-e EMAIL", "--email EMAIL", "Send email to given address on script completion") { |email| emailOpt = email }
-  parser.on("-n", "--no-sensitive", "Email will no include sensitive information") { noSensitiveOpt = true }
+  parser.on("-s", "--no-sensitive", "Email will no include sensitive information") { noSensitiveOpt = true }
 
   parser.on("-h", "--help", "Show this help") do
     puts parser
