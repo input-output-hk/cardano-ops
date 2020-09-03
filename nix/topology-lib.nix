@@ -1,11 +1,24 @@
 pkgs: with pkgs; with lib; rec {
 
+  /* function composition */
+  compose = f: g: x: f (g x);
+
+  /* compose list of function */
+  composeAll = builtins.foldl' compose id;
+
   /* Auto restart cardano-node service every given hours
     (plus 'nodeId' minutes to reduce likelyhood of simultaneous restart of many nodes).
   */
   withAutoRestartEvery = h: def: lib.recursiveUpdate {
     systemd.services.cardano-node.serviceConfig.RuntimeMaxSec = h *
         60 * 60 + 60 * (def.nodeId or 0);
+  } def;
+
+  /* Enable the given profiling mode (first arg) for
+    the given list of nodes (second arg).
+  */
+  withProfiling = p: nodes: def: lib.recursiveUpdate {
+    services.cardano-node.profiling = mkIf (elem def.name nodes) p;
   } def;
 
   /* return the dns name of the continental group of relay
