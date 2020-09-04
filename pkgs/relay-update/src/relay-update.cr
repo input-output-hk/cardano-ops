@@ -47,14 +47,14 @@ class RelayUpdate
   def initialize(@allOpt : Bool, @edgeOpt : Bool, @relOpt : Bool, @minOpt : Int32,
     @maxNodesOpt : Int32, @minBatchesOpt : Int32, @emailOpt : String, @noSensitiveOpt : Bool, @mockOpt : Bool)
 
-    if (@emailOpt != "" && !@mockOpt)
-      if scriptCmdPrivate("nix-instantiate --eval -E --json '(import #{PATH_MOD}/static/ses.nix).sesSmtp.username'").success?
+    if (@emailOpt != "")
+      if runCmdSecret("nix-instantiate --eval -E --json '(import #{PATH_MOD}/static/ses.nix).sesSmtp.username'").success?
         @sesUsername = IO_CMD_OUT.to_s.strip('"')
       else
         abort("Unable to process the ses username.")
       end
 
-      if scriptCmdPrivate("nix-instantiate --eval -E --json '(import #{PATH_MOD}/static/ses.nix).sesSmtp.secret'").success?
+      if runCmdSecret("nix-instantiate --eval -E --json '(import #{PATH_MOD}/static/ses.nix).sesSmtp.secret'").success?
         @sesSecret = IO_CMD_OUT.to_s.strip('"')
       else
         abort("Unable to process the ses secret.")
@@ -64,19 +64,19 @@ class RelayUpdate
       @sesSecret = ""
     end
 
-    if scriptCmdPrivate("nix-instantiate --eval -E --json '(import #{PATH_MOD}/globals.nix {}).environmentName'").success?
+    if runCmdVerbose("nix-instantiate --eval -E --json '(import #{PATH_MOD}/globals.nix {}).environmentName'").success?
       @cluster = IO_CMD_OUT.to_s.strip('"')
     else
       updateAbort("Unable to process the environment name from the globals file.")
     end
 
-    if scriptCmdPrivate("nix-instantiate --eval -E --json '(import #{PATH_MOD}/globals.nix {}).deploymentName'").success?
+    if runCmdVerbose("nix-instantiate --eval -E --json '(import #{PATH_MOD}/globals.nix {}).deploymentName'").success?
       @deployment = IO_CMD_OUT.to_s.strip('"')
     else
       updateAbort("Unable to process the deployment name from the globals file.")
     end
 
-    if scriptCmdPrivate("nix eval --raw '(with import ./#{PATH_MOD}/nix {}; \"https://${globals.explorerHostName}.${globals.domain}/relays/topology.json\")'").success?
+    if runCmdVerbose("nix eval --raw '(with import ./#{PATH_MOD}/nix {}; \"https://${globals.explorerHostName}.${globals.domain}/relays/topology.json\")'").success?
       @explorerUrl = IO_CMD_OUT.to_s
     else
       updateAbort("Unable to process the explorer fqdn name from the globals file.")
@@ -107,18 +107,33 @@ class RelayUpdate
     end
   end
 
+  def runCmd(cmd) : Process::Status
+    if (@noSensitiveOpt)
+      runCmdSensitive(cmd)
+    else
+      runCmdVerbose(cmd)
+    end
+  end
 
-  def scriptCmdPrivate(cmd) : Process::Status
+  def runCmd(cmd, output, error)
     IO_CMD_OUT.clear
     IO_CMD_ERR.clear
     IO_TEE_STDOUT.puts "+ #{cmd}"
-    if (@noSensitiveOpt && cmd =~ /^nix deploy.*/)
-      result = Process.run(cmd, output: IO_NO_TEE_OUT, error: IO_NO_TEE_ERR, shell: true)
-    else
-      result = Process.run(cmd, output: IO_TEE_OUT, error: IO_TEE_ERR, shell: true)
-    end
+    Process.run(cmd, output: output, error: error, shell: true)
+  end
+
+  def runCmdVerbose(cmd): Process::Status
+    result = runCmd(cmd, IO_TEE_OUT, IO_TEE_ERR)
     IO_TEE_STDOUT.puts "\n"
     result
+  end
+
+  def runCmdSensitive(cmd) : Process::Status
+    runCmd(cmd, IO_NO_TEE_OUT, IO_NO_TEE_ERR)
+  end
+
+  def runCmdSecret(cmd) : Process::Status
+    runCmd(cmd, IO_CMD_OUT, IO_NO_TEE_ERR)
   end
 
   def apiGet(path)
@@ -255,25 +270,25 @@ class RelayUpdate
       end
     end
 
-    if scriptCmdPrivate("nix eval --json '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix))'").success?
+    if runCmdVerbose("nix eval --json '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix))'").success?
       network = Array(String).from_json(IO_CMD_OUT.to_s)
     else
       updateAbort("Unable to process the attribute names from the deployment.")
     end
 
-    if scriptCmdPrivate("nix eval --json '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix).resources.ec2SecurityGroups)'").success?
+    if runCmdVerbose("nix eval --json '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix).resources.ec2SecurityGroups)'").success?
       securityGroups = Array(String).from_json(IO_CMD_OUT.to_s)
     else
       updateAbort("Unable to process the ec2SecurityGroups attribute names from the deployment.")
     end
 
-    if scriptCmdPrivate("nix eval --json '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix).resources.elasticIPs)'").success?
+    if runCmdVerbose("nix eval --json '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix).resources.elasticIPs)'").success?
       elasticIps = Array(String).from_json(IO_CMD_OUT.to_s)
     else
       updateAbort("Unable to process the elasticIPs attribute names from the deployment.")
     end
 
-    if scriptCmdPrivate("nix eval --json '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix).resources.route53RecordSets)'").success?
+    if runCmdVerbose("nix eval --json '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix).resources.route53RecordSets)'").success?
       route53RecordSets = Array(String).from_json(IO_CMD_OUT.to_s)
     else
       updateAbort("Unable to process the route53RecordSets attribute names from the deployment.")
@@ -306,7 +321,7 @@ class RelayUpdate
     #p! monitoringNodes
     #p! networkAttrs
 
-    if scriptCmdPrivate("nix eval --json \"(((import ./nix {}).topology-lib.nbBatches #{@maxNodesOpt}))\"").success?
+    if runCmdVerbose("nix eval --json \"(((import ./nix {}).topology-lib.nbBatches #{@maxNodesOpt}))\"").success?
       nbBatchWithSizeConstraint = IO_CMD_OUT.to_s.to_i
     else
       updateAbort("Unable to process the min number of batches.")
@@ -314,7 +329,7 @@ class RelayUpdate
 
     nbBatches = Math.max(nbBatchWithSizeConstraint, @minBatchesOpt)
 
-    if scriptCmdPrivate("nix eval --json \"(((import ./nix {}).topology-lib.genRelayBatches #{nbBatches}))\"").success?
+    if runCmdVerbose("nix eval --json \"(((import ./nix {}).topology-lib.genRelayBatches #{nbBatches}))\"").success?
       deployBatches = Array(Array(String)).from_json(IO_CMD_OUT.to_s)
     else
       updateAbort("Unable to process the relays deploy batches from the deployment.")
@@ -326,7 +341,7 @@ class RelayUpdate
       IO_TEE_STDOUT.puts "Deploying security groups and elastic ips:\n#{securityGroups.join(" ")}\n#{elasticIps.join(" ")}"
       updateCmd = "nixops deploy --include #{elasticIps.join(" ")} #{securityGroups.join(" ")}"
     end
-    if !scriptCmdPrivate(updateCmd).success?
+    if !runCmd(updateCmd).success?
       updateAbort("Failed to deploy the security groups updates")
     end
 
@@ -342,7 +357,7 @@ class RelayUpdate
         end
 
         IO_TEE_OUT.puts "Deploying new peer topology to target nodes: #{batchTargetNodes.join(" ")}"
-        if !scriptCmdPrivate(updateCmd).success?
+        if !runCmd(updateCmd).success?
           updateAbort("Failed to deploy the new peer topology to target nodes: #{batchTargetNodes.join(" ")} (#{updateCmd})")
         end
         if !@mockOpt
@@ -357,7 +372,7 @@ class RelayUpdate
             prevSlot = 0
             i = 0
             while i < METRICS_WAIT_ITERATIONS
-              if scriptCmdPrivate("nixops ssh #{n} -- 'curl -s #{n}:#{NODE_METRICS_PORT}/metrics | grep -oP \"cardano_node_ChainDB_metrics_slotNum_int \\K[0-9]+\"'").success?
+              if runCmdVerbose("nixops ssh #{n} -- 'curl -s #{n}:#{NODE_METRICS_PORT}/metrics | grep -oP \"cardano_node_ChainDB_metrics_slotNum_int \\K[0-9]+\"'").success?
                 slot = IO_CMD_OUT.to_s
                 IO_TEE_OUT.puts "Found slotNum_int metrics post topology update deploy on target node: #{n} at #{slot}"
                 if (slot.to_i >= lastSlot)
@@ -394,7 +409,7 @@ class RelayUpdate
       IO_TEE_STDOUT.puts "Deploying monitoring"
       updateCmd = "nixops deploy --include monitoring"
     end
-    if !scriptCmdPrivate(updateCmd).success?
+    if !runCmd(updateCmd).success?
       updateAbort("Failed to deploy monitoring updates")
     end
 
@@ -404,7 +419,7 @@ class RelayUpdate
       IO_TEE_STDOUT.puts "Deploying route53 dns entries:\n#{route53RecordSets.join(" ")}"
       updateCmd = "nixops deploy --include #{route53RecordSets.join(" ")}"
     end
-    if !scriptCmdPrivate(updateCmd).success?
+    if !runCmd(updateCmd).success?
       updateAbort("Failed to deploy route53 dns entries updates")
     end
 
