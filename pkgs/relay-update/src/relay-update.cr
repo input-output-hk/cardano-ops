@@ -170,18 +170,14 @@ class RelayUpdate
     email.to(@emailOpt)
     email.subject(subject)
     email.message(body)
-    if @mockOpt
-      STDOUT.puts "MOCK sending email: \n#{subject}\n#{body}"
-    else
-      config = EMail::Client::Config.new("email-smtp.us-east-1.amazonaws.com", 25)
-      config.use_tls(EMail::Client::TLSMode::STARTTLS)
-      config.tls_context
-      config.tls_context.add_options(OpenSSL::SSL::Options::NO_SSL_V2 | OpenSSL::SSL::Options::NO_SSL_V3 | OpenSSL::SSL::Options::NO_TLS_V1 | OpenSSL::SSL::Options::NO_TLS_V1_1)
-      config.use_auth("#{@sesUsername}", "#{@sesSecret}")
-      client = EMail::Client.new(config)
-      client.start do
-        send(email)
-      end
+    config = EMail::Client::Config.new("email-smtp.us-east-1.amazonaws.com", 25)
+    config.use_tls(EMail::Client::TLSMode::STARTTLS)
+    config.tls_context
+    config.tls_context.add_options(OpenSSL::SSL::Options::NO_SSL_V2 | OpenSSL::SSL::Options::NO_SSL_V3 | OpenSSL::SSL::Options::NO_TLS_V1 | OpenSSL::SSL::Options::NO_TLS_V1_1)
+    config.use_auth("#{@sesUsername}", "#{@sesSecret}")
+    client = EMail::Client.new(config)
+    client.start do
+      send(email)
     end
   end
 
