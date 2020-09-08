@@ -73,11 +73,9 @@ in {
       "smash.${globals.domain}" = {
         enableACME = true;
         forceSSL = globals.explorerForceSSL;
-        locations = {
-          "/api" = {
-            proxyPass = "http://127.0.0.1:3100/api";
-          };
-        };
+        locations = lib.genAttrs ["/swagger.json" "/api/v1/metadata" "/api/v1/errors"] (p: {
+          proxyPass = "http://127.0.0.1:3100${p}";
+        });
       };
       "smash-ip" = {
         locations = {
