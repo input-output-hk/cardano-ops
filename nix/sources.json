@@ -72,15 +72,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
-        "branch": "release/1.19.x-with-script-embargo",
+        "branch": "refs/tags/1.19.1",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "faf612e1c099b245157dc191ca97068ccdda5e77",
-        "sha256": "1gvgjw81hzwf9gd54lnlnl7dsfh0bkym2vpa6ag44a3cqx0hcx8d",
+        "rev": "497afd7dedc5d5b9bdcdb0e3cac6a50bd9f7dd54",
+        "sha256": "1w5pgsal897g5n5vpfvrvkkgv2bmqzdbs3jzw9xbphf9jhk3jsai",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/faf612e1c099b245157dc191ca97068ccdda5e77.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/497afd7dedc5d5b9bdcdb0e3cac6a50bd9f7dd54.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rest": {
@@ -149,10 +149,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "smash",
-        "rev": "79f4dd2095891b3ac7b15a22b8a404c855bab446",
-        "sha256": "14ggmhad30mjhpi3gziv5nz8dhylh3axyflppl949kcbvy41mp8m",
+        "rev": "951842d28300daaf761034d848e1c7fb6c61f495",
+        "sha256": "0mqk00mrygprw0qdj4ndqahl85mqizd6vif6dsizyxzp3wj9wnxa",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/smash/archive/79f4dd2095891b3ac7b15a22b8a404c855bab446.tar.gz",
+        "url": "https://github.com/input-output-hk/smash/archive/951842d28300daaf761034d848e1c7fb6c61f495.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
