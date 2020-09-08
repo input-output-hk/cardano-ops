@@ -159,11 +159,17 @@ profile_genesis_shelley() {
         local start_future_offset='1 minute'
         local ids_pool_map ids
         id_pool_map_composition ""
+
         local topofile
         topofile=$(get_topology_file)
         oprint "genesis: topology:  $topofile"
+
         ids_pool_map=$(topology_id_pool_map "$topofile")
         oprint "genesis: id-pool map:  $ids_pool_map"
+        if jqtest 'to_entries | map (select (.value)) | length == 0' <<<$ids_pool_map
+        then fail "no pools in topology -- at least one entry must be have:  stakePool = true"
+        fi
+
         ids=($(jq 'keys
                   | join(" ")
                   ' -cr <<<$ids_pool_map))
