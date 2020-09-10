@@ -62,20 +62,45 @@ in {
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;
-    commonHttpConfig = ''
+    commonHttpConfig =
+      let apiKeys = import ../static/smash-keys.nix;
+      in ''
       log_format x-fwd '$remote_addr - $remote_user [$time_local] '
                        '"$request" "$http_accept_language" $status $body_bytes_sent '
                        '"$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
 
       access_log syslog:server=unix:/dev/log x-fwd;
+      map $arg_apiKey $api_client_name {
+        default "";
+
+        ${lib.concatStringsSep "\n" (lib.mapAttrsToList (client: key: "\"${key}\" \"${client}\";") apiKeys)}
+      }
     '';
     virtualHosts = {
       "smash.${globals.domain}" = {
         enableACME = true;
         forceSSL = globals.explorerForceSSL;
-        locations = lib.genAttrs ["/swagger.json" "/api/v1/metadata" "/api/v1/errors"] (p: {
-          proxyPass = "http://127.0.0.1:3100${p}";
-        });
+        locations =
+          let apiKeyConfig = ''
+            if ($arg_apiKey = "") {
+                return 401; # Unauthorized (please authenticate)
+            }
+            if ($api_client_name = "") {
+                return 403; # Forbidden (invalid API key)
+            }
+          '';
+          in lib.recursiveUpdate (lib.genAttrs ["/swagger.json" "/api/v1/metadata" "/api/v1/errors" "/api/v1/delist"] (p: {
+            proxyPass = "http://127.0.0.1:3100${p}";
+          })) {
+            "/api/v1/errors".extraConfig = ''
+              if ($arg_poolId) {
+                set $arg_apiKey NONE;
+                set $api_client_name BYPASS;
+              }
+              ${apiKeyConfig}
+            '';
+            "/api/v1/delist".extraConfig = apiKeyConfig;
+          };
       };
       "smash-ip" = {
         locations = {
