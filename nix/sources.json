@@ -144,7 +144,7 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "smash": {
-        "branch": "master",
+        "branch": "refs/tags/1.1.0",
         "description": "Stakepool Metadata Aggregation Server",
         "homepage": null,
         "owner": "input-output-hk",

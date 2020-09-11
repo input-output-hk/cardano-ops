@@ -81,7 +81,7 @@ in {
       map $http_origin $origin_allowed {
         default 0;
 
-        ${lib.concatStringsSep "\n" (map (origin: "${origin} 1") allowedOrigins)}
+        ${lib.concatStringsSep "\n" (map (origin: "${origin} 1;") allowedOrigins)}
       }
 
       map $origin_allowed $origin {
