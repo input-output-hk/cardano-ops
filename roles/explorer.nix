@@ -47,7 +47,7 @@ in {
     enable = true;
     genesisByron = nodeCfg.nodeConfig.ByronGenesisFile;
     genesisShelley = nodeCfg.nodeConfig.ShelleyGenesisFile;
-    whitelistPath = cardano-explorer-app-pkgs.whitelist;
+    allowListPath = cardano-explorer-app-pkgs.whitelist;
     cardanoNodeSocketPath = nodeCfg.socketPath;
   };
 
@@ -254,11 +254,13 @@ in {
           };
         } else {
           "/" = {
-            root = cardano-explorer-app-pkgs.static.override {
-              graphqlApiHost = "${globals.explorerHostName}.${globals.domain}";
-              cardanoNetwork = globals.environmentName;
-              gaTrackingId = globals.static.gaTrackingId or null;
-            };
+            root = (cardano-explorer-app-pkgs.overrideScope'(self: super: {
+              static = super.static.override {
+                graphqlApiHost = "${globals.explorerHostName}.${globals.domain}";
+                cardanoNetwork = globals.environmentName;
+                gaTrackingId = globals.static.gaTrackingId or null;
+              };
+            })).static;
             tryFiles = "$uri $uri/index.html /index.html";
             extraConfig = ''
               rewrite /tx/([0-9a-f]+) /$lang/transaction.html?id=$1 redirect;
