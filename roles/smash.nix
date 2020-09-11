@@ -62,18 +62,31 @@ in {
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;
-    commonHttpConfig =
-      let apiKeys = import ../static/smash-keys.nix;
-      in ''
+    commonHttpConfig = let
+      apiKeys = import ../static/smash-keys.nix;
+      allowedOrigins = lib.optionals (builtins.pathExists ../static/smash-allow-origins.nix) (import ../static/smash-allow-origins.nix);
+    in ''
       log_format x-fwd '$remote_addr - $remote_user [$time_local] '
                        '"$request" "$http_accept_language" $status $body_bytes_sent '
                        '"$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
 
       access_log syslog:server=unix:/dev/log x-fwd;
+
       map $arg_apiKey $api_client_name {
         default "";
 
         ${lib.concatStringsSep "\n" (lib.mapAttrsToList (client: key: "\"${key}\" \"${client}\";") apiKeys)}
+      }
+
+      map $http_origin $origin_allowed {
+        default 0;
+
+        ${lib.concatStringsSep "\n" (map (origin: "${origin} 1") allowedOrigins)}
+      }
+
+      map $origin_allowed $origin {
+        default "";
+        1 $http_origin;
       }
     '';
     virtualHosts = {
@@ -81,7 +94,8 @@ in {
         enableACME = true;
         forceSSL = globals.explorerForceSSL;
         locations =
-          let apiKeyConfig = ''
+          let
+          apiKeyConfig = ''
             if ($arg_apiKey = "") {
                 return 401; # Unauthorized (please authenticate)
             }
@@ -89,17 +103,35 @@ in {
                 return 403; # Forbidden (invalid API key)
             }
           '';
+          corsConfig = ''
+            add_header 'Vary' 'Origin' always;
+            add_header 'Access-Control-Allow-Origin' $origin always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PATCH, OPTIONS' always;
+            add_header 'Access-Control-Allow-Headers' 'User-Agent,X-Requested-With,Content-Type' always;
+
+            if ($request_method = OPTIONS) {
+              add_header 'Access-Control-Max-Age' 1728000;
+              add_header 'Content-Type' 'text/plain; charset=utf-8';
+              add_header 'Content-Length' 0;
+              return 204;
+            }
+          '';
           in lib.recursiveUpdate (lib.genAttrs ["/swagger.json" "/api/v1/metadata" "/api/v1/errors" "/api/v1/delist"] (p: {
             proxyPass = "http://127.0.0.1:3100${p}";
+            extraConfig = corsConfig;
           })) {
             "/api/v1/errors".extraConfig = ''
               if ($arg_poolId) {
                 set $arg_apiKey NONE;
                 set $api_client_name BYPASS;
               }
+              ${corsConfig}
               ${apiKeyConfig}
             '';
-            "/api/v1/delist".extraConfig = apiKeyConfig;
+            "/api/v1/delist".extraConfig = ''
+              ${corsConfig}
+              ${apiKeyConfig}
+            '';
           };
       };
       "smash-ip" = {
