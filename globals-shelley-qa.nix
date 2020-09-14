@@ -8,7 +8,7 @@ pkgs: {
 
   withFaucet = true;
   withExplorer = true;
-  withCardanoDBExtended = false;
+  withCardanoDBExtended = true;
   withSmash = true;
   withSubmitApi = true;
   faucetHostname = "faucet";

@@ -3,7 +3,7 @@ let
   cardano-db-sync-pkgs = import self.sourcePaths.cardano-db-sync {
     gitrev = self.sourcePaths.cardano-db-sync.rev;
   };
-  cardano-explorer-app-pkgs = import self.sourcePaths.cardano-explorer-app {};
+  cardano-explorer-app-pkgs = import self.sourcePaths.cardano-explorer-app;
   cardano-rest-pkgs = import (self.sourcePaths.cardano-rest + "/nix") {};
   cardano-rosetta-pkgs = import (self.sourcePaths.cardano-rosetta + "/nix") {};
   cardanoNodePkgs = import (self.sourcePaths.cardano-node + "/nix") { gitrev = self.sourcePaths.cardano-node.rev; };
