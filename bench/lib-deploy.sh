@@ -78,18 +78,21 @@ update_deployfiles() {
 deploystate_node_process_genesis_startTime() {
         local core="${1:-node-0}"
 
-        local genesis
-        genesis=$(nixops ssh ${core} -- jq . \
-                $(nixops ssh ${core} -- jq .GenesisFile \
-                $(nixops ssh ${core} -- pgrep -al cardano-node |
-                  sed 's_.* --config \([^ ]*\) .*_\1_')))
+        local node_process
+        node_process=$(nixops ssh ${core} -- pgrep -al cardano-node)
 
-        case $(get_era) in
-             byron )   jq .startTime      <<<$genesis;;
-             shelley ) jq '.systemStart
-                          | fromdateiso8601
-                          '  --raw-output <<<$genesis;;
-        esac
+        local genesis
+        if test -n "$node_process"
+        then genesis=$(nixops ssh ${core} -- jq . \
+                     $(nixops ssh ${core} -- jq .GenesisFile \
+                     $(sed 's_.* --config \([^ ]*\) .*_\1_' <<<$node_process)))
+             case $(get_era) in
+                     byron )   jq .startTime      <<<$genesis;;
+                     shelley ) jq '.systemStart
+                                  | fromdateiso8601
+                                  '  --raw-output <<<$genesis;;
+             esac
+        else fail "cardano-node isn't running"; fi
 }
 
 deploystate_local_genesis_startTime() {

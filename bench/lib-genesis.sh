@@ -159,7 +159,17 @@ profile_genesis_shelley() {
         local start_future_offset='1 minute'
         local ids_pool_map ids
         id_pool_map_composition ""
-        ids_pool_map=$(topology_id_pool_map $(get_topology_file))
+
+        local topofile
+        topofile=$(get_topology_file)
+        oprint "genesis: topology:  $topofile"
+
+        ids_pool_map=$(topology_id_pool_map "$topofile")
+        oprint "genesis: id-pool map:  $ids_pool_map"
+        if jqtest 'to_entries | map (select (.value)) | length == 0' <<<$ids_pool_map
+        then fail "no pools in topology -- at least one entry must be have:  stakePool = true"
+        fi
+
         ids=($(jq 'keys
                   | join(" ")
                   ' -cr <<<$ids_pool_map))
@@ -170,6 +180,7 @@ profile_genesis_shelley() {
 
         local composition
         composition=$(id_pool_map_composition "$ids_pool_map")
+        oprint "genesis: id-pool map composition:  $ids_pool_map"
 
         local magic total_balance pools_balance
         magic=$(profgenjq "$prof" .protocol_magic)
@@ -255,7 +266,7 @@ profile_genesis_shelley() {
                 --out-file "$target_dir"/addresses/pool-owner${id}.addr
 
             pool_id=$(cli shelley stake-pool id \
-                      --verification-key-file   $(key cold ver $id))
+                      --verification-key-file   $(key cold ver $id) --output-format hex)
             pool_vrf=$(cli shelley node key-hash-VRF \
                        --verification-key-file  $(key VRF  ver $id))
             deleg_staking=$(cli shelley stake-address key-hash \

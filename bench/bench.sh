@@ -336,6 +336,7 @@ op_bench_start() {
         nixops ssh-for-each --parallel "systemctl start systemd-journald"
         sleep 3s
         nixops ssh-for-each --parallel "systemctl start cardano-node"
+        sleep 3s
         # nixops ssh explorer "systemctl start cardano-db-sync"
 
         deploystate_check_deployed_genesis_age
