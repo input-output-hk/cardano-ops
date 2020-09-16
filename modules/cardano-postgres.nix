@@ -31,18 +31,18 @@ in {
         # DB Version: 12
         # OS Type: linux
         # DB Type: web
-        # Total Memory (RAM): 16 GB (half the RAM of high capacity explorer)
+        # Total Memory (RAM): 24 GB (75% the RAM of high capacity explorer)
         # CPUs num: 8 (high capacity explorer vCPUs)
-        # Connections num: 200
+        # Connections num: 2000
         # Data Storage: ssd
         # Suggested optimization for
         # other configurations can be
         # found at:
         # https://pgtune.leopard.in.ua/
-        max_connections = 200
-        shared_buffers = 4GB
-        effective_cache_size = 12GB
-        maintenance_work_mem = 1GB
+        max_connections = 2000
+        shared_buffers = 6GB
+        effective_cache_size = 18GB
+        maintenance_work_mem = 1536MB
         checkpoint_completion_target = 0.7
         wal_buffers = 16MB
         default_statistics_target = 100
@@ -55,6 +55,8 @@ in {
         max_parallel_workers_per_gather = 4
         max_parallel_workers = 8
         max_parallel_maintenance_workers = 4
+        shared_preload_libraries = 'pg_stat_statements'
+        pg_stat_statements.track = all
       '' else ''
         # DB Version: 12
         # OS Type: linux
@@ -79,6 +81,8 @@ in {
         max_parallel_workers_per_gather = 2
         max_parallel_workers = 4
         max_parallel_maintenance_workers = 2
+        shared_preload_libraries = 'pg_stat_statements'
+        pg_stat_statements.track = all
       '';
     };
   };

@@ -8,7 +8,12 @@ let
   nivOverrides = writeShellScriptBin "niv-overrides" ''
     niv --sources-file ${toString globals.sourcesJsonOverride} $@
   '';
-  genesisFile = globals.environmentConfig.genesisFile or "please set globals.environmentName or globals.environmentConfig.genesisFile";
+  genesisFile = let
+    protocol."Cardano" = globals.environmentConfig.nodeConfig.ByronGenesisFile or "please set globals.environmentName or globals.environmentConfig.genesisFile";
+    protocol."RealPBFT" = globals.environmentConfig.nodeConfig.ByronGenesisFile or "please set globals.environmentName or globals.environmentConfig.genesisFile";
+    protocol."Byron" = globals.environmentConfig.nodeConfig.ByronGenesisFile or "please set globals.environmentName or globals.environmentConfig.genesisFile";
+    protocol."TPraos" = null;
+    in protocol.${globals.environmentConfig.nodeConfig.Protocol};
 
   mkDevGenesis = writeShellScriptBin "make-dev-genesis" (builtins.replaceStrings
     [ "\${RUNNER}"
@@ -90,9 +95,7 @@ in  mkShell {
     renew-kes-keys
     telnet
     test-cronjob-script
-  ] ++ (with cardano-sl-pkgs.nix-tools.exes;
-          lib.optionals (globals.topology.legacyCoreNodes != [])
-          [ cardano-sl-auxx cardano-sl-tools ]);
+  ];
   NIX_PATH = "nixpkgs=${path}";
   NIXOPS_DEPLOYMENT = "${globals.deploymentName}";
   passthru = {

@@ -9,9 +9,11 @@ pkgs: {
   environmentName = "staging";
 
   explorerAliases = [ "cardano-explorer.awstest.iohkdev.io" ];
+  withSubmitApi = true;
   withHighLoadRelays = true;
+  withSmash = true;
 
-  topology = import ./topologies/staging.nix;
+  topology = import ./topologies/staging.nix pkgs;
 
   ec2 = {
     credentials = {
@@ -23,4 +25,6 @@ pkgs: {
       };
     };
   };
+
+  alertChainDensityLow = "90";
 }

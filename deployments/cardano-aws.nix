@@ -5,7 +5,8 @@ let
     mapAttrs' mapAttrs nameValuePair recursiveUpdate unique optional any concatMap
     getAttrs optionalString hasPrefix;
 
-  inherit (globals.topology) legacyCoreNodes legacyRelayNodes byronProxies coreNodes relayNodes;
+  inherit (globals.topology) coreNodes relayNodes;
+  privateRelayNodes = globals.topology.privateRelayNodes or [];
   inherit (globals.ec2.credentials) accessKeyIds;
   inherit (iohk-ops-lib.physical) aws;
 
@@ -19,7 +20,8 @@ let
     t3-xlarge = aws.t3-xlarge;                   # High load relay
     m5ad-xlarge = aws.m5ad-xlarge;               # Test node
     xlarge-monitor = aws.t3a-xlargeMonitor;      # Standard monitor
-    t3-2xlarge-monitor = aws.t3-2xlargeMonitor;  # High capacity monitor, explorer
+    t3-2xlarge-monitor = aws.t3-2xlargeMonitor;  # High capacity monitor
+    c5-4xlarge = aws.c5-4xlarge;                 # High capacity explorer (postgres CPU intensive)
   };
 
   nodes = filterAttrs (name: node:
@@ -36,15 +38,7 @@ let
 
   securityGroups = with aws.security-groups; [
     {
-      nodes = getAttrs (map (n: n.name) (legacyCoreNodes ++ byronProxies)) nodes;
-      groups = [ (import ../physical/aws/security-groups/allow-legacy-peers.nix) ];
-    }
-    {
-      nodes = getAttrs (map (n: n.name) legacyRelayNodes) nodes;
-      groups = [ (import ../physical/aws/security-groups/allow-legacy-public.nix) ];
-    }
-    {
-      nodes = getAttrs (map (n: n.name) (coreNodes ++ byronProxies)) nodes;
+      nodes = getAttrs (map (n: n.name) (coreNodes ++ privateRelayNodes)) nodes;
       groups = [ (import ../physical/aws/security-groups/allow-peers.nix) ];
     }
     {

@@ -1,15 +1,15 @@
 pkgs: {
 
-  deploymentName = "shelley-testnet";
+  deploymentName = "mainnet-candidate-4";
 
-  environmentName = "shelley_testnet";
+  environmentName = "mainnet_candidate_4";
 
-  topology = import ./topologies/shelley-testnet.nix pkgs;
+  topology = import ./topologies/mainnet-candidate-4.nix pkgs;
 
   withExplorer = true;
-  withLegacyExplorer = false;
   withHighLoadRelays = true;
   withSmash = true;
+  withSubmitApi = true;
 
   withFaucet = true;
   faucetHostname = "faucet";
@@ -23,6 +23,8 @@ pkgs: {
     };
   };
 
+  alertChainDensityLow = "60";
+  alertMemPoolHigh = "190";
   alertTcpHigh = "150";
   alertTcpCrit = "180";
 }

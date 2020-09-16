@@ -50,7 +50,7 @@ in with pkgs; {
 
       testnetMagicNumber = mkOption {
         type = types.int;
-        default = 42;
+        default = (__fromJSON (__readFile globals.environmentConfig.nodeConfig.ShelleyGenesisFile)).networkMagic;
         description = "The testnet magic number";
       };
 

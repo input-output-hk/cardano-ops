@@ -110,7 +110,6 @@ in reportDeployment (rec {
 
   withMonitoring = false;
   withExplorer = true;
-  withLegacyExplorer = false;
 
   environmentName = "bench-txgen-${benchmarkingParams.meta.topology}-${benchmarkingProfileName}";
 
@@ -119,7 +118,6 @@ in reportDeployment (rec {
   environmentConfig = rec {
     relays = "relays.${pkgs.globals.domain}";
     edgePort = pkgs.globals.cardanoNodePort;
-    confKey = abort "legacy nodes not supported by benchmarking environment";
     genesisFile = ./keys/genesis.json;
     private = true;
     networkConfig = envConfigBase.networkConfig // {

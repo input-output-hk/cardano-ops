@@ -15,7 +15,7 @@ require "option_parser"
 EMAIL_ENABLED           = ENV.fetch("EMAIL_ENABLED", "TRUE") == "TRUE" ? true : false
 MOCK_ENABLED            = ENV.fetch("MOCK_ENABLED", "FALSE") == "TRUE" ? true : false
 PATH_MOD                = ENV.fetch("PATH_MOD", ".")
-BLACKLISTED_CLUSTERS    = [ "mainnet", "testnet", "staging" ]
+DENIED_CLUSTERS         = [ "mainnet" ] of String
 
 EMAIL_FROM              = "devops@ci.iohkdev.io"
 EMAIL_TO                = "devops@iohk.io"
@@ -73,7 +73,7 @@ class KesRotate
       kesAbort("Unable to process the environment name from the globals file.")
     end
 
-    if BLACKLISTED_CLUSTERS.includes?(@cluster)
+    if DENIED_CLUSTERS.includes?(@cluster)
       kesAbort("The current cluster \"#{@cluster}\" is not allowed to use this script.")
     end
 
@@ -147,7 +147,7 @@ class KesRotate
     if @network
       coreNodes       = @network.select { |n| /^c-[a-z]-[0-9]+$/ =~ n }
       bftNodes        = @network.select { |n| /^bft-[a-z]-[0-9]+$/ =~ n }
-      stkNodes        = @network.select { |n| /^stk-[a-z]-[0-9]+-\w+$/ =~ n }
+      stkNodes        = @network.select { |n| /^stk-[a-z]-[0-9]+.*$/ =~ n }
       edgeNodes       = @network.select { |n| /^e-[a-z]-[0-9]+$/ =~ n }
       relayNodes      = @network.select { |n| /^rel-[a-z]-[0-9]+$/ =~ n }
       faucetNodes     = @network.select { |n| /^faucet/ =~ n }

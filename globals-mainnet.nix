@@ -14,12 +14,19 @@ pkgs: {
   withHighCapacityMonitoring = true;
   withHighCapacityExplorer = true;
   withHighLoadRelays = true;
+  withSmash = true;
 
   initialPythonExplorerDBSyncDone = true;
 
   environmentName = "mainnet";
 
-  topology = import ./topologies/mainnet.nix;
+  topology = import ./topologies/mainnet.nix pkgs;
+
+  maxRulesPerSg = {
+    IOHK = 61;
+    Emurgo = 36;
+    CF = 36;
+  };
 
   ec2 = {
     credentials = {
@@ -32,6 +39,7 @@ pkgs: {
     };
   };
 
-  alertTcpHigh = "200";
-  alertTcpCrit = "250";
+  alertChainDensityLow = "92";
+  alertTcpHigh = "250";
+  alertTcpCrit = "300";
 }

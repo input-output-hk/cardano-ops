@@ -29,7 +29,7 @@ let
     };
   };
 
-  coreNodes = [
+  bftCoreNodes = [
     # OBFT centralized nodes
     {
       name = "bft-a-1";
@@ -80,7 +80,9 @@ let
       org = "IOHK";
       nodeId = 7;
     }
-    # stake pools
+  ];
+
+  stakingPoolNodes = [
     {
       name = "stk-a-1";
       region = regions.a.name;
@@ -104,13 +106,18 @@ let
     }
   ];
 
-in {
-  inherit coreNodes;
+  coreNodes = bftCoreNodes ++ stakingPoolNodes;
 
   relayNodes = map withAutoRestart (mkRelayTopology {
-    inherit regions;
-    coreNodes = coreNodes;
+    inherit regions coreNodes;
+    autoscaling = false;
+    maxProducersPerNode = 20;
   });
+
+in {
+  inherit coreNodes relayNodes;
+
+  services.monitoring-services.publicGrafana = true;
 
   "${globals.faucetHostname}" = {
     services.cardano-faucet = {
@@ -120,13 +127,13 @@ in {
       secondsBetweenRequestsApiKeyAuth = 86400;
       lovelacesToGiveAnonymous = 1000000000;
       lovelacesToGiveApiKeyAuth = 1000000000000;
-      faucetFrontendUrl = "https://testnets.cardano.org/en/byron/tools/faucet/";
+      useByronWallet = false;
+      faucetFrontendUrl = "https://testnets.cardano.org/en/cardano/tools/faucet/";
     };
   };
-
-  legacyCoreNodes = [];
-
-  legacyRelayNodes = [];
-
-  byronProxies = [];
+  explorer = {
+    services.nginx.virtualHosts."${globals.explorerHostName}.${globals.domain}".locations."/p" = lib.mkIf (__pathExists ../static/pool-metadata) {
+      root = ../static/pool-metadata;
+    };
+  };
 }

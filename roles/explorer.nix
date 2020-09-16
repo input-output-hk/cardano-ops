@@ -2,6 +2,7 @@ pkgs: { config, options, name, nodes, ... }:
 with pkgs;
 
 let
+  maintenanceMode = false;
   nodeCfg = config.services.cardano-node;
   nodeId = config.node.nodeId;
   hostAddr = getListenIp nodes.${name};
@@ -11,12 +12,13 @@ in {
     (sourcePaths.cardano-graphql + "/nix/nixos")
     (sourcePaths.cardano-rest + "/nix/nixos")
     (sourcePaths.cardano-db-sync + "/nix/nixos")
+    (sourcePaths.cardano-rosetta + "/nix/nixos")
     cardano-ops.modules.base-service
     cardano-ops.modules.cardano-postgres
   ];
 
   environment.systemPackages = with pkgs; [
-    bat fd lsof netcat ncdu ripgrep tree vim cardano-cli
+    bat fd lsof netcat ncdu ripgrep tree vim dnsutils cardano-cli
     cardano-db-sync-pkgs.haskellPackages.cardano-db.components.exes.cardano-db-tool
   ];
   services.cardano-postgres.enable = true;
@@ -45,9 +47,27 @@ in {
     enable = true;
     genesisByron = nodeCfg.nodeConfig.ByronGenesisFile;
     genesisShelley = nodeCfg.nodeConfig.ShelleyGenesisFile;
-    whitelistPath = cardano-explorer-app-pkgs.whitelist;
+    allowListPath = cardano-explorer-app-pkgs.allowList;
     cardanoNodeSocketPath = nodeCfg.socketPath;
   };
+
+  services.cardano-rosetta-server = {
+    enable = true;
+    topologyFilePath = nodeCfg.topology;
+    cardanoCliPath = pkgs.cardano-cli + /bin/cardano-cli;
+    genesisPath = nodeCfg.nodeConfig.ShelleyGenesisFile;
+    cardanoNodePath = pkgs.cardano-node + /bin/cardano-node;
+    cardanoNodeSocketPath = nodeCfg.socketPath;
+    bindAddress = "127.0.0.1";
+    port = 8082;
+  };
+
+  # Temporarily required until the following cardano-graphql issue is fixed:
+  # https://github.com/input-output-hk/cardano-graphql/issues/268
+  systemd.services.cardano-graphql.startLimitIntervalSec = 0;
+  systemd.services.cardano-graphql.serviceConfig.Restart = "always";
+  systemd.services.cardano-graphql.serviceConfig.RestartSec = "10s";
+
   services.cardano-node.rtsArgs = lib.mkForce
     (if globals.withHighCapacityExplorer then
       [ "-N2" "-A10m" "-qg" "-qb" "-M10G" ]
@@ -82,16 +102,23 @@ in {
     RestartSec = "30s";
   };
 
+  systemd.services.cardano-submit-api.serviceConfig = lib.mkIf globals.withSubmitApi {
+    # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
+    SupplementaryGroups = "cardano-node";
+  };
+
   services.cardano-explorer-api = {
     enable = true;
+    port = 8100;
     package = cardano-rest-pkgs.cardanoRestHaskellPackages.cardano-explorer-api.components.exes.cardano-explorer-api;
   };
   systemd.services.cardano-explorer-api.startLimitIntervalSec = 0;
   systemd.services.cardano-explorer-api.serviceConfig.Restart = "always";
   systemd.services.cardano-explorer-api.serviceConfig.RestartSec = "10s";
 
-  services.cardano-submit-api = {
+  services.cardano-submit-api = lib.mkIf globals.withSubmitApi {
     enable = true;
+    port = 8101;
     environment = pkgs.globals.environmentConfig;
     socketPath = config.services.cardano-node.socketPath;
     package = cardano-rest-pkgs.cardanoRestHaskellPackages.cardano-submit-api.components.exes.cardano-submit-api;
@@ -114,29 +141,38 @@ in {
         ) t
       ) t;
     '';
+    relays_exclude_file = builtins.toFile "relays-exclude.txt" (lib.concatStringsSep "\n" globals.static.relaysExcludeList);
   in {
-    path = [ config.services.postgresql.package jq netcat curl ];
+    path = [ config.services.postgresql.package jq netcat curl dnsutils ];
     script = ''
       set -uo pipefail
+      excludeList="$(sort ${relays_exclude_file})"
       cd $STATE_DIRECTORY
       for r in $(psql -t < ${extract_relays_sql} | jq -c '.[]'); do
         addr=$(echo $r | jq -r '.addr')
         port=$(echo $r | jq -r '.port')
-        set +e
-        nc -w 2 -z $addr $port  > /dev/null
-        res=$?
-        set -e
-        if [ $res -eq 0 ]; then
-          geoinfo=$(curl -s https://json.geoiplookup.io/$addr)
-          continent=$(echo $geoinfo | jq -r '.continent_name')
-          country_code=$(echo $geoinfo | jq -r '.country_code')
-          if [ "$country_code" == "US" ]; then
-            state=$(echo $geoinfo | jq -r '.region')
-          else
-            state=$country_code
+        allAddresses="$addr\n$(dig +short $addr)"
+        excludedAddresses=$(comm -12 <(echo "$allAddresses" | sort) <(echo "$excludeList"))
+        nbExcludedAddresses=$(echo $excludedAddresses | wc -w)
+        if [[ $nbExcludedAddresses == 0 ]]; then
+          set +e
+          nc -w 1 -z $addr $port  > /dev/null
+          res=$?
+          set -e
+          if [ $res -eq 0 ]; then
+            geoinfo=$(curl -s https://json.geoiplookup.io/$addr)
+            continent=$(echo $geoinfo | jq -r '.continent_name')
+            country_code=$(echo $geoinfo | jq -r '.country_code')
+            if [ "$country_code" == "US" ]; then
+              state=$(echo $geoinfo | jq -r '.region')
+            else
+              state=$country_code
+            fi
+            echo $r | jq --arg continent "$continent" \
+              --arg state "$state" '. + {continent: $continent, state: $state}'
           fi
-          echo $r | jq --arg continent "$continent" \
-            --arg state "$state" '. + {continent: $continent, state: $state}'
+        else
+          >&2 echo "$addr excluded due to dns name or IPs being in exclude list:\n$excludedAddresses"
         fi
       done | jq -n '. + [inputs]' | jq '{ Producers : . }' > topology.json
       mkdir -p relays
@@ -181,13 +217,50 @@ in {
         serverAliases = globals.explorerAliases;
         enableACME = true;
         forceSSL = globals.explorerForceSSL;
-        locations = {
+        locations = if maintenanceMode then {
+          "/" = let
+            maintenanceFile = __toFile "maintenance.html" ''
+              <!doctype html>
+              <title>Site Maintenance</title>
+              <style>
+                body { text-align: center; padding: 150px; }
+                h1 { font-size: 50px; }
+                body { font: 20px Helvetica, sans-serif; color: #333; }
+                article { display: block; text-align: left; width: 650px; margin: 0 auto; }
+                a { color: #dc8100; text-decoration: none; }
+                a:hover { color: #333; text-decoration: none; }
+              </style>
+
+              <article>
+                  <h1>We&rsquo;ll be back soon!</h1>
+                  <div>
+                      <p>Sorry for the inconvenience, but we&rsquo;re performing some maintenance at the moment. We&rsquo;ll be back online shortly!</p>
+                      <p>&mdash; IOHK DevOps</p>
+                  </div>
+              </article>
+            '';
+            rootDir = pkgs.runCommand "nginx-root-dir" {} ''
+              mkdir $out
+              cd $out
+              cp ${maintenanceFile} index.html;
+            '';
+          in {
+            extraConfig = ''
+              etag off;
+              add_header etag "\"${builtins.substring 11 32 rootDir}\"";
+              root ${rootDir};
+            '';
+            tryFiles = "$uri /index.html";
+          };
+        } else {
           "/" = {
-            root = cardano-explorer-app-pkgs.static.override {
-              graphqlApiHost = "${globals.explorerHostName}.${globals.domain}";
-              cardanoNetwork = globals.environmentName;
-              gaTrackingId = globals.static.gaTrackingId or null;
-            };
+            root = (cardano-explorer-app-pkgs.overrideScope'(self: super: {
+              static = super.static.override {
+                graphqlApiHost = "${globals.explorerHostName}.${globals.domain}";
+                cardanoNetwork = globals.environmentName;
+                gaTrackingId = globals.static.gaTrackingId or null;
+              };
+            })).static;
             tryFiles = "$uri $uri/index.html /index.html";
             extraConfig = ''
               rewrite /tx/([0-9a-f]+) /$lang/transaction.html?id=$1 redirect;
@@ -197,7 +270,8 @@ in {
               rewrite ^([^.]*[^/])$ $1.html redirect;
             '';
           };
-          "/api/submit/tx" = {
+          # To avoid 502 alerts when withSubmitApi is false
+          "/api/submit/tx" = lib.mkIf globals.withSubmitApi {
             proxyPass = "http://127.0.0.1:8101/api/submit/tx";
           };
           "/api" = {
@@ -205,9 +279,20 @@ in {
           };
           "/graphql" = {
             proxyPass = "http://127.0.0.1:3100/graphql";
+            extraConfig = ''
+              # Temporary workaround until
+              # https://github.com/input-output-hk/cardano-graphql/issues/266
+              # is fixed so that we don't get alerted when someone
+              # submits an invalid query.
+              proxy_intercept_errors on;
+              error_page 500 =400 /;
+            '';
           };
           "/relays" = {
             root = "/var/lib/registered-relays-dump";
+          };
+          "/rosetta/" = {
+            proxyPass = "http://127.0.0.1:8082/";
           };
         };
       };

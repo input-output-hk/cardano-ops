@@ -24,12 +24,10 @@ in {
   explorerForceSSL = true;
   explorerAliases = [];
 
-  maxPrivilegedRelays = 48;
-
   withMonitoring = true;
   withExplorer = true;
-  withLegacyExplorer = false;
   withCardanoDBExtended = true;
+  withSubmitApi = false;
   withFaucet = false;
   withFaucetOptions = {};
   withSmash = false;
@@ -49,17 +47,13 @@ in {
 
   deployerIp = requireEnv "DEPLOYER_IP";
   cardanoNodePort = 3001;
-  cardanoNodeLegacyPort = 3000;
 
   cardanoNodePrometheusExporterPort = 12798;
-  byronProxyPrometheusExporterPort = 12799;
   cardanoExplorerPrometheusExporterPort = 8080;
-  cardanoExplorerPythonApiPrometheusExporterPort = 7001;
   netdataExporterPort = 19999;
 
   extraPrometheusExportersPorts = [
     pkgs.globals.cardanoNodePrometheusExporterPort
-    pkgs.globals.byronProxyPrometheusExporterPort
     pkgs.globals.cardanoExplorerPrometheusExporterPort
     pkgs.globals.netdataExporterPort
   ];

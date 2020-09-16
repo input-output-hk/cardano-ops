@@ -6,7 +6,10 @@ pkgs: {
 
   domain = "cardano-testnet.iohkdev.io";
 
+  withSubmitApi = true;
   withFaucet = true;
+  withSmash = true;
+
   faucetHostname = "faucet2";
 
   initialPythonExplorerDBSyncDone = true;
@@ -24,6 +27,7 @@ pkgs: {
     };
   };
 
+  alertChainDensityLow = "90";
   alertTcpHigh = "220";
   alertTcpCrit = "250";
 }
