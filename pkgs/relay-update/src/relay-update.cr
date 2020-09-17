@@ -22,7 +22,7 @@ EMAIL_FROM              = "devops@ci.iohkdev.io"
 NODE_METRICS_PORT       = 12798
 NOW                     = Time.utc.to_s("%F %R %z")
 METRICS_WAIT_INTERVAL   = 10
-METRICS_WAIT_ITERATIONS = 100
+METRICS_WAIT_ITERATIONS = 400
 MINIMUM_PRODUCERS       = 100
 MAX_NODES_PER_DEPLOY    = 13
 MIN_DEPLOY_BATCHES      = 3
@@ -44,8 +44,9 @@ class RelayUpdate
   @deployment : String
   @explorerUrl : String
 
-  def initialize(@allOpt : Bool, @edgeOpt : Bool, @relOpt : Bool, @minOpt : Int32,
-    @maxNodesOpt : Int32, @minBatchesOpt : Int32, @emailOpt : String, @noSensitiveOpt : Bool, @mockOpt : Bool)
+  def initialize(@refresh : Bool, @allOpt : Bool, @edgeOpt : Bool, @relOpt : Bool, @minOpt : Int32,
+    @maxNodesOpt : Int32, @minBatchesOpt : Int32, @emailOpt : String, @noSensitiveOpt : Bool, @mockOpt : Bool,
+    @deployOnlyOpt : Array(Array(String)), @snapshotDbOpt : String)
 
     if (@emailOpt != "")
       if runCmdSecret("nix-instantiate --eval -E --json '(import #{PATH_MOD}/static/ses.nix).sesSmtp.username'").success?
@@ -218,6 +219,21 @@ class RelayUpdate
     end
   end
 
+  def takeDbSnapshot(fromNode : String)
+    if !runCmdVerbose("nixops ssh #{fromNode} "\
+      "'cd /var/lib/cardano-node && systemctl stop cardano-node "\
+      "&& mv db-#{@cluster}.tar.gz db-#{@cluster}.tar.gz.bak || : "\
+      "&& tar czf db-#{@cluster}.tar.gz db-#{@cluster} && systemctl start cardano-node'").success?
+      updateAbort("Could not snapshot node db on #{fromNode}.")
+    end
+    targetFile = "db-#{@cluster}-#{Time.utc.to_s("%Y-%m-%d")}.tar.gz"
+    if !runCmdVerbose("nixops scp --from #{fromNode} /var/lib/cardano-node/db-#{@cluster}.tar.gz #{targetFile}").success?
+      updateAbort("Could not retrieve node db snasphot from #{fromNode}.")
+    end
+    STDOUT.puts(targetFile)
+    targetFile
+  end
+
   def doUpdate
 
     network : Array(String)
@@ -229,6 +245,7 @@ class RelayUpdate
     deployBatches : Array(Array(String))
 
     IO_TEE_OUT.puts "Script options selected:"
+    IO_TEE_OUT.puts "refresh = #{@refresh}"
     IO_TEE_OUT.puts "allOpt = #{@allOpt}"
     IO_TEE_OUT.puts "edgeOpt = #{@edgeOpt}"
     IO_TEE_OUT.puts "relOpt = #{@relOpt}"
@@ -238,31 +255,36 @@ class RelayUpdate
     IO_TEE_OUT.puts "emailOpt = #{@emailOpt}"
     IO_TEE_OUT.puts "noSensitiveOpt = #{@noSensitiveOpt}"
     IO_TEE_OUT.puts "mockOpt = #{@mockOpt}"
+    IO_TEE_OUT.puts "deployOnlyOpt = #{@deployOnlyOpt}"
+    IO_TEE_OUT.puts "snapshotDbOpt = #{@snapshotDbOpt}"
 
-    IO_TEE_STDOUT.puts "Explorer GET URL topology (#{@explorerUrl}):"
-    if (response = apiGet(@explorerUrl)).success?
-      IO_TEE_STDOUT.puts "#{IO_CMD_OUT.to_s.split("\n").map { |i| "  " + i }.join("\n")}"
-      IO_TEE_STDOUT.puts "Checking explorer topology for valid JSON"
-      IO_CMD_OUT.clear
-      IO_CMD_ERR.clear
-      begin
-        blob = JSON.parse(response.body.to_s)
-        IO_TEE_STDOUT.puts "Explorer GET URL response body is valid JSON"
-        if blob["Producers"]?
-          IO_TEE_STDOUT.puts "Explorer latest topology contains #{blob["Producers"].size} producers"
-          if blob["Producers"].size < @minOpt
-            updateAbort("Explorer latest topology contains less than the required minimum number " \
-                        "(#{@minOpt}) of producers: #{blob["Producers"].size}.")
+
+    if @refresh
+      IO_TEE_STDOUT.puts "Explorer GET URL topology (#{@explorerUrl}):"
+      if (response = apiGet(@explorerUrl)).success?
+        IO_TEE_STDOUT.puts "#{IO_CMD_OUT.to_s.split("\n").map { |i| "  " + i }.join("\n")}"
+        IO_TEE_STDOUT.puts "Checking explorer topology for valid JSON"
+        IO_CMD_OUT.clear
+        IO_CMD_ERR.clear
+        begin
+          blob = JSON.parse(response.body.to_s)
+          IO_TEE_STDOUT.puts "Explorer GET URL response body is valid JSON"
+          if blob["Producers"]?
+            IO_TEE_STDOUT.puts "Explorer latest topology contains #{blob["Producers"].size} producers"
+            if blob["Producers"].size < @minOpt
+              updateAbort("Explorer latest topology contains less than the required minimum number " \
+                          "(#{@minOpt}) of producers: #{blob["Producers"].size}.")
+            else
+              IO_TEE_STDOUT.puts "Explorer latest topology meets or exceeds the minimum number of producers (#{@minOpt})"
+            end
           else
-            IO_TEE_STDOUT.puts "Explorer latest topology meets or exceeds the minimum number of producers (#{@minOpt})"
+            updateAbort("Explorer latest topology contains no \"Producers\" JSON.")
           end
-        else
-          updateAbort("Explorer latest topology contains no \"Producers\" JSON.")
+          writeTopology(response.body.to_s)
+        rescue
+          IO_CMD_ERR.puts response.body.to_s
+          updateAbort("Explorer GET URL body is NOT valid JSON.")
         end
-        writeTopology(response.body.to_s)
-      rescue
-        IO_CMD_ERR.puts response.body.to_s
-        updateAbort("Explorer GET URL body is NOT valid JSON.")
       end
     end
 
@@ -303,10 +325,12 @@ class RelayUpdate
       if @allOpt
         targetNodes = edgeNodes + relayNodes
       else
-        targetNodes = [] of String
+        targetNodes = @deployOnlyOpt.flatten
         targetNodes.concat(edgeNodes) if @edgeOpt
         targetNodes.concat(relayNodes) if @relOpt
       end
+      # Exclude the source node from target nodes, since it supposed to be up-to-date already
+      targetNodes.delete(@snapshotDbOpt)
     else
       updateAbort("The network array is empty")
     end
@@ -317,18 +341,24 @@ class RelayUpdate
     #p! monitoringNodes
     #p! networkAttrs
 
-    if runCmdVerbose("nix eval --json \"(((import ./nix {}).topology-lib.nbBatches #{@maxNodesOpt}))\"").success?
-      nbBatchWithSizeConstraint = IO_CMD_OUT.to_s.to_i
-    else
-      updateAbort("Unable to process the min number of batches.")
-    end
+    if (@deployOnlyOpt.empty?)
 
-    nbBatches = Math.max(nbBatchWithSizeConstraint, @minBatchesOpt)
+      if runCmdVerbose("nix eval --json \"(((import ./nix {}).topology-lib.nbBatches #{@maxNodesOpt}))\"").success?
+        nbBatchWithSizeConstraint = IO_CMD_OUT.to_s.to_i
+      else
+        updateAbort("Unable to process the min number of batches.")
+      end
 
-    if runCmdVerbose("nix eval --json \"(((import ./nix {}).topology-lib.genRelayBatches #{nbBatches}))\"").success?
-      deployBatches = Array(Array(String)).from_json(IO_CMD_OUT.to_s)
+      nbBatches = Math.max(nbBatchWithSizeConstraint, @minBatchesOpt)
+
+      if runCmdVerbose("nix eval --json \"(((import ./nix {}).topology-lib.genRelayBatches #{nbBatches}))\"").success?
+        deployBatches = Array(Array(String)).from_json(IO_CMD_OUT.to_s)
+      else
+        updateAbort("Unable to process the relays deploy batches from the deployment.")
+      end
     else
-      updateAbort("Unable to process the relays deploy batches from the deployment.")
+      deployBatches = @deployOnlyOpt
+      nbBatches = deployBatches.size
     end
 
     if @mockOpt
@@ -346,6 +376,16 @@ class RelayUpdate
     deployBatches.each do |b|
       batchTargetNodes = b.select { |n| targetNodes.includes?(n) }
       if !batchTargetNodes.empty?
+
+        if (@snapshotDbOpt != "" && !@mockOpt)
+          snapshot = takeDbSnapshot(@snapshotDbOpt)
+          batchTargetNodes.each do |n|
+            if !runCmdVerbose("nixops scp --to #{n} #{snapshot} /var/lib/cardano-node/db-restore.tar.gz").success?
+              updateAbort("Could not upload #{snapshot} to #{n}.")
+            end
+          end
+        end
+
         if @mockOpt
           updateCmd = "echo \"MOCK UPDATING TOPOLOGY to target nodes #{batchTargetNodes.join(" ")}\""
         else
@@ -399,14 +439,16 @@ class RelayUpdate
       end
     end
 
-    if @mockOpt
-      updateCmd = "echo \"MOCK MONITORING UPDATE\""
-    else
-      IO_TEE_STDOUT.puts "Deploying monitoring"
-      updateCmd = "nixops deploy --include monitoring"
-    end
-    if !runCmd(updateCmd).success?
-      updateAbort("Failed to deploy monitoring updates")
+    if (@deployOnlyOpt.empty?)
+      if @mockOpt
+        updateCmd = "echo \"MOCK MONITORING UPDATE\""
+      else
+        IO_TEE_STDOUT.puts "Deploying monitoring"
+        updateCmd = "nixops deploy --include monitoring"
+      end
+      if !runCmd(updateCmd).success?
+        updateAbort("Failed to deploy monitoring updates")
+      end
     end
 
     if @mockOpt
@@ -427,7 +469,7 @@ class RelayUpdate
   end
 end
 
-proceed = false
+refresh = false
 allOpt = false
 edgeOpt = false
 relOpt = false
@@ -436,10 +478,13 @@ maxNodesOpt = MAX_NODES_PER_DEPLOY
 minBatchesOpt = MIN_DEPLOY_BATCHES
 emailOpt = ""
 noSensitiveOpt = false
+deployOnlyOpt = Array(Array(String)).new
+oneByOneOpt = false
+snapshotDbOpt = ""
 mockOpt = false
 OptionParser.parse do |parser|
   parser.banner = "Usage: relay-update [arguments]"
-  parser.on("-r", "--refresh", "Updates and deploys the latest explorer relay topology (required option)") { proceed = true }
+  parser.on("-r", "--refresh", "Updates and deploys the latest explorer relay topology (required option)") { refresh = true }
   parser.on("-a", "--all", "Updates and deploys relay topology to all edges/relays") { allOpt = true }
   parser.on("-t", "--test", "Test update (don't deploy anything)") { mockOpt = true }
   parser.on("--edge", "Updates and deploys relay topology to edge nodes (e-X-Y)") { edgeOpt = true }
@@ -449,6 +494,9 @@ OptionParser.parse do |parser|
   parser.on("-b POSINT", "--minBatches POSINT", "The minimal number of deployment batches (default: #{minBatchesOpt})") { |posint| minBatchesOpt = posint.to_i }
   parser.on("-e EMAIL", "--email EMAIL", "Send email to given address on script completion") { |email| emailOpt = email }
   parser.on("-s", "--no-sensitive", "Email will no include sensitive information") { noSensitiveOpt = true }
+  parser.on("-d NODE", "--deploy-only NODES", "Deploy only the given node") { |deployOnly| deployOnlyOpt = [deployOnly.split(" ")] }
+  parser.on("-o", "--one-by-one", "Deploy the nodes specified one by one") { |oneByOne| oneByOneOpt = oneByOne }
+  parser.on("-z NODE", "--snapshot-db NODE", "Snapshot and retrieve the state db of a given node, and use it for deployment") { |snapshotDb| snapshotDbOpt = snapshotDb }
 
   parser.on("-h", "--help", "Show this help") do
     puts parser
@@ -461,10 +509,18 @@ OptionParser.parse do |parser|
   end
 end
 
-if proceed
-  relayUpdate=RelayUpdate.new allOpt: allOpt, edgeOpt: edgeOpt, relOpt: relOpt, minOpt: minOpt,
-    maxNodesOpt: maxNodesOpt, minBatchesOpt: minBatchesOpt, emailOpt: emailOpt, noSensitiveOpt: noSensitiveOpt, mockOpt: mockOpt
-
-  relayUpdate.doUpdate
+if oneByOneOpt
+  deployOnlyOpt = deployOnlyOpt[0].map { |n| [n] }
 end
+
+relayUpdate = RelayUpdate.new refresh: refresh, allOpt: allOpt, edgeOpt: edgeOpt, relOpt: relOpt, minOpt: minOpt,
+    maxNodesOpt: maxNodesOpt, minBatchesOpt: minBatchesOpt, emailOpt: emailOpt, noSensitiveOpt: noSensitiveOpt, mockOpt: mockOpt,
+    deployOnlyOpt: deployOnlyOpt, snapshotDbOpt: snapshotDbOpt
+
+if (refresh || !deployOnlyOpt.empty?)
+  relayUpdate.doUpdate
+elsif (snapshotDbOpt != "")
+  relayUpdate.takeDbSnapshot(snapshotDbOpt)
+end
+
 exit 0
