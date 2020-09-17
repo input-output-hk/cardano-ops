@@ -12,17 +12,17 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-benchmarking": {
-         "branch": "master",
-         "description": "Epic win",
-         "homepage": null,
-         "owner": "input-output-hk",
-         "repo": "cardano-benchmarking",
-         "rev": "d8407b7f8117f2047b95b971887df24a3845291f",
-         "sha256": "17yxvv04qjkhzsgj4axj401nml2drgm4hp5asjzf82bdz2yw3nk3",
-         "type": "tarball",
-         "url": "https://github.com/input-output-hk/cardano-benchmarking/archive/d8407b7f8117f2047b95b971887df24a3845291f.tar.gz",
-         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-     },
+        "branch": "master",
+        "description": "Epic win",
+        "homepage": null,
+        "owner": "input-output-hk",
+        "repo": "cardano-benchmarking",
+        "rev": "d8407b7f8117f2047b95b971887df24a3845291f",
+        "sha256": "17yxvv04qjkhzsgj4axj401nml2drgm4hp5asjzf82bdz2yw3nk3",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-benchmarking/archive/d8407b7f8117f2047b95b971887df24a3845291f.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-db-sync": {
         "branch": "refs/tags/5.0.0",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
@@ -36,15 +36,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer-app": {
-        "branch": "develop",
+        "branch": "refs/tags/1.1.0",
         "description": "Cardano Explorer App",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-explorer-app",
-        "rev": "095fa241a1db100341d377c5d0254f5b4a0bed0d",
-        "sha256": "0jgaxrbj8jvvwc4b0kf9gnlgdv84brijry662m4pwvg8sjgy9jwk",
+        "rev": "c1ba20aeb96c7ae13f8cffb17a742a46a188c92b",
+        "sha256": "0fpr8licl0z4ikycmvmlci1zqksq45j4i4h62x8mbhkdvzg3cx2k",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/095fa241a1db100341d377c5d0254f5b4a0bed0d.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/c1ba20aeb96c7ae13f8cffb17a742a46a188c92b.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
@@ -60,15 +60,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
-        "branch": "master",
+        "branch": "refs/tags/2.1.0",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "81931202a17cd779955e9343ef1f52886596d59d",
-        "sha256": "0vww8k779g7yidd2nmvyiy2a8vr98sfnpddxc8kxcnxs44cgyajd",
+        "rev": "3f5a8e95f626badc72e497810796690ad7c520cf",
+        "sha256": "1nlk598k8kij57rcslz3hjv1c0p98a6wqs29h3jkxm5hnbqk2vrx",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/81931202a17cd779955e9343ef1f52886596d59d.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/3f5a8e95f626badc72e497810796690ad7c520cf.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
