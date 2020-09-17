@@ -48,15 +48,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
-        "branch": "1.19.0-support",
+        "branch": "1.19.1-support",
         "description": "Faucet for Cardano",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "faee1b8aaa486bf707e6b8c5dee6290735b3e081",
-        "sha256": "0nzskcrx32ppnrdnrpy5j9jvhajn751yy46681l6p7qbl3aihqkn",
+        "rev": "598dec4aac470518ce9f87d2ae5b0f9c72550048",
+        "sha256": "1ba3bm0a4hiz72gcrbyg49nv70s5hja7s8zp1zmlxw9dl2v5zs3y",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/faee1b8aaa486bf707e6b8c5dee6290735b3e081.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/598dec4aac470518ce9f87d2ae5b0f9c72550048.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
