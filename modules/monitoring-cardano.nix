@@ -84,6 +84,18 @@ in {
       };
     }
     {
+      alert = "cardano_new_node_forge_not_adopted_error";
+      expr = "cardano_node_metrics_Forge_didnt_adopt_int > 0";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: cardano-node failed to adopt forged block";
+        description = "{{$labels.alias}}: restart of node is needed to resolve this alert";
+      };
+    }
+    {
       alert = "cardano_new_node_KES_expiration_metric_warning";
       expr = "cardano_node_genesis_slotLength * cardano_node_genesis_slotsPerKESPeriod * on (alias) cardano_node_Forge_metrics_remainingKESPeriods_int < (24 * 3600) + 1";
       for = "5m";
