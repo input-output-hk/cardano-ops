@@ -78,7 +78,7 @@ in  mkShell {
     nixops
     pandoc
     pstree
-    relay-update
+    node-update
     renew-kes-keys
     telnet
     test-cronjob-script
