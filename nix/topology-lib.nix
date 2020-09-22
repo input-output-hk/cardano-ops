@@ -170,8 +170,9 @@ pkgs: with pkgs; with lib; rec {
      with name, region and relays as producers, from the region letter, an index (relative to region)
      a ticker id and given additional attributes.
   */
-  mkStakingPoolForRegions = regions: r: idx: ticker: attrs: rec {
-    name = "stk-${r}-${toString idx}-${ticker}";
+  mkStakingPoolForRegions = regions: r: idx: ticker: attrs:
+    let suffix = optionalString (ticker != "") "-${ticker}"; in rec {
+    name = "stk-${r}-${toString idx}${suffix}";
     region = regions.${r}.name;
     producers =  # some nearby relays:
       [ (regionalRelaysProducer region 3) ];

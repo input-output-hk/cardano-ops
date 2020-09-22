@@ -30,19 +30,8 @@ let
   };
 
   bftCoreNodes = let
-    mkBftCoreNode = r: idx: attrs:
-      rec {
-        name = "bft-${r}-${toString idx}";
-        region = regions.${r}.name;
-        producers =
-          # some nearby relays:
-          [{
-            addr = relayGroupForRegion region;
-            port = globals.cardanoNodePort;
-            valency = 3;
-          }];
-      } // attrs;
-  in connectNodesWithin 6 [
+    mkBftCoreNode = mkBftCoreNodeForRegions regions;
+  in regionalConnectGroupWith (reverseList stakingPoolNodes) (fullyConnectNodes [
     # OBFT centralized nodes recovery nodes
     (mkBftCoreNode "a" 1 {
       org = "IOHK";
@@ -72,7 +61,7 @@ let
       org = "IOHK";
       nodeId = 7;
     })
-  ];
+  ]);
 
   stakingPoolNodes = [];
 
@@ -85,9 +74,6 @@ let
 
 in {
 
-  coreNodes = coreNodes;
-  relayNodes = relayNodes;
+  inherit coreNodes relayNodes;
 
-  # Uncomment to access stopped old core nodes (for archeology purposes)
-  #privateRelayNodes = oldCoreNodes;
 }
