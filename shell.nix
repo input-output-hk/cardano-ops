@@ -15,18 +15,6 @@ let
     protocol."TPraos" = null;
     in protocol.${globals.environmentConfig.nodeConfig.Protocol};
 
-  mkDevGenesis = writeShellScriptBin "make-dev-genesis" (builtins.replaceStrings
-    [ "\${RUNNER}"
-      "SCRIPTDIR=$(dirname $0)"
-      "TARGETDIR=\"\${CONFIGDIR}/\${GENHASH:0:5}"
-      "--n-delegate-addresses         \${n_delegates}"
-    ]
-    [ ""
-      "SCRIPTDIR=${sourcePaths.cardano-node}/scripts"
-      ("TARGETDIR=\"" + toString ./keys)
-      ""
-    ]
-    (builtins.readFile (sourcePaths.cardano-node + "/scripts/genesis.sh")));
   migrate-keys = writeShellScriptBin "migrate-keys" ''
       i=0
       for k in keys/*.sk; do
@@ -84,14 +72,13 @@ in  mkShell {
     iohkNix.niv
     kes-rotation
     migrate-keys
-    mkDevGenesis
     nivOverrides
     nix
     nix-diff
     nixops
     pandoc
     pstree
-    relay-update
+    node-update
     renew-kes-keys
     telnet
     test-cronjob-script

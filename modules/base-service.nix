@@ -99,6 +99,16 @@ in
       };
     };
     systemd.services.cardano-node = {
+      path = [ gnutar gzip ];
+      preStart = ''
+        cd $STATE_DIRECTORY
+        if [ -f db-restore.tar.gz ]; then
+          rm -rf db-${globals.environmentName}
+          tar xzf db-restore.tar.gz
+          rm db-restore.tar.gz
+        fi
+
+      '';
       serviceConfig = {
         MemoryMax = "3.5G";
         KillSignal = "SIGINT";
