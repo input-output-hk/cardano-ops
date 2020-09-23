@@ -19,99 +19,65 @@ let
       minRelays = 4;
     };
     d = { name = "eu-west-2";      # Europe (London)
-      minRelays = 4;
+      minRelays = 5;
     };
     e = { name = "us-west-1";      # US West (N. California)
-      minRelays = 3;
+      minRelays = 4;
     };
     f = { name = "ap-northeast-1"; # Asia Pacific (Tokyo)
       minRelays = 3;
     };
   };
 
-  bftCoreNodes = [
-    # OBFT centralized nodes
-    {
-      name = "bft-a-1";
-      region = regions.a.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-a-1" "rel-a-2" ];
+  bftCoreNodes = let
+    mkBftCoreNode = mkBftCoreNodeForRegions regions;
+  in regionalConnectGroupWith (reverseList stakingPoolNodes)
+  (fullyConnectNodes [
+    # OBFT centralized nodes recovery nodes
+    (mkBftCoreNode "a" 1 {
       org = "IOHK";
       nodeId = 1;
-    }
-    {
-      name = "bft-b-1";
-      region = regions.b.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-b-1" "rel-b-2" ];
+    })
+    (mkBftCoreNode "b" 1 {
       org = "IOHK";
       nodeId = 2;
-    }
-    {
-      name = "bft-c-1";
-      region = regions.c.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-c-1" "rel-c-2" ];
+    })
+    (mkBftCoreNode "c" 1 {
       org = "IOHK";
       nodeId = 3;
-    }
-    {
-      name = "bft-d-1";
-      region = regions.b.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-d-1" "rel-d-2" ];
+    })
+    (mkBftCoreNode "d" 1 {
       org = "IOHK";
       nodeId = 4;
-    }
-    {
-      name = "bft-e-1";
-      region = regions.c.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-e-1" "rel-e-2" ];
+    })
+    (mkBftCoreNode "e" 1 {
       org = "IOHK";
       nodeId = 5;
-    }
-    {
-      name = "bft-f-1";
-      region = regions.f.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-f-1" "rel-f-2" ];
+    })
+    (mkBftCoreNode "f" 1 {
       org = "IOHK";
       nodeId = 6;
-    }
-    {
-      name = "bft-a-2";
-      region = regions.a.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-a-1" "rel-a-2" ];
+    })
+    (mkBftCoreNode "a" 2 {
       org = "IOHK";
       nodeId = 7;
-    }
-  ];
+    })
+  ]);
 
-  stakingPoolNodes = [
-    {
-      name = "stk-a-1";
-      region = regions.a.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-a-1" "rel-a-2" ];
-      org = "IOHK";
-      nodeId = 8;
-    }
-    {
-      name = "stk-b-1";
-      region = regions.b.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-b-1" "rel-b-2" ];
-      org = "IOHK";
-      nodeId = 9;
-    }
-    {
-      name = "stk-c-1";
-      region = regions.c.name;
-      producers = map (c: c.name) coreNodes ++ [ "rel-c-1" "rel-c-2" ];
-      org = "IOHK";
-      nodeId = 10;
-    }
-  ];
+  stakingPoolNodes = let
+    mkStakingPool = mkStakingPoolForRegions regions;
+  in regionalConnectGroupWith bftCoreNodes (fullyConnectNodes [
+    (mkStakingPool "a" 1 "" { nodeId = 8; })
+    (mkStakingPool "b" 1 "" { nodeId = 9; })
+    (mkStakingPool "c" 1 "" { nodeId = 10; })
+  ]);
 
   coreNodes = bftCoreNodes ++ stakingPoolNodes;
 
   relayNodes = map withAutoRestart (mkRelayTopology {
     inherit regions coreNodes;
     autoscaling = false;
-    maxProducersPerNode = 20;
+    maxProducersPerNode = 42;
   });
 
 in {
