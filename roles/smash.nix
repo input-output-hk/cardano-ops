@@ -59,6 +59,7 @@ in {
   networking.firewall.allowedTCPPorts = [ 80 443 ];
   services.nginx = {
     enable = true;
+    package = nginxSmash;
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;
@@ -67,7 +68,7 @@ in {
       allowedOrigins = lib.optionals (builtins.pathExists ../static/smash-allow-origins.nix) (import ../static/smash-allow-origins.nix);
     in ''
       log_format x-fwd '$remote_addr - $remote_user [$time_local] '
-                       '"$request" "$http_accept_language" $status $body_bytes_sent '
+                       '"$request" $status $body_bytes_sent '
                        '"$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
 
       access_log syslog:server=unix:/dev/log x-fwd;
@@ -121,9 +122,17 @@ in {
             extraConfig = corsConfig;
           })) {
             "/api/v1/errors".extraConfig = ''
-              if ($arg_poolId) {
-                set $arg_apiKey NONE;
-                set $api_client_name BYPASS;
+              set_by_lua_block $by_pass_auth {
+                local args = ngx.req.get_uri_args()
+                if args["poolId"] ~= nil then
+                  return "1"
+                else
+                  return "0"
+                end
+              }
+              if ($by_pass_auth = "1") {
+                set $arg_apiKey "NONE";
+                set $api_client_name "BYPASS";
               }
               ${corsConfig}
               ${apiKeyConfig}
