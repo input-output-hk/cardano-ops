@@ -26,7 +26,7 @@ let
 
   # overlays from ops-lib (include ops-lib sourcePaths):
   ops-lib-overlays = (import sourcePaths.ops-lib {}).overlays;
-  nginx-explorer-overlay = self: super: let
+  nginx-overlay = self: super: let
     acceptLanguage = {
       src = self.fetchFromGitHub {
         name = "nginx_accept_language_module";
@@ -39,8 +39,13 @@ let
   in {
     nginxExplorer = super.nginxStable.override (oldAttrs: {
       modules = oldAttrs.modules ++ [
-        #self.nginxModules.vts
         acceptLanguage
+      ];
+    });
+    nginxSmash = super.nginxStable.override (oldAttrs: {
+      modules = oldAttrs.modules ++ [
+        self.nginxModules.develkit
+        self.nginxModules.lua
       ];
     });
   };
@@ -94,7 +99,7 @@ let
     globals ++
     [
       upstream-overlay
-      nginx-explorer-overlay
+      nginx-overlay
       crystalEnvIsolated
     ];
 
