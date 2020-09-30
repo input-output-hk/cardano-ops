@@ -36,15 +36,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer-app": {
-        "branch": "refs/tags/1.1.0",
+        "branch": "refs/tags/1.2.0",
         "description": "Cardano Explorer App",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-explorer-app",
-        "rev": "c1ba20aeb96c7ae13f8cffb17a742a46a188c92b",
-        "sha256": "0fpr8licl0z4ikycmvmlci1zqksq45j4i4h62x8mbhkdvzg3cx2k",
+        "rev": "eaae663a3a36513e4676306b65ef9d32e02fbfd3",
+        "sha256": "1qyh69g49w5msnhls726nk2iw5nn0phfbagav4vxia039q3xqmmh",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/c1ba20aeb96c7ae13f8cffb17a742a46a188c92b.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/eaae663a3a36513e4676306b65ef9d32e02fbfd3.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
@@ -60,16 +60,17 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
-        "branch": "refs/tags/2.1.0",
+        "branch": "refs/tags/2.2.0",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "3f5a8e95f626badc72e497810796690ad7c520cf",
-        "sha256": "1nlk598k8kij57rcslz3hjv1c0p98a6wqs29h3jkxm5hnbqk2vrx",
+        "rev": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35",
+        "sha256": "0aidrrlhs3f3j1dqn7xrahkzhzg7izzdsxgjn1mdh7w62fyrkdj7",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/3f5a8e95f626badc72e497810796690ad7c520cf.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/cc7f4ddf78182fb14c8d34516e6c72408ad3eb35.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
+        "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
     "cardano-node": {
         "branch": "refs/tags/1.20.0",
