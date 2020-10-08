@@ -84,7 +84,7 @@ deploystate_node_process_genesis_startTime() {
         local genesis
         if test -n "$node_process"
         then genesis=$(nixops ssh ${core} -- jq . \
-                     $(nixops ssh ${core} -- jq .GenesisFile \
+                     $(nixops ssh ${core} -- jq .ShelleyGenesisFile \
                      $(sed 's_.* --config \([^ ]*\) .*_\1_' <<<$node_process)))
              case $(get_era) in
                      byron )   jq .startTime      <<<$genesis;;

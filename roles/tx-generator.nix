@@ -27,10 +27,14 @@ in {
   services.tx-generator = {
     enable = true;
     targetNodes = __mapAttrs
-      (name: node: { ip = getPublicIp resources nodes name;
-                     port = node.config.services.cardano-node.port;
-                   })
-      cardanoNodes;
+      (name: node:
+        { ip   = let ip = getPublicIp resources nodes name;
+                 in __trace "generator target:  ${name}/${ip}" ip;
+          port = node.config.services.cardano-node.port;
+        })
+      (lib.filterAttrs
+        (_: n: ! (n.config.node.roles.isExplorer))
+        cardanoNodes);
 
     ## nodeConfig of the locally running observer node.
     localNodeConf = config.services.cardano-node;

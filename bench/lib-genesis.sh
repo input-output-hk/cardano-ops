@@ -114,42 +114,66 @@ profile_shelley_genesis_cli_args() {
 }
 
 __KEY_ROOT=
-key() {
+key_depl() {
         local type=$1 kind=$2 id=$3
         case "$kind" in
-                ver )      suffix='.vkey';;
-                sig )      suffix='.skey';;
-                none )     suffix='';;
+                bulk )     suffix='.creds';;
+                cert )     suffix='.cert';;
                 count )    suffix='.counter';;
-                * )        fail "unknown key kind: '$kind'";; esac
+                none )     suffix='';;
+                sig )      suffix='.skey';;
+                ver )      suffix='.vkey';;
+                * )        fail "key_depl: unknown key kind: '$kind'";; esac
         case "$type" in
+                bulk )     stem=node-keys/bulk${id};;
+                cold )     stem=node-keys/cold/operator${id};;
+                opcert )   stem=node-keys/node${id}.opcert;;
                 KES )      stem=node-keys/node-kes${id};;
                 VRF )      stem=node-keys/node-vrf${id};;
-                opcert )   stem=node-keys/node${id}.opcert;;
-                cold )     stem=node-keys/cold/operator${id};;
+                * )        fail "key_depl: unknown key type: '$type'";; esac
+        echo "$__KEY_ROOT"/${stem}${suffix}
+}
+key_genesis() {
+        local type=$1 kind=$2 id=$3
+        case "$kind" in
+                bulk )     suffix='.creds';;
+                cert )     suffix='.cert';;
+                count )    suffix='.counter';;
+                none )     suffix='';;
+                sig )      suffix='.skey';;
+                ver )      suffix='.vkey';;
+                * )        fail "key_genesis: unknown key kind: '$kind'";; esac
+        case "$type" in
+                bulk )     stem=pools/bulk${id};;
+                cold )     stem=pools/cold${id};;
+                opcert )   stem=pools/opcert${id};;
+                KES )      stem=pools/kes${id};;
+                VRF )      stem=pools/vrf${id};;
                 deleg )    stem=delegate-keys/delegate${id};;
+                delegCert )stem=delegate-keys/opcert${id};;
+                delegKES ) stem=delegate-keys/delegate${id}.kes;;
                 delegVRF ) stem=delegate-keys/delegate${id}.vrf;;
-                * )        fail "unknown key type: '$type'";; esac
+                * )        fail "key_genesis: unknown key type: '$type'";; esac
         echo "$__KEY_ROOT"/${stem}${suffix}
 }
 
 keypair_args() {
         local type=$1 id=$2 cliargprefix=${3:-}
-        args=(--"${cliargprefix}"verification-key-file "$(key "$type" ver "$id")"
-              --"${cliargprefix}"signing-key-file      "$(key "$type" sig "$id")"
+        args=(--"${cliargprefix}"verification-key-file "$(key_depl "$type" ver "$id")"
+              --"${cliargprefix}"signing-key-file      "$(key_depl "$type" sig "$id")"
              )
         if test "$type" = 'cold'
         then args+=(--operational-certificate-issue-counter-file
-                    "$(key cold count "$id")"); fi
+                    "$(key_depl cold count "$id")"); fi
         echo ${args[*]}
 }
 
 cli() {
-        echo "--|  cardano-cli $*" >&2
-        cardano-cli "$@"
+        echo "---)  cardano-cli $*" >&2
+        cardano-cli "$@" || fail "cli invocation failed"
 }
 
-profile_genesis_shelley() {
+profile_genesis_shelley_incremental() {
         set -o pipefail
 
         local prof="${1:-default}"
@@ -164,17 +188,17 @@ profile_genesis_shelley() {
         topofile=$(get_topology_file)
         oprint "genesis: topology:  $topofile"
 
-        ids_pool_map=$(topology_id_pool_map "$topofile")
+        ids_pool_map=$(topology_id_pool_density_map "$topofile")
         oprint "genesis: id-pool map:  $ids_pool_map"
-        if jqtest 'to_entries | map (select (.value)) | length == 0' <<<$ids_pool_map
-        then fail "no pools in topology -- at least one entry must be have:  stakePool = true"
+        if jqtest 'to_entries | map (select (.value != 0)) | length == 0' <<<$ids_pool_map
+        then fail "no pools in topology -- at least one entry must be have:  pools = <NON-ZERO>"
         fi
 
         ids=($(jq 'keys
                   | join(" ")
                   ' -cr <<<$ids_pool_map))
         ids_pool=($(jq ' to_entries
-                       | map(select (.value) | .key)
+                       | map(select (.value != 0) | .key)
                        | join(" ")
                        ' -cr <<<$ids_pool_map))
 
@@ -221,21 +245,21 @@ profile_genesis_shelley() {
                 cli shelley node key-gen-VRF \
                   $(keypair_args VRF  $id)
             else ## BFT node
-                cp -a $(key deleg sig    $deleg_id) $(key cold sig   $id)
-                cp -a $(key deleg ver    $deleg_id) $(key cold ver   $id)
-                cp -a $(key deleg count  $deleg_id) $(key cold count $id)
-                cp -a $(key delegVRF sig $deleg_id) $(key VRF  sig   $id)
-                cp -a $(key delegVRF ver $deleg_id) $(key VRF  ver   $id)
+                cp -a $(key_depl deleg sig    $deleg_id) $(key_depl cold sig   $id)
+                cp -a $(key_depl deleg ver    $deleg_id) $(key_depl cold ver   $id)
+                cp -a $(key_depl deleg count  $deleg_id) $(key_depl cold count $id)
+                cp -a $(key_depl delegVRF sig $deleg_id) $(key_depl VRF  sig   $id)
+                cp -a $(key_depl delegVRF ver $deleg_id) $(key_depl VRF  ver   $id)
                 deleg_id=$((deleg_id + 1))
             fi
 
             # certificate (adapt kes-period for later certs)
             cli shelley node issue-op-cert \
               --kes-period 0 \
-              --hot-kes-verification-key-file         $(key KES  ver    $id) \
-              --cold-signing-key-file                 $(key cold sig    $id) \
-              --operational-certificate-issue-counter $(key cold count  $id) \
-              --out-file                              $(key opcert none $id)
+              --hot-kes-verification-key-file         $(key_depl KES  ver    $id) \
+              --cold-signing-key-file                 $(key_depl cold sig    $id) \
+              --operational-certificate-issue-counter $(key_depl cold count  $id) \
+              --out-file                              $(key_depl opcert none $id)
         done
 
         # === delegation ===
@@ -261,16 +285,16 @@ profile_genesis_shelley() {
            ### Payment addresses
            cli shelley address build \
                 --payment-verification-key-file "$target_dir"/addresses/pool-owner${id}.vkey \
-                --stake-verification-key-file   "$target_dir"/addresses/pool-owner${id}-stake.vkey \
+                --staking-verification-key-file   "$target_dir"/addresses/pool-owner${id}-stake.vkey \
                 --testnet-magic "$magic" \
                 --out-file "$target_dir"/addresses/pool-owner${id}.addr
 
             pool_id=$(cli shelley stake-pool id \
-                      --verification-key-file   $(key cold ver $id) --output-format hex)
+                      --verification-key-file   $(key_depl cold ver $id) --output-format hex)
             pool_vrf=$(cli shelley node key-hash-VRF \
-                       --verification-key-file  $(key VRF  ver $id))
+                       --verification-key-file  $(key_depl VRF  ver $id))
             deleg_staking=$(cli shelley stake-address key-hash \
-                            --stake-verification-key-file "$target_dir"/addresses/pool-owner${id}-stake.vkey)
+                            --staking-verification-key-file "$target_dir"/addresses/pool-owner${id}-stake.vkey)
             initial_addr=$(cli shelley address info --address $(cat "$target_dir"/addresses/pool-owner${id}.addr) |
                            jq '.base16' --raw-output)
             params=(
@@ -348,6 +372,122 @@ profile_genesis_shelley() {
 
         ## Fix up the key, so the generator can read it:
         sed -i 's_PaymentSigningKeyShelley_SigningKeyShelley_' "$target_dir"/utxo-keys/utxo1.skey
+}
+
+profile_genesis_shelley_singleshot() {
+        set -euo pipefail
+
+        local prof="${1:-default}"
+        local target_dir="${2:-./keys}"
+        prof=$(params resolve-profile "$prof")
+
+        local start_future_offset='1 minute'
+        local ids_pool_map ids
+        id_pool_map_composition ""
+
+        local topofile
+        topofile=$(get_topology_file)
+        oprint "genesis: topology:  $topofile"
+
+        ids_pool_map=$(topology_id_pool_density_map "$topofile")
+        oprint "genesis: id-pool map:  $ids_pool_map"
+        if jqtest 'to_entries | map (select (.value)) | length == 0' <<<$ids_pool_map
+        then fail "no pools in topology -- at least one entry must be have:  pools = <NON-ZERO>"
+        fi
+
+        ids=($(jq 'keys
+                  | join(" ")
+                  ' -cr <<<$ids_pool_map))
+
+        local composition
+        composition=$(id_pool_map_composition "$ids_pool_map")
+        oprint "genesis: id-pool map composition:  $composition"
+
+        local magic total_balance pools_balance
+        magic=$(profgenjq "$prof" .protocol_magic)
+        total_balance=$(profgenjq "$prof" .total_balance)
+        pools_balance=$(profgenjq "$prof" .pools_balance)
+        # dense_pools_balance=$(profgenjq "$prof" .dense_pools_balance)
+
+        mkdir -p "$target_dir"
+        rm -rf -- ./"$target_dir"
+        __KEY_ROOT="$target_dir"
+
+        params=(--genesis-dir      "$target_dir"
+                --gen-utxo-keys    1
+                $(profile_shelley_genesis_cli_args "$prof" "$composition" 'create0'))
+        cli shelley genesis create "${params[@]}"
+
+        ## set parameters in template
+        profile_shelley_genesis_protocol_params "$prof" \
+         < "$target_dir"/genesis.spec.json > "$target_dir"/genesis.spec.json.
+        mv "$target_dir"/genesis.spec.json.  "$target_dir"/genesis.spec.json
+
+        params=(--genesis-dir      "$target_dir"
+                --start-time       "$(date --iso-8601=s --date="now + ${start_future_offset}" --utc | cut -c-19)Z"
+                $(profile_shelley_genesis_cli_args "$prof" "$composition" 'create1')
+               )
+        ## update genesis from template
+        cli shelley genesis create-staked "${params[@]}"
+
+        genesis_shelley_copy_keys "$ids_pool_map"
+
+        cli shelley genesis hash \
+                --genesis "$target_dir/genesis.json" |
+                tail -1 > "$target_dir"/GENHASH
+
+        ## Fix up the key, so the generator can read it:
+        sed -i 's_PaymentSigningKeyShelley_SigningKeyShelley_' "$target_dir"/utxo-keys/utxo1.skey
+}
+
+genesis_shelley_copy_keys() {
+        local ids_pool_map=$1
+        local ids ids_pool
+
+        set -e
+
+        ids=($(jq 'keys
+                  | join(" ")
+                  ' -cr <<<$ids_pool_map))
+        ids_pool=($(jq ' to_entries
+                       | map(select (.value != 0) | .key)
+                       | join(" ")
+                       ' -cr <<<$ids_pool_map))
+        local bid=1 pid=1 did=1 ## (B)FT, (P)ool, (D)ense pool
+        for id in ${ids[*]}
+        do
+            mkdir -p "$target_dir"/node-keys/cold
+
+            #### cold keys (do not copy to production system)
+            elif jqtest ".[\"$id\"] == 1" <<<$ids_pool_map
+            then ## Singular pool
+               oprint "genesis:  pool $pid -> node-$id"
+               cp -f $(key_genesis cold       sig $pid) $(key_depl cold    sig $id)
+               cp -f $(key_genesis cold       ver $pid) $(key_depl cold    ver $id)
+               cp -f $(key_genesis opcert    cert $pid) $(key_depl opcert none $id)
+               cp -f $(key_genesis opcert   count $pid) $(key_depl cold  count $id)
+               cp -f $(key_genesis KES        sig $pid) $(key_depl KES     sig $id)
+               cp -f $(key_genesis KES        ver $pid) $(key_depl KES     ver $id)
+               cp -f $(key_genesis VRF        sig $pid) $(key_depl VRF     sig $id)
+               cp -f $(key_genesis VRF        ver $pid) $(key_depl VRF     ver $id)
+               pid=$((pid + 1))
+            else ## BFT node
+               oprint "genesis:  BFT $bid -> node-$id"
+               cp -f $(key_genesis deleg      sig $bid) $(key_depl cold    sig $id)
+               cp -f $(key_genesis deleg      ver $bid) $(key_depl cold    ver $id)
+               cp -f $(key_genesis delegCert cert $bid) $(key_depl opcert none $id)
+               cp -f $(key_genesis deleg    count $bid) $(key_depl cold  count $id)
+               cp -f $(key_genesis delegKES   sig $bid) $(key_depl KES     sig $id)
+               cp -f $(key_genesis delegKES   ver $bid) $(key_depl KES     ver $id)
+               cp -f $(key_genesis delegVRF   sig $bid) $(key_depl VRF     sig $id)
+               cp -f $(key_genesis delegVRF   ver $bid) $(key_depl VRF     ver $id)
+               bid=$((bid + 1))
+            fi
+        done
+}
+
+profile_genesis_shelley() {
+        profile_genesis_shelley_singleshot "$@"
 }
 
 profile_genesis_hash_byron() {

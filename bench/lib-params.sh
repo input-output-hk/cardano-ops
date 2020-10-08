@@ -33,11 +33,10 @@ params_recreate_cluster() {
 topology_id_pool_map() {
         local topology_file=${1:-}
 
-        nix-instantiate \
-          --strict --eval \
+        nix-instantiate --strict --eval \
           -E '__toJSON (__listToAttrs
                         (map (x: { name = toString x.nodeId;
-                                  value = __hasAttr "stakePool" x; })
+                                  value = x.pools or 0; })
                              (import '"${topology_file}"').coreNodes))' |
           sed 's_\\__g; s_^"__; s_"$__'
 }
@@ -47,9 +46,16 @@ id_pool_map_composition() {
 
         jq '.
            | to_entries
-           | { n_pools:         (map (select (.value))       | length)
-             , n_bft_delegates: (map (select (.value | not)) | length)
-             , n_total:         length
+           | length                                as $n_total
+           | map (select (.value != 0))            as $pools
+           | ($pools | map (select (.value == 1))) as $singular_pools
+           | ($singular_pools | length)            as $n_singular_pools
+           | map (select (.value == 0)) as $bfts
+           | { n_total:          $n_total
+             , n_bft_delegates:  ($bfts  | length)
+             , n_pools:          ($pools | map (.value) | add)
+             , n_singular_pools: $n_singular_pools
+             , singular_pools:   ($singular_pools | from_entries)
              }
            ' <<<$ids_pool_map --compact-output
 }
@@ -153,6 +159,7 @@ def profile_name($gtor; $gsis):
     ## The first entry is the defprof defprof.
     , default_profile:     (.[0] | (. | keys) | .[0])
     , aux_profiles:        (generator_aux_profiles | map(.name))
+    , composition:         $composition
     }}
   + (. | add)
 ' > ${paramsfile} --null-input

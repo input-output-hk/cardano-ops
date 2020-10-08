@@ -26,7 +26,9 @@ let
       byron   = "RealPBFT";
     }."${benchmarkingParamsEra}";
   coreEraOverlay =
-    { shelley = {};
+    { shelley =
+        { ShelleyGenesisHash = genesisHash;
+        };
       byron =
         { GenesisHash = genesisHash;
           PBftSignatureThreshold =
@@ -37,25 +39,6 @@ let
   envConfigBase =
     { shelley = pkgs.iohkNix.cardanoLib.environments.testnet;
       byron   = pkgs.iohkNix.cardanoLib.environments.shelley_staging_short;
-    }."${benchmarkingParamsEra}";
-  envConfigEraOverlay =
-    { shelley =
-        {
-        };
-      byron =
-        { inherit genesisHash;
-          networkConfig =
-            { GenesisHash = genesisHash;
-              NumCoreNodes = builtins.length topology.coreNodes;
-            };
-          nodeConfig =
-            { GenesisHash = genesisHash;
-              NumCoreNodes = builtins.length topology.coreNodes;
-            };
-          txSubmitConfig =
-            { GenesisHash = genesisHash;
-            };
-        };
     }."${benchmarkingParamsEra}";
 
   ### Benchmarking profiles are, currently, essentially name-tagger
@@ -116,17 +99,19 @@ in reportDeployment (rec {
   sourcesJsonOverride = ./nix/sources.bench-txgen-simple.json;
 
   environmentConfig = rec {
+    inherit genesisHash;
     relays = "relays.${pkgs.globals.domain}";
     edgePort = pkgs.globals.cardanoNodePort;
     genesisFile = ./keys/genesis.json;
     private = true;
     networkConfig = envConfigBase.networkConfig // {
       inherit Protocol;
-      GenesisFile = genesisFile;
+      ShelleyGenesisFile = genesisFile;
     };
     nodeConfig = envConfigBase.nodeConfig // {
       inherit Protocol;
-      GenesisFile = genesisFile;
+      ShelleyGenesisFile = genesisFile;
+      ShelleyGenesisHash = genesisHash;
     };
     txSubmitConfig = {
       inherit (networkConfig) RequiresNetworkMagic;
@@ -147,48 +132,10 @@ in reportDeployment (rec {
           services.cardano-explorer-api.enable = mkForce false;
           services.cardano-submit-api.enable = mkForce false;
           systemd.services.cardano-explorer-api.enable = mkForce false;
-          # services.cardano-submit-api = {
-          #   environment = pkgs.globals.environmentConfig;
-          #   socketPath = config.services.cardano-node.socketPath;
-          # };
-          # systemd.services.cardano-db-sync = {
-          #   wantedBy = [ "multi-user.target" ];
-          #   requires = [ "postgresql.service" ];
-          #   path = [ pkgs.netcat ];
-          #   preStart = ''
-          #   '';
-          #   serviceConfig = {
-          #     ExecStartPre = mkForce
-          #       ("+" + pkgs.writeScript "cardano-db-sync-prestart" ''
-          #                 #!/bin/sh
-          #                 set -xe
-
-          #                 chmod -R g+w /var/lib/cardano-node
-          #                 for x in {1..10}
-          #                 do nc -z localhost ${toString config.services.cardano-db-sync.postgres.port} && break
-          #                    echo loop $x: waiting for postgresql 2 sec...
-          #                    sleep 2; done
-          #              '');
-          #   };
-          # };
         })
       ];
       services.cardano-graphql.enable = mkForce false;
       services.graphql-engine.enable = mkForce false;
-      # services.cardano-db-sync = {
-      #   logConfig =
-      #     recursiveUpdate
-      #       pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig
-      #       (recursiveUpdate
-      #         (benchmarkingLogConfig "db-sync")
-      #         {
-      #           options.mapSeverity = {
-      #             "db-sync-node.Subscription" = "Error";
-      #             "db-sync-node.Mux" = "Error";
-      #             "db-sync-node" = "Info";
-      #           };
-      #         });
-      # };
     };
     coreNodes = map (n : n // {
       services.cardano-node.nodeConfig =

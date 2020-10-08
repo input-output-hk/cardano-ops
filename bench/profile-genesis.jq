@@ -49,14 +49,17 @@ def shelley_genesis_protocol_params($p):
 
 def shelley_genesis_cli_args($p; $composition; $cmd):
 { create0:
-  [ "--testnet-magic",          $p.protocol_magic
-  , "--supply",                 $p.total_balance
+  [ "--supply",                 $p.total_balance
   , "--gen-genesis-keys",       $composition.n_bft_delegates
+  , "--testnet-magic",          $p.protocol_magic
   ]
 , create1:
-  [ "--testnet-magic",          $p.protocol_magic
-  , "--supply",                 $p.total_balance
   ]
+  ([ "--supply",                 ($p.total_balance - $p.pools_balance)
+  , "--supply-delegated",       $p.pools_balance
+  , "--gen-pools",              $composition.n_pools
+  , "--gen-stake-delegs",       $composition.n_pools
+  , "--testnet-magic",          $p.protocol_magic
 , pools:
   [ "--argjson", "initialPoolCoin",
        $p.pools_balance / $composition.n_pools

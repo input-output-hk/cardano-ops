@@ -42,11 +42,12 @@ profile_deploy() {
         then oprint "regenerating genesis, because:  ${regenesis_causes[*]}"
              local genesislog
              genesislog=runs/$(timestamp).genesis.$prof.log
-             profile_genesis "$prof" >"$genesislog" 2>&1 || {
+             profile_genesis "$prof" 2>&1 || {
                      fprint "genesis generation failed:"
                      cat "$genesislog" >&2
                      exit 1
-             }; fi
+             } | tee "$genesislog";
+        fi
 
         redeploy_causes=(mandatory)
         include=('explorer')
