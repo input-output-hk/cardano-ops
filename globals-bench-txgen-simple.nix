@@ -35,7 +35,7 @@ let
     }."${benchmarkingParamsEra}";
   genesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/GENHASH);
   envConfigBase =
-    { shelley = pkgs.iohkNix.cardanoLib.environments.shelley_testnet;
+    { shelley = pkgs.iohkNix.cardanoLib.environments.testnet;
       byron   = pkgs.iohkNix.cardanoLib.environments.shelley_staging_short;
     }."${benchmarkingParamsEra}";
   envConfigEraOverlay =
