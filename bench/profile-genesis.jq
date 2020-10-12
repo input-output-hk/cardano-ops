@@ -54,12 +54,17 @@ def shelley_genesis_cli_args($p; $composition; $cmd):
   , "--testnet-magic",          $p.protocol_magic
   ]
 , create1:
-  ]
   ([ "--supply",                 ($p.total_balance - $p.pools_balance)
   , "--supply-delegated",       $p.pools_balance
   , "--gen-pools",              $composition.n_pools
   , "--gen-stake-delegs",       $composition.n_pools
   , "--testnet-magic",          $p.protocol_magic
+  ] +
+  if $composition.n_dense_pools != 0
+  then
+  [ "--bulk-pool-cred-files",   $composition.n_dense_hosts
+  , "--bulk-pools-per-file",    ($composition.n_dense_pools / $composition.n_dense_hosts) ]
+  else [] end)
 , pools:
   [ "--argjson", "initialPoolCoin",
        $p.pools_balance / $composition.n_pools

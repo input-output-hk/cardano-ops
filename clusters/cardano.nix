@@ -9,6 +9,7 @@
 , xlarge-monitor       # Standard monitor
 , t3-2xlarge-monitor   # High capacity monitor
 , c5-4xlarge           # High capacity explorer (postgres CPU intensive)
+, c5d-4xlarge          # Dense pools
 , ...
 }:
 with pkgs;
@@ -139,17 +140,22 @@ let
 
   nodes = cardanoNodes // otherNodes;
 
-  mkCoreNode =  def: {
+  mkCoreNode =  def:
+    let isDensePool = (if (def.pools or 0) == null
+                       then 0
+                       else (def.pools or 0)) > 1;
+    in {
     inherit (def) name;
     value = mkNode {
       _file = ./cardano.nix;
       node = {
         roles.isCardanoCore = true;
+        roles.isCardanoDensePool = isDensePool;
         inherit (def) org nodeId;
       };
       deployment.ec2.region = def.region;
       imports = [
-        medium
+        (if isDensePool then c5d-4xlarge else medium)
         (cardano-ops.roles.core def.nodeId)
       ];
       services.cardano-node = {
@@ -207,7 +213,7 @@ let
         "producers"
         "staticRoutes"
         "dynamicSubscribe"
-        "stakePool"
+        "pools"
       ]);
 
 in {

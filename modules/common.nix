@@ -23,6 +23,7 @@ in {
         isCardanoLegacyRelay = boolOption;
         isCardanoCore = boolOption;
         isCardanoRelay = boolOption;
+        isCardanoDensePool = boolOption;
         isByronProxy = boolOption;
         isMonitor = boolOption;
         isExplorer = boolOption;

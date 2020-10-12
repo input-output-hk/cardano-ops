@@ -459,6 +459,11 @@ genesis_shelley_copy_keys() {
             mkdir -p "$target_dir"/node-keys/cold
 
             #### cold keys (do not copy to production system)
+            if   jqtest ".[\"$id\"]  > 1" <<<$ids_pool_map
+            then ## Dense/bulk pool
+               oprint "genesis:  bulk pool $did -> node-$id"
+               cp -f $(key_genesis bulk      bulk $did) $(key_depl bulk   bulk $id)
+               did=$((did + 1))
             elif jqtest ".[\"$id\"] == 1" <<<$ids_pool_map
             then ## Singular pool
                oprint "genesis:  pool $pid -> node-$id"

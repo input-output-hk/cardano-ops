@@ -9,6 +9,7 @@ let
   vrfKey = ../keys/node-keys/node-vrf + "${toString nodeId}.skey";
   kesKey = ../keys/node-keys/node-kes + "${toString nodeId}.skey";
   operationalCertificate = ../keys/node-keys/node + "${toString nodeId}.opcert";
+  bulkCredentials = ../keys/node-keys/bulk + "${toString nodeId}.creds";
 
   keysConfig = rec {
     RealPBFT = {
@@ -46,6 +47,8 @@ let
             kesKey = "/var/lib/keys/cardano-node-kes-signing";
             vrfKey = "/var/lib/keys/cardano-node-vrf-signing";
             operationalCertificate = "/var/lib/keys/cardano-node-operational-cert";
+          } else {
+            extraArgs = [ "--bulk-credentials-file" "/var/lib/keys/cardano-node-bulk-credentials"];
           };
 
         systemd.services."cardano-node" =
@@ -54,6 +57,10 @@ let
             after = [ "cardano-node-vrf-signing-key.service" "cardano-node-kes-signing-key.service" "cardano-node-operational-cert-key.service" ];
             wants = [ "cardano-node-vrf-signing-key.service" "cardano-node-kes-signing-key.service" "cardano-node-operational-cert-key.service" ];
             partOf = [ "cardano-node-vrf-signing-key.service" "cardano-node-kes-signing-key.service" "cardano-node-operational-cert-key.service" ];
+          } else {
+            after  = [ "cardano-node-bulk-credentials-key.service" ];
+            wants  = [ "cardano-node-bulk-credentials-key.service" ];
+            partOf = [ "cardano-node-bulk-credentials-key.service" ];
           };
 
         deployment.keys =
@@ -73,6 +80,13 @@ let
             };
             "cardano-node-operational-cert" = builtins.trace ("${name}: using " + (toString operationalCertificate)) {
               keyFile = operationalCertificate;
+              user = "cardano-node";
+              group = "cardano-node";
+              destDir = "/var/lib/keys";
+            };
+          } else {
+            "cardano-node-bulk-credentials" = builtins.trace ("${name}: using " + (toString bulkCredentials)) {
+              keyFile = bulkCredentials;
               user = "cardano-node";
               group = "cardano-node";
               destDir = "/var/lib/keys";

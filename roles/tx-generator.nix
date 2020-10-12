@@ -138,7 +138,6 @@ in {
         };
       };
     });
-
     signingKey = lib.mkForce "/var/lib/keys/cardano-node-signing";
   };
 

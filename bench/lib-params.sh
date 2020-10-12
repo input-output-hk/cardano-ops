@@ -30,7 +30,7 @@ params_recreate_cluster() {
         profile_deploy "$prof"
 }
 
-topology_id_pool_map() {
+topology_id_pool_density_map() {
         local topology_file=${1:-}
 
         nix-instantiate --strict --eval \
@@ -49,12 +49,18 @@ id_pool_map_composition() {
            | length                                as $n_total
            | map (select (.value != 0))            as $pools
            | ($pools | map (select (.value == 1))) as $singular_pools
+           | ($pools | map (select (.value  > 1))) as $dense_pools
+           | ($dense_pools | map (.value) | (. + [0]) | add)
+                                                   as $n_dense_pools
            | ($singular_pools | length)            as $n_singular_pools
            | map (select (.value == 0)) as $bfts
            | { n_total:          $n_total
              , n_bft_delegates:  ($bfts  | length)
              , n_pools:          ($pools | map (.value) | add)
+             , n_dense_pools:    $n_dense_pools
              , n_singular_pools: $n_singular_pools
+             , n_dense_hosts:    ($n_total - ($bfts | length) - $n_singular_pools)
+             , dense_pools:      ($dense_pools    | from_entries)
              , singular_pools:   ($singular_pools | from_entries)
              }
            ' <<<$ids_pool_map --compact-output
@@ -84,7 +90,7 @@ params_init() {
         topology_file=$(get_topology_file "$topology" "$node_count")
         oprint "re-deriving cluster parameters for size $node_count, era $era, topology $topology_file"
 
-        id_pool_map=$(topology_id_pool_map "$topology_file")
+        id_pool_map=$(topology_id_pool_density_map "$topology_file")
         composition=$(id_pool_map_composition "$id_pool_map")
 
         local args=(--argjson composition "$composition"
