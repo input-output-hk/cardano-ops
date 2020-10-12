@@ -2,6 +2,7 @@
 , pkgs ? import ./nix {
     inherit config;
   }
+, with-key-management-tools ? true
 }:
 with pkgs;
 let
@@ -52,10 +53,8 @@ let
 in  mkShell rec {
   buildInputs = [
     cardano-cli
-    create-shelley-genesis-and-keys
     dnsutils
     iohkNix.niv
-    kes-rotation
     nivOverrides
     nix
     nix-diff
@@ -63,10 +62,15 @@ in  mkShell rec {
     pandoc
     pstree
     node-update
-    renew-kes-keys
     telnet
     test-cronjob-script
     cardano-cli-completions
+  ] ++ lib.optionals with-key-management-tools
+  [
+    create-shelley-genesis-and-keys
+    kes-rotation
+    migrate-keys
+    renew-kes-keys
   ];
   XDG_DATA_DIRS = lib.concatStringsSep ":" (
     [(builtins.getEnv "XDG_DATA_DIRS")] ++
