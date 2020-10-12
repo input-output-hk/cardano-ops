@@ -9,12 +9,6 @@ let
   nivOverrides = writeShellScriptBin "niv-overrides" ''
     niv --sources-file ${toString globals.sourcesJsonOverride} $@
   '';
-  genesisFile = let
-    protocol."Cardano" = globals.environmentConfig.nodeConfig.ByronGenesisFile or "please set globals.environmentName or globals.environmentConfig.genesisFile";
-    protocol."RealPBFT" = globals.environmentConfig.nodeConfig.ByronGenesisFile or "please set globals.environmentName or globals.environmentConfig.genesisFile";
-    protocol."Byron" = globals.environmentConfig.nodeConfig.ByronGenesisFile or "please set globals.environmentName or globals.environmentConfig.genesisFile";
-    protocol."TPraos" = null;
-    in protocol.${globals.environmentConfig.nodeConfig.Protocol};
 
   create-shelley-genesis-and-keys =
     let nbCoreNodes = builtins.length globals.topology.coreNodes;
@@ -69,7 +63,6 @@ in  mkShell rec {
   [
     create-shelley-genesis-and-keys
     kes-rotation
-    migrate-keys
     renew-kes-keys
   ];
   XDG_DATA_DIRS = lib.concatStringsSep ":" (
