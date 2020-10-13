@@ -105,7 +105,7 @@ in {
           }; }
       ];
       minSeverity = "Debug";
-      TracingVerbosity = "MaximalVerbosity";
+      TracingVerbosity = "NormalVerbosity";
 
       TraceBlockFetchClient             = true;
       TraceBlockFetchDecisions          = false;

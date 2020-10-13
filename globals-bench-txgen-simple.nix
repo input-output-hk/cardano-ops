@@ -83,6 +83,7 @@ let
     options = {
       mapBackends = {
         "cardano.node-metrics" = [ "KatipBK" ];
+        "cardano.node.metrics" = [ "KatipBK" ];
       };
     };
   };
@@ -144,7 +145,7 @@ in reportDeployment (rec {
           (recursiveUpdate
             (benchmarkingLogConfig "node")
             ({
-               TracingVerbosity = "MaximalVerbosity";
+               TracingVerbosity = "NormalVerbosity";
                minSeverity = "Debug";
                TurnOnLogMetrics = true;
                TraceMempool     = true;
