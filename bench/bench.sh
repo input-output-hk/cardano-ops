@@ -288,7 +288,7 @@ bench_profile() {
         oprint "benchmarking profile:  ${prof:?Unknown profile $profspec, see ${paramsfile}}"
         deploylog='./last-deploy.log'
         oprint "deploying profile.."
-        profile_deploy "${prof}"
+        time profile_deploy "${prof}"
 
         op_bench_start "${prof}" "${deploylog}"
         ret=$?

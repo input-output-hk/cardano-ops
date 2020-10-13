@@ -28,7 +28,7 @@ EOF
 }
 
 profile_genesis() {
-        profile_genesis_$(get_era) "$@"
+        time profile_genesis_$(get_era) "$@"
 }
 
 profile_genesis_hash() {
@@ -93,11 +93,12 @@ profile_genesis_byron() {
 }
 
 profile_shelley_genesis_protocol_params() {
-        local prof=$1
-        jq --argjson prof "$(profgenjq "${prof}" .)" '
+        local prof=$1 composition=$2
+        jq --argjson prof "$(profgenjq "${prof}" .)" \
+           --argjson comp "$composition" '
           include "profile-genesis" { search: "bench" };
 
-          . * shelley_genesis_protocol_params($prof)
+          . * shelley_genesis_protocol_params($prof; $comp)
         '
 }
 
@@ -382,6 +383,9 @@ profile_genesis_shelley_singleshot() {
         prof=$(params resolve-profile "$prof")
 
         local start_future_offset='1 minute'
+        start_time="$(date --iso-8601=s --date="now + ${start_future_offset}" --utc | cut -c-19)Z"
+        oprint "genesis start time:  $start_time, $start_future_offset from now"
+
         local ids_pool_map ids
         id_pool_map_composition ""
 
@@ -419,12 +423,12 @@ profile_genesis_shelley_singleshot() {
         cli shelley genesis create "${params[@]}"
 
         ## set parameters in template
-        profile_shelley_genesis_protocol_params "$prof" \
+        profile_shelley_genesis_protocol_params "$prof" "$composition" \
          < "$target_dir"/genesis.spec.json > "$target_dir"/genesis.spec.json.
         mv "$target_dir"/genesis.spec.json.  "$target_dir"/genesis.spec.json
 
         params=(--genesis-dir      "$target_dir"
-                --start-time       "$(date --iso-8601=s --date="now + ${start_future_offset}" --utc | cut -c-19)Z"
+                --start-time       "$start_time"
                 $(profile_shelley_genesis_cli_args "$prof" "$composition" 'create1')
                )
         ## update genesis from template

@@ -35,7 +35,7 @@ def byron_genesis_cli_args($p):
 , "--avvm-entry-balance",     $p.avvm_entry_balance
 ];
 
-def shelley_genesis_protocol_params($p):
+def shelley_genesis_protocol_params($p; $composition):
 { activeSlotsCoeff:           $p.active_slots_coeff
 , epochLength:                $p.epoch_length
 , securityParam:              $p.parameter_k
@@ -44,6 +44,7 @@ def shelley_genesis_protocol_params($p):
 , protocolParams:
   { "decentralisationParam":  $p.decentralisation_param
   , "maxBlockBodySize":       $p.max_block_size
+  , "nOpt":                   $composition.n_pools
   }
 };
 
@@ -55,16 +56,16 @@ def shelley_genesis_cli_args($p; $composition; $cmd):
   ]
 , create1:
   ([ "--supply",                 ($p.total_balance - $p.pools_balance)
-  , "--supply-delegated",       $p.pools_balance
-  , "--gen-pools",              $composition.n_pools
   , "--gen-stake-delegs",       $composition.n_pools
-  , "--testnet-magic",          $p.protocol_magic
-  ] +
-  if $composition.n_dense_pools != 0
-  then
-  [ "--bulk-pool-cred-files",   $composition.n_dense_hosts
-  , "--bulk-pools-per-file",    ($composition.n_dense_pools / $composition.n_dense_hosts) ]
-  else [] end)
+   , "--supply-delegated",       $p.pools_balance
+   , "--gen-pools",              $composition.n_pools
+   , "--testnet-magic",          $p.protocol_magic
+   ] +
+   if $composition.n_dense_pools != 0
+   then
+   [ "--bulk-pool-cred-files",   $composition.n_dense_hosts
+   , "--bulk-pools-per-file",    ($composition.n_dense_pools / $composition.n_dense_hosts) ]
+   else [] end)
 , pools:
   [ "--argjson", "initialPoolCoin",
        $p.pools_balance / $composition.n_pools
