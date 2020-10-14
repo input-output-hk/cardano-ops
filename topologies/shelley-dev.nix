@@ -1,4 +1,4 @@
-{
+pkgs: with pkgs; with lib; with topology-lib; {
   coreNodes = [
     {
       name = "a";
