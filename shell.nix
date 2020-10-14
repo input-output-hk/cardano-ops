@@ -15,37 +15,22 @@ let
     protocol."TPraos" = null;
     in protocol.${globals.environmentConfig.nodeConfig.Protocol};
 
-  migrate-keys = writeShellScriptBin "migrate-keys" ''
-      i=0
-      for k in keys/*.sk; do
-        ((i++))
-        signing_key=keys/delegate-keys.00$i.key
-        echo "migrating $k to $signing_key"
-        cardano-cli migrate-delegate-key-from --byron-legacy --from $k --real-pbft --to $signing_key
-        pk=$(cardano-cli signing-key-public --real-pbft --secret $signing_key | fgrep 'public key (base64):' | cut -d: -f2 | xargs echo -n)
-        delegate_cert=keys/delegation-cert.00$i.json
-        echo "generating delegation certificate for $pk in $delegate_cert"
-        ${jq}/bin/jq ".heavyDelegation | .[] | select(.delegatePk == \"$pk\")" < ${toString genesisFile} > $delegate_cert
-      done
-    '';
   create-shelley-genesis-and-keys =
     let nbCoreNodes = builtins.length globals.topology.coreNodes;
         maxSupply = 20000000000000000 * nbCoreNodes;
     in writeShellScriptBin "create-shelley-genesis-and-keys" ''
       set -euxo pipefail
-
+      mkdir -p keys
       cd ${toString ./keys}
-      if [ ! -f genesis.spec.json ]; then
-        cp ../scripts/genesis.spec.json ./
-      fi
-      cardano-cli shelley genesis create --genesis-dir . --supply ${toString maxSupply} --gen-genesis-keys ${toString nbCoreNodes} --gen-utxo-keys ${toString nbCoreNodes}
+      cardano-cli shelley genesis create --genesis-dir . --supply ${toString maxSupply} --gen-genesis-keys ${toString nbCoreNodes} --gen-utxo-keys ${toString nbCoreNodes} --testnet-magic 42
+      cardano-cli shelley genesis hash --genesis genesis.json > GENHASH
       mkdir -p node-keys
       cd node-keys
       for i in {1..${toString nbCoreNodes}}; do
-        cardano-cli shelley node key-gen-VRF --verification-key-file node-vrf$i.vkey --signing-key-file node-vrf$i.skey
-        cardano-cli shelley node key-gen-KES --verification-key-file node-kes$i.vkey --signing-key-file node-kes$i.skey
-        cardano-cli shelley node issue-op-cert --hot-kes-verification-key-file node-kes$i.vkey --cold-signing-key-file ../delegate-keys/delegate$i.skey --operational-certificate-issue-counter ../delegate-keys/delegate-opcert$i.counter --kes-period 0 --out-file node$i.opcert
+        ln -sf ../delegate-keys/delegate$i.vrf.skey node-vrf$i.skey
+        ln -sf ../delegate-keys/delegate$i.vrf.vkey node-vrf$i.vkey
       done
+      ${renew-kes-keys}/bin/new-KES-keys-at-period 0
     '';
   renew-kes-keys =
     let nbCoreNodes = builtins.length globals.topology.coreNodes;
@@ -71,7 +56,6 @@ in  mkShell {
     dnsutils
     iohkNix.niv
     kes-rotation
-    migrate-keys
     nivOverrides
     nix
     nix-diff
