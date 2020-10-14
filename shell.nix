@@ -88,4 +88,7 @@ in  mkShell {
   passthru = {
     gen-graylog-creds = iohk-ops-lib.scripts.gen-graylog-creds { staticPath = ./static; };
   };
+  shellHook = ''
+    source <(cardano-cli --bash-completion-script cardano-cli)
+  '';
 }
