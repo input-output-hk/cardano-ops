@@ -10,7 +10,9 @@ pkgs: with pkgs.iohkNix.cardanoLib; rec {
     genesisFile = ./keys/genesis.json;
     genesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/GENHASH);
     nodeConfig = environments.shelley_qa.nodeConfig // {
+      ShelleyGenesisFile = genesisFile;
       ShelleyGenesisHash = genesisHash;
+      Protocol = "TPraos";
     };
     explorerConfig = mkExplorerConfig environmentName nodeConfig;
   };

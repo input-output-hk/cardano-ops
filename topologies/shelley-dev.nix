@@ -2,21 +2,21 @@ pkgs: with pkgs; with lib; with topology-lib; {
   coreNodes = [
     {
       name = "a";
-      nodeId = 0;
+      nodeId = 1;
       org = "IOHK";
       region = "eu-central-1";
       producers = ["b" "c"];
     }
     {
       name = "b";
-      nodeId = 1;
+      nodeId = 2;
       org = "IOHK";
       region = "eu-central-1";
       producers = ["c" "a"];
     }
     {
       name = "c";
-      nodeId = 2;
+      nodeId = 3;
       org = "IOHK";
       region = "eu-central-1";
       producers = ["a" "b"];
