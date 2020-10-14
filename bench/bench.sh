@@ -71,8 +71,8 @@ usage_extra() {
                             unprocessed logs will be lost.
     --deploy              Force redeployment, event if benchmarking
                             a single profile.
-    --genesis             Force genesis regeneration, event if not required
-                            by profile settings and deployment state.
+    --keep-genesis        Only update genesis start time & hash,
+                            otherwise keeping it intact.
     --watch-deploy        Do not hide the Nixops deploy log.
     --cls                 Clear screen, before acting further.
 
@@ -114,7 +114,7 @@ force_deploy=
 reuse_genesis=
 watch_deploy=
 
-generator_startup_delay=25
+generator_startup_delay=15
 
 self=$(realpath "$0")
 
@@ -174,7 +174,7 @@ main() {
                                       update_deployfiles "$@";;
                 destroy )             deploystate_destroy;;
 
-                genesis )             profile_genesis "$@";;
+                genesis )             profile_genesis ${1:-$(params resolve-profile 'default')};;
 
                 wait-for-empty-blocks | wait-empty | wait )
                                       op_wait_for_empty_blocks "$@";;
@@ -341,6 +341,11 @@ op_bench_start() {
         then oprint "waiting ${generator_startup_delay}s for the nodes to establish business.."
              sleep ${generator_startup_delay}; fi
 
+        local mach='node-0'
+        oprint "checking node service on $mach.."
+        nixops ssh "$mach" -- systemctl status cardano-node >/dev/null ||
+                fail "nodes service on $mach isn't running!"
+
         tag=$(generate_run_tag "${prof}")
         dir="./runs/${tag}"
         oprint "creating new run:  ${tag}"
@@ -349,11 +354,9 @@ op_bench_start() {
         time { oprint "$(date), starting generator.."
                nixops ssh explorer "systemctl start tx-generator"
 
-               op_wait_for_nonempty_block 200
+               op_wait_for_nonempty_block "$prof" 200
 
-               op_wait_for_empty_blocks \
-                 "$(profjq "${prof}" .tolerances.finish_patience)" \
-                 fetch_systemd_unit_startup_logs
+               op_wait_for_empty_blocks "$prof" fetch_systemd_unit_startup_logs
                ret=$?
              }
         op_stop
@@ -476,33 +479,39 @@ EOF
 }
 
 op_wait_for_nonempty_block() {
-        local patience="$1" date patience_until now r prev=0
-        start=$(date +%s)
-        patience_until=$((start + patience))
+        local prof=$1 now since patience_start patience=200 patience_until now r
+        now=$(date +%s)
+        since=$now
+        patience_start=$(max "$(genesis_starttime)" $now)
+        patience_start_pretty=$(date --utc --date=@$patience_start --iso-8601=s)
+        patience_until=$((patience_start + patience))
 
-        echo -n "--( waiting for a non-empty block on explorer (patience for ${patience}s).  Seen empty: 00"
+        echo -n "--( waiting for a non-empty block on explorer (patience until $patience_start_pretty + ${patience}s).  Seen empty: 00"
         while now=$(date +%s); test "${now}" -lt ${patience_until}
         do r=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq --compact-output \"select(.data.msg.\\\"txIds\\\" != [])\" | wc -l'")
            if test "$r" -ne 0
            then l=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq \".data.msg.\\\"txIds\\\" | select(. != []) | length\" | jq . --slurp --compact-output'")
-                echo ", got $l, after $((now - start)) seconds"
+                echo ", got $l, after $((now - since)) seconds"
                 return 0; fi
            e=$(nixops ssh explorer -- sh -c \
                    "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq --slurp \"map (.data.msg.\\\"txIds\\\" | select(. == [])) | length\"'")
            echo -ne "\b\b"; printf "%02d" "$e"
            sleep 5; done
 
+        touch "last-run/logs/block-arrivals.gauge"
         echo " patience ran out, stopping the cluster and collecting logs from the botched run."
         process_broken_run "runs/$tag"
         errprint "No non-empty blocks reached the explorer in ${patience} seconds -- is the cluster dead (genesis mismatch?)?"
 }
 
 op_wait_for_empty_blocks() {
-        local slot_length=20
-        local full_patience="$1"
-        local oneshot_action="${2:-true}"
-        local patience=$full_patience
-        local anyblock_patience=$full_patience
+        local prof=$1 slot_length=20
+        local oneshot_action=${2:-true}
+
+        local full_patience patience anyblock_patience
+        full_patience=$(profjq "$prof" .tolerances.finish_patience)
+        patience=$full_patience
+        anyblock_patience=$full_patience
 
         echo -n "--( waiting for ${full_patience} empty blocks (txcounts): "
         local last_blkid='absolut4ly_n=wher'

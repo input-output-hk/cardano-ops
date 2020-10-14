@@ -10,33 +10,48 @@ genesisjq()
 profile_genesis_future_offset() {
         local profile=$1
 
-        echo -n '120 seconds'
+        echo -n "$(profjq "$profile" .genesis.genesis_future_offset)"
 }
 
 profile_genesis() {
-        local profile=$1 genesis_dir=${2:-./keys} genesis_future_offset
+        local profile=$1 genesis_dir=${2:-./keys} genesis_future_offset hash
 
-        if test -z "$reuse_genesis"
-        then time profile_genesis_"$(get_era)" "$profile" "$genesis_dir"
+        if test -z "$reuse_genesis" -a -f "$genesis_dir"/genesis.json
+        then oprint "regenerating genesis from scratch"
+             time profile_genesis_"$(get_era)" "$profile" "$genesis_dir"
+        else oprint "updating genesis (--reuse-genesis)"
         fi
         genesis_future_offset=$(profile_genesis_future_offset "$profile")
-        genesis_update_timestamp "$genesis_future_offset" "$genesis_dir"
-        genesis_hash "$target_dir" > "$target_dir"/GENHASH
+        start_timestamp=$(date +%s --date="now + ${genesis_future_offset}")
+
+        genesis_update_starttime "$start_timestamp" "$genesis_dir"
+
+        hash=$(genesis_hash "$genesis_dir")
+        echo -n "$hash"> "$genesis_dir"/GENHASH
+
+        profgenjq "$profile" . | jq > "$genesis_dir"/genesis-meta.json "
+          { profile:    \"$profile\"
+          , hash:       \"$hash\"
+          , start_time: $start_timestamp
+          , params:     ($(profgenjq "$profile" .))
+          }"
+
+        start_time=$(date --iso-8601=s --date=@$start_timestamp --utc | cut -c-19)
+        oprint "genesis start time:  $start_time, $genesis_future_offset from now"
 }
 
 genesis_hash() {
         genesis_hash_"$(get_era)" "$@"
 }
 
-genesis_update_timestamp() {
-        local time_offset=$1 start_timestamp start_time
+genesis_starttime() {
+        genesis_starttime_"$(get_era)" "$@"
+}
 
-        start_timestamp=$(date +%s --date="now + ${time_offset}")
+genesis_update_starttime() {
+        local start_timestamp=$1 genesis_dir=$2 start_timestamp start_time
 
-        genesis_update_timestamp_"$(get_era)" "$start_timestamp" "$@"
-
-        start_time=$(date --iso-8601=s --date=@$start_timestamp --utc | cut -c-19)
-        oprint "genesis start time:  $start_time, $time_offset from now"
+        genesis_update_starttime_"$(get_era)" "$start_timestamp" "$genesis_dir"
 }
 
 profile_byron_genesis_protocol_params() {
@@ -63,9 +78,6 @@ profile_genesis_byron() {
         local target_dir=${2:-./keys}
         prof=$(params resolve-profile "$prof")
 
-        local start_future_offset='1 minute' start_time
-        start_time="$(date +%s -d "now + ${start_future_offset}")"
-
         local byron_params_tmpfile
         byron_params_tmpfile=$(mktemp --tmpdir)
         profile_byron_genesis_protocol_params "$prof" >"$byron_params_tmpfile"
@@ -75,21 +87,11 @@ profile_genesis_byron() {
 
         genesis_cli_args=(
         --genesis-output-dir         "$target_dir"
-        --start-time                 "$start_time"
         --protocol-parameters-file   "$byron_params_tmpfile"
         $(profile_byron_genesis_cli_args "$prof"))
 
         cardano-cli genesis --real-pbft "${genesis_cli_args[@]}"
         rm -f "$byron_params_tmpfile"
-
-        genesis_hash_byron "$target_dir" > "$target_dir"/GENHASH
-
-        profgenjq "$prof" . | jq > "$target_dir"/genesis-meta.json "
-          { profile:    \"$prof\"
-          , hash:       \"$(cat "$target_dir"/GENHASH)\"
-          , start_time: $start_time
-          , params: ($(profgenjq "$prof" .))
-          }"
 
         oprint "generated genesis for $prof in:  $target_dir"
 }
@@ -183,7 +185,6 @@ profile_genesis_shelley_incremental() {
         local target_dir="${2:-./keys}"
         prof=$(params resolve-profile "$prof")
 
-        local start_future_offset='1 minute'
         local ids_pool_map ids
         id_pool_map_composition ""
 
@@ -229,7 +230,6 @@ profile_genesis_shelley_incremental() {
         mv "$target_dir"/genesis.spec.json.  "$target_dir"/genesis.spec.json
 
         params=(--genesis-dir      "$target_dir"
-                --start-time       "$(date --iso-8601=s --date="now + ${start_future_offset}" --utc | cut -c-19)Z"
                 $(profile_shelley_genesis_cli_args "$prof" "$composition" 'create1'))
         ## update genesis from template
         cli shelley genesis create "${params[@]}"
@@ -431,14 +431,14 @@ profile_genesis_shelley_singleshot() {
         ## update genesis from template
         cli shelley genesis create-staked "${params[@]}"
 
-        genesis_shelley_copy_keys "$ids_pool_map"
+        genesis_shelley_copy_keys "$prof" "$ids_pool_map"
 
         ## Fix up the key, so the generator can read it:
         sed -i 's_PaymentSigningKeyShelley_SigningKeyShelley_' "$target_dir"/utxo-keys/utxo1.skey
 }
 
 genesis_shelley_copy_keys() {
-        local ids_pool_map=$1
+        local profile=$1 ids_pool_map=$2
         local ids ids_pool
 
         set -e
@@ -456,12 +456,13 @@ genesis_shelley_copy_keys() {
             mkdir -p "$target_dir"/node-keys/cold
 
             #### cold keys (do not copy to production system)
-            if   jqtest ".[\"$id\"]  > 1" <<<$ids_pool_map
+            if   jqtest ".dense_pool_density > 1" <<<$(profgenjq "$profile" .) &&
+                 jqtest ".[\"$id\"]  > 1" <<<$ids_pool_map
             then ## Dense/bulk pool
                oprint "genesis:  bulk pool $did -> node-$id"
                cp -f $(key_genesis bulk      bulk $did) $(key_depl bulk   bulk $id)
                did=$((did + 1))
-            elif jqtest ".[\"$id\"] == 1" <<<$ids_pool_map
+            elif jqtest ".[\"$id\"] != 0" <<<$ids_pool_map
             then ## Singular pool
                oprint "genesis:  pool $pid -> node-$id"
                cp -f $(key_genesis cold       sig $pid) $(key_depl cold    sig $id)
@@ -492,19 +493,30 @@ profile_genesis_shelley() {
         profile_genesis_shelley_singleshot "$@"
 }
 
-genesis_update_timestamp_byron() {
+genesis_starttime_byron() {
+        local genesis_dir=${1:-./keys}
+        jq '.startTime' "$genesis_dir"/genesis.json
+}
+
+genesis_starttime_shelley() {
+        local genesis_dir=${1:-./keys}
+        date --date=$(jq '.systemStart' "$genesis_dir"/genesis.json |
+                      tr -d '"Z') +%s
+}
+
+genesis_update_starttime_byron() {
         local start_timestamp=$1 genesis_dir=${2:-./keys}
 
         json_file_append "$genesis_dir"/genesis.json "
-          { .startTime = \"$start_timestamp\" }"
+          { startTime: \"$start_timestamp\" }" <<<0
 }
 
-genesis_update_timestamp_shelley() {
+genesis_update_starttime_shelley() {
         local start_timestamp=$1 genesis_dir=${2:-./keys} start_time
 
         start_time=$(date --iso-8601=s --date=@$start_timestamp --utc | cut -c-19)
         json_file_append "$genesis_dir"/genesis.json "
-          { .systemStart = \"$start_time\" }"
+          { systemStart: \"${start_time}Z\" }" <<<0
 }
 
 genesis_hash_byron() {

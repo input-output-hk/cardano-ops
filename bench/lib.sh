@@ -129,3 +129,11 @@ maybe_local_repo_branch() {
                 sed 's_^\(.*/\|\)\([^/]*\)$_\2_'
         ## This needs a shallow clone to be practical.
 }
+
+min() {
+        if test "$1" -gt "$2"; then echo -n "$2"; else echo -n "$1"; fi
+}
+
+max() {
+        if test "$1" -lt "$2"; then echo -n "$2"; else echo -n "$1"; fi
+}

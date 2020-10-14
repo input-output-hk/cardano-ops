@@ -22,7 +22,7 @@ profile_deploy() {
 
         ## Determine if genesis update is necessary:
         ## 1. profile incompatible?
-        regenesis_causes=()
+        regenesis_causes=(mandatory)
 
         if   ! genesisjq . >/dev/null 2>&1
         then regenesis_causes+=('missing-or-malformed-genesis-metadata')

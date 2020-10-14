@@ -238,6 +238,20 @@ analysis_tx_losses() {
         popd >/dev/null || return 1
 }
 
+# for n in analysis/logs-node-*; do echo "node: $n ------------------"; for slot in $(seq 0 1987); do checks=$(grep -H 'TraceStartLeadershipCheck.*:'$slot',' $n/* | wc -l); if test "$checks" != 100; then echo "@slot $slot: leadership check count != 100, but $checks"; fi; done; done
+analysis_list+=()
+analysis_dense_leadership() {
+        local dir=${1:-.}; shift
+        local machines=("$@")
+
+        for n in analysis/logs-node-*
+        do echo "node: $n ------------------"
+           for slot in $(seq 0 1987)
+           do echo -n " $slot:$(grep -H 'TraceStartLeadershipCheck.*:'$slot',' $n/* | wc -l)"
+           done
+        done
+}
+
 analysis_list+=(analysis_derived)
 analysis_derived() {
         local dir=${1:-.}

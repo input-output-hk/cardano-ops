@@ -4,8 +4,9 @@
 ##    "byron" or "shelley"
 ##
 ##  $composition:
-##    { n_bft_delegates: INT
-##    , n_pools:         INT
+##    { n_bft_hosts:       INT
+##    , n_singular_hosts:  INT
+##    , n_dense_hosts:     INT
 ##    }
 ##
 ## This specification is interpreted by 'lib-params.sh' as follows:
@@ -19,23 +20,25 @@
 ##     yielding _final benchmarking profiles_.
 ##
 
-def era_genesis_params($era; $composition):
+def era_genesis_params($era; $compo):
 { common:
   { protocol_magic:          42
     ## XXX: for some reason, Shelley genesis generator does not respect
     ##      --testnet-magic
   , total_balance:           900000000000000
+  , genesis_future_offset:   "3 minutes"
   }
 , byron:
   { parameter_k:             2160
   , n_poors:                 128
-  , n_delegates:             $composition.n_total
+  , n_delegates:             $compo.n_total
     ## Note, that the delegate count doesnt have to match cluster size.
   , delegate_share:          0.9
   , avvm_entries:            128
   , avvm_entry_balance:      100000000000000
   , secret:                  2718281828
   , slot_duration:           20
+  , max_block_size:          2000000
   }
 , shelley:
   { parameter_k:             10
@@ -45,6 +48,10 @@ def era_genesis_params($era; $composition):
   , max_tx_size:             16384
   , pools_balance:           800000000000000
   , active_slots_coeff:      0.05
+  , extra_delegators:        0
+  , stuffed_utxo:            0
+  , max_block_size:          64000
+  , dense_pool_density:      1
   }
 } | (.common + .[$era]);
 
@@ -76,6 +83,11 @@ def era_generator_params($era):
   , tx_fee:                  1000000
   }
 } | (.common + .[$era]);
+
+def era_default_generator_profile($era):
+{ byron:   { txs:  50000, add_tx_size: 100, io_arity: 2,  tps: 100 }
+, shelley: { txs:   3000, add_tx_size: 100, io_arity: 2,  tps: 100 }
+} | .[$era];
 
 def era_generator_profiles($era):
 { byron:
@@ -115,17 +127,48 @@ def era_tolerances($era; $genesis):
   }
 } | (.common + .[$era]);
 
-def generator_aux_profiles:
-[ { name: "short"
-  , txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100
-  }
-, { name: "small"
-  , txs: 1000,  add_tx_size: 100, io_arity: 1,  tps: 100
-  , init_cooldown: 25, finish_patience: 4 }
-, { name: "edgesmoke"
-  , txs: 100,   add_tx_size: 100, io_arity: 1,  tps: 100
-  , init_cooldown: 25, finish_patience: 3 }
-, { name: "smoke"
-  , txs: 100,   add_tx_size: 100, io_arity: 1,  tps: 100
-  , init_cooldown: 25, finish_patience: 4 }
+def aux_profiles:
+[ { name: "short",
+    generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 } }
+, { name: "small",
+    generator: { txs: 1000,  add_tx_size: 100, io_arity: 1,  tps: 100
+               , init_cooldown: 25, finish_patience: 4 } }
+, { name: "smoke",
+    generator: { txs: 100,   add_tx_size: 100, io_arity: 1,  tps: 100
+               , init_cooldown: 25, finish_patience: 4 } }
+, { name: "k1000-fast"
+  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , genesis:
+    { dense_pool_density:       100
+    , extra_delegators:      500000
+    , stuffed_utxo:         1000000
+    , genesis_future_offset: "9 minutes" } }
+, { name: "k2000-fast"
+  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , genesis:
+    { dense_pool_density:       200
+    , extra_delegators:      500000
+    , stuffed_utxo:         1000000
+    , genesis_future_offset: "9 minutes" } }
+, { name: "k1000"
+  , generator: { txs: 22000, add_tx_size: 100, io_arity: 1,  tps: 1 }
+  , genesis:
+    { dense_pool_density:       100
+    , extra_delegators:      500000
+    , stuffed_utxo:         1000000
+    , genesis_future_offset: "9 minutes" } }
+, { name: "k2000"
+  , generator: { txs: 22000, add_tx_size: 100, io_arity: 1,  tps: 1 }
+  , genesis:
+    { dense_pool_density:       200
+    , extra_delegators:      500000
+    , stuffed_utxo:         1000000
+    , genesis_future_offset: "9 minutes" } }
+, { name: "k3000"
+  , generator: { txs: 22000, add_tx_size: 100, io_arity: 1,  tps: 1 }
+  , genesis:
+    { dense_pool_density:       300
+    , extra_delegators:      500000
+    , stuffed_utxo:         1000000
+    , genesis_future_offset: "9 minutes" } }
 ];

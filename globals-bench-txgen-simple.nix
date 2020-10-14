@@ -15,7 +15,9 @@ let
   benchmarkingTopology =
     if __pathExists benchmarkingTopologyFile
     then __trace "Using topology:  ${benchmarkingTopologyFile}"
-         (import benchmarkingTopologyFile)
+      (rewriteTopologyForProfile
+        (import benchmarkingTopologyFile)
+        benchmarkingProfile)
     else abort "Benchmarking topology file implied by configured node count ${toString (__length benchmarkingParams.meta.node_names)} does not exist: ${benchmarkingTopologyFile}";
   benchmarkingParamsEra =
     if __hasAttr "era" benchmarkingParams.meta
@@ -54,6 +56,14 @@ let
     then __trace "Using profile:  ${benchmarkingProfileName}"
          benchmarkingParams."${benchmarkingProfileName}"
     else abort "${benchmarkingParamsFile} does not define benchmarking profile '${benchmarkingProfileName}'.";
+  rewriteTopologyForProfile =
+    topo: prof:
+    let rewriteCore = core: (core //
+          { pools = if __hasAttr "pools" core
+                    then (if core.pools == 1 then 1 else prof.genesis.dense_pool_density)
+                    else 0; });
+    in (topo // { coreNodes = map rewriteCore topo.coreNodes; });
+
   metadata = {
     inherit benchmarkingProfileName benchmarkingProfile benchmarkingTopology;
   };

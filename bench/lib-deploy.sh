@@ -56,7 +56,7 @@ update_deployfiles() {
           , timestamp:         ${stamp}
           , date:              \"${date}\"
           , targets:           $targetlist
-          , genesis_hash:      \"$(profile_genesis_hash)\"
+          , genesis_hash:      \"$(genesis_hash)\"
           , profile_content:   $(profjq "${prof}" .)
           , pins:
             { benchmarking:    $(jq '.["cardano-benchmarking"].rev' nix/sources.json)
@@ -136,6 +136,8 @@ deploystate_deploy_profile() {
 --(   node:          $node_rev
 --(   benchmarking:  $benchmarking_rev
 --(   ops:           $ops_rev / $ops_branch  $ops_checkout_state
+--(   generator:     $(profjq "$prof" .generator --compact-output)
+--(   genesis:       $(profjq "$prof" .genesis   --compact-output)
 EOF
         local cmd=( nixops deploy
                     --max-concurrent-copy 50 --cores 0 -j 4
@@ -162,6 +164,7 @@ EOF
         if test -n "$watcher_pid"
         then kill "$watcher_pid" >/dev/null 2>&1 || true; fi
 
+        oprint "deployment complete, refreshing deploy files.."
         update_deployfiles "$prof" "$deploylog" "$include"
 }
 
