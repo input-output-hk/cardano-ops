@@ -433,7 +433,7 @@ Following phases constitute a benchmark run:
 
 1.  Profile activation:
     
-      - genesis age check and potential regeneration
+      - genesis regeneration
       - deployment, either just on the explorer node, or across the
         cluster, depending on circumstances
 

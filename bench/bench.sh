@@ -111,7 +111,7 @@ verbose= debug= trace=
 no_deploy=
 no_wait=
 force_deploy=
-force_genesis=
+reuse_genesis=
 watch_deploy=
 
 generator_startup_delay=25
@@ -125,7 +125,7 @@ main() {
         do case "$1" in
            --fast-unsafe | --fu ) no_deploy=t no_wait=t;;
            --deploy )             force_deploy=t;;
-           --genesis )            force_genesis=t;;
+           --reuse-genesis )      reuse_genesis=t;;
            --watch | --watch-deploy )
                                   watch_deploy=t;;
            --select )             jq_select="jq 'select ($2)'"; shift;;
@@ -174,8 +174,6 @@ main() {
                                       update_deployfiles "$@";;
                 destroy )             deploystate_destroy;;
 
-                check-genesis-age | check-genesis | genesis-age | age )
-                                      deploystate_check_deployed_genesis_age "$@";;
                 genesis )             profile_genesis "$@";;
 
                 wait-for-empty-blocks | wait-empty | wait )
@@ -338,8 +336,6 @@ op_bench_start() {
         nixops ssh-for-each --parallel "systemctl start cardano-node"
         sleep 3s
         # nixops ssh explorer "systemctl start cardano-db-sync"
-
-        deploystate_check_deployed_genesis_age
 
         if test -z "$no_wait"
         then oprint "waiting ${generator_startup_delay}s for the nodes to establish business.."

@@ -86,7 +86,7 @@ json_file_append() {
 
         test -f "$f" || echo "{}" > "$f"
         jq ' $origf[0] as $orig
-           | $orig + ('"$extra"')
+           | $orig * ('"$extra"')
            ' --slurpfile origf "$f" "$@" > "$tmp"
         mv "$tmp"  "$f"
 }
@@ -97,7 +97,7 @@ json_file_prepend() {
 
         test -f "$f" || echo "{}" > "$f"
         jq ' $origf[0] as $orig
-           | ('"$extra"') + $orig
+           | ('"$extra"') * $orig
            ' --slurpfile origf "$f" "$@" > "$tmp"
         mv "$tmp"  "$f"
 }

@@ -99,11 +99,6 @@ deploystate_local_genesis_startTime() {
         genesisjq '.start_time'
 }
 
-deploystate_check_deployed_genesis_age() {
-        if ! genesis_check_age "$(deploystate_node_process_genesis_startTime 'node-0')"
-        then fail "genesis needs update"; fi
-}
-
 deploystate_destroy() {
         local cmd=()
 

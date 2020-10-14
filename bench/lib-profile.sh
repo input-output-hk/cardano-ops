@@ -21,18 +21,12 @@ profile_deploy() {
         prof=$(params resolve-profile "$prof")
 
         ## Determine if genesis update is necessary:
-        ## 1. old enough?
-        ## 2. profile incompatible?
+        ## 1. profile incompatible?
         regenesis_causes=()
-
-        if test -n "${force_genesis}"
-        then regenesis_causes+=('--genesis'); fi
 
         if   ! genesisjq . >/dev/null 2>&1
         then regenesis_causes+=('missing-or-malformed-genesis-metadata')
         else
-             if ! genesis_check_age "$(genesisjq .start_time)"
-             then regenesis_causes+=('local-genesis-old-age'); fi
              if   njqtest "
                   $(genesisjq .params) !=
                   $(profjq "${prof}" .genesis)"
