@@ -18,8 +18,6 @@ pkgs: with pkgs; with iohkNix.cardanoLib; rec {
     explorerConfig = mkExplorerConfig environmentName nodeConfig;
   };
 
-  topology = import (./topologies + "/${environmentName}.nix") pkgs;
-
   ec2 = {
     credentials = {
       accessKeyIds = {
