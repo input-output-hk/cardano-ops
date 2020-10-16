@@ -108,8 +108,8 @@ def era_generator_profiles($era):
 def era_tolerances($era; $genesis):
 { common:
   { tx_loss_ratio:                  0.0
-  , start_log_spread_s:             60
-  , last_log_spread_s:              60
+  , start_log_spread_s:             120
+  , last_log_spread_s:              90
   , slot_spread_dbsync_first:       5
   , slot_spread_dbsync_last:        5
   , silence_since_last_block_s:     40

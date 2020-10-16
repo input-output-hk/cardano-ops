@@ -186,7 +186,7 @@ analysis_TraceForgeInvalidBlock() {
            ' --slurp --compact-output > "$dir"/analysis/node."$msg".json
 }
 
-analysis_list+=(analysis_message_types)
+analysis_list+=()
 analysis_message_types() {
         local dir=${1:-.} mach tnum sub_tids; shift
         local machines=("$@")
@@ -238,18 +238,31 @@ analysis_tx_losses() {
         popd >/dev/null || return 1
 }
 
-# for n in analysis/logs-node-*; do echo "node: $n ------------------"; for slot in $(seq 0 1987); do checks=$(grep -H 'TraceStartLeadershipCheck.*:'$slot',' $n/* | wc -l); if test "$checks" != 100; then echo "@slot $slot: leadership check count != 100, but $checks"; fi; done; done
-analysis_list+=()
-analysis_dense_leadership() {
+analysis_list+=(analysis_leadership_checks)
+analysis_leadership_checks() {
         local dir=${1:-.}; shift
-        local machines=("$@")
+        local machines=("$@") keyfile leadership_analysis_args prof
+        prof=$(jq '.meta.profile' "$dir"/meta.json --raw-output)
 
-        for n in analysis/logs-node-*
-        do echo "node: $n ------------------"
-           for slot in $(seq 0 1987)
-           do echo -n " $slot:$(grep -H 'TraceStartLeadershipCheck.*:'$slot',' $n/* | wc -l)"
-           done
+        leadership_analysis_args=(
+                analyse leadership
+                --slot-length  "$(profjq "$prof" .genesis.slot_duration)"
+                --system-start "$(jq .systemStart "$dir"/genesis.json -r)"
+        )
+
+        keyfile=$(mktemp -t XXXXXXXXXX.keys)
+        locli analyse substring-keys > "$keyfile"
+
+        for mach in ${machines[*]}
+        do grep -hFf "$keyfile" "$dir"/analysis/logs-"$mach"/*.json > "$dir"/analysis/logs-"$mach".json
+           locli ${leadership_analysis_args[*]} \
+                 --dump-leaderships "$dir"/analysis/logs-"$mach".leaderships.json \
+                 --dump-pretty-timeline "$dir"/analysis/logs-"$mach".leaderships.pretty.json \
+                 > "$dir"/analysis/logs-"$mach".leadership-analysis.json \
+                 "$dir"/analysis/logs-"$mach".json
         done
+
+        rm -f "$keyfile"
 }
 
 analysis_list+=(analysis_derived)

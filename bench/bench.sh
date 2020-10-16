@@ -125,7 +125,8 @@ main() {
         do case "$1" in
            --fast-unsafe | --fu ) no_deploy=t no_wait=t;;
            --deploy )             force_deploy=t;;
-           --reuse-genesis )      reuse_genesis=t;;
+           --reuse-genesis | --keep-genesis )
+                                  reuse_genesis=t;;
            --watch | --watch-deploy )
                                   watch_deploy=t;;
            --select )             jq_select="jq 'select ($2)'"; shift;;
