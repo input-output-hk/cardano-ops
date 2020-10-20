@@ -74,15 +74,17 @@ in  mkShell rec {
     nixops
     pandoc
     pstree
-    node-update
     telnet
     test-cronjob-script
     cardano-ping
     hoursUntilNextEpoch
     relayUpdateTimer
-  ] ++ (lib.optionals (globals.environmentName != "mainnet") [
+  ] ++ (lib.optional pkgs.stdenv.hostPlatform.isLinux ([
+    # Those fail to compile under macOS:
+    node-update
     # scripts NOT for use on mainnet:
-    kes-rotation
+  ] ++ lib.optionals (globals.environmentName != "mainnet") kes-rotation)
+  ) ++ (lib.optionals (globals.environmentName != "mainnet") [ 
     renew-kes-keys
     create-shelley-genesis-and-keys
   ]);
@@ -99,5 +101,4 @@ in  mkShell rec {
   passthru = {
     gen-graylog-creds = iohk-ops-lib.scripts.gen-graylog-creds { staticPath = ./static; };
   };
-
 }
