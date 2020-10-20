@@ -1,12 +1,14 @@
-{
-  deadMansSnitch = import ./dead-mans-snitch.nix;
-  grafanaCreds = import ./grafana-creds.nix;
-  graylogCreds = import ./graylog-creds.nix;
-  oauth = import ./oauth.nix;
-  pagerDuty = import ./pager-duty.nix;
+pkgs: with pkgs.lib;
+let condImport = name: file: optionalAttrs (builtins.pathExists file) {
+  "${name}" = import file;
+};
+in {
   additionalPeers = [];
   relaysExcludeList = [];
   poolsExcludeList = [];
-} // (if (builtins.pathExists ./static.nix)
-  then (import ./static.nix)
-  else {})
+} // condImport "graylogCreds" ./graylog-creds.nix
+  // condImport "grafanaCreds" ./grafana-creds.nix
+  // condImport "pagerDuty" ./pager-duty.nix
+  // condImport "deadMansSnitch" ./dead-mans-snitch.nix
+  // condImport "oauth" ./oauth.nix
+  // (condImport "static" ./static.nix).static or {}

@@ -6,6 +6,7 @@ pkgs: with pkgs; with lib; with topology-lib; {
       org = "IOHK";
       region = "eu-central-1";
       producers = ["b" "c"];
+      stakePool = false;
     }
     {
       name = "b";
@@ -13,6 +14,7 @@ pkgs: with pkgs; with lib; with topology-lib; {
       org = "IOHK";
       region = "eu-central-1";
       producers = ["c" "a"];
+      stakePool = false;
     }
     {
       name = "c";
@@ -20,6 +22,7 @@ pkgs: with pkgs; with lib; with topology-lib; {
       org = "IOHK";
       region = "eu-central-1";
       producers = ["a" "b"];
+      stakePool = false;
     }
   ];
 

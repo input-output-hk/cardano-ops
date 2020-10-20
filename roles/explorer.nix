@@ -278,8 +278,8 @@ in {
     virtualHosts = {
       "${globals.explorerHostName}" = {
         serverAliases = globals.explorerAliases;
-        enableACME = true;
-        forceSSL = globals.explorerForceSSL;
+        enableACME = config.deployment.targetEnv != "libvirtd";
+        forceSSL = globals.explorerForceSSL && (config.deployment.targetEnv != "libvirtd");
         locations = (if maintenanceMode then {
           "/" = let
             maintenanceFile = __toFile "maintenance.html" ''

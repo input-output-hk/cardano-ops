@@ -7,7 +7,7 @@ pkgs: with pkgs; with lib; rec {
   composeAll = builtins.foldl' compose id;
 
   /* Round a float to integer, toward 0. */
-  rountToInt = f: toInt (head (splitString "." (toString f)));
+  roundToInt = f: toInt (head (splitString "." (toString f)));
 
   withModule = m: def: def // {
     imports = (def.imports  or []) ++ [m];
@@ -211,6 +211,7 @@ pkgs: with pkgs; with lib; rec {
   */
   mkBftCoreNodeForRegions = regions: r: idx: attrs: rec {
     name = "bft-${r}-${toString idx}";
+    stakePool = false;
     region = regions.${r}.name;
     producers = # some nearby relays:
       [ (regionalRelaysProducer region 3) ];
@@ -228,6 +229,7 @@ pkgs: with pkgs; with lib; rec {
     producers =  # some nearby relays:
       [ (regionalRelaysProducer region 3) ];
     org = "IOHK";
+    stakePool = true;
   } // attrs;
 
   /* Generate relay nodes definitions,
@@ -343,7 +345,7 @@ pkgs: with pkgs; with lib; rec {
               inherit region name nodeIndex;
               producers = # one relay in each other regions, using a scale factor to spread accross all relays of other regions:
                 map (r: let scaleFactor = (nbRelaysPerRegions.${r} + 0.0) / nbRelays; in
-                 "${relayPrefix}-${r}-${toString (rountToInt ((nodeIndex - 1) * scaleFactor) + 1)}")
+                 "${relayPrefix}-${r}-${toString (roundToInt ((nodeIndex - 1) * scaleFactor) + 1)}")
                   (filter (r: r != rLetter) regionLetters)
                 # a share of the third-party relays:
                 ++ (filter (p: mod p.index nbRelays == (nodeIndex - 1)) (indexedThirdPartyRelays.${region} or []));

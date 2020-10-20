@@ -244,9 +244,9 @@ class KesRotate
       rotateCmd1 = "test-cronjob-script #{kesNewStartPeriod}"
     else
       if @ignoreOpt
-        rotateCmd1 = "new-KES-keys-at-period #{kesNewStartPeriod} || true"
+        rotateCmd1 = "./scripts/renew-kes-keys.sh #{kesNewStartPeriod} || true"
       else
-        rotateCmd1 = "new-KES-keys-at-period #{kesNewStartPeriod}"
+        rotateCmd1 = "./scripts/renew-kes-keys.sh #{kesNewStartPeriod}"
       end
     end
 
@@ -324,7 +324,7 @@ OptionParser.parse do |parser|
   parser.on("--core", "Updates and deploys KES core nodes (c-X-Y)") { coreOpt = true }
   parser.on("--bft", "Updates and deploys KES bft nodes (bft-X-Y)") { bftOpt = true }
   parser.on("--stk", "Updates and deploys KES stake nodes (stk-X-Y-TICKER)") { stkOpt = true }
-  parser.on("-i", "--ignore", "Ignores errors thrown by new-KES-keys-at-period (CAUTION!)") { ignoreOpt = true }
+  parser.on("-i", "--ignore", "Ignores errors thrown by renew-kes-keys.sh (CAUTION!)") { ignoreOpt = true }
   parser.on("-h", "--help", "Show this help") do
     puts parser
     exit
