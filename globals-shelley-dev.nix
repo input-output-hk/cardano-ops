@@ -1,4 +1,4 @@
-pkgs: with pkgs.iohkNix.cardanoLib; rec {
+pkgs: with pkgs; with iohkNix.cardanoLib; rec {
 
   withMonitoring = false;
   withExplorer = false;
@@ -9,10 +9,11 @@ pkgs: with pkgs.iohkNix.cardanoLib; rec {
     relays = "relays.${pkgs.globals.domain}";
     genesisFile = ./keys/genesis.json;
     genesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/GENHASH);
-    nodeConfig = environments.shelley_qa.nodeConfig // {
+    nodeConfig = lib.recursiveUpdate environments.shelley_qa.nodeConfig {
       ShelleyGenesisFile = genesisFile;
       ShelleyGenesisHash = genesisHash;
       Protocol = "TPraos";
+      TraceBlockFetchProtocol = true;
     };
     explorerConfig = mkExplorerConfig environmentName nodeConfig;
   };
