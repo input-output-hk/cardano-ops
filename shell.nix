@@ -49,7 +49,7 @@ let
       cd ${toString ./scripts}
       cardano-cli --version
     '';
-in  mkShell {
+in  mkShell rec {
   buildInputs = [
     cardano-cli
     create-shelley-genesis-and-keys
@@ -66,13 +66,16 @@ in  mkShell {
     renew-kes-keys
     telnet
     test-cronjob-script
+    cardano-cli-completions
   ];
+  XDG_DATA_DIRS = lib.concatStringsSep ":" (
+    [(builtins.getEnv "XDG_DATA_DIRS")] ++
+    (lib.filter builtins.pathExists (map (p: p + "/share") buildInputs))
+  );
   NIX_PATH = "nixpkgs=${path}";
   NIXOPS_DEPLOYMENT = "${globals.deploymentName}";
   passthru = {
     gen-graylog-creds = iohk-ops-lib.scripts.gen-graylog-creds { staticPath = ./static; };
   };
-  shellHook = ''
-    source <(cardano-cli --bash-completion-script cardano-cli)
-  '';
+
 }
