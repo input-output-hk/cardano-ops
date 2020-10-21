@@ -50,6 +50,14 @@ tutorial.
 
 ## Generate genesis file and keys
 
+Run:
+
+```sh
+create-shelley-genesis-and-keys
+```
+
+The generated genesis file can be found at `keys/genesis.json`.
+
 TODO's:
 - what does this do?
 - Which files are used an input?
@@ -97,7 +105,7 @@ After libvirt is installed and configured, check whether the default pool is
 available. Run as root:
 
 ```sh
-# virsh pool-list
+virsh pool-list
 ```
 
 You should see the following output:
@@ -111,7 +119,7 @@ You should see the following output:
 If the `default` pool is not setup yet, as `root` run:
 
 ```sh
-# virsh pool-define /dev/stdin <<EOF
+virsh pool-define /dev/stdin <<EOF
 <pool type='dir'>
   <name>default</name>
   <target>
@@ -168,3 +176,91 @@ nixops ssh nodename
 
 Where `nodename` is one of the node names specified in the
 `topologies/$MYENV.nix` file we created early on.
+
+### Querying the log files
+
+To follow the logs:
+
+```sh
+journalctl -u cardano-node -f -n40
+```
+
+```sh
+journalctl -u cardano-node -b
+```
+
+Or to query the status
+
+```sh
+systemctl status cardano-node --lines=20
+```
+
+Change the value of the `lines` flag if needed, or omit it if the default suits
+your needs.
+
+### Starting afresh
+
+Deleting the cardano-node database
+
+```sh
+nixops ssh-for-each --parallel "rm -fr /var/lib/cardano-node/db-priviledge/"
+```
+
+### About the different kind of keys
+
+Look in the keys directory.
+
+### Updating genesis and key files
+
+TODO: ask JB: is this correct?
+
+```sh
+nixops deploy
+```
+
+TODO: ask JB: is this correct?
+
+Starting afresh:
+
+```sh
+nixops ssh-for-each --parallel "systemctl stop cardano-node && rm -fr /var/lib/cardano-node"
+create-shelley-genesis-and-keys
+nixops deploy
+```
+
+## Howtos
+
+### Change logging levels
+
+### Query utxo
+
+TODO: find where to get the payment address?
+
+```sh
+cardano-cli shelley query utxo --test-magic 42     --address $(cat payment.addr)
+```
+
+### Finding keys
+
+In the nodes they are stored in
+
+```text
+/var/lib/keys
+```
+
+### Use a different cardano-node version
+
+The `cardano-ops` repository uses [`niv`](https://github.com/nmattia/niv "niv
+project page") to manage dependencies. To update `cardano-node` to use a
+specific branch run (inside a nix-shell if you are not using lorri):
+<!-- TODO: maybe this guide should be opinionated and just use lorri -->
+
+```
+niv update cardano-node -b <branch>
+```
+
+To list all the components managed by `niv` run:
+
+```
+niv show
+```
