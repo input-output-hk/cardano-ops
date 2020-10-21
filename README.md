@@ -232,12 +232,69 @@ nixops deploy
 
 ### Change logging levels
 
-### Query utxo
+The logging configuration of a node is explained in the [Cardano
+documentation](https://docs.cardano.org/projects/cardano-node/en/latest/getting-started/understanding-config-files.html#tracing).
+In this section we show how logging can be configured in the nix deployment.
+
+To change the logging level of all the nodes you have to modify the
+`globals-$MYENV.nix` file. For example, to change the logging level of
+`TraceBlockFetchProtocol` in node `a` we can edit this file as follows:
+
+```nix
+nodeConfig = lib.recursiveUpdate environments.shelley_qa.nodeConfig {
+      ShelleyGenesisFile = genesisFile;
+      ShelleyGenesisHash = genesisHash;
+      Protocol = "TPraos";
+      TraceBlockFetchProtocol = true;
+    };
+```
+
+To change the logging level per-node you have to modify the
+`topologies/$MYENV.nix` file. For instance, to change the logging level of
+`TraceBlockFetchProtocol` in node `a` we can edit this file as follows:
+
+```nix
+{
+      name = "a";
+      nodeId = 1;
+      org = "IOHK";
+      region = "eu-central-1";
+      producers = ["b" "c"];
+      services.cardano-node.nodeConfig = {
+        TraceBlockFetchProtocol = true;
+        //... other settings
+      };
+}
+```
+
+### Query UTxO
+
+```sh
+cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode
+```
 
 TODO: find where to get the payment address?
 
+Querying the UTxO for a specific address. First you need the verification key
+to obtain the address:
+
 ```sh
-cardano-cli shelley query utxo --test-magic 42     --address $(cat payment.addr)
+cardano-cli shelley genesis initial-addr \
+                --testnet-magic 42 \
+                --verification-key-file utxo-keys/utxo1.vkey
+```
+
+This will return an address like the following:
+
+```text
+addr_test1vqrl9rphzv064dsfuc3dfumxwnsm8syhj4yucdkrtntxvyqcld79a
+```
+
+This address can be used to query a specific UTxO:
+
+```sh
+cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode\
+     --address addr_test1vqrl9rphzv064dsfuc3dfumxwnsm8syhj4yucdkrtntxvyqcld79a
 ```
 
 ### Finding keys
@@ -263,4 +320,25 @@ To list all the components managed by `niv` run:
 
 ```
 niv show
+```
+
+### Querying protocol parameters
+
+```
+cardano-cli shelley query protocol-parameters --testnet-magic 42 --shelley-mode
+```
+```
+
+### Copying files to a node
+
+```sh
+nixops scp a keys/utxo-keys /root --to
+```
+
+### Querying the hash of the initial transaction input
+
+```sh
+cardano-cli shelley genesis initial-addr \
+                --testnet-magic 42 \
+                --verification-key-file utxo-keys/utxo1.vkey
 ```

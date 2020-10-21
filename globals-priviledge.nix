@@ -9,11 +9,16 @@ pkgs: with pkgs.iohkNix.cardanoLib; rec {
     relays = "relays.${pkgs.globals.domain}";
     genesisFile = ./keys/genesis.json;
     genesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/GENHASH);
-    nodeConfig = environments.shelley_qa.nodeConfig // {
-      ShelleyGenesisFile = genesisFile;
-      ShelleyGenesisHash = genesisHash;
-      Protocol = "TPraos";
-    };
+    nodeConfig =
+      pkgs.lib.recursiveUpdate
+      environments.shelley_qa.nodeConfig
+      {
+        ShelleyGenesisFile = genesisFile;
+        ShelleyGenesisHash = genesisHash;
+        Protocol = "TPraos";
+        TraceForge = true;
+        TraceTxInbound = true;
+      };
     explorerConfig = mkExplorerConfig environmentName nodeConfig;
   };
 
