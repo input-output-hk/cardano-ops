@@ -198,14 +198,6 @@ systemctl status cardano-node --lines=20
 Change the value of the `lines` flag if needed, or omit it if the default suits
 your needs.
 
-### Starting afresh
-
-Deleting the cardano-node database
-
-```sh
-nixops ssh-for-each --parallel "rm -fr /var/lib/cardano-node/db-priviledge/"
-```
-
 ### About the different kind of keys
 
 Look in the keys directory.
@@ -342,3 +334,5 @@ cardano-cli shelley genesis initial-addr \
                 --testnet-magic 42 \
                 --verification-key-file utxo-keys/utxo1.vkey
 ```
+
+### Getting information about the nixops deployment
