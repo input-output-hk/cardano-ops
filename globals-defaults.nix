@@ -14,6 +14,8 @@ in {
 
   environmentName = pkgs.globals.deploymentName;
 
+  topology = import (./topologies + "/${pkgs.globals.environmentName}.nix") pkgs;
+
   sourcesJsonOverride = ./nix + "/sources.${pkgs.globals.environmentName}.json";
 
   dnsZone = "dev.cardano.org";
