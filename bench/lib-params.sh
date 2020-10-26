@@ -36,7 +36,7 @@ topology_id_pool_density_map() {
         nix-instantiate --strict --eval \
           -E '__toJSON (__listToAttrs
                         (map (x: { name = toString x.nodeId;
-                                  value = x.pools or 0; })
+                                  value = if (x.pools or 0) == null then 0 else x.pools or 0; })
                              (import '"${topology_file}"').coreNodes))' |
           sed 's_\\__g; s_^"__; s_"$__'
 }
@@ -168,7 +168,7 @@ def profile_name($gtor; $gsis):
 | { meta:
     { era:                 $era
     , topology:            $topology
-    , node_names:          ( [range(0; 16)]
+    , node_names:          ( [range(0; 100)]
                            | map ("node-\(.)")
                            | .[:$composition.n_total])
     ## Note:  the above is a little ridiculous, but better than hard-coding.

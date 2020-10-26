@@ -171,4 +171,19 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:         1000000
     , genesis_future_offset: "9 minutes" } }
+
+, { name: "k1000-fast52"
+  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , genesis:
+    { dense_pool_density:        20
+    , extra_delegators:      500000
+    , stuffed_utxo:         1000000
+    , genesis_future_offset: "20 minutes" } }
+, { name: "k1000-52"
+  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , genesis:
+    { dense_pool_density:        20
+    , extra_delegators:      500000
+    , stuffed_utxo:         1000000
+    , genesis_future_offset: "20 minutes" } }
 ];
