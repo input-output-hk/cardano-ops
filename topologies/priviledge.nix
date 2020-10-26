@@ -17,23 +17,23 @@ let
       org = "IOHK";
       nodeId = 1;
     })
-    (mkBftCoreNode "b" 1 {
-      org = "IOHK";
-      nodeId = 2;
-    })
-    (mkBftCoreNode "c" 1 {
-      org = "IOHK";
-      nodeId = 3;
-    })
+    # (mkBftCoreNode "b" 1 {
+    #   org = "IOHK";
+    #   nodeId = 2;
+    # })
+    # (mkBftCoreNode "c" 1 {
+    #   org = "IOHK";
+    #   nodeId = 3;
+    # })
   ]);
 
   stakingPoolNodes = let
     mkStakingPool = mkStakingPoolForRegions regions;
   in regionalConnectGroupWith bftCoreNodes
   (fullyConnectNodes [
-    (mkStakingPool "a" 1 "IOHK1" { nodeId = 4; })
-    (mkStakingPool "b" 1 "IOHK2" { nodeId = 5; })
-    (mkStakingPool "c" 1 "IOHK3" { nodeId = 6; })
+    (mkStakingPool "d" 1 "IOHK1" { nodeId = 3; })
+    # (mkStakingPool "e" 1 "IOHK2" { nodeId = 4; })
+    # (mkStakingPool "f" 1 "IOHK3" { nodeId = 6; })
   ]);
 
   coreNodes = bftCoreNodes ++ stakingPoolNodes;

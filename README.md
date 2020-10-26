@@ -1,6 +1,10 @@
 # cardano-ops
 NixOps deployment configuration for IOHK/Cardano devops
 
+TODO's:
+
+- [ ] Make sure that all shell commands start with ▶
+
 ## Deploying a testnet
 
 The following instructions assume you have a Unix system and
@@ -207,8 +211,11 @@ Look in the keys directory.
 TODO: ask JB: is this correct?
 
 ```sh
-nixops deploy
+nixops deploy -k
 ```
+
+In the command above we use the `-k` flag to tell nixops to remove obsolete
+resources. You can omit this to keep them.
 
 TODO: ask JB: is this correct?
 
@@ -265,8 +272,6 @@ To change the logging level per-node you have to modify the
 cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode
 ```
 
-TODO: find where to get the payment address?
-
 Querying the UTxO for a specific address. First you need the verification key
 to obtain the address:
 
@@ -291,11 +296,14 @@ cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode\
 
 ### Finding keys
 
-In the nodes they are stored in
+In the nodes they are stored in `/var/lib/keys`:
 
 ```text
-/var/lib/keys
+# ls /var/lib/keys
+cardano-node-kes-signing  cardano-node-operational-cert  cardano-node-vrf-signing
 ```
+
+
 
 ### Use a different cardano-node version
 
@@ -317,9 +325,9 @@ niv show
 ### Querying protocol parameters
 
 ```
-cardano-cli shelley query protocol-parameters --testnet-magic 42 --shelley-mode
+cardano-cli shelley query protocol-parameters --testnet-magic 42 --shelley-mode --out-file pparams.json
 ```
-```
+
 
 ### Copying files to a node
 
@@ -336,3 +344,177 @@ cardano-cli shelley genesis initial-addr \
 ```
 
 ### Getting information about the nixops deployment
+
+```sh
+nixops list
+```
+
+
+```sh
+nixops info
+```
+
+### Creating a simple transaction
+
+First we need to copy the keys to an node.
+
+```sh
+▶ nixops scp stk-d-1-IOHK1 keys/utxo-keys /root --to
+```
+
+ssh to the node where the keys were copied:
+
+```ssh
+▶ nixops ssh stk-d-1-IOHK1
+```
+
+We will be spending some of the genesis funds, so we need to find the hash of
+the initial transaction:
+
+```sh
+▶ cardano-cli shelley genesis initial-txin \
+    --testnet-magic 42 \
+    --verification-key-file utxo-keys/utxo1.vkey > initial-tx.hash
+```
+
+The choice of the key is arbitrary. You can pick whatever key is available and
+has funds, provided that you have access to the corresponding signing key.
+
+We will need the address associated with the key we want to spend from, so we
+need to get this:
+
+```sh
+▶ cardano-cli shelley genesis initial-addr \
+                 --testnet-magic 42 \
+                 --verification-key-file utxo-keys/utxo1.vkey > initial.addr
+```
+
+We can inspect the utxo to make sure that this address has funds to spend:
+
+```sh
+cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode\
+     --address $(cat initial.addr)
+```
+
+This should return an UTxO entry where the given address has some funds to
+spend:
+
+```sh
+                           TxHash                                 TxIx        Lovelace
+----------------------------------------------------------------------------------------
+ae4c59546880d3cc1e18afa53bc970df8f62b27057bb75c52d61e96ba9e01d19     0 13333333333333334
+```
+
+Next we need to draft a transaction. For this we'll need to create a new
+payment address.
+
+```sh
+cardano-cli shelley address key-gen \
+    --verification-key-file payment.vkey \
+    --signing-key-file payment.skey
+```
+
+Create a stake key pair:
+
+```sh
+cardano-cli shelley stake-address key-gen \
+    --verification-key-file stake.vkey \
+    --signing-key-file stake.skey
+```
+
+Use these keys to create a payment address:
+
+```sh
+cardano-cli shelley address build \
+    --payment-verification-key-file payment.vkey \
+    --stake-verification-key-file stake.vkey \
+    --out-file payment.addr \
+    --testnet-magic 42 \
+```
+
+Now, we're ready to draft our first transaction:
+
+```sh
+▶ cardano-cli shelley transaction build-raw \
+    --tx-in $(cat initial-tx.hash) \
+    --tx-out $(cat initial.addr)+0 \
+    --tx-out $(cat payment.addr)+0 \
+    --ttl 0 \
+    --fee 0 \
+    --out-file tx.draft
+```
+
+Check that the minfee for the transaction is 0, which amounts to checking that
+the following command outputs `0 Lovelace`.
+
+```sh
+cardano-cli shelley transaction calculate-min-fee \
+    --tx-body-file tx.draft \
+    --tx-in-count 1 \
+    --tx-out-count 2 \
+    --witness-count 1 \
+    --byron-witness-count 0 \
+    --testnet-magic 42 \
+    --protocol-params-file pparams.json
+```
+
+Calculate the change to send back to `payment.addr` (all amounts must be in
+Lovelace):
+
+```sh
+▶ expr 13333333333333334 - 10000000000000000
+3333333333333334
+```
+
+Determine the transaction's time-to-live:
+
+```sh
+▶ cardano-cli shelley query tip --testnet-magic 42
+{
+    "blockNo": 88,
+    "headerHash": "00fa20ab9e609c4bdfcc0e8c0c39e2b16f0b1521a1d902b21d3a695721d8a6de",
+    "slotNo": 5400
+}
+```
+
+Build the transaction:
+
+```sh
+▶ cardano-cli shelley transaction build-raw \
+    --tx-in $(cat initial-tx.hash) \
+    --tx-out $(cat initial.addr)+3333333333333334 \
+    --tx-out $(cat payment.addr)+10000000000000000 \
+    --ttl 10400 \
+    --fee 0 \
+    --out-file tx.raw
+```
+
+Sign the transaction:
+
+```sh
+▶ cardano-cli shelley transaction sign \
+    --tx-body-file tx.raw \
+    --signing-key-file utxo-keys/utxo1.skey \
+    --testnet-magic 42 \
+    --out-file tx.signed
+```
+
+Submit it:
+
+```sh
+cardano-cli shelley transaction submit \
+    --tx-file tx.signed \
+    --testnet-magic 42 --shelley-mode
+```
+
+Check the balances:
+
+```sh
+▶ cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode\
+     --address $(cat initial.addr)
+```
+
+```sh
+▶ cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode\
+     --address $(cat payment.addr)
+```
