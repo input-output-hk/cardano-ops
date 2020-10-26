@@ -47,9 +47,9 @@ let
             kesKey = "/var/lib/keys/cardano-node-kes-signing";
             vrfKey = "/var/lib/keys/cardano-node-vrf-signing";
             operationalCertificate = "/var/lib/keys/cardano-node-operational-cert";
-            extraArgs = [ "+RTS" "-l-agu" "-T" "-RTS"];
+            extraArgs = [ "+RTS" "-t" "--machine-readable" "-RTS"];
           } else {
-            extraArgs = [ "+RTS" "-l-agu" "-T" "-RTS" "--bulk-credentials-file" "/var/lib/keys/cardano-node-bulk-credentials"];
+            extraArgs = [ "+RTS" "-t" "--machine-readable" "-RTS" "--bulk-credentials-file" "/var/lib/keys/cardano-node-bulk-credentials"];
           };
 
         systemd.services."cardano-node" =

@@ -141,9 +141,9 @@ let
   nodes = cardanoNodes // otherNodes;
 
   mkCoreNode =  def:
-    let isDensePool = (if (def.pools or 0) == null
-                       then 0
-                       else (def.pools or 0)) > 1;
+    let poolsVal  = def.pools or 0;
+        poolsValN = if poolsVal == null then 0 else poolsVal;
+        isDensePool = poolsValN > 1;
     in {
     inherit (def) name;
     value = mkNode {

@@ -24,8 +24,11 @@ update_deployfiles() {
 
         if test -z "$no_deploy"
         then echo "--( collecting NixOps metadata.."
-             nixops_meta=$(grep DEPLOYMENT_METADATA= "$deploylog" |
-                                   head -n1 | cut -d= -f2 | xargs jq .)
+             set +o pipefail
+             nixops_meta=$({ if ! grep DEPLOYMENT_METADATA= "$deploylog"
+                             then echo "{ fake: true }"; fi
+                           } | head -n1 | cut -d= -f2 | xargs jq .)
+             set -o pipefail
         else nixops_meta="{ fake: true }"
         fi
         cores=($(params producers))
@@ -139,20 +142,56 @@ deploystate_deploy_profile() {
 --(   generator:     $(profjq "$prof" .generator --compact-output)
 --(   genesis:       $(profjq "$prof" .genesis   --compact-output)
 EOF
-        local cmd=( nixops deploy
-                    --max-concurrent-copy 50 --cores 0 -j 4
-                    ${include:+--include $include}
-                  )
 
-        local watcher_pid=
+        echo >"$deploylog"
+        ln -sf "$deploylog" 'last-deploy.log'
+
+        watcher_pid=
         if test -n "${watch_deploy}"
-        then oprint "nixops deploy log:"
-             { sleep 0.3; tail -f "$deploylog"; } &
+        then { sleep 0.3; tail -f "$deploylog"; } &
              watcher_pid=$!; fi
 
-        ln -sf "$deploylog" 'last-deploy.log'
+        local host_resources other_resources
+        host_resources=( $(nixops info --plain 2>/dev/null | sed 's/^\([a-zA-Z0-9-]*\).*/\1/' | grep -ve '-ip$\|cardano-keypair-\|allow-'))
+        other_resources=($(nixops info --plain 2>/dev/null | sed 's/^\([a-zA-Z0-9-]*\).*/\1/' | grep  -e '-ip$\|cardano-keypair-\|allow-'))
+
+        local host_count=${#host_resources[*]}
+        oprint "hosts to deploy:  $host_count"
+
+        local max_batch=13
+        if test $host_count -gt $max_batch
+        then oprint "that's too much for a single deploy -- deploying in batches of $max_batch nodes"
+
+             oprint "deploying non-host resources first:  ${other_resources[*]}"
+             deploy_resources ${other_resources[*]}
+
+             local base=0 batch
+             while test $base -lt $host_count
+             do local batch=(${host_resources[*]:$base:$max_batch})
+                oprint "deploying host batch:  ${batch[*]}"
+                deploy_resources ${batch[*]}
+                base=$((base + max_batch))
+             done
+        else oprint "that's deployable in one go -- blasting ahead"
+             deploy_resources
+        fi
+
+        if test -n "$watcher_pid"
+        then kill "$watcher_pid" >/dev/null 2>&1 || true; fi
+
+        oprint "deployment complete, refreshing deploy files.."
+        update_deployfiles "$prof" "$deploylog" "$include"
+}
+
+deploy_resources() {
+        local cmd=( nixops deploy
+                    --max-concurrent-copy 50 --cores 0 -j 4
+                    ${1:+--include} "$@"
+                  )
+
+        oprint "nixops deploy log:"
         if export BENCHMARKING_PROFILE=${prof}; ! "${cmd[@]}" \
-                 >"$deploylog" 2>&1
+                 >>"$deploylog" 2>&1
         then echo "FATAL:  deployment failed, full log in ${deploylog}"
              if test -n "$watcher_pid"
              then kill "$watcher_pid" >/dev/null 2>&1 || true
@@ -160,12 +199,6 @@ EOF
                   tail -n200 "$deploylog"; fi
              return 1
         fi >&2
-
-        if test -n "$watcher_pid"
-        then kill "$watcher_pid" >/dev/null 2>&1 || true; fi
-
-        oprint "deployment complete, refreshing deploy files.."
-        update_deployfiles "$prof" "$deploylog" "$include"
 }
 
 deploystate_collect_machine_info() {

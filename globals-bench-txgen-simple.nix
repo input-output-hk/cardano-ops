@@ -59,7 +59,7 @@ let
   rewriteTopologyForProfile =
     topo: prof:
     let rewriteCore = core: (core //
-          { pools = if __hasAttr "pools" core
+          { pools = if __hasAttr "pools" core && core.pools != null
                     then (if core.pools == 1 then 1 else prof.genesis.dense_pool_density)
                     else 0; });
     in (topo // { coreNodes = map rewriteCore topo.coreNodes; });

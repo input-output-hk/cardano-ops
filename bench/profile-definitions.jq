@@ -110,8 +110,6 @@ def era_tolerances($era; $genesis):
   { tx_loss_ratio:                  0.0
   , start_log_spread_s:             120
   , last_log_spread_s:              90
-  , slot_spread_dbsync_first:       5
-  , slot_spread_dbsync_last:        5
   , silence_since_last_block_s:     40
   , cluster_startup_overhead_s:     60
   }
@@ -121,7 +119,7 @@ def era_tolerances($era; $genesis):
   , minimum_chain_density:          0.9
   }
 , shelley:
-  { finish_patience:                15
+  { finish_patience:                7
   , maximum_missed_slots:           0
   , minimum_chain_density:          ($genesis.active_slots_coeff * 0.5)
   }
@@ -185,15 +183,15 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "20 minutes" } }
+    , genesis_future_offset: "25 minutes" } }
 , { name: "k1000-52"
-  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 1 }
   , genesis:
     { dense_pool_density:        20
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "20 minutes" } }
+    , genesis_future_offset: "25 minutes" } }
 
 , { name: "k2000-fast52"
   , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
@@ -202,15 +200,15 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "20 minutes" } }
+    , genesis_future_offset: "25 minutes" } }
 , { name: "k2000-52"
-  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 1 }
   , genesis:
     { dense_pool_density:        40
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "20 minutes" } }
+    , genesis_future_offset: "25 minutes" } }
 
 , { name: "k3000-fast52"
   , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
@@ -219,13 +217,13 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "20 minutes" } }
+    , genesis_future_offset: "25 minutes" } }
 , { name: "k3000-52"
-  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 1 }
   , genesis:
     { dense_pool_density:        60
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "20 minutes" } }
+    , genesis_future_offset: "25 minutes" } }
 ];
