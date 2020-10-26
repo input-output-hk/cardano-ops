@@ -16,10 +16,13 @@ profile_genesis_future_offset() {
 profile_genesis() {
         local profile=$1 genesis_dir=${2:-./keys} genesis_future_offset hash
 
-        if test -z "$reuse_genesis" -a -f "$genesis_dir"/genesis.json
+        if test -z "$reuse_genesis$(profgenjq "$profile" .reuse)" -a -f "$genesis_dir"/genesis.json
         then oprint "regenerating genesis from scratch"
              time profile_genesis_"$(get_era)" "$profile" "$genesis_dir"
-        else oprint "updating genesis (--reuse-genesis)"
+        elif test -n "$reuse_genesis"
+        then oprint "updating genesis (--reuse-genesis)"
+        elif test -n "$(profgenjq "$profile" .reuse)"
+        then oprint "updating genesis (.reuse in genesis profile)"
         fi
         genesis_future_offset=$(profile_genesis_future_offset "$profile")
         start_timestamp=$(date +%s --date="now + ${genesis_future_offset}")

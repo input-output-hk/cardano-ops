@@ -136,40 +136,46 @@ def aux_profiles:
 , { name: "smoke",
     generator: { txs: 100,   add_tx_size: 100, io_arity: 1,  tps: 100
                , init_cooldown: 25, finish_patience: 4 } }
+
 , { name: "k1000-fast"
   , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
   , genesis:
     { dense_pool_density:       100
     , extra_delegators:      500000
-    , stuffed_utxo:         1000000
+    , stuffed_utxo:          500000
+    , reuse:                   true
     , genesis_future_offset: "9 minutes" } }
 , { name: "k2000-fast"
   , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
   , genesis:
     { dense_pool_density:       200
     , extra_delegators:      500000
-    , stuffed_utxo:         1000000
+    , stuffed_utxo:          500000
+    , reuse:                   true
     , genesis_future_offset: "9 minutes" } }
 , { name: "k1000"
   , generator: { txs: 22000, add_tx_size: 100, io_arity: 1,  tps: 1 }
   , genesis:
     { dense_pool_density:       100
     , extra_delegators:      500000
-    , stuffed_utxo:         1000000
+    , stuffed_utxo:          500000
+    , reuse:                   true
     , genesis_future_offset: "9 minutes" } }
 , { name: "k2000"
   , generator: { txs: 22000, add_tx_size: 100, io_arity: 1,  tps: 1 }
   , genesis:
     { dense_pool_density:       200
     , extra_delegators:      500000
-    , stuffed_utxo:         1000000
+    , stuffed_utxo:          500000
+    , reuse:                   true
     , genesis_future_offset: "9 minutes" } }
 , { name: "k3000"
   , generator: { txs: 22000, add_tx_size: 100, io_arity: 1,  tps: 1 }
   , genesis:
     { dense_pool_density:       300
     , extra_delegators:      500000
-    , stuffed_utxo:         1000000
+    , stuffed_utxo:          500000
+    , reuse:                   true
     , genesis_future_offset: "9 minutes" } }
 
 , { name: "k1000-fast52"
@@ -177,13 +183,49 @@ def aux_profiles:
   , genesis:
     { dense_pool_density:        20
     , extra_delegators:      500000
-    , stuffed_utxo:         1000000
+    , stuffed_utxo:          500000
+    , reuse:                   true
     , genesis_future_offset: "20 minutes" } }
 , { name: "k1000-52"
   , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
   , genesis:
     { dense_pool_density:        20
     , extra_delegators:      500000
-    , stuffed_utxo:         1000000
+    , stuffed_utxo:          500000
+    , reuse:                   true
+    , genesis_future_offset: "20 minutes" } }
+
+, { name: "k2000-fast52"
+  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , genesis:
+    { dense_pool_density:        40
+    , extra_delegators:      500000
+    , stuffed_utxo:          500000
+    , reuse:                   true
+    , genesis_future_offset: "20 minutes" } }
+, { name: "k2000-52"
+  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , genesis:
+    { dense_pool_density:        40
+    , extra_delegators:      500000
+    , stuffed_utxo:          500000
+    , reuse:                   true
+    , genesis_future_offset: "20 minutes" } }
+
+, { name: "k3000-fast52"
+  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , genesis:
+    { dense_pool_density:        60
+    , extra_delegators:      500000
+    , stuffed_utxo:          500000
+    , reuse:                   true
+    , genesis_future_offset: "20 minutes" } }
+, { name: "k3000-52"
+  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , genesis:
+    { dense_pool_density:        60
+    , extra_delegators:      500000
+    , stuffed_utxo:          500000
+    , reuse:                   true
     , genesis_future_offset: "20 minutes" } }
 ];
