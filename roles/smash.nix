@@ -117,7 +117,17 @@ in {
               return 204;
             }
           '';
-          in lib.recursiveUpdate (lib.genAttrs ["/swagger.json" "/api/v1/metadata" "/api/v1/errors" "/api/v1/delist"] (p: {
+          endpoints = [
+            "/swagger.json"
+            "/api/v1/metadata"
+            "/api/v1/errors"
+            "/api/v1/enlist"
+            "/api/v1/delist"
+            "/api/v1/delisted"
+            "/api/v1/retired"
+            "/api/v1/status"
+          ];
+          in lib.recursiveUpdate (lib.genAttrs endpoints (p: {
             proxyPass = "http://127.0.0.1:3100${p}";
             extraConfig = corsConfig;
           })) {
@@ -138,6 +148,10 @@ in {
               ${apiKeyConfig}
             '';
             "/api/v1/delist".extraConfig = ''
+              ${corsConfig}
+              ${apiKeyConfig}
+            '';
+            "/api/v1/enlist".extraConfig = ''
               ${corsConfig}
               ${apiKeyConfig}
             '';
