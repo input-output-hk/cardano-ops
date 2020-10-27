@@ -58,11 +58,17 @@ let
     else abort "${benchmarkingParamsFile} does not define benchmarking profile '${benchmarkingProfileName}'.";
   rewriteTopologyForProfile =
     topo: prof:
-    let rewriteCore = core: (core //
+    let fixupPools = core: (core //
           { pools = if __hasAttr "pools" core && core.pools != null
                     then (if core.pools == 1 then 1 else prof.genesis.dense_pool_density)
                     else 0; });
-    in (topo // { coreNodes = map rewriteCore topo.coreNodes; });
+        pooledCores = map fixupPools topo.coreNodes;
+    in (topo // {
+      coreNodes =
+        if prof.node.eventlog
+        then map withEventlog pooledCores
+        else pooledCores;
+    });
 
   metadata = {
     inherit benchmarkingProfileName benchmarkingProfile benchmarkingTopology;

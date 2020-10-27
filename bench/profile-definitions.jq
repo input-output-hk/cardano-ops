@@ -142,7 +142,10 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "9 minutes" } }
+    , genesis_future_offset: "9 minutes" }
+  , node:
+    { eventlog:                true
+    } }
 , { name: "k2000-fast"
   , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
   , genesis:
@@ -150,7 +153,10 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "9 minutes" } }
+    , genesis_future_offset: "9 minutes" }
+  , node:
+    { eventlog:                true
+    } }
 , { name: "k1000"
   , generator: { txs: 22000, add_tx_size: 100, io_arity: 1,  tps: 1 }
   , genesis:
@@ -158,7 +164,10 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "9 minutes" } }
+    , genesis_future_offset: "9 minutes" }
+  , node:
+    { eventlog:                true
+    } }
 , { name: "k2000"
   , generator: { txs: 22000, add_tx_size: 100, io_arity: 1,  tps: 1 }
   , genesis:
@@ -166,7 +175,10 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "9 minutes" } }
+    , genesis_future_offset: "9 minutes" }
+  , node:
+    { eventlog:                true
+    } }
 , { name: "k3000"
   , generator: { txs: 22000, add_tx_size: 100, io_arity: 1,  tps: 1 }
   , genesis:
@@ -174,7 +186,10 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "9 minutes" } }
+    , genesis_future_offset: "9 minutes" }
+  , node:
+    { eventlog:                true
+    } }
 
 , { name: "k1000-fast52"
   , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
@@ -183,7 +198,10 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "25 minutes" } }
+    , genesis_future_offset: "25 minutes" }
+  , node:
+    { eventlog:                true
+    } }
 , { name: "k1000-52"
   , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 1 }
   , genesis:
@@ -191,7 +209,10 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "25 minutes" } }
+    , genesis_future_offset: "25 minutes" }
+  , node:
+    { eventlog:                true
+    } }
 
 , { name: "k2000-fast52"
   , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
@@ -208,7 +229,10 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "25 minutes" } }
+    , genesis_future_offset: "25 minutes" }
+  , node:
+    { eventlog:                true
+    } }
 
 , { name: "k3000-fast52"
   , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
@@ -217,7 +241,10 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "25 minutes" } }
+    , genesis_future_offset: "25 minutes" }
+  , node:
+    { eventlog:                true
+    } }
 , { name: "k3000-52"
   , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 1 }
   , genesis:
@@ -225,5 +252,8 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "25 minutes" } }
+    , genesis_future_offset: "25 minutes" }
+  , node:
+    { eventlog:                true
+    } }
 ];
