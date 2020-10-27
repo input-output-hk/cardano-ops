@@ -429,7 +429,7 @@ cardano-cli shelley address build \
     --payment-verification-key-file payment.vkey \
     --stake-verification-key-file stake.vkey \
     --out-file payment.addr \
-    --testnet-magic 42 \
+    --testnet-magic 42
 ```
 
 Now, we're ready to draft our first transaction:
@@ -518,3 +518,91 @@ Check the balances:
 ▶ cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode\
      --address $(cat payment.addr)
 ```
+
+### Registering the stake address on the blockchain
+
+```sh
+cardano-cli shelley stake-address registration-certificate \
+    --stake-verification-key-file stake.vkey \
+    --out-file stake.cert
+```
+
+Draft the transaction. We will use as input the transaction in which we
+transferred Lovelace to `payment.vkey`. So let's query this transaction first:
+
+```sh
+cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode\
+     --address $(cat payment.addr) \
+     --out-file tmp.json
+grep -oP '"\K[^"]+' -m 1 tmp.json | head -1 | tr -d '\n' > payment-tx-in
+```
+
+
+```sh
+cardano-cli shelley transaction build-raw \
+    --tx-in $(cat payment-tx-in) \
+    --tx-out $(cat payment.addr)+0 \
+    --ttl 0 \
+    --fee 0 \
+    --out-file tx.raw \
+    --certificate-file stake.cert
+```
+
+Calculate the fees:
+
+```sh
+cardano-cli shelley transaction calculate-min-fee \
+    --tx-body-file tx.raw \
+    --tx-in-count 1 \
+    --tx-out-count 1 \
+    --witness-count 1 \
+    --byron-witness-count 0 \
+    --testnet-magic 42 \
+    --protocol-params-file pparams.json
+```
+
+This should be 0 Lovelace.
+
+Also the value of `keyDeposit` in the protocol parameters should be `0`.
+
+Create the transaction. Note that we do not pay fees nor deposit, so we have to
+send to the output address the same amount as the input address has.
+
+```sh
+cardano-cli shelley transaction build-raw \
+    --tx-in $(cat payment-tx-in) \
+    --tx-out $(cat payment.addr)+10000000000000000 \
+    --ttl 70000 \
+    --fee 0 \
+    --out-file tx.raw \
+    --certificate-file stake.cert
+```
+
+Sign the transaction:
+
+```sh
+cardano-cli shelley transaction sign \
+    --tx-body-file tx.raw \
+    --signing-key-file payment.skey \
+    --signing-key-file stake.skey \
+    --testnet-magic 42 \
+    --out-file tx.signed
+```
+
+And submit it:
+
+```sh
+cardano-cli shelley transaction submit \
+    --tx-file tx.signed \
+    --testnet-magic 42 \
+    --shelley-mode
+```
+
+### Registering a stakepool
+
+A stakepool node needs:
+
+1. A cold key pair
+2. A VRF key pair
+3. A KES key pair
+4. An operational certificate
