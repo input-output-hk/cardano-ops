@@ -21,31 +21,6 @@ sanity_check_start_log_spread() {
              } + .)
           | .[]'
 }
-sanity_check_list+=(sanity_check_slot_spread_dbsync)
-sanity_check_slot_spread_dbsync() {
-        local dir=$1 t=${2:-$(jq .meta.profile_content.tolerances $dir/meta.json)}
-        sanity_check "$t" "$dir" '
-          $analysis.slot_spans
-          | (.db_sync.first - .nodes.first | fabs
-            | . > $allowed.slot_spread_dbsync_first)
-          ' '$analysis.slot_spans
-          | { kind:         "slot-spread-dbsync-first"
-            , dbsync_first: .db_sync.first
-            , nodes_first:  .nodes.first
-            , delta:        (.db_sync.first - .nodes.first | fabs)
-            }'
-
-        sanity_check "$t" "$dir" '
-          $analysis.slot_spans
-          | (.db_sync.last - .nodes.last | fabs
-            | . > $allowed.slot_spread_dbsync_last)
-          ' '$analysis.slot_spans
-          | { kind:         "slot-spread-dbsync-last"
-            , dbsync_last:  .db_sync.last
-            , nodes_last:   .nodes.last
-            , delta:        (.db_sync.last - .nodes.last | fabs)
-            }'
-}
 sanity_check_list+=(sanity_check_last_log_spread)
 sanity_check_last_log_spread() {
         local dir=$1 t=${2:-$(jq .meta.profile_content.tolerances $dir/meta.json)}

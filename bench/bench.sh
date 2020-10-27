@@ -121,6 +121,8 @@ self=$(realpath "$0")
 main() {
         local jq_select='cat'
 
+        echo "$*" >> ./.bench_history
+
         while test $# -ge 1
         do case "$1" in
            --fast-unsafe | --fu ) no_deploy=t no_wait=t;;
@@ -302,7 +304,7 @@ bench_profile() {
 
         oprint "$(date), termination condition satisfied, stopping cluster."
         op_stop
-        fetch_run "$dir"
+        time fetch_run "$dir"
         oprint "concluded run:  ${tag}"
 
         if analyse_run "${dir}"
@@ -450,8 +452,6 @@ EOF
 
     , \"logs/deploy.log\"
     , \"logs/block-arrivals.gauge\"
-    , \"logs/db-analysis.log\"
-    , \"logs/db-analysis.tar.xz\"
     , \"logs/logs-explorer.tar.xz\"
     , \"logs/logs-nodes.tar.xz\"
 
@@ -568,32 +568,6 @@ fetch_run() {
 
         run_fetch_benchmarking 'tools'
 
-        oprint "fetching the SQL extraction from explorer.."
-        components=($(ls tools/*.sql | cut -d/ -f2))
-        cat >'tools/db-analyser.sh' <<EOF
-        set -e
-        tag="\$1"
-
-        files=()
-        for query in ${components[*]}
-        do files+=(\${query} \${query}.txt \${query}.csv)
-
-           PGPASSFILE=/var/lib/cexplorer/pgpass psql cexplorer cexplorer \
-             --file \${query} > \${query}.csv --csv
-           PGPASSFILE=/var/lib/cexplorer/pgpass psql cexplorer cexplorer \
-             --file \${query} > \${query}.txt
-        done
-
-        tar=${tag}.db-analysis.tar.xz
-        tar cf \${tar} "\${files[@]}" --xz
-        rm -f ${components[*]/%/.csv} ${components[*]/%/.txt}
-EOF
-        tar c 'tools/db-analyser.sh' "${components[@]/#/tools\/}" |
-                nixops ssh explorer -- tar x --strip-components='1'
-        nixops ssh explorer -- sh -c "ls; chmod +x 'db-analyser.sh';
-                                      ./db-analyser.sh ${tag}" > 'logs/db-analysis.log'
-        nixops scp --from explorer "${tag}.db-analysis.tar.xz" 'logs/db-analysis.tar.xz'
-
         local producers
         producers=($(params producers))
         oprint "fetching logs from:  explorer ${producers[*]}"
@@ -613,7 +587,6 @@ EOF
         local explorer_extra_logs=(
                 unit-startup-generator.log
                 unit-startup-explorer.log
-                # unit-startup-db-sync.log
         )
 
         { find logs-explorer/ \
