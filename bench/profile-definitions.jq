@@ -109,8 +109,8 @@ def era_tolerances($era; $genesis):
 { common:
   { tx_loss_ratio:                  0.0
   , start_log_spread_s:             120
-  , last_log_spread_s:              90
-  , silence_since_last_block_s:     40
+  , last_log_spread_s:              120
+  , silence_since_last_block_s:     120
   , cluster_startup_overhead_s:     60
   }
 , byron:
