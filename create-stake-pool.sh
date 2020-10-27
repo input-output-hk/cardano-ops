@@ -129,3 +129,83 @@ cardano-cli shelley node issue-op-cert \
             --operational-certificate-issue-counter cold.counter \
             --kes-period $KES_PERIOD \
             --out-file node.cert
+
+echo '{
+  "name": "PriviPool",
+  "description": "Priviledge Pool",
+  "ticker": "TEST",
+  "homepage": "https://ppp"
+}' > pool-metadata.json
+
+# Get the hash of the file:
+METADATA_HASH=`cardano-cli shelley stake-pool metadata-hash --pool-metadata-file pool-metadata.json`
+
+# Generate a stakepool registration certificate
+
+# Pledge amount in Lovelace
+PLEDGE=1000000
+# Pool cost per-epoch in Lovelace
+COST=1000
+# Pool cost per epoch in percentage
+MARGIN=0.1
+
+cardano-cli shelley stake-pool registration-certificate \
+            --cold-verification-key-file cold.vkey \
+            --vrf-verification-key-file vrf.vkey \
+            --pool-pledge $PLEDGE \
+            --pool-cost $COST \
+            --pool-margin $MARGIN \
+            --pool-reward-account-verification-key-file stake.vkey \
+            --pool-owner-stake-verification-key-file stake.vkey \
+            --testnet-magic 42 \
+            --metadata-url file://pool-metadata.json \
+            --metadata-hash $METADATA_HASH \
+            --out-file pool-registration.cert
+
+# Generate a delegation certificate pledge
+cardano-cli shelley stake-address delegation-certificate \
+            --stake-verification-key-file stake.vkey \
+            --cold-verification-key-file cold.vkey \
+            --out-file delegation.cert
+
+# Registering a stake pool requires a deposit, which is specified in the
+# genesis file. Here we assume the deposit is 0.
+POOL_DEPOSIT=0
+FEE=0
+BALANCE=`jq '.[].amount' /tmp/balance.json | xargs printf '%.0f\n'`
+CHANGE=`expr $BALANCE - $POOL_DEPOSIT - $FEE`
+TTL=1000000
+
+# We need the transaction in which the funds were traesfered to `payment.addr`.
+cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode\
+            --address $(cat payment.addr) \
+            --out-file /tmp/tx-info.json
+TX_IN=`grep -oP '"\K[^"]+' -m 1 /tmp/tx-info.json | head -1 | tr -d '\n'`
+
+cardano-cli shelley transaction build-raw \
+            --tx-in $TX_IN \
+            --tx-out $(cat payment.addr)+$CHANGE \
+            --ttl $TTL \
+            --fee $FEE \
+            --out-file tx.raw \
+            --certificate-file pool-registration.cert \
+            --certificate-file delegation.cert
+
+cardano-cli shelley transaction sign \
+            --tx-body-file tx.raw \
+            --signing-key-file payment.skey \
+            --signing-key-file stake.skey \
+            --signing-key-file cold.skey \
+            --testnet-magic 42 \
+            --out-file tx.signed
+
+cardano-cli shelley transaction submit \
+            --tx-file tx.signed \
+            --testnet-magic 42 \
+            --shelley-mode
+
+# Obtain the pool id
+POOL_ID=`cardano-cli shelley stake-pool id --verification-key-file cold.vkey`
+# Verify that the registration was succesful
+echo $POOL_ID
+cardano-cli shelley query stake-distribution  --shelley-mode --testnet-magic 42

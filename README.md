@@ -606,3 +606,21 @@ A stakepool node needs:
 2. A VRF key pair
 3. A KES key pair
 4. An operational certificate
+
+### Finding the topology file
+
+In the node run:
+
+```sh
+systemctl status cardano-node
+```
+
+This file is derived from the topology specified in the `nix` derivation. This
+means that you can also use:
+
+```sh
+nix eval '(with import ./nix {}; with lib; (head (filter (n: n.name == "stk-d-1-IOHK1") globals.topology.coreNodes))).producers'
+```
+
+Where `"stk-d-1-IOHK1"` is the name of the node whose topology we wish to
+query.
