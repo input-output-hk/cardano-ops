@@ -160,15 +160,6 @@ analysis_TraceForgeInvalidBlock() {
            ' --slurp --compact-output > "$dir"/analysis/node."$msg".json
 }
 
-analysis_list+=(analysis_repackage_db)
-analysis_repackage_db() {
-        local dir=${1:-.}
-
-        tar x -C "$dir"/analysis -af "$dir"/logs/db-analysis.tar.xz \
-            --wildcards '*.csv' '*.txt'
-}
-
-
 analysis_list+=(analysis_leadership_checks)
 analysis_leadership_checks() {
         local dir=${1:-.}; shift

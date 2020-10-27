@@ -12,15 +12,6 @@ patch_run() {
              sed -i "1 s_^_${tag_format_timetoblock_header}\n_; s_;_,_g" \
                  "$dir"/analysis/timetoblock.csv
         fi
-
-        if test "$(head -n1 "$dir"/analysis/00-results-table.sql.csv)" \
-                == "DROP TABLE"
-        then echo "---| patching $dir/analysis/00-results-table.sql.csv"
-             tail -n+3 "$dir"/analysis/00-results-table.sql.csv \
-               > "$dir"/analysis/00-results-table.sql.csv.fixed
-             mv "$dir"/analysis/00-results-table.sql.csv.fixed \
-                "$dir"/analysis/00-results-table.sql.csv;
-        fi
 }
 
 package_run() {

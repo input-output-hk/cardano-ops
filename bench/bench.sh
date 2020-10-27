@@ -121,7 +121,7 @@ self=$(realpath "$0")
 main() {
         local jq_select='cat'
 
-        echo "$*" >> ./.bench_history
+        echo "$(date --iso-8601=s --utc):  $*" >> ./.bench_history
 
         while test $# -ge 1
         do case "$1" in

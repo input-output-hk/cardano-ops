@@ -70,6 +70,27 @@ def era_genesis_profiles($era):
   ]
 } | .[$era];
 
+def era_node_profiles($era):
+{ common:
+  [{ eventlog: false }, { eventlog: true }]
+, byron:
+  []
+, shelley:
+  []
+} | (.common + .[$era]);
+
+def era_node_params($era):
+{ common:
+  { eventlog:                false
+  }
+, byron:
+  {
+  }
+, shelley:
+  {
+  }
+} | (.common + .[$era]);
+
 def era_generator_params($era):
 { common:
   {
@@ -198,18 +219,18 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "25 minutes" }
+    , genesis_future_offset: "22 minutes" }
   , node:
     { eventlog:                true
     } }
 , { name: "k1000-52"
-  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 1 }
+  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
   , genesis:
     { dense_pool_density:        20
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "25 minutes" }
+    , genesis_future_offset: "22 minutes" }
   , node:
     { eventlog:                true
     } }
@@ -221,15 +242,15 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "25 minutes" } }
+    , genesis_future_offset: "22 minutes" } }
 , { name: "k2000-52"
-  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 1 }
+  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
   , genesis:
     { dense_pool_density:        40
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "25 minutes" }
+    , genesis_future_offset: "22 minutes" }
   , node:
     { eventlog:                true
     } }
@@ -241,18 +262,18 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "25 minutes" }
+    , genesis_future_offset: "22 minutes" }
   , node:
     { eventlog:                true
     } }
 , { name: "k3000-52"
-  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 1 }
+  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
   , genesis:
     { dense_pool_density:        60
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "25 minutes" }
+    , genesis_future_offset: "22 minutes" }
   , node:
     { eventlog:                true
     } }

@@ -158,7 +158,7 @@ EOF
         local host_count=${#host_resources[*]}
         oprint "hosts to deploy:  $host_count"
 
-        local max_batch=13
+        local max_batch=12
         if test $host_count -gt $max_batch
         then oprint "that's too much for a single deploy -- deploying in batches of $max_batch nodes"
 
@@ -169,7 +169,8 @@ EOF
              while test $base -lt $host_count
              do local batch=(${host_resources[*]:$base:$max_batch})
                 oprint "deploying host batch:  ${batch[*]}"
-                deploy_resources ${batch[*]}
+                time deploy_resources ${batch[*]}
+                oprint "deployed batch of ${#batch[*]} nodes:  ${batch[*]}"
                 base=$((base + max_batch))
              done
         else oprint "that's deployable in one go -- blasting ahead"
@@ -188,8 +189,9 @@ deploy_resources() {
                     --max-concurrent-copy 50 --cores 0 -j 4
                     ${1:+--include} "$@"
                   )
+        if test -n "$watcher_pid"
+        then oprint "nixops deploy log:"; fi
 
-        oprint "nixops deploy log:"
         if export BENCHMARKING_PROFILE=${prof}; ! "${cmd[@]}" \
                  >>"$deploylog" 2>&1
         then echo "FATAL:  deployment failed, full log in ${deploylog}"

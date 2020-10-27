@@ -69,6 +69,9 @@ let
         then map withEventlog pooledCores
         else pooledCores;
     });
+  withEventlog = def: recursiveUpdate {
+    services.cardano-node.eventlog = true;
+  } def;
 
   metadata = {
     inherit benchmarkingProfileName benchmarkingProfile benchmarkingTopology;

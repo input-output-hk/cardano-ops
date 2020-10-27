@@ -95,7 +95,7 @@ params_init() {
         jq "${args[@]}" '
 include "profile-definitions" { search: "bench" };
 
-def profile_name($gtor; $gsis):
+def profile_name($gtor; $gsis; $node):
   [ "dist\($composition.n_total)"
   , ($gtor.txs         | tostring) + "tx"
   , ($gtor.add_tx_size | tostring) + "b"
@@ -103,35 +103,44 @@ def profile_name($gtor; $gsis):
   , ($gtor.io_arity    | tostring) + "io"
   , (($gsis.max_block_size // error("genesis profile has no max_block_size"))
      | . / 1000        | tostring) + "kb"
-  ] | join("-");
+  ]
+  | if $node.eventlog
+    then . + ["eventlog"]
+    else . end
+  | join("-");
 
   era_generator_profiles($era)           as $generator_profiles
+| era_node_profiles($era)                as $node_profiles
 | era_genesis_profiles($era)             as $genesis_profiles
 
 | era_generator_params($era)             as $generator_params
+| era_node_params($era)                  as $node_params
 | era_genesis_params($era; $composition) as $genesis_params
 
 | (aux_profiles | map(.name | {key: ., value: null}) | from_entries)
                                          as $aux_names
 
 ## For all IO arities and block sizes:
-| [[ ($genesis_profiles
-     | map (select ((.name // "") | in($aux_names) | not)))
-   , ($generator_profiles
-     | map (select ((.name // "") | in($aux_names) | not)))
+| [[ ($genesis_profiles   | map(select((.name // "") | in($aux_names) | not)))
+   , ($node_profiles      | map(select((.name // "") | in($aux_names) | not)))
+   , ($generator_profiles | map(select((.name // "") | in($aux_names) | not)))
    ]
    | combinations
    ]
 | . +
   ( aux_profiles
   | map ([ $genesis_params * ( .genesis // {} )
+         , $node_params    * ( .node    // {} )
          , era_default_generator_profile($era)
-           * ((.generator // {}) + { name: .name }) ]))
+           * ((.generator // {})
+               + { name: .name })
+         ]))
 | map
   ( ($genesis_params * .[0])       as $genesis
-  | .[1]                           as $generator
+  | .[1]                           as $node
+  | .[2]                           as $generator
   | era_tolerances($era; $genesis) as $tolerances
-  | { "\($generator.name // profile_name($generator; $genesis))":
+  | { "\($generator.name // profile_name($generator; $genesis; $node))":
       { generator:
         ($generator_params +
          ($generator | del(.name) | del(.txs) | del(.io_arity)
@@ -157,6 +166,7 @@ def profile_name($gtor; $gsis):
           , n_dense_pools:     0 }
           end
           ))
+      , node: $node
       , tolerances:
         ($tolerances +
         { finish_patience:
