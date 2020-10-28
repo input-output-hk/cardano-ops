@@ -194,7 +194,10 @@ EOF
 
 deploy_resources() {
         local cmd=( nixops deploy
-                    --max-concurrent-copy 50 --cores 0 -j 4
+                    --allow-reboot
+                    --confirm
+                    --cores 0 -j 4
+                    --max-concurrent-copy 50
                     ${1:+--include} "$@"
                   )
         if test -n "$watcher_pid"
