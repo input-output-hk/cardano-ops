@@ -10,7 +10,7 @@ let
 
   bftCoreNodes = let
     mkBftCoreNode = mkBftCoreNodeForRegions regions;
-  in connectGroupWith (reverseList stakingPoolNodes)
+  in connectGroupWith (reverseList stakePoolNodes)
   (fullyConnectNodes [
     # OBFT centralized nodes recovery nodes
     (mkBftCoreNode "a" 1 {
@@ -27,7 +27,7 @@ let
     # })
   ]);
 
-  stakingPoolNodes = let
+  stakePoolNodes = let
     mkStakingPool = mkStakingPoolForRegions regions;
   in connectGroupWith bftCoreNodes
   (fullyConnectNodes [
@@ -36,10 +36,10 @@ let
     # (mkStakingPool "f" 1 "IOHK3" { nodeId = 6; })
   ]);
 
-  coreNodes = bftCoreNodes ++ stakingPoolNodes;
+  coreNodes = bftCoreNodes ++ stakePoolNodes;
 
   relayNodes = [];
 
 in {
-  inherit coreNodes relayNodes;
+  inherit bftCoreNodes stakePoolNodes coreNodes relayNodes;
 }

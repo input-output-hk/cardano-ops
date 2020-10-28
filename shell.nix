@@ -29,12 +29,41 @@ let
 
   create-shelley-genesis-and-keys =
     let nbCoreNodes = builtins.length globals.topology.coreNodes;
+        nbBFTNodes = builtins.length globals.topology.bftCoreNodes;
+        nbStakePoolNodes = builtins.length globals.topology.stakePoolNodes;
         maxSupply = 20000000000000000 * nbCoreNodes;
     in writeShellScriptBin "create-shelley-genesis-and-keys" ''
       set -euxo pipefail
       mkdir -p keys
       cd ${toString ./keys}
-      cardano-cli shelley genesis create --genesis-dir . --supply ${toString maxSupply} --gen-genesis-keys ${toString nbCoreNodes} --gen-utxo-keys ${toString nbCoreNodes} --testnet-magic 42
+      cardano-cli shelley genesis create \
+                  --genesis-dir . \
+                  --supply ${toString maxSupply} \
+                  --gen-genesis-keys ${toString nbCoreNodes} \
+                  --gen-utxo-keys ${toString nbCoreNodes} \
+                  --testnet-magic 42
+      # Customize the genesis file
+      #
+      # We should ensure that:
+      #
+      #    10 * securityParam / activeSlotsCoeff <= epochLength
+      K=10
+      F=0.1
+      SLOT_LENGTH=0.2
+      EPOCH_LENGTH=`perl -E "say ((10 * $K) / $F)"`
+      TMP=`jq --arg k $K \
+              --arg f $F \
+              --arg s $SLOT_LENGTH \
+              --arg e $EPOCH_LENGTH \
+              ' .updateQuorum = ${toString nbCoreNodes}
+              | .epochLength = $e
+              | .slotLength = $s
+              | .securityParam = $k
+              | .activeSlotsCoeff = $f
+              ' \
+           genesis.json`
+      echo "$TMP" > genesis.json
+
       cardano-cli shelley genesis hash --genesis genesis.json > GENHASH
       mkdir -p node-keys
       cd node-keys
