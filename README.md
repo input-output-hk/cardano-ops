@@ -624,3 +624,52 @@ nix eval '(with import ./nix {}; with lib; (head (filter (n: n.name == "stk-d-1-
 
 Where `"stk-d-1-IOHK1"` is the name of the node whose topology we wish to
 query.
+
+### Submitting an update proposal
+
+genesis-verification-key-file you need to pass for all genesis vkeys. epoch and
+out-file are required, and then any of the other options can be set or ignored.
+For example, to update the d param to 0.52:
+
+```sh
+cardano-cli shelley governance create-update-proposal \
+    --epoch 225 \
+    --decentralization-parameter 0.52 \
+    --out-file mainnet-225-d-0.52.proposal \
+    $(for i in {1..3}; do echo "--genesis-verification-key-file genesis-keys/genesis$i.vkey "; done)
+```
+
+See the `create-stake-pool.sh` script for more details.
+
+We need to build a transaction that contains this update proposal file:
+
+```sh
+cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode\
+            --address $(cat payment.addr) \
+            --out-file /tmp/tx-info.json
+TX_IN=`grep -oP '"\K[^"]+' -m 1 /tmp/tx-info.json | head -1 | tr -d '\n'`
+```
+
+```sh
+
+cardano-cli shelley transaction sign \
+            --tx-body-file tx.raw \
+            --signing-key-file payment.skey \
+            --signing-key-file stake.skey \
+            --signing-key-file cold.skey \
+            --testnet-magic 42 \
+            --out-file tx.signed
+
+cardano-cli shelley transaction submit \
+            --tx-file tx.signed \
+            --testnet-magic 42 \
+            --shelley-mode
+```
+### How to know the key associated to a given node?
+
+The nodeId attribute in nix topology is what determine the key used. See
+[`core.nix`](https://github.com/input-output-hk/cardano-ops/blob/ee1e304a439e40397662c85972adbce1e4fb311a/roles/core.nix#L6-L11).
+
+### Documentation about multisig
+
+https://github.com/input-output-hk/cardano-node/blob/72987eb866346d141cfd76d73065c440307651aa/doc/reference/multisig.md#example-of-using-multi-signature-scripts
