@@ -153,6 +153,13 @@ main() {
         local default_op='bench-profile'
         local op="${1:-${default_op}}"; shift || true
 
+        if test -z "$NIXOPS_DEPLOYMENT"
+        then NIXOPS_DEPLOYMENT=$(basename $(pwd))
+             oprint "NIXOPS_DEPLOYMENT:  $NIXOPS_DEPLOYMENT (defaulted)"
+        else oprint "NIXOPS_DEPLOYMENT:  $NIXOPS_DEPLOYMENT (inherited)"
+        fi
+        export NIXOPS_DEPLOYMENT
+
         case "${op}" in
                 init-params | init | reinit-params | reinit | analyse | a | analyse-run | arun | sanity-check | sanity | sanity-check-dir | sane-dir | srun | call | mass-analyse | mass ) true;;
                 * ) params_check;; esac

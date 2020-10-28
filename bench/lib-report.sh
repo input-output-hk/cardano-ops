@@ -20,9 +20,14 @@ package_run() {
         tag=$(run_tag "$dir")
         report_name=$(run_report_name "$dir")
 
+        local dirgood dirbad
+        dirgood=$(realpath ../bench-results-bad)
+        dirbad=$(realpath ../bench-results)
+        mkdir -p "$dirgood"
+        mkdir -p "$dirbad"
         if is_run_broken "$dir"
-        then resultroot=$(realpath ../bench-results-bad)
-        else resultroot=$(realpath ../bench-results); fi
+        then resultroot=$dir
+        else resultroot=$dirbad; fi
 
         package=${resultroot}/$report_name.tar.xz
 

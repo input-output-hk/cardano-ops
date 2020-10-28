@@ -63,8 +63,8 @@ update_deployfiles() {
           , profile_content:   $(profjq "${prof}" .)
           , pins:
             { benchmarking:    $(jq '.["cardano-benchmarking"].rev' nix/sources.json)
-            , node:            $(jq '.["cardano-node"].rev'         nix/sources.bench-txgen-simple.json)
-            # , \"db-sync\":     $(jq '.["cardano-db-sync"].rev'      nix/sources.bench-txgen-simple.json)
+            , node:            $(jq '.["cardano-node"].rev'         nix/sources.bench.json)
+            # , \"db-sync\":     $(jq '.["cardano-db-sync"].rev'      nix/sources.bench.json)
             , ops:             \"$(git rev-parse HEAD)\"
             }
           , ops_modified:      $(if git diff --quiet --exit-code
@@ -126,11 +126,16 @@ deploystate_deploy_profile() {
         era=$(get_era)
         topology=$(parmetajq .topology)
         benchmarking_rev=$(jq --raw-output '.["cardano-benchmarking"].rev' nix/sources.json)
-        node_rev=$(jq --raw-output '.["cardano-node"].rev' nix/sources.bench-txgen-simple.json)
+        node_rev=$(jq --raw-output '.["cardano-node"].rev' nix/sources.bench.json)
         ops_rev=$(git rev-parse HEAD)
         ops_branch=$(maybe_local_repo_branch . ${ops_rev})
         ops_checkout_state=$(git diff --quiet --exit-code || echo '(modified)')
         to=${include:-the entire cluster}
+
+        if ! nixops info >/dev/null 2>&1
+        then oprint "nixops info returned status $?, creating deployment.."
+             deploystate_create
+        fi
 
         cat <<EOF
 --( deploying profile $prof to:  ${to#--include }
@@ -143,6 +148,7 @@ deploystate_deploy_profile() {
 --(   genesis:       $(profjq "$prof" .genesis   --compact-output)
 EOF
 
+        mkdir -p "$(dirname "$deploylog")"
         echo >"$deploylog"
         ln -sf "$deploylog" 'last-deploy.log'
 
@@ -151,9 +157,11 @@ EOF
         then { sleep 0.3; tail -f "$deploylog"; } &
              watcher_pid=$!; fi
 
+        set +o pipefail
         local host_resources other_resources
         host_resources=( $(nixops info --plain 2>/dev/null | sed 's/^\([a-zA-Z0-9-]*\).*/\1/' | grep -ve '-ip$\|cardano-keypair-\|allow-'))
         other_resources=($(nixops info --plain 2>/dev/null | sed 's/^\([a-zA-Z0-9-]*\).*/\1/' | grep  -e '-ip$\|cardano-keypair-\|allow-'))
+        set -o pipefail
 
         local host_count=${#host_resources[*]}
         oprint "hosts to deploy:  $host_count"

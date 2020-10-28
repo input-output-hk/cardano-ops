@@ -28,7 +28,7 @@ The benchmarking infrastructure consists of the following components:
     
       - the general cluster deployment infrastructure,
       - a specific, benchmarking-oriented deployment type, defined in
-        `globals-bench-txgen-simple.nix`,
+        `globals-bench.nix`,
       - the `bench` script, that automates benchmark runs.
 
   - Resources on the development deployer, available under the `dev`
@@ -272,9 +272,9 @@ benchmarking infrastructure via concordant control mechanisms:
     
     Following pins are relevant in the benchmarking context:
     
-      - `cardano-node`, stored in `nix/sources.bench-txgen-simple.json`
+      - `cardano-node`, stored in `nix/sources.bench.json`
       - `cardano-db-sync`, stored in
-        `nix/sources.bench-txgen-simple.json`
+        `nix/sources.bench.json`
       - `cardano-benchmarking`, stored in `nix/sources.json`
     
     These pins can be automatically updated to match a particular branch

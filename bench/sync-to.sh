@@ -106,10 +106,10 @@ update_sources_pin "$this_repo" 'sources' "$other_name" \
                    "${repo_commit[$other_name]}" \
                    "${repo_hash[$other_name]}"
 
-update_sources_pin "$this_repo" 'sources.bench-txgen-simple' 'cardano-node' \
+update_sources_pin "$this_repo" 'sources.bench' 'cardano-node' \
                    "${repo_commit['cardano-node']}" \
                    "${repo_hash['cardano-node']}"
 
 if test -n "$stage_changes"
-then git add "$this_repo"/nix/sources.json "$this_repo"/nix/sources.bench-txgen-simple.json
+then git add "$this_repo"/nix/sources.json "$this_repo"/nix/sources.bench.json
 fi

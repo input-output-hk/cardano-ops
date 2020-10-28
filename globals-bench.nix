@@ -116,7 +116,7 @@ in reportDeployment (rec {
 
   environmentName = "bench-txgen-${benchmarkingParams.meta.topology}-${benchmarkingProfileName}";
 
-  sourcesJsonOverride = ./nix/sources.bench-txgen-simple.json;
+  sourcesJsonOverride = ./nix/sources.bench.json;
 
   environmentConfig = rec {
     inherit genesisHash;

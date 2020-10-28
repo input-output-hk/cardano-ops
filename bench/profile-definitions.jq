@@ -159,7 +159,7 @@ def aux_profiles:
 , { name: "k1000-fast"
   , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
   , genesis:
-    { dense_pool_density:       100
+    { dense_pool_density:        20
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
