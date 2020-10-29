@@ -51,11 +51,11 @@ let
       F=0.1
       SLOT_LENGTH=0.2
       EPOCH_LENGTH=`perl -E "say ((10 * $K) / $F)"`
-      # TMP=`jq --arg k $K \
-      #         --arg f $F \
-      #         --arg s $SLOT_LENGTH \
-      #         --arg e $EPOCH_LENGTH \
-      #         ' .updateQuorum = ${toString nbCoreNodes}
+      # TMP=`jq --argjson k $K \
+      #         --argjson f $F \
+      #         --argjson s $SLOT_LENGTH \
+      #         --argjson e $EPOCH_LENGTH \
+      #         ' .updateQuorum = ${toString nbBFTNodes}
       #         | .epochLength = $e
       #         | .slotLength = $s
       #         | .securityParam = $k

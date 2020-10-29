@@ -1,7 +1,7 @@
 pkgs: with pkgs.iohkNix.cardanoLib; rec {
 
   withMonitoring = false;
-  withExplorer = true;
+  withExplorer = false; # true;
 
   environmentName = "priviledge";
 
