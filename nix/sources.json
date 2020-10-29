@@ -48,15 +48,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
-        "branch": "1.19.1-support",
+        "branch": "1.21.1-support",
         "description": "Faucet for Cardano",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "598dec4aac470518ce9f87d2ae5b0f9c72550048",
-        "sha256": "1ba3bm0a4hiz72gcrbyg49nv70s5hja7s8zp1zmlxw9dl2v5zs3y",
+        "rev": "c00520b25e700503c8f20c90a4f7991228957bce",
+        "sha256": "0ff2pjwwxk85nqjcfckf656wimbh2jk0mi88fkrbsqfwv2i03v9c",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/598dec4aac470518ce9f87d2ae5b0f9c72550048.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/c00520b25e700503c8f20c90a4f7991228957bce.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
@@ -114,10 +114,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "f0542228f98a2590e0f39c507b364321995ad802",
-        "sha256": "0yhgjg4bj7cv1lmrb9ig2iapv1mslhn6m750zn2x0n1a3ll267yh",
+        "rev": "e3759db64f898ab8b33a4f73d2f864ff76fa6987",
+        "sha256": "14ah4r49mi8sxw5yc2vqgvqpyy4sp8swyp1xz71da1r8y3j902my",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/f0542228f98a2590e0f39c507b364321995ad802.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/e3759db64f898ab8b33a4f73d2f864ff76fa6987.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs-crystal": {
