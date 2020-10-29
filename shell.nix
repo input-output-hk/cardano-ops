@@ -39,7 +39,7 @@ let
       cardano-cli shelley genesis create \
                   --genesis-dir . \
                   --supply ${toString maxSupply} \
-                  --gen-genesis-keys ${toString nbCoreNodes} \
+                  --gen-genesis-keys ${toString nbBFTNodes} \
                   --gen-utxo-keys ${toString nbCoreNodes} \
                   --testnet-magic 42
       # Customize the genesis file
@@ -51,37 +51,69 @@ let
       F=0.1
       SLOT_LENGTH=0.2
       EPOCH_LENGTH=`perl -E "say ((10 * $K) / $F)"`
-      TMP=`jq --arg k $K \
-              --arg f $F \
-              --arg s $SLOT_LENGTH \
-              --arg e $EPOCH_LENGTH \
-              ' .updateQuorum = ${toString nbCoreNodes}
-              | .epochLength = $e
-              | .slotLength = $s
-              | .securityParam = $k
-              | .activeSlotsCoeff = $f
-              ' \
-           genesis.json`
-      echo "$TMP" > genesis.json
+      # TMP=`jq --arg k $K \
+      #         --arg f $F \
+      #         --arg s $SLOT_LENGTH \
+      #         --arg e $EPOCH_LENGTH \
+      #         ' .updateQuorum = ${toString nbCoreNodes}
+      #         | .epochLength = $e
+      #         | .slotLength = $s
+      #         | .securityParam = $k
+      #         | .activeSlotsCoeff = $f
+      #         ' \
+      #      genesis.json`
+      # echo "$TMP" > genesis.json
 
       cardano-cli shelley genesis hash --genesis genesis.json > GENHASH
       mkdir -p node-keys
       cd node-keys
-      for i in {1..${toString nbCoreNodes}}; do
+      # Create VRF keys for the BFT nodes.
+      for i in {1..${toString nbBFTNodes}}; do
         ln -sf ../delegate-keys/delegate$i.vrf.skey node-vrf$i.skey
         ln -sf ../delegate-keys/delegate$i.vrf.vkey node-vrf$i.vkey
+      done
+      # Create VRF keys for the pool nodes
+      for i in `seq $((${toString nbBFTNodes}+1)) ${toString nbCoreNodes}`; do
+        cardano-cli shelley node key-gen-VRF \
+                    --verification-key-file node-vrf$i.vkey \
+                    --signing-key-file node-vrf$i.skey
       done
       ${renew-kes-keys}/bin/new-KES-keys-at-period 0
     '';
   renew-kes-keys =
     let nbCoreNodes = builtins.length globals.topology.coreNodes;
+        nbBFTNodes = builtins.length globals.topology.bftCoreNodes;
     in writeShellScriptBin "new-KES-keys-at-period" ''
       set -euxo pipefail
       PERIOD=$1
       cd ${toString ./keys}/node-keys
+      # Generate a KES key pair
       for i in {1..${toString nbCoreNodes}}; do
-        cardano-cli shelley node key-gen-KES --verification-key-file node-kes$i.vkey --signing-key-file node-kes$i.skey
-        cardano-cli shelley node issue-op-cert --hot-kes-verification-key-file node-kes$i.vkey --cold-signing-key-file ../delegate-keys/delegate$i.skey --operational-certificate-issue-counter ../delegate-keys/delegate$i.counter --kes-period $PERIOD --out-file node$i.opcert
+        cardano-cli shelley node key-gen-KES \
+                    --verification-key-file node-kes$i.vkey \
+                    --signing-key-file node-kes$i.skey
+      done
+      # Genereate an operational certificate for the BFT nodes, using the delegate keys as cold signing key.
+      for i in {1..${toString nbBFTNodes}}; do
+        cardano-cli shelley node issue-op-cert \
+                    --hot-kes-verification-key-file node-kes$i.vkey \
+                    --cold-signing-key-file ../delegate-keys/delegate$i.skey \
+                    --operational-certificate-issue-counter ../delegate-keys/delegate$i.counter \
+                    --kes-period $PERIOD \
+                    --out-file node$i.opcert
+      done
+      # For the pool nodes we need to generate the cold keys and the cold counter.
+      for i in `seq $((${toString nbBFTNodes}+1)) ${toString nbCoreNodes}`; do
+        cardano-cli shelley node key-gen \
+            --cold-verification-key-file cold$i.vkey \
+            --cold-signing-key-file cold$i.skey \
+            --operational-certificate-issue-counter-file cold$i.counter
+        cardano-cli shelley node issue-op-cert \
+                    --hot-kes-verification-key-file node-kes$i.vkey \
+                    --cold-signing-key-file cold$i.skey \
+                    --operational-certificate-issue-counter cold$i.counter \
+                    --kes-period $PERIOD \
+                    --out-file node$i.opcert
       done
     '';
   test-cronjob-script = writeShellScriptBin "test-cronjob-script" ''
