@@ -102,7 +102,7 @@ in with pkgs; {
       };
     };
     systemd.services.custom-metrics = {
-      path = with pkgs; [ cardano-cli coreutils gnugrep gnused jq nmap procps ];
+      path = with pkgs; [ cardano-cli coreutils gawk gnugrep gnused jq nmap procps ];
       environment = {
         CARDANO_NODE_SOCKET_PATH = "/run/cardano-node/node.socket";
       };
@@ -114,6 +114,7 @@ in with pkgs; {
         OPCERT="${cfg.opcertFile}"
 
         # Default decoded metric settings in case they are not obtainable
+        CERT_ISSUE_NUM="-1"
         KES_CREATED_PERIOD="-1"
 
         # Default genesis metric settings in case they are not obtainable
@@ -225,7 +226,9 @@ in with pkgs; {
 
         if [ -f "$OPCERT" ]; then
           echo "Cardano node opcert file is: $OPCERT"
-          KES_CREATED_PERIOD=$(cardano-cli shelley text-view decode-cbor --in-file $OPCERT | sed '8q;d'  | cut -d '(' -f2 | cut -d ')' -f1)
+          DECODED=$(cardano-cli shelley text-view decode-cbor --in-file "$OPCERT")
+          CERT_ISSUE_NUM=$(sed '7q;d' <<< "$DECODED" | awk -F '[()]' '{print $2}')
+          KES_CREATED_PERIOD=$(sed '8q;d' <<< "$DECODED" | awk -F '[()]' '{print $2}')
         fi
 
         if PROTOCOL_CONFIG=$(cardano-cli shelley query protocol-parameters $MAGIC $MODE); then
@@ -251,6 +254,7 @@ in with pkgs; {
           TAU=$(jq '.tau' <<< "$PROTOCOL_CONFIG")
         fi
 
+        echo "cardano_node_decode_certIssueNum:''${CERT_ISSUE_NUM}|g"
         echo "cardano_node_decode_kesCreatedPeriod:''${KES_CREATED_PERIOD}|g"
 
         echo "cardano_node_genesis_activeSlotsCoeff:''${ACTIVE_SLOTS_COEFF}|g"
@@ -293,6 +297,7 @@ in with pkgs; {
         echo "cardano_node_cli_version_patch:''${CARDANO_CLI_VERSION_PATCH}|g"
 
         statsd \
+          "cardano_node_decode_certIssueNum:''${CERT_ISSUE_NUM}|g" \
           "cardano_node_decode_kesCreatedPeriod:''${KES_CREATED_PERIOD}|g" \
           "cardano_node_genesis_activeSlotsCoeff:''${ACTIVE_SLOTS_COEFF}|g" \
           "cardano_node_genesis_epochLength:''${EPOCH_LENGTH}|g" \
