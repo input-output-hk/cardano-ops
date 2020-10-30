@@ -27,11 +27,14 @@ let
     # })
   ]);
 
+  # FIXME: This setup is very brittle since the
+  # `create-shelley-genesis-and-keys` script assumes the node id's are numbered
+  # contigously. So make sure this is the case. We need to fix this.
   stakePoolNodes = let
     mkStakingPool = mkStakingPoolForRegions regions;
   in connectGroupWith bftCoreNodes
   (fullyConnectNodes [
-    (mkStakingPool "d" 1 "IOHK1" { nodeId = 3; })
+    (mkStakingPool "d" 1 "IOHK1" { nodeId = 2; })
     # (mkStakingPool "e" 1 "IOHK2" { nodeId = 4; })
     # (mkStakingPool "f" 1 "IOHK3" { nodeId = 6; })
   ]);

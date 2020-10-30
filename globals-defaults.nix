@@ -27,7 +27,7 @@ in {
   relaysNew = pkgs.globals.environmentConfig.relaysNew or "relays-new.${pkgs.globals.domain}";
 
   explorerHostName = "explorer.${pkgs.globals.domain}";
-  explorerForceSSL = true;
+  explorerForceSSL = false;
   explorerAliases = [];
 
   withMonitoring = true;

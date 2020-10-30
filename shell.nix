@@ -41,6 +41,7 @@ let
                   --supply ${toString maxSupply} \
                   --gen-genesis-keys ${toString nbBFTNodes} \
                   --gen-utxo-keys ${toString nbCoreNodes} \
+                  --start-time `date -u -d "today + 5 minutes" +'%Y-%m-%dT%H:%M:%SZ'` \
                   --testnet-magic 42
       # Customize the genesis file
       #
@@ -51,18 +52,12 @@ let
       F=0.1
       SLOT_LENGTH=0.2
       EPOCH_LENGTH=`perl -E "say ((10 * $K) / $F)"`
-      # TMP=`jq --argjson k $K \
-      #         --argjson f $F \
-      #         --argjson s $SLOT_LENGTH \
-      #         --argjson e $EPOCH_LENGTH \
-      #         ' .updateQuorum = ${toString nbBFTNodes}
-      #         | .epochLength = $e
-      #         | .slotLength = $s
-      #         | .securityParam = $k
-      #         | .activeSlotsCoeff = $f
-      #         ' \
-      #      genesis.json`
-      # echo "$TMP" > genesis.json
+      # jq will convert the big nunbers to scientific notation, and old versions of nix cannot handle this. Hence we need to use sed.
+      sed -Ei "s/^([[:blank:]]*\"updateQuorum\":)([[:blank:]]*[^,]*,)$/\1 ${toString nbBFTNodes},/" genesis.json
+      sed -Ei "s/^([[:blank:]]*\"epochLength\":)([[:blank:]]*[^,]*,)$/\1 $EPOCH_LENGTH,/" genesis.json
+      sed -Ei "s/^([[:blank:]]*\"slotLength\":)([[:blank:]]*[^,]*,)$/\1 $SLOT_LENGTH,/" genesis.json
+      sed -Ei "s/^([[:blank:]]*\"securityParam\":)([[:blank:]]*[^,]*)$/\1 $K/" genesis.json
+      sed -Ei "s/^([[:blank:]]*\"activeSlotsCoeff\":)([[:blank:]]*[^,]*,)$/\1 $F,/" genesis.json
 
       cardano-cli shelley genesis hash --genesis genesis.json > GENHASH
       mkdir -p node-keys
