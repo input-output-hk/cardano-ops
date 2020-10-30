@@ -96,6 +96,18 @@ in {
       };
     }
     {
+      alert = "cardano_new_node_KES_expiration_metric_notice";
+      expr = "cardano_node_genesis_slotLength * cardano_node_genesis_slotsPerKESPeriod * on (alias) cardano_node_Forge_metrics_remainingKESPeriods_int < (5 * 24 * 3600) + 1";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: cardano-node KES expiration notice: less than 5 days until KES expiration";
+        description = "{{$labels.alias}}: cardano-node KES expiration notice: less than 5 days until KES expiration; calculated from node metrics";
+      };
+    }
+    {
       alert = "cardano_new_node_KES_expiration_metric_warning";
       expr = "cardano_node_genesis_slotLength * cardano_node_genesis_slotsPerKESPeriod * on (alias) cardano_node_Forge_metrics_remainingKESPeriods_int < (24 * 3600) + 1";
       for = "5m";
@@ -117,6 +129,20 @@ in {
       annotations = {
         summary = "{{$labels.alias}}: cardano-node KES expiration warning: less than 4 hours until KES expiration";
         description = "{{$labels.alias}}: cardano-node KES expiration warning: less than 4 hours until KES expiration; calculated from node metrics";
+      };
+    }
+    {
+      alert = "cardano_new_node_KES_expiration_decoded_notice";
+      expr = "(cardano_node_genesis_slotLength * (cardano_node_genesis_slotsPerKESPeriod " +
+             "* ((cardano_node_decode_kesCreatedPeriod > -1) + cardano_node_genesis_maxKESEvolutions)) " +
+             "- on(alias) (cardano_node_genesis_slotLength * on (alias) cardano_node_ChainDB_metrics_slotNum_int)) < (5 * 24 * 3600) + 1";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: cardano-node KES expiration notice: less than 5 days until KES expiration";
+        description = "{{$labels.alias}}: cardano-node KES expiration notice: less than 5 days until KES expiration; calculated from opcert decoding";
       };
     }
     {
