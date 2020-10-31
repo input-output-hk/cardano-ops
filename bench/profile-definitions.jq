@@ -119,10 +119,13 @@ def era_generator_profiles($era):
   , { txs:  50000, add_tx_size: 100, io_arity: 16, tps: 100 }
   ]
 , shelley:
-  [ { txs: 250000, add_tx_size: 100, io_arity: 1,  tps: 100 }
-  , { txs:  50000, add_tx_size: 100, io_arity: 1,  tps: 100 }
-  , { txs:  10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  [ { txs: 250000, add_tx_size: 100, io_arity: 2,  tps: 100 }
+  , { txs:  50000, add_tx_size: 100, io_arity: 8,  tps: 100 }
+  , { txs:  50000, add_tx_size: 100, io_arity: 4,  tps: 100 }
+  , { txs:  50000, add_tx_size: 100, io_arity: 2,  tps: 100 }
+  , { txs:  10000, add_tx_size: 100, io_arity: 2,  tps: 100 }
   , { txs:   3000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , { txs:    500, add_tx_size: 100, io_arity: 1,  tps: 100 }
   ]
 } | .[$era];
 
@@ -223,12 +226,45 @@ def aux_profiles:
   , node:
     { eventlog:                true
     } }
-, { name: "k1000-52"
+, { name: "k1000-52-1500kU"
+  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
+  , genesis:
+    { dense_pool_density:        20
+    , extra_delegators:      750000
+    , stuffed_utxo:          750000
+    , reuse:                   true
+    , genesis_future_offset: "22 minutes" }
+  , node:
+    { eventlog:                true
+    } }
+, { name: "k1000-52-1000kU"
   , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
   , genesis:
     { dense_pool_density:        20
     , extra_delegators:      500000
     , stuffed_utxo:          500000
+    , reuse:                   true
+    , genesis_future_offset: "22 minutes" }
+  , node:
+    { eventlog:                true
+    } }
+, { name: "k1000-52-750kU"
+  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
+  , genesis:
+    { dense_pool_density:        20
+    , extra_delegators:      375000
+    , stuffed_utxo:          375000
+    , reuse:                   true
+    , genesis_future_offset: "22 minutes" }
+  , node:
+    { eventlog:                true
+    } }
+, { name: "k1000-52-500kU"
+  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
+  , genesis:
+    { dense_pool_density:        20
+    , extra_delegators:      250000
+    , stuffed_utxo:          250000
     , reuse:                   true
     , genesis_future_offset: "22 minutes" }
   , node:
