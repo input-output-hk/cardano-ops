@@ -1,60 +1,80 @@
+# Payment key to pay for the different transactions in this script.
+UTXO=keys/utxo-keys/utxo1
+DELEGATE=keys/delegate-keys/delegate1
+FEE=0
+TTL=1000000
 
 # TODO: get the epoch length from the genesis file.
 EPOCH_LENGTH=1000
 PROPOSAL_FILE=update.proposal
-# This is not very robuts since the epoch might change while we calculate the
+# This is not very robust since the epoch might change while we calculate the
 # current epoch. We might want to add some logic to ensure that we have enough
 # time to submit the proposal before the epoch changes.
 SLOT_NO=`cardano-cli shelley query tip --testnet-magic 42 | jq ".slotNo"`
 PROPOSAL_EPOCH=`expr $SLOT_NO / $EPOCH_LENGTH + 1`
 
+GENESIS=keys/genesis-keys/genesis1
+D_PARAM=0.55
 cardano-cli shelley governance create-update-proposal \
             --epoch $PROPOSAL_EPOCH \
-            --decentralization-parameter 0.52 \
+            --decentralization-parameter $D_PARAM \
             --out-file $PROPOSAL_FILE \
-            $(for f in keys/genesis-keys/*vkey; do echo "--genesis-verification-key-file $f "; done)
+            --genesis-verification-key-file $GENESIS.vkey
 
+
+INITIAL_ADDR=initial.addr
 # Get the initial address, which will be used as input by the transaction that
 # submits the update proposal.
 cardano-cli shelley genesis initial-addr \
             --testnet-magic 42 \
-            --verification-key-file keys/utxo-keys/utxo1.vkey > initial.addr
+            --verification-key-file $UTXO.vkey > $INITIAL_ADDR
 
+TX_INFO=/tmp/tx-info.json
 # Build a transaction that contains the update proposal
 cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode\
-            --address $(cat initial.addr) \
-            --out-file /tmp/tx-info.json
-TX_IN=`grep -oP '"\K[^"]+' -m 1 /tmp/tx-info.json | head -1 | tr -d '\n'`
+            --address $(cat $INITIAL_ADDR) \
+            --out-file $TX_INFO
+TX_IN=`grep -oP '"\K[^"]+' -m 1 $TX_INFO | head -1 | tr -d '\n'`
 
-POOL_DEPOSIT=0
-FEE=0
 cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode \
             --address $(cat initial.addr) \
             --out-file /tmp/balance.json
 BALANCE=`jq '.[].amount' /tmp/balance.json | xargs printf '%.0f\n'`
-CHANGE=`expr $BALANCE - $POOL_DEPOSIT - $FEE`
-TTL=1000000
+CHANGE=`expr $BALANCE - $FEE`
 
 cardano-cli shelley transaction build-raw \
             --tx-in $TX_IN \
-            --tx-out $(cat initial.addr)+$CHANGE \
+            --tx-out $(cat $INITIAL_ADDR)+$CHANGE \
             --ttl $TTL \
             --fee $FEE \
             --update-proposal-file $PROPOSAL_FILE \
             --out-file tx.raw
-
 cardano-cli shelley transaction sign \
             --tx-body-file tx.raw \
-            --signing-key-file keys/utxo-keys/utxo1.skey \
-            --signing-key-file keys/delegate-keys/delegate1.skey \
+            --signing-key-file $UTXO.skey \
+            --signing-key-file $DELEGATE.skey \
             --testnet-magic 42 \
             --out-file tx.signed
-
-#            $(for f in keys/genesis-keys/*skey; do echo "--signing-key-file $f "; done) \
-
 cardano-cli shelley transaction submit \
             --tx-file tx.signed \
             --testnet-magic 42 \
             --shelley-mode
 
-cardano-cli shelley query ledger-state --testnet-magic 42 --shelley-mode  | jq '.esPrevPp.decentralisationParam'
+
+until [ "$CURRENT_EPOCH" = "$PROPOSAL_EPOCH" ]; do
+    sleep 1
+    SLOT_NO=`cardano-cli shelley query tip --testnet-magic 42 | jq ".slotNo"`
+    CURRENT_EPOCH=`expr $SLOT_NO / $EPOCH_LENGTH`
+    echo "Current epoch: $CURRENT_EPOCH"
+done
+
+CURRENT_D_PARAM=`cardano-cli shelley query ledger-state --testnet-magic 42 --shelley-mode  | jq '.esPrevPp.decentralisationParam'`
+
+if [ "$CURRENT_D_PARAM" = "$D_PARAM" ];
+then
+    echo "Decentralization parameter successfully changed."
+else
+    echo "Decentralization parameter was not changed."
+    echo "Current decentralization parameter: $CURRENT_D_PARAM"
+    echo "Expected decentralization parameter: $D_PARAM "
+fi

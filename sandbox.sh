@@ -1,10 +1,6 @@
 #!/bin/bash
 
-# TODO's:
-#
-# - [ ] parametrize the key locations and utxo we will use.
-# - [ ] we need to wait till the transaction is accepted so that
-#       `payment-tx-in` has a value.
+# TODO: Test commands. Remove when the test case is complete.
 
 # Check the initial funds. Needed only for debugging purposes.
 cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode
@@ -20,7 +16,6 @@ cardano-cli shelley stake-address key-gen \
             --signing-key-file stake.skey
 
 ## Use these keys to create a payment address:
-
 cardano-cli shelley address build \
             --payment-verification-key-file payment.vkey \
             --stake-verification-key-file stake.vkey \
