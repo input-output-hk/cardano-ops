@@ -1,8 +1,22 @@
-UTXO=keys/utxo-keys/utxo2
+#!/bin/bash
+
+# Node index, as given by the first argument.
+if [ -z "$1" ]
+then
+    echo "No node id supplied"
+    exit 1
+else
+    I=$1
+fi
+
+
+
+exit 0
+UTXO=keys/utxo-keys/utxo$I
 STAKE=stake
 PAYMENT_ADDR=payment.addr
-COLD=keys/node-keys/cold2
-VRF=keys/node-keys/node-vrf2
+COLD=keys/node-keys/cold$I
+VRF=keys/node-keys/node-vrf$I
 
 # This script assumes the fee to be 0. We might want to check the protocol
 # parameters to make sure that this is indeed the case.

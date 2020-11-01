@@ -1,20 +1,30 @@
+#!/bin/bash
+
+# TODO: Wait till the network starts
+# SLOT_NO=`cardano-cli shelley query tip --testnet-magic 42 | jq ".slotNo"`
+# while [ ]
+
 # Payment key to pay for the different transactions in this script.
-UTXO=keys/utxo-keys/utxo1
-DELEGATE=keys/delegate-keys/delegate1
+UTXO=keys/utxo
+DELEGATE=keys/delegate
 FEE=0
 TTL=1000000
 
 # TODO: get the epoch length from the genesis file.
 EPOCH_LENGTH=1000
 PROPOSAL_FILE=update.proposal
+
+# TODO: wait till the beginning of a new epoch and set that epoch as $PROPOSAL_EPOCH
+exit 1
+
 # This is not very robust since the epoch might change while we calculate the
 # current epoch. We might want to add some logic to ensure that we have enough
 # time to submit the proposal before the epoch changes.
 SLOT_NO=`cardano-cli shelley query tip --testnet-magic 42 | jq ".slotNo"`
 PROPOSAL_EPOCH=`expr $SLOT_NO / $EPOCH_LENGTH + 1`
 
-GENESIS=keys/genesis-keys/genesis1
-D_PARAM=0.55
+GENESIS=keys/genesis
+D_PARAM=0.56
 cardano-cli shelley governance create-update-proposal \
             --epoch $PROPOSAL_EPOCH \
             --decentralization-parameter $D_PARAM \
@@ -60,13 +70,17 @@ cardano-cli shelley transaction submit \
             --testnet-magic 42 \
             --shelley-mode
 
-
-until [ "$CURRENT_EPOCH" = "$PROPOSAL_EPOCH" ]; do
+SLOT_NO=`cardano-cli shelley query tip --testnet-magic 42 | jq ".slotNo"`
+CURRENT_EPOCH=`expr $SLOT_NO / $EPOCH_LENGTH`
+echo "Current epoch: $CURRENT_EPOCH, proposal active on epoch $PROPOSAL_EPOCH"
+while [ "$CURRENT_EPOCH" -le "$PROPOSAL_EPOCH"  ]; do
     sleep 1
     SLOT_NO=`cardano-cli shelley query tip --testnet-magic 42 | jq ".slotNo"`
     CURRENT_EPOCH=`expr $SLOT_NO / $EPOCH_LENGTH`
-    echo "Current epoch: $CURRENT_EPOCH"
+    echo -ne "Current slot: $SLOT_NO, epoch will change on slot $((EPOCH_LENGTH*(CURRENT_EPOCH+1)))\r"
 done
+
+echo
 
 CURRENT_D_PARAM=`cardano-cli shelley query ledger-state --testnet-magic 42 --shelley-mode  | jq '.esPrevPp.decentralisationParam'`
 
