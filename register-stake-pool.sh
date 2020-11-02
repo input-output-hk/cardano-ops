@@ -1,9 +1,10 @@
-exit 0
-UTXO=keys/utxo-keys/utxo$I
+set -euo pipefail
+
+UTXO=keys/utxo
 STAKE=stake
 PAYMENT_ADDR=payment.addr
-COLD=keys/node-keys/cold$I
-VRF=keys/node-keys/node-vrf$I
+COLD=keys/cold
+VRF=keys/node-vrf
 
 # This script assumes the fee to be 0. We might want to check the protocol
 # parameters to make sure that this is indeed the case.
@@ -97,6 +98,9 @@ cardano-cli shelley stake-address delegation-certificate \
             --cold-verification-key-file $COLD.vkey \
             --out-file $DELEGATION_CERT
 
+# Wait a bit before querying the UTxO set...
+sleep 5
+
 # Registering a stake pool requires a deposit, which is specified in the
 # genesis file. Here we assume the deposit is 0.
 POOL_DEPOSIT=0
@@ -106,6 +110,11 @@ cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode \
 BALANCE=`jq '.[].amount' $TX_INFO | xargs printf '%.0f\n'`
 TX_IN=`grep -oP '"\K[^"]+' -m 1 $TX_INFO | head -1 | tr -d '\n'`
 CHANGE=`expr $BALANCE - $POOL_DEPOSIT - $FEE`
+
+echo "a ver..."
+cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode \
+            --address $(cat $INITIAL_ADDR)
+echo "vemos"
 
 # Create, sign, and submit the transaction
 cardano-cli shelley transaction build-raw \

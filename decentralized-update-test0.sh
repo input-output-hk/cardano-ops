@@ -18,18 +18,15 @@
 BFT_NODES=( bft-a-1 )
 POOL_NODES=( stk-d-1-IOHK1 )
 
-BFTI=1
 for f in $BFT_NODES
 do
     # Copy the script that we have to run
     nixops scp $f submit-update-proposal.sh /root/ --to
-    ((BFTI++))
 done
 
 for f in $POOL_NODES
 do
-    # TODO: we copy all keys for now.
-    echo "TODO..."
+    nixops scp $f register-stake-pool.sh /root/ --to
 done
 
 for f in $BFT_NODES
@@ -38,4 +35,8 @@ do
     echo $?
 done
 
-./register-stake-pool.sh 1
+for f in $POOL_NODES
+do
+    # TODO: stakepool registration can proceed in parallel
+    nixops ssh $f "./register-stake-pool.sh"
+done

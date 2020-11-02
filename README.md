@@ -144,6 +144,17 @@ the following script:
 ./scripts/create-libvirtd.sh
 ```
 
+To avoid errors where the remote host identification has changed, disable
+strict host key checking for your internal network. Change your `~/.ssh/config`
+to something like:
+
+```text
+Host 192.168.122.*
+    StrictHostKeyChecking no
+```
+
+Change the IP range depending on what `nixops` uses.
+
 ### Setup an AWS deplyoment
 
 To deploy on AWS you need to add your ssh key to the `cls-developers` attribute
@@ -673,3 +684,9 @@ The nodeId attribute in nix topology is what determine the key used. See
 ### Documentation about multisig
 
 https://github.com/input-output-hk/cardano-node/blob/72987eb866346d141cfd76d73065c440307651aa/doc/reference/multisig.md#example-of-using-multi-signature-scripts
+
+### Query the ledger state
+
+```sh
+cardano-cli shelley query ledger-state --testnet-magic 42 --shelley-mode
+```

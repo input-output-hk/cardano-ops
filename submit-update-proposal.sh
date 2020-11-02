@@ -1,3 +1,4 @@
+set -euo pipefail
 # TODO: Wait till the network starts
 # SLOT_NO=`cardano-cli shelley query tip --testnet-magic 42 | jq ".slotNo"`
 # while [ ]
@@ -14,18 +15,16 @@ PROPOSAL_FILE=update.proposal
 
 # Wait till the beginning of a new epoch and set that epoch as $PROPOSAL_EPOCH
 SLOT_NO=`cardano-cli shelley query tip --testnet-magic 42 | jq ".slotNo"`
-echo $SLOT_NO
-CURRENT_EPOCH=`expr $SLOT_NO / $EPOCH_LENGTH`
-PROPOSAL_EPOCH=`expr $SLOT_NO / $EPOCH_LENGTH + 1`
-echo "Current epoch: $CURRENT_EPOCH"
-while [ "$CURRENT_EPOCH" -le "$PROPOSAL_EPOCH"  ]; do
+CURRENT_EPOCH=$((SLOT_NO / EPOCH_LENGTH))
+PROPOSAL_EPOCH=$((CURRENT_EPOCH + 1))
+echo "Current epoch: $CURRENT_EPOCH, proposal epoch: $PROPOSAL_EPOCH"
+while [ "$CURRENT_EPOCH" -lt "$PROPOSAL_EPOCH"  ]; do
     sleep 5
     SLOT_NO=`cardano-cli shelley query tip --testnet-magic 42 | jq ".slotNo"`
-    CURRENT_EPOCH=`expr $SLOT_NO / $EPOCH_LENGTH`
-    echo -ne "Current slot: $SLOT_NO, epoch will change on slot $((EPOCH_LENGTH*(CURRENT_EPOCH+1)))\r"
+    CURRENT_EPOCH=$((SLOT_NO / EPOCH_LENGTH))
+    echo -ne "Current slot: $SLOT_NO, epoch will change on slot $((EPOCH_LENGTH*PROPOSAL_EPOCH))\r"
 done
-
-exit 1
+echo
 
 GENESIS=keys/genesis
 D_PARAM=0.59
@@ -77,7 +76,7 @@ cardano-cli shelley transaction submit \
 SLOT_NO=`cardano-cli shelley query tip --testnet-magic 42 | jq ".slotNo"`
 CURRENT_EPOCH=`expr $SLOT_NO / $EPOCH_LENGTH`
 ACTIVATION_EPOCH=`expr $PROPOSAL_EPOCH + 1`
-echo "Current epoch: $CURRENT_EPOCH, proposal active on epoch $PROPOSAL_EPOCH"
+echo "Current epoch: $CURRENT_EPOCH, proposal active on epoch $ACTIVATION_EPOCH"
 while [ "$CURRENT_EPOCH" -lt "$ACTIVATION_EPOCH"  ]; do
     sleep 1
     SLOT_NO=`cardano-cli shelley query tip --testnet-magic 42 | jq ".slotNo"`

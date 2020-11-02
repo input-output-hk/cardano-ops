@@ -66,12 +66,45 @@ let
   # contigously. So make sure this is the case. We need to fix this.
   stakePoolNodes = let
     mkStakingPool = mkStakingPoolForRegions regions;
+    defineKeys = x :
+      x // {
+        imports = [{
+          deployment.keys = {
+            "utxo.vkey" = {
+              keyFile = ../keys/utxo-keys + "/utxo${toString x.nodeId}.vkey";
+              destDir = "/root/keys";
+            };
+            "utxo.skey" = {
+              keyFile = ../keys/utxo-keys + "/utxo${toString x.nodeId}.skey";
+              destDir = "/root/keys";
+            };
+            "cold.vkey" = {
+              keyFile = ../keys/node-keys + "/cold${toString x.nodeId}.vkey";
+              destDir = "/root/keys";
+            };
+            "cold.skey" = {
+              keyFile = ../keys/node-keys + "/cold${toString x.nodeId}.skey";
+              destDir = "/root/keys";
+            };
+            "node-vrf.vkey" = {
+              keyFile = ../keys/node-keys + "/node-vrf${toString x.nodeId}.vkey";
+              destDir = "/root/keys";
+            };
+            "node-vrf.skey" = {
+              keyFile = ../keys/node-keys + "/node-vrf${toString x.nodeId}.skey";
+              destDir = "/root/keys";
+            };
+          };
+        }];
+      };
   in connectGroupWith bftCoreNodes
-  (fullyConnectNodes [
-    (mkStakingPool "d" 1 "IOHK1" { nodeId = 2; })
-    # (mkStakingPool "e" 1 "IOHK2" { nodeId = 4; })
-    # (mkStakingPool "f" 1 "IOHK3" { nodeId = 6; })
-  ]);
+  (map defineKeys
+       (fullyConnectNodes [
+         (mkStakingPool "d" 1 "IOHK1" { nodeId = 2; })
+         # (mkStakingPool "e" 1 "IOHK2" { nodeId = 4; })
+         # (mkStakingPool "f" 1 "IOHK3" { nodeId = 6; })
+       ])
+  );
 
   coreNodes = bftCoreNodes ++ stakePoolNodes;
 
