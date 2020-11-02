@@ -1,14 +1,5 @@
 { pkgs
-, targetEnv
-, nano
-, small
-, medium               # Standard relay
-, xlarge               # Standard explorer
-, t3-xlarge            # High load relay
-, m5ad-xlarge          # Test node
-, xlarge-monitor       # Standard monitor
-, t3-2xlarge-monitor   # High capacity monitor
-, c5-4xlarge           # High capacity explorer (postgres CPU intensive)
+, instances
 , ...
 }:
 with pkgs;
@@ -29,7 +20,7 @@ let
     monitoring = let def = (topology.monitoring or {}); in mkNode {
       deployment.ec2.region = def.region or "eu-central-1";
       imports = [
-        (if globals.withHighCapacityMonitoring then t3-2xlarge-monitor else xlarge-monitor)
+        (def.instance or instances.monitoring)
         iohk-ops-lib.roles.monitor
         (cardano-ops.modules.monitoring-cardano pkgs)
       ];
@@ -110,7 +101,7 @@ let
         ebsInitialRootDiskSize = if globals.withHighCapacityExplorer then 1000 else 100;
       };
       imports = [
-        (if globals.withHighCapacityExplorer then c5-4xlarge else xlarge)
+        (def.instance or instances.explorer)
         cardano-ops.roles.explorer
       ];
 
@@ -133,7 +124,7 @@ let
         region = "eu-central-1";
       };
       imports = [
-        medium
+        (def.instance or instances.faucet)
         cardano-ops.roles.faucet
       ];
       node = {
@@ -147,7 +138,7 @@ let
         region = "eu-central-1";
       };
       imports = [
-        xlarge
+        (def.instance or instances.smash)
         cardano-ops.roles.smash
       ];
       node = {
@@ -184,7 +175,7 @@ let
       };
       deployment.ec2.region = def.region;
       imports = [
-        medium
+        (def.instance or instances.core-node)
         (cardano-ops.roles.core def.nodeId)
       ];
       services.cardano-node = {
@@ -205,11 +196,11 @@ let
         inherit (def) producers;
       };
       deployment.ec2.region = def.region;
-      imports = if (def.withHighLoadRelays or globals.withHighLoadRelays) then [
-        t3-xlarge cardano-ops.roles.relay-high-load
-      ] else [
-        medium cardano-ops.roles.relay
-      ];
+      imports = [(def.instance or instances.relay-node)] ++ (
+        if (def.withHighLoadRelays or globals.withHighLoadRelays)
+        then [cardano-ops.roles.relay-high-load]
+        else [cardano-ops.roles.relay]
+      );
     } def;
   };
 
@@ -221,14 +212,17 @@ let
         inherit (def) org;
       };
       deployment.ec2.region = def.region;
-      imports = [ m5ad-xlarge cardano-ops.roles.load-client ];
+      imports = [
+        (def.instance or instances.test-node)
+        cardano-ops.roles.load-client
+      ];
     } def;
   };
 
   mkNode = args: def:
     recursiveUpdate (
       recursiveUpdate {
-        deployment.targetEnv = targetEnv;
+        deployment.targetEnv = instances.targetEnv;
         nixpkgs.pkgs = pkgs;
       } (args // {
         imports = args.imports ++ (def.imports or []);
@@ -243,6 +237,7 @@ let
         "staticRoutes"
         "dynamicSubscribe"
         "stakePool"
+        "instance"
       ]);
 
 in {
