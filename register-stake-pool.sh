@@ -1,16 +1,3 @@
-#!/bin/bash
-
-# Node index, as given by the first argument.
-if [ -z "$1" ]
-then
-    echo "No node id supplied"
-    exit 1
-else
-    I=$1
-fi
-
-
-
 exit 0
 UTXO=keys/utxo-keys/utxo$I
 STAKE=stake
