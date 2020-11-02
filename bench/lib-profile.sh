@@ -105,11 +105,11 @@ profile_deploy() {
         then return; fi
 
         oprint "redeploying, because:  ${redeploy_causes[*]}"
-        deploylog=runs/$(timestamp).deploy.$qualifier.$prof.log
+        mkdir -p runs/deploy-logs
+        deploylog=runs/deploy-logs/$(timestamp).deploy.$qualifier.$prof.log
         if test -z "$no_deploy"
         then deploystate_deploy_profile "$prof" "$final_include" "$deploylog"
         else oprint "skippin' deploy, because:  CLI override"
-             echo "DEPLOYMENT_METADATA=" > "$deploylog"
              ln -sf "$deploylog" 'last-deploy.log'
         fi
 }

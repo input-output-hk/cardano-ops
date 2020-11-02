@@ -20,17 +20,8 @@ depljq() {
 update_deployfiles() {
         local prof=$1 deploylog=$2 include=${3##--include }
         local date=$(date "+%Y-%m-%d-%H.%M.%S") stamp=$(date +%s)
-        local nixops_meta machine_info cores files targets
+        local machine_info cores files targets
 
-        if test -z "$no_deploy"
-        then echo "--( collecting NixOps metadata.."
-             set +o pipefail
-             nixops_meta=$({ if ! grep DEPLOYMENT_METADATA= "$deploylog"
-                             then echo "{ fake: true }"; fi
-                           } | head -n1 | cut -d= -f2 | xargs jq .)
-             set -o pipefail
-        else nixops_meta="{ fake: true }"
-        fi
         cores=($(params producers))
         case "$include" in
                 '' | "explorer ${cores[*]}" | "${cores[*]} explorer" )
@@ -70,7 +61,6 @@ update_deployfiles() {
           , ops_modified:      $(if git diff --quiet --exit-code
                                  then echo false; else echo true; fi)
           , machine_info:      $machine_info
-          , nixops:            $nixops_meta
           }
           " --null-input
         if test ${#files[*]} -gt 1
@@ -146,6 +136,7 @@ deploystate_deploy_profile() {
 --(   ops:           $ops_rev / $ops_branch  $ops_checkout_state
 --(   generator:     $(profjq "$prof" .generator --compact-output)
 --(   genesis:       $(profjq "$prof" .genesis   --compact-output)
+--(   node:          $(profjq "$prof" .node      --compact-output)
 EOF
 
         mkdir -p "$(dirname "$deploylog")"

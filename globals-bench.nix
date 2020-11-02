@@ -56,6 +56,7 @@ let
     then __trace "Using profile:  ${benchmarkingProfileName}"
          benchmarkingParams."${benchmarkingProfileName}"
     else abort "${benchmarkingParamsFile} does not define benchmarking profile '${benchmarkingProfileName}'.";
+
   rewriteTopologyForProfile =
     topo: prof:
     let fixupPools = core: (core //
@@ -66,18 +67,18 @@ let
     in (topo // {
       coreNodes =
         if prof.node.eventlog
-        then map withEventlog pooledCores
+        then __trace "deploying with EVENTLOG enabled"
+          (map withEventlog pooledCores)
         else pooledCores;
     });
   withEventlog = def: recursiveUpdate {
-    services.cardano-node.eventlog = true;
+    services.cardano-node.eventlog = mkForce true;
+    services.cardano-node.package = mkForce pkgs.cardano-node-eventlogged;
   } def;
 
   metadata = {
     inherit benchmarkingProfileName benchmarkingProfile benchmarkingTopology;
   };
-  reportDeployment = x:
-    __trace "DEPLOYMENT_METADATA=${__toFile "nixops-metadata.json" (__toJSON metadata)}" x;
 
   benchmarkingLogConfig = name: {
     defaultScribes = [
@@ -107,7 +108,7 @@ let
     };
   };
 
-in reportDeployment (rec {
+in (rec {
 
   networkName = "Benchmarking, size ${toString (__length benchmarkingTopology.coreNodes)}";
 
@@ -157,7 +158,7 @@ in reportDeployment (rec {
       services.cardano-graphql.enable = mkForce false;
       services.graphql-engine.enable = mkForce false;
     };
-    coreNodes = map (n : n // {
+    coreNodes = map (recursiveUpdate {
       services.cardano-node.nodeConfig =
         recursiveUpdate
           pkgs.globals.environmentConfig.nodeConfig

@@ -403,8 +403,6 @@ op_register_new_run() {
         test -f "${deploylog}" ||
                 fail "no deployment log found, but is required for registering a new benchmarking run."
 
-        mkdir -p runs
-
         test -n "${tag}" || fail "cannot use an empty tag"
 
         local dir="./runs/${tag}"
@@ -587,7 +585,9 @@ fetch_run() {
               { find logs -type l | xargs rm -f; } &&
               rm -f logs-${mach} &&
               ln -sf logs logs-${mach} &&
-              tar c --dereference --xz logs-${mach}
+              (test ! -f cardano-node.eventlog ||
+               mv cardano-node.eventlog ${mach}.eventlog;) &&
+              tar c --dereference --xz logs-${mach} \$(ls ${mach}.eventlog 2>/dev/null || true)
            " | tar x --xz; done
 
         oprint "repacking logs.."
