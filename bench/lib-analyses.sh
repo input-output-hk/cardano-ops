@@ -160,10 +160,22 @@ analysis_TraceForgeInvalidBlock() {
            ' --slurp --compact-output > "$dir"/analysis/node."$msg".json
 }
 
+to_node_list() {
+        local dir=$1 machines; shift
+        machines=($*)
+
+        if test ${#machines[*]} -eq 0
+        then (cd "$dir"/analysis;
+              find . -type d -name 'logs-node-*' |
+                      sed 's_^\./logs-__';)
+        else echo ${machines[*]}; fi
+}
+
 analysis_list+=(analysis_leadership_checks)
 analysis_leadership_checks() {
-        local dir=${1:-.}; shift
-        local machines=("$@") keyfile leadership_analysis_args prof
+        local dir=${1:-.} machines; shift
+        local keyfile leadership_analysis_args prof
+        machines=($(to_node_list "$dir" "$@"))
         prof=$(jq '.meta.profile' "$dir"/meta.json --raw-output)
 
         leadership_analysis_args=(
@@ -175,6 +187,8 @@ analysis_leadership_checks() {
         keyfile=$(mktemp -t XXXXXXXXXX.keys)
         locli analyse substring-keys > "$keyfile"
 
+        local count=0
+        printf "mach#/${#machines[*]}: 00"
         for mach in ${machines[*]}
         do grep -hFf "$keyfile" "$dir"/analysis/logs-"$mach"/*.json > "$dir"/analysis/logs-"$mach".json
            locli ${leadership_analysis_args[*]} \
@@ -182,7 +196,11 @@ analysis_leadership_checks() {
                  --dump-pretty-timeline "$dir"/analysis/logs-"$mach".leaderships.pretty.json \
                  > "$dir"/analysis/logs-"$mach".leadership-analysis.json \
                  "$dir"/analysis/logs-"$mach".json
+           echo -ne '\b\b'
+           count=$((count+1))
+           printf "%02d" $count
         done
+        echo
 
         rm -f "$keyfile"
 }
