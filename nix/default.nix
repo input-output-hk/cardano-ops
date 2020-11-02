@@ -94,11 +94,16 @@ let
 
   globals =
     if builtins.pathExists ../globals.nix
-    then [(self: _: {
-      globals = import ../globals-defaults.nix self // import ../globals.nix self;
+    then [(pkgs: _: with pkgs.lib; let
+      globalsDefault = import ../globals-defaults.nix pkgs;
+      globalsSpecific = import ../globals.nix pkgs;
+    in {
+      globals = globalsDefault // (recursiveUpdate {
+        inherit (globalsDefault) ec2 libvirtd;
+      } globalsSpecific);
     })]
-    else builtins.trace "globals.nix missing, please add symlink" [(self: _: {
-      globals = import ../globals-defaults.nix self;
+    else builtins.trace "globals.nix missing, please add symlink" [(pkgs: _: {
+      globals = import ../globals-defaults.nix pkgs;
     })];
 
   crystalEnv = self: super: {
