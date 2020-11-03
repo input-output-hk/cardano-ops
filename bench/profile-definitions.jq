@@ -158,6 +158,33 @@ def aux_profiles:
 , { name: "smoke",
     generator: { txs: 100,   add_tx_size: 100, io_arity: 1,  tps: 100
                , init_cooldown: 25, finish_patience: 4 } }
+, { name: "eventlog",
+    generator: { txs: 100,   add_tx_size: 100, io_arity: 1,  tps: 100
+               , init_cooldown: 15, finish_patience: 4 },
+    node:      { eventlog: true } }
+
+, { name: "k500-52-1000kU"
+  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
+  , genesis:
+    { dense_pool_density:        10
+    , extra_delegators:      500000
+    , stuffed_utxo:          500000
+    , reuse:                   true
+    , genesis_future_offset: "22 minutes" }
+  , node:
+    { eventlog:                true
+    } }
+, { name: "k500-52-1500kU"
+  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
+  , genesis:
+    { dense_pool_density:        10
+    , extra_delegators:      750000
+    , stuffed_utxo:          750000
+    , reuse:                   true
+    , genesis_future_offset: "22 minutes" }
+  , node:
+    { eventlog:                true
+    } }
 
 , { name: "k1000-fast"
   , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }

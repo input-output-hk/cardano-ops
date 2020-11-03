@@ -587,7 +587,11 @@ fetch_run() {
               ln -sf logs logs-${mach} &&
               (test ! -f cardano-node.eventlog ||
                mv cardano-node.eventlog ${mach}.eventlog;) &&
-              tar c --dereference --xz logs-${mach} \$(ls ${mach}.eventlog 2>/dev/null || true)
+              ( journalctl -ru cardano-node |
+                head -n 90 | cut -d: -f4 |
+                sed -n '/  \]/,/bytes allocated/ p' |
+                tac > ${mach}-cardano-node-gcstats.log; ) &&
+              tar c --dereference --xz logs-${mach} \$(ls ${mach}.eventlog ${mach}-cardano-node-gcstats.log 2>/dev/null || true)
            " | tar x --xz; done
 
         oprint "repacking logs.."
@@ -601,7 +605,9 @@ fetch_run() {
                -type f || true
         } | xargs tar cf logs-explorer.tar.xz --xz --
 
-        { find logs-node-*/ \
+        { find ./*-cardano-node-gcstats.log \
+               ./*.eventlog \
+               logs-node-*/ \
                startup/unit-startup-node-*.log \
                -type f || true
         } | xargs tar cf logs-nodes.tar.xz    --xz --
