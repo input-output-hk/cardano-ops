@@ -111,11 +111,6 @@ BALANCE=`jq '.[].amount' $TX_INFO | xargs printf '%.0f\n'`
 TX_IN=`grep -oP '"\K[^"]+' -m 1 $TX_INFO | head -1 | tr -d '\n'`
 CHANGE=`expr $BALANCE - $POOL_DEPOSIT - $FEE`
 
-echo "a ver..."
-cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode \
-            --address $(cat $INITIAL_ADDR)
-echo "vemos"
-
 # Create, sign, and submit the transaction
 cardano-cli shelley transaction build-raw \
             --tx-in $TX_IN \

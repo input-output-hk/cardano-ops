@@ -690,3 +690,17 @@ https://github.com/input-output-hk/cardano-node/blob/72987eb866346d141cfd76d7306
 ```sh
 cardano-cli shelley query ledger-state --testnet-magic 42 --shelley-mode
 ```
+
+### Using a different temporary directory when building
+
+When building the explorer `nix` might run out of space in the temporary
+directory. To avoid this problem you can either allocate more space in `/tmp`
+or set the `TMPDIR` variable to point to a location with sufficient space.
+
+### Querying how many blocks a pool produced
+
+Run `db-sync`.
+
+```sql
+SELECT pool_hash.hash, COUNT(*) FROM BLOCK LEFT JOIN slot_leader ON block.slot_leader = slot_leader.id LEFT JOIN pool_hash ON pool_hash.id = slot_leader.pool_hash_id WHERE block.epoch_no = 220 GROUP BY pool_hash.hash;
+```
