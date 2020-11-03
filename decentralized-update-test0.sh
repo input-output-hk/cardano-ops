@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # TODO: destroy the deployment.
 #
@@ -32,7 +33,6 @@ done
 for f in $BFT_NODES
 do
     nixops ssh $f "./submit-update-proposal.sh"
-    echo $?
 done
 
 for f in $POOL_NODES

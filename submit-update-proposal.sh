@@ -15,8 +15,15 @@ PROPOSAL_FILE=update.proposal
 
 # Wait till the beginning of a new epoch and set that epoch as $PROPOSAL_EPOCH
 SLOT_NO=`cardano-cli shelley query tip --testnet-magic 42 | jq ".slotNo"`
+while [ -z "${SLOT_NO-}" ]; do
+    SLOT_NO=`cardano-cli shelley query tip --testnet-magic 42 | jq ".slotNo"`
+    echo $SLOT_NO
+    sleep 10
+done
+
 CURRENT_EPOCH=$((SLOT_NO / EPOCH_LENGTH))
 PROPOSAL_EPOCH=$((CURRENT_EPOCH + 1))
+echo "Waiting on epoch change for submitting the proposal"
 echo "Current epoch: $CURRENT_EPOCH, proposal epoch: $PROPOSAL_EPOCH"
 while [ "$CURRENT_EPOCH" -lt "$PROPOSAL_EPOCH"  ]; do
     sleep 5
@@ -76,6 +83,7 @@ cardano-cli shelley transaction submit \
 SLOT_NO=`cardano-cli shelley query tip --testnet-magic 42 | jq ".slotNo"`
 CURRENT_EPOCH=`expr $SLOT_NO / $EPOCH_LENGTH`
 ACTIVATION_EPOCH=`expr $PROPOSAL_EPOCH + 1`
+echo "Waiting for the proposal to become active."
 echo "Current epoch: $CURRENT_EPOCH, proposal active on epoch $ACTIVATION_EPOCH"
 while [ "$CURRENT_EPOCH" -lt "$ACTIVATION_EPOCH"  ]; do
     sleep 1
@@ -86,7 +94,7 @@ done
 
 echo
 
-CURRENT_D_PARAM=`cardano-cli shelley query ledger-state --testnet-magic 42 --shelley-mode  | jq '.esPrevPp.decentralisationParam'`
+CURRENT_D_PARAM=`cardano-cli shelley query protocol-parameters --testnet-magic 42 --shelley-mode | jq '.decentralisationParam'`
 
 if [ "$CURRENT_D_PARAM" = "$D_PARAM" ];
 then
@@ -95,4 +103,5 @@ else
     echo "Decentralization parameter was not changed."
     echo "Current decentralization parameter: $CURRENT_D_PARAM"
     echo "Expected decentralization parameter: $D_PARAM "
+    exit 1
 fi
