@@ -144,16 +144,17 @@ the following script:
 ./scripts/create-libvirtd.sh
 ```
 
-To avoid errors where the remote host identification has changed, disable
-strict host key checking for your internal network. Change your `~/.ssh/config`
-to something like:
+<!-- This do not seem to work. -->
+<!-- To avoid errors where the remote host identification has changed, disable -->
+<!-- strict host key checking for your internal network. Change your `~/.ssh/config` -->
+<!-- to something like: -->
 
-```text
-Host 192.168.122.*
-    StrictHostKeyChecking no
-```
+<!-- ```text -->
+<!-- Host 192.168.122.* -->
+<!--     StrictHostKeyChecking no -->
+<!-- ``` -->
 
-Change the IP range depending on what `nixops` uses.
+<!-- Change the IP range depending on what `nixops` uses. -->
 
 ### Setup an AWS deplyoment
 
@@ -704,3 +705,37 @@ Run `db-sync`.
 ```sql
 SELECT pool_hash.hash, COUNT(*) FROM BLOCK LEFT JOIN slot_leader ON block.slot_leader = slot_leader.id LEFT JOIN pool_hash ON pool_hash.id = slot_leader.pool_hash_id WHERE block.epoch_no = 220 GROUP BY pool_hash.hash;
 ```
+
+### Querying the blocks produced per epoch per stakepool
+
+nesBprev and nesBCur
+
+https://github.com/input-output-hk/cardano-ledger-specs/blob/master/shelley/chain-and-ledger/executable-spec/src/Shelley/Spec/Ledger/LedgerState.hs#L622-L624
+
+```sh
+cardano-cli shelley query ledger-state --testnet-magic 42 --shelley-mode | jq '.nesBcur'
+```
+
+### Hashing keys
+
+This might be useful for understanding the output of cardano-cli and the
+contents of the genesis file, since they use the hashes of the verification
+keys instead of the verification key itself.
+
+```sh
+$ cardano-cli shelley genesis key-hash \
+    --verification-key-file example/genesis-keys/genesis1.vkey
+  f42b0eb14056134323d9756fa693dba5e421acaaf84fdaff922a4c0f
+
+$ cardano-cli shelley genesis key-hash \
+    --verification-key-file example/delegate-keys/delegate1.vkey
+  e446c231ace1f29eb83827f29cb4a19e4c324229d59472c8d2dbb958
+
+$ cardano-cli shelley node key-hash-VRF \
+    --verification-key-file example/delegate-keys/delegate1.vrf.vkey
+  e5b6b13eacc21968953ecb78eb900c1eaa2b4744ffead8719f9064f4863e1813
+```
+
+### Additional resources
+
+- cardano-node/doc/reference/shelley-genesis.md
