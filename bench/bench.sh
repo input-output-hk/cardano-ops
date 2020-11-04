@@ -591,8 +591,8 @@ fetch_run() {
                 head -n 90 | cut -d: -f4 |
                 sed -n '/  \]/,/bytes allocated/ p' |
                 tac > ${mach}-cardano-node-gcstats.log; ) &&
-              tar c --dereference --xz logs-${mach} \$(ls ${mach}.eventlog ${mach}-cardano-node-gcstats.log 2>/dev/null || true)
-           " | tar x --xz; done
+              tar cz --dereference logs-${mach} \$(ls ${mach}.eventlog ${mach}-cardano-node-gcstats.log 2>/dev/null || true)
+           " | tar xz; done
 
         oprint "repacking logs.."
         local explorer_extra_logs=(

@@ -14,10 +14,21 @@ profile_genesis_future_offset() {
 }
 
 profile_genesis() {
-        local profile=$1 genesis_dir=${2:-./keys} genesis_future_offset hash
+        local profile=$1 genesis_dir=${2:-./keys} genesis_future_offset hash non_reuse_reasons=()
 
-        if test -z "$reuse_genesis$(profgenjq "$profile" .reuse)" -o ! -f "$genesis_dir"/genesis.json
-        then oprint "regenerating genesis from scratch"
+        if test -z "$reuse_genesis$(profgenjq "$profile" .reuse)"
+        then non_reuse_reasons+=('reuse_not_requested'); fi
+        if test ! -f "$genesis_dir"/genesis.json
+        then non_reuse_reasons+=('no_genesis_to_reuse'); fi
+
+        if test ${#non_reuse_reasons[*]} -eq 0
+        then local genesis_profile_mismatch
+             genesis_profile_mismatch=$(genesis_profile_mismatches "$profile" "$genesis_dir")
+             if test -n "$genesis_profile_mismatch"
+             then non_reuse_reasons+=('profile_mismatch:'"$genesis_profile_mismatch"); fi; fi
+
+        if test ${#non_reuse_reasons[*]} -gt 0
+        then oprint "regenerating genesis from scratch -- no reuse because:  ${non_reuse_reasons[*]}"
              time profile_genesis_"$(get_era)" "$profile" "$genesis_dir"
         elif test -n "$reuse_genesis"
         then oprint "updating genesis (--reuse-genesis)"
@@ -49,6 +60,10 @@ genesis_hash() {
 
 genesis_starttime() {
         genesis_starttime_"$(get_era)" "$@"
+}
+
+genesis_profile_mismatches() {
+        genesis_profile_mismatches_"$(get_era)" "$@"
 }
 
 genesis_update_starttime() {
@@ -505,6 +520,50 @@ genesis_starttime_shelley() {
         local genesis_dir=${1:-./keys}
         date --date=$(jq '.systemStart' "$genesis_dir"/genesis.json |
                       tr -d '"Z') +%s
+}
+
+genesis_profile_mismatches_byron() {
+        oprint "ASSUMING that genesis matches profile (genesis_profile_mismatches_byron)"
+}
+
+genesis_profile_mismatches_shelley() {
+        local profile=$1 genesis_dir=${2:-./keys}
+        local g=$genesis_dir/genesis.json
+
+        local genesis_delegation_map_size genesis_n_delegator_keys genesis_n_bulk_creds
+        genesis_delegation_map_size=$(\
+            jq '.staking.stake | keys | length' $g)
+        genesis_n_delegator_keys=$(($(\
+            ls $genesis_dir/stake-delegator-keys | wc -l) / 2))
+        genesis_n_bulk_creds=$(\
+            ls $genesis_dir/pools/bulk*.creds | wc -l)
+
+        local topofile ids_pool_map composition
+        topofile=$(get_topology_file)
+        ids_pool_map=$(topology_id_pool_density_map "$topofile")
+        composition=$(id_pool_map_composition "$ids_pool_map")
+
+        local prof_n_extra_delegs prof_pool_density prof_n_dense_hosts prof_n_dense_pools
+        prof_n_extra_delegs=$(profgenjq "$profile" .extra_delegators)
+        prof_pool_density=$(profgenjq "$profile" .dense_pool_density)
+        prof_n_dense_hosts=$(($(jq .n_dense_hosts <<<$composition)))
+        prof_n_dense_pools=$((prof_pool_density * prof_n_dense_hosts))
+
+        if test "$genesis_delegation_map_size" -lt "$prof_n_extra_delegs"
+        then echo "genesis-delegation-map-size-${genesis_delegation_map_size}-less-than-profile-extra-delegs-${prof_n_extra_delegs}"; fi
+
+        if test "$genesis_n_delegator_keys" -lt "$prof_n_extra_delegs"
+        then echo "genesis-delegator-key-${genesis_n_delegator_keys}-count-less-than-profile-extra-delegs-${prof_n_extra_delegs}"; fi
+
+        if test "$genesis_n_bulk_creds" -lt "$prof_n_dense_hosts"
+        then echo "genesis-bulk-cred-file-count-${genesis_n_bulk_creds}-less-than-profile-pools-count-${prof_n_dense_hosts}"; fi
+
+        local n=0 actual
+        for bulkf in $genesis_dir/pools/bulk*.creds
+        do actual=$(jq length $bulkf)
+           if test "$actual" -lt $prof_pool_density
+           then echo "bulk-file-${n}-pools-${actual}-below-profile-pool-density-${prof_pool_density}"; fi
+        done
 }
 
 genesis_update_starttime_byron() {
