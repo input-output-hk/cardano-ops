@@ -16,7 +16,8 @@ TTL=1000000
 cardano-cli shelley stake-address key-gen \
             --verification-key-file $STAKE.vkey \
             --signing-key-file $STAKE.skey
-# Use these keys to create a payment address:
+# Use these keys to create a payment address. This key should have funds
+# associated to it if we want the stakepool to have stake delegated to it.
 cardano-cli shelley address build \
             --payment-verification-key-file $UTXO.vkey \
             --stake-verification-key-file $STAKE.vkey \
@@ -114,7 +115,7 @@ CHANGE=`expr $BALANCE - $POOL_DEPOSIT - $FEE`
 # Create, sign, and submit the transaction
 cardano-cli shelley transaction build-raw \
             --tx-in $TX_IN \
-            --tx-out $(cat $INITIAL_ADDR)+$CHANGE \
+            --tx-out $(cat $PAYMENT_ADDR)+$CHANGE \
             --ttl $TTL \
             --fee $FEE \
             --out-file tx.raw \

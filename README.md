@@ -736,6 +736,12 @@ $ cardano-cli shelley node key-hash-VRF \
   e5b6b13eacc21968953ecb78eb900c1eaa2b4744ffead8719f9064f4863e1813
 ```
 
+### Querying the stake distribution
+
+```sh
+cardano-cli shelley query stake-distribution  --testnet-magic 42 --shelley-mode
+```
+
 ### Additional resources
 
 - cardano-node/doc/reference/shelley-genesis.md
