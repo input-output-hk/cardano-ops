@@ -163,6 +163,28 @@ def aux_profiles:
                , init_cooldown: 15, finish_patience: 4 },
     node:      { eventlog: true } }
 
+, { name: "k1000-52-1000kU-dlg0.33"
+  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
+  , genesis:
+    { dense_pool_density:        20
+    , extra_delegators:      333000
+    , stuffed_utxo:          667000
+    , reuse:                   true
+    , genesis_future_offset: "22 minutes" }
+  , node:
+    { eventlog:                true
+    } }
+, { name: "k1000-52-1000kU-dlg1.0"
+  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
+  , genesis:
+    { dense_pool_density:        20
+    , extra_delegators:     1000000
+    , stuffed_utxo:               0
+    , reuse:                   true
+    , genesis_future_offset: "32 minutes" }
+  , node:
+    { eventlog:                true
+    } }
 , { name: "k500-52-1000kU"
   , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
   , genesis:
