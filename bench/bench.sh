@@ -185,6 +185,7 @@ main() {
                 destroy )             deploystate_destroy;;
 
                 genesis )             profile_genesis ${1:-$(params resolve-profile 'default')};;
+                genesis-info | gi )   genesis_info "$@";;
 
                 wait-for-empty-blocks | wait-empty | wait )
                                       op_wait_for_empty_blocks "$@";;

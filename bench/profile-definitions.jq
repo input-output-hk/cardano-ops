@@ -260,7 +260,7 @@ def aux_profiles:
     , extra_delegators:      750000
     , stuffed_utxo:          750000
     , reuse:                   true
-    , genesis_future_offset: "22 minutes" }
+    , genesis_future_offset: "32 minutes" }
   , node:
     { eventlog:                true
     } }

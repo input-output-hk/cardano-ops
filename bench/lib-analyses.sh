@@ -193,8 +193,10 @@ analysis_leadership_checks() {
         do grep -hFf "$keyfile" "$dir"/analysis/logs-"$mach"/*.json > "$dir"/analysis/logs-"$mach".json
            locli ${leadership_analysis_args[*]} \
                  --dump-leaderships "$dir"/analysis/logs-"$mach".leaderships.json \
-                 --dump-pretty-timeline "$dir"/analysis/logs-"$mach".leaderships.pretty.json \
-                 > "$dir"/analysis/logs-"$mach".leadership-analysis.json \
+                 --pretty-timeline "$dir"/analysis/logs-"$mach".timeline.pretty.txt \
+                 --export-timeline "$dir"/analysis/logs-"$mach".timeline.export.txt \
+                 --cpu-spans-histogram "$dir"/analysis/logs-"$mach".cpu85histogram.png \
+                 --analysis-output "$dir"/analysis/logs-"$mach".analysis.json \
                  "$dir"/analysis/logs-"$mach".json
            echo -ne '\b\b'
            count=$((count+1))

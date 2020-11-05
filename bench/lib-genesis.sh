@@ -66,6 +66,10 @@ genesis_profile_mismatches() {
         genesis_profile_mismatches_"$(get_era)" "$@"
 }
 
+genesis_info() {
+        genesis_info_"$(get_era)" "$@"
+}
+
 genesis_update_starttime() {
         local start_timestamp=$1 genesis_dir=$2 start_timestamp start_time
 
@@ -526,6 +530,41 @@ genesis_profile_mismatches_byron() {
         oprint "ASSUMING that genesis matches profile (genesis_profile_mismatches_byron)"
 }
 
+genesis_info_byron() {
+        oprint "no info"
+}
+
+genesis_info_shelley() {
+        local genesis_dir=${1:-./keys}
+        local g=$genesis_dir/genesis.json
+
+        local genesis_delegation_map_size genesis_n_delegator_keys genesis_n_bulk_creds
+        genesis_delegation_map_size=$(\
+            jq '.staking.stake | keys | length' $g)
+        genesis_n_delegator_keys=$(($(\
+            ls $genesis_dir/stake-delegator-keys | wc -l) / 2))
+        genesis_utxo_size=$(\
+            jq '.initialFunds | keys | length' $g)
+        genesis_n_bulk_creds=$(\
+            ls $genesis_dir/pools/bulk*.creds | wc -l)
+
+        cat <<EOF
+--( Genesis in $genesis_dir:
+----|  delegation map size:             $genesis_delegation_map_size
+----|  delegator key count:             $genesis_n_delegator_keys
+----|  genesis UTxO size:               $genesis_utxo_size
+----|  bulk credential files:           $genesis_n_bulk_creds
+----|  bulk credential file cred count:
+EOF
+        local n=0 actual
+        echo -ne '\b'
+        for bulkf in $genesis_dir/pools/bulk*.creds
+        do echo -n " $n:$(jq length $bulkf)"
+           n=$((n+1))
+        done
+        echo
+}
+
 genesis_profile_mismatches_shelley() {
         local profile=$1 genesis_dir=${2:-./keys}
         local g=$genesis_dir/genesis.json
@@ -535,6 +574,8 @@ genesis_profile_mismatches_shelley() {
             jq '.staking.stake | keys | length' $g)
         genesis_n_delegator_keys=$(($(\
             ls $genesis_dir/stake-delegator-keys | wc -l) / 2))
+        genesis_utxo_size=$(\
+            jq '.initialFunds | keys | length' $g)
         genesis_n_bulk_creds=$(\
             ls $genesis_dir/pools/bulk*.creds | wc -l)
 
@@ -547,22 +588,29 @@ genesis_profile_mismatches_shelley() {
         prof_n_extra_delegs=$(profgenjq "$profile" .extra_delegators)
         prof_pool_density=$(profgenjq "$profile" .dense_pool_density)
         prof_n_dense_hosts=$(($(jq .n_dense_hosts <<<$composition)))
+        prof_n_sing_hosts=$(($(jq .n_singular_hosts <<<$composition)))
         prof_n_dense_pools=$((prof_pool_density * prof_n_dense_hosts))
+        prof_stuffed_utxo=$(profgenjq "$profile" .stuffed_utxo)
+        prof_expected_utxo=$((prof_stuffed_utxo + prof_n_extra_delegs + prof_n_sing_hosts))
 
-        if test "$genesis_delegation_map_size" -lt "$prof_n_extra_delegs"
-        then echo "genesis-delegation-map-size-${genesis_delegation_map_size}-less-than-profile-extra-delegs-${prof_n_extra_delegs}"; fi
+        if test "$genesis_delegation_map_size" -ne "$prof_n_extra_delegs"
+        then echo -n "genesis-delegation-map-size-${genesis_delegation_map_size}-not-equal-to-profile-extra-delegs-${prof_n_extra_delegs} "; fi
 
         if test "$genesis_n_delegator_keys" -lt "$prof_n_extra_delegs"
-        then echo "genesis-delegator-key-${genesis_n_delegator_keys}-count-less-than-profile-extra-delegs-${prof_n_extra_delegs}"; fi
+        then echo -n "genesis-delegator-key-${genesis_n_delegator_keys}-count-less-than-profile-extra-delegs-${prof_n_extra_delegs} "; fi
 
         if test "$genesis_n_bulk_creds" -lt "$prof_n_dense_hosts"
-        then echo "genesis-bulk-cred-file-count-${genesis_n_bulk_creds}-less-than-profile-pools-count-${prof_n_dense_hosts}"; fi
+        then echo -n "genesis-bulk-cred-file-count-${genesis_n_bulk_creds}-less-than-profile-pools-count-${prof_n_dense_hosts} "; fi
+
+        if test "$genesis_utxo_size" -ne "$prof_expected_utxo"
+        then echo -n "genesis-utxo-${genesis_utxo_size}-less-than-profile-${prof_expected_utxo} "; fi
 
         local n=0 actual
         for bulkf in $genesis_dir/pools/bulk*.creds
         do actual=$(jq length $bulkf)
            if test "$actual" -lt $prof_pool_density
-           then echo "bulk-file-${n}-pools-${actual}-below-profile-pool-density-${prof_pool_density}"; fi
+           then echo -n " bulk-file-${n}-pools-${actual}-below-profile-pool-density-${prof_pool_density}"; fi
+           n=$((n+1))
         done
 }
 
