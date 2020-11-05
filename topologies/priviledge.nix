@@ -100,9 +100,9 @@ let
   in connectGroupWith bftCoreNodes
   (map defineKeys
        (fullyConnectNodes [
-         (mkStakingPool "d" 1 "IOHK1" { nodeId = 2; })
-         # (mkStakingPool "e" 1 "IOHK2" { nodeId = 4; })
-         # (mkStakingPool "f" 1 "IOHK3" { nodeId = 6; })
+         (mkStakingPool "b" 1 "IOHK1" { nodeId = 2; })
+         (mkStakingPool "c" 1 "IOHK2" { nodeId = 3; })
+         (mkStakingPool "d" 1 "IOHK3" { nodeId = 4; })
        ])
   );
 

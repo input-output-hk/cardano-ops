@@ -17,9 +17,10 @@ PROPOSAL_FILE=update.proposal
 SLOT_NO=`cardano-cli shelley query tip --testnet-magic 42 | jq ".slotNo"`
 while [ -z "${SLOT_NO-}" ]; do
     SLOT_NO=`cardano-cli shelley query tip --testnet-magic 42 | jq ".slotNo"`
-    echo $SLOT_NO
     sleep 10
 done
+
+[ -z "${SLOT_NO=:-}" ] && echo "SLOT_NO is not set or is empty" || echo "SLOT_NO is set to $SLOT_NO"
 
 CURRENT_EPOCH=$((SLOT_NO / EPOCH_LENGTH))
 PROPOSAL_EPOCH=$((CURRENT_EPOCH + 1))

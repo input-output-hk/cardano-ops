@@ -1,42 +1,47 @@
 #!/bin/bash
 set -euo pipefail
 
-# TODO: destroy the deployment.
-#
-# nixops destroy
+if [ -z ${1+x} ];
+then
+    echo "'redeploy' command was not specified, so the test will run on an existing testnet";
+else
+    case $1 in
+        redeploy )
+            echo "Redeploying the testnet"
+            nixops destroy
+            create-shelley-genesis-and-keys
+            nixops deploy -k
+            ;;
+        * )
+            echo "Unknown command $1"
+            exit
+    esac
+fi
 
-# TODO: create genesis file and keys
-#
-# create-shelley-genesis-and-keys
-#
-# TODO: this command should be run at deploment time.
-
-# TODO: deploy
-#
-# nixops deploy -k
+sleep 30
 
 # TODO: can we get this from the nix files?
 BFT_NODES=( bft-a-1 )
-POOL_NODES=( stk-d-1-IOHK1 )
+POOL_NODES=( stk-b-1-IOHK1 stk-c-1-IOHK2 stk-d-1-IOHK3 )
 
-for f in $BFT_NODES
+for f in ${BFT_NODES[@]}
 do
-    # Copy the script that we have to run
     nixops scp $f submit-update-proposal.sh /root/ --to
 done
 
-for f in $POOL_NODES
+for f in ${POOL_NODES[@]}
 do
     nixops scp $f register-stake-pool.sh /root/ --to
 done
 
-for f in $BFT_NODES
+for f in ${BFT_NODES[@]}
 do
     nixops ssh $f "./submit-update-proposal.sh"
 done
 
-for f in $POOL_NODES
+for f in ${POOL_NODES[@]}
 do
-    # TODO: stakepool registration can proceed in parallel
-    nixops ssh $f "./register-stake-pool.sh"
+    nixops ssh $f "./register-stake-pool.sh" &
 done
+
+wait
