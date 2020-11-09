@@ -157,7 +157,7 @@ EOF
         local host_count=${#host_resources[*]}
         oprint "hosts to deploy:  $host_count"
 
-        local max_batch=12
+        local max_batch=10
         if test $host_count -gt $max_batch
         then oprint "that's too much for a single deploy -- deploying in batches of $max_batch nodes"
 
