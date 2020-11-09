@@ -1,5 +1,11 @@
 set -euo pipefail
 
+# A stakepool node needs:
+# 1. A cold key pair
+# 2. A VRF key pair
+# 3. A KES key pair
+# 4. An operational certificate
+
 UTXO=keys/utxo
 STAKE=stake
 PAYMENT_ADDR=payment.addr

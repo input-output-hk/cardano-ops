@@ -9,7 +9,7 @@ DELEGATE=keys/delegate
 FEE=0
 TTL=1000000
 
-# TODO: get the epoch length from the genesis file.
+# FIXME: get the epoch length from the genesis file, or from the nix files.
 EPOCH_LENGTH=1000
 PROPOSAL_FILE=update.proposal
 

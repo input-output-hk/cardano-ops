@@ -41,7 +41,7 @@ let
                   --supply ${toString maxSupply} \
                   --gen-genesis-keys ${toString nbBFTNodes} \
                   --gen-utxo-keys ${toString nbCoreNodes} \
-                  --start-time `date -u -d "today + 5 minutes" +'%Y-%m-%dT%H:%M:%SZ'` \
+                  --start-time `date -u -d "today + 10 minutes" +'%Y-%m-%dT%H:%M:%SZ'` \
                   --testnet-magic 42
       # Customize the genesis file
       #

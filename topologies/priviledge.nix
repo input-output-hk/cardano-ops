@@ -45,19 +45,16 @@ let
     in connectGroupWith (reverseList stakePoolNodes)
     (map defineKeys
         (fullyConnectNodes [
-          # OBFT centralized nodes recovery nodes
+          # This example uses one OBFT node ...
           (mkBftCoreNode "a" 1 {
             org = "IOHK";
             nodeId = 1;
           })
+          # But you can add more nodes, like shown below:
           # (mkBftCoreNode "b" 1 {
             #   org = "IOHK";
             #   nodeId = 2;
             # })
-            # (mkBftCoreNode "c" 1 {
-              #   org = "IOHK";
-              #   nodeId = 3;
-              # })
         ])
     );
 
