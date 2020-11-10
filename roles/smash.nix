@@ -131,22 +131,6 @@ in {
             proxyPass = "http://127.0.0.1:3100${p}";
             extraConfig = corsConfig;
           })) {
-            "/api/v1/errors".extraConfig = ''
-              set_by_lua_block $by_pass_auth {
-                local args = ngx.req.get_uri_args()
-                if args["poolId"] ~= nil then
-                  return "1"
-                else
-                  return "0"
-                end
-              }
-              if ($by_pass_auth = "1") {
-                set $arg_apiKey "NONE";
-                set $api_client_name "BYPASS";
-              }
-              ${corsConfig}
-              ${apiKeyConfig}
-            '';
             "/api/v1/delist".extraConfig = ''
               ${corsConfig}
               ${apiKeyConfig}
