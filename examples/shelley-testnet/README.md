@@ -1,4 +1,4 @@
-In document we describe how to deploy a Shelley testnet and perform some
+In this document we describe how to deploy a Shelley testnet and perform some
 operations on it.
 
 The definition of the testnet (nodes, topology, etc) is done using [`nix`].
@@ -36,7 +36,7 @@ To setup on NixOS first enable `libvirtd` (TODO: which file is this?):
 }
 ```
 
-On Ubuntu refer to [these
+On Ubuntu see [these
 instructions](https://ubuntu.com/server/docs/virtualization-libvirt
 "Instructions on how to install libvirt").
 
@@ -82,7 +82,10 @@ distro, the way to achieve this might be modifying the value of
 directory has a least 4G of space, but use 8 or 16 if possible to be on the
 safe side. After modifying that file you should log out and in again.
 
-
+Finally, if you find out you did not allocated enough space for the temporary
+directory, you can either set the value of `RuntimeDirectorySize` to a larger
+value, or set the `TMPDIR` variable to point to a location with sufficient
+space.
 
 ### AWS deployment
 
@@ -91,26 +94,23 @@ in `overlays/ssh-keys.nix`. This file can be found in the
 [`ops-lib`](https://github.com/input-output-hk/ops-lib/ "ops-lib repository")
 repository.
 
-## Deployment configuration
+## Configuring the deployment
 
-To spin up a custom cluster first chose which of the available templates to
-use:
+To spin up a custom cluster first use the shelley pools example template. This
+features a setup with 1 OBFT node and 3 stakepools. The OBFT node is needed to
+bootstrap the network, and produce blocks. The 3 stakepools need to be
+registered and the decentralization parameter needs to be changed from 1 so
+that the pools can start producing blocks. We provide a script in ... TODO
+script which performs these tasks and illustrates how they can be done.
 
-- `shelley-dev` features a simple setup with 3 OBFT nodes and no stakepools.
-- `shelley-pools-example` features a setup with 1 OBFT node and 3 stakepools.
-  The OBFT node is needed to bootstrap the network, and produce blocks. The 3
-  stakepools need to be registered and the decentralization parameter needs to
-  be changed from 1 so that the pools can start producing blocks. All this can
-  be done with the (... todo) script we provide.
-
-Once you've chosen the template to use, create the global topology files using
-this template. For instance, if you want to use the `shelley-dev` template:
+Use this template to create the global topology files: TODO: make sure the
+files are there and that this works.
 
 ```sh
 export MYENV=my-env # Choose the name of your environment.
-globals-shelley-dev.nix globals-$MYENV.nix
+cp examples/shelley-testnet/globals.nix globals-$MYENV.nix
 ln -s globals-$MYENV.nix globals.nix
-cp topologies/shelley-dev.nix topologies/$MYENV.nix
+cp examples/topologies/shelley-testnet.nix topologies/$MYENV.nix
 ```
 
 After the files above are created change the `enviromentName` of
@@ -121,7 +121,7 @@ After the files above are created change the `enviromentName` of
 pkgs: with pkgs.iohkNix.cardanoLib; rec {
 
   // ...
-  environmentName = "my-env";cn
+  environmentName = "my-env";
 
   // ...
 }
@@ -162,8 +162,8 @@ After all the files are in place (globals, topology, genesis, and keys), you're
 ready to create the deployment :shipit:
 
 ### Creating a local deployment
-Once the default pool is available, the local deployment can be started using
-the following script on a nix-shell:
+
+The local deployment can be started using the following script on a nix-shell:
 
 ```sh
 ./scripts/create-libvirtd.sh
@@ -177,12 +177,11 @@ You can create an AWS deployment using the following script on a nix-shell:
 ./scripts/create-aws.sh
 ```
 
-
-## Testnet operation
+## Manipulating the testnet machines
 
 The machines of the network can be created, accessed, and destroyed using
 `nixops`. When creating the deployment using any of the `create-aws.sh` or
-`create-libvirtd.sh` scripts, the machines will be created for you.
+`create-libvirtd.sh` scripts, the machines will be created and started for you.
 
 Nixops provides several commands for manipulating the machines:
 
@@ -224,10 +223,38 @@ nixops scp $NODE_NAME $PATH_IN_HOST $PATH_IN_NODE --to
 TODO: describe the test script. why is this included here? To illustrate how
 one can use cardano cli to perform some tests.
 
-## Node manipulation
+## Manipulating the node
+
+In this section we describe operations on the nodes that are commonly used
+during tests (manual or automatic).
+
+### Updating cardano node
+
+The `cardano-ops` repository uses [`niv`](https://github.com/nmattia/niv "niv
+project page") to manage dependencies. To update `cardano-node` to use a
+specific branch run nix-shell:
+
+```sh
+niv update cardano-node -b <branch>
+```
+
+To list all the components managed by `niv` run:
+
+```
+niv show
+```
+
+### Locating keys in the node
+
+In the nodes they are stored in `/var/lib/keys`:
+
+```text
+▶ ls /var/lib/keys
+cardano-node-kes-signing  cardano-node-operational-cert  cardano-node-vrf-signing
+```
 
 
-### Node logs
+### Getting the node logs
 
 The Cardano node is started as a service in every machine in the network. To
 query its status, once logged into a machine of the network, run:
@@ -248,7 +275,7 @@ To follow the logs use:
 journalctl -u cardano-node -f -n40
 ```
 
-### Logging levels customization
+### Customizing logging levels
 
 The logging configuration of a node is explained in the [Cardano
 documentation][cardano-docs]. In this section we show how logging can be
@@ -285,7 +312,7 @@ To change the logging level per-node you have to modify the
 }
 ```
 
-### UTxO queries
+### Querying the UTxO
 
 To obtain the entire UTxO set, run:
 
@@ -319,32 +346,7 @@ cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode\
 TODO: provide the instructions for querying the address that correspond to a
 non-initial address.
 
-### Keys location in the node
-
-In the nodes they are stored in `/var/lib/keys`:
-
-```text
-▶ ls /var/lib/keys
-cardano-node-kes-signing  cardano-node-operational-cert  cardano-node-vrf-signing
-```
-
-### Cardano node version update
-
-The `cardano-ops` repository uses [`niv`](https://github.com/nmattia/niv "niv
-project page") to manage dependencies. To update `cardano-node` to use a
-specific branch run nix-shell:
-
-```sh
-niv update cardano-node -b <branch>
-```
-
-To list all the components managed by `niv` run:
-
-```
-niv show
-```
-
-### Protocol parameters query
+### Querying protocol parameters
 
 ```
 cardano-cli shelley query protocol-parameters --testnet-magic 42 --shelley-mode
@@ -352,26 +354,21 @@ cardano-cli shelley query protocol-parameters --testnet-magic 42 --shelley-mode
 
 You can use the `--out-file` flag to output the result to a file.
 
-### Ledger state dump
+### Dumping the ledger state
 
 
 ```sh
 cardano-cli shelley query ledger-state --testnet-magic 42 --shelley-mode
 ```
 
-### Stake distribution query
+### Querying the stake distribution
+
+Once stakepools are registered, you can check the portion of the stake they own
+by running:
 
 ```sh
 cardano-cli shelley query stake-distribution  --testnet-magic 42 --shelley-mode
 ```
-
-
-### Using a different temporary directory when building
-
-When building the explorer `nix` might run out of space in the temporary
-directory. To avoid this problem you can either allocate more space in the
-runtime directory (see section [Local-deployment]()) or set the `TMPDIR`
-variable to point to a location with sufficient space.
 
 ### Key hashing
 
@@ -399,6 +396,7 @@ examples below:
 
 - [nix.dev](https://nix.dev/)
 - [Making a Shelley blockchain from scratch](https://github.com/input-output-hk/cardano-node/blob/62485960494d914f8efd06ed0d8357d41a8f9d26/doc/reference/shelley-genesis.md)
+- [Cardano node documentation](https://docs.cardano.org/projects/cardano-node/en/latest/)
 - [Documentation about multisig](https://github.com/input-output-hk/cardano-node/blob/72987eb866346d141cfd76d73065c440307651aa/doc/reference/multisig.md#example-of-using-multi-signature-scripts)
 
 [`nix`]: https://nixos.org/download.html "nix installation instructions"
