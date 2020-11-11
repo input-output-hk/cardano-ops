@@ -100,11 +100,11 @@ To spin up a custom cluster first use the shelley pools example template. This
 features a setup with 1 OBFT node and 3 stakepools. The OBFT node is needed to
 bootstrap the network, and produce blocks. The 3 stakepools need to be
 registered and the decentralization parameter needs to be changed from 1 so
-that the pools can start producing blocks. We provide a script in ... TODO
+that the pools can start producing blocks. We provide a
+[setup-stakepools-block-production.sh](examples/shelley-testnet/scripts/setup-stakepools-block-production.sh)
 script which performs these tasks and illustrates how they can be done.
 
-Use this template to create the global topology files: TODO: make sure the
-files are there and that this works.
+Use this template to create the global topology files:
 
 ```sh
 export MYENV=my-env # Choose the name of your environment.
@@ -218,10 +218,6 @@ To copy files to the machines one can use the `nixops scp` command:
 nixops scp $NODE_NAME $PATH_IN_HOST $PATH_IN_NODE --to
 ```
 
-## The test script
-
-TODO: describe the test script. why is this included here? To illustrate how
-one can use cardano cli to perform some tests.
 
 ## Manipulating the node
 
@@ -342,9 +338,6 @@ This address can be used to query a specific UTxO:
 cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode\
      --address addr_test1vqrl9rphzv064dsfuc3dfumxwnsm8syhj4yucdkrtntxvyqcld79a
 ```
-
-TODO: provide the instructions for querying the address that correspond to a
-non-initial address.
 
 ### Querying protocol parameters
 
