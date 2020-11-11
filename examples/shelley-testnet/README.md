@@ -110,7 +110,7 @@ files are there and that this works.
 export MYENV=my-env # Choose the name of your environment.
 cp examples/shelley-testnet/globals.nix globals-$MYENV.nix
 ln -s globals-$MYENV.nix globals.nix
-cp examples/topologies/shelley-testnet.nix topologies/$MYENV.nix
+cp examples/shelley-testnet/topology.nix topologies/$MYENV.nix
 ```
 
 After the files above are created change the `enviromentName` of
@@ -368,6 +368,15 @@ by running:
 
 ```sh
 cardano-cli shelley query stake-distribution  --testnet-magic 42 --shelley-mode
+```
+### Querying the blocks produced per-stakepool
+
+You can dump the ledger state and look into the value to the `nesBprev` field
+or the `nesBCur` field to get the number of blocks produced per-stakepool in
+the previous and current epochs, respectively. For instance:
+
+```sh
+cardano-cli shelley query ledger-state --testnet-magic 42 --shelley-mode | jq '.nesBcur'
 ```
 
 ### Key hashing

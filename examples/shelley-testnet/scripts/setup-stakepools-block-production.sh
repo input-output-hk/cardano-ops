@@ -1,6 +1,17 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
+#
+# This is a simple test that submits an update proposal so that stakepools can
+# produce blocks, and registers stakepools.
+#
+# This script requires the following environment variables to be defined:
+#
+# - BFT_NODES: names of the BFT nodes
+# - POOL_NODES: names of the stake pool nodes
+#
 set -euo pipefail
+
+[ -z ${BFT_NODES+x} ] && (echo "Environment variable BFT_NODES must be defined"; exit 1)
+[ -z ${POOL_NODES+x} ] && (echo "Environment variable POOL_NODES must be defined"; exit 1)
 
 if [ -z ${1+x} ];
 then
@@ -10,7 +21,7 @@ else
         redeploy )
             echo "Redeploying the testnet"
             nixops destroy
-            create-shelley-genesis-and-keys
+            ./scripts/create-shelley-genesis-and-keys.sh
             nixops deploy -k
             ;;
         * )
@@ -19,20 +30,17 @@ else
     esac
 fi
 
-sleep 30
-
-# TODO: can we get this from the nix files?
-BFT_NODES=( bft-a-1 )
-POOL_NODES=( stk-b-1-IOHK1 stk-c-1-IOHK2 stk-d-1-IOHK3 )
+BFT_NODES=($BFT_NODES)
+POOL_NODES=($POOL_NODES)
 
 for f in ${BFT_NODES[@]}
 do
-    nixops scp $f submit-update-proposal.sh /root/ --to
+    nixops scp $f examples/shelley-testnet/scripts/submit-update-proposal.sh /root/ --to
 done
 
 for f in ${POOL_NODES[@]}
 do
-    nixops scp $f register-stake-pool.sh /root/ --to
+    nixops scp $f examples/shelley-testnet/scripts/register-stake-pool.sh /root/ --to
 done
 
 for f in ${BFT_NODES[@]}
