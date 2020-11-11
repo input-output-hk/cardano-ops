@@ -1,3 +1,10 @@
+# This derivation assumes a toplogy file where the following attributes are
+# defined:
+#
+# - bftCoreNodes
+# - stakePoolNodes
+# - coreNodes
+#
 { config ? {}
 , pkgs ? import ./nix {
     inherit config;
