@@ -27,6 +27,20 @@ let
         echo $hoursUntilNextEpoch
     '';
 
+  var = 21;
+
+  foo =
+    writeShellScriptBin "foo" (import ./examples/shelley-testnet/scripts/hello.nix { inherit var pparams; });
+
+  # Protocol parameters
+  pparams =
+    rec { k = 10;
+          f = 0.1;
+          epoch-length= (10 * k) / f;
+          bftCoreNodes = map (x: x.name) globals.topology.bftCoreNodes;
+          stakePoolNodes = map (x: x.name) globals.topology.stakePoolNodes;
+        };
+
   create-shelley-genesis-and-keys =
     let nbCoreNodes = builtins.length globals.topology.coreNodes;
         nbBFTNodes = builtins.length globals.topology.bftCoreNodes;
@@ -152,6 +166,16 @@ in  mkShell rec {
       (share: builtins.pathExists (share + "/bash-completion"))
       (map (p: p + "/share") buildInputs))
   );
+  
+  BFT_NODES = map (x: x.name) globals.topology.bftCoreNodes;
+  POOL_NODES = map (x: x.name) globals.topology.stakePoolNodes;
+  # Network parameters.
+  K = 10;            # Security parameter
+  F = 0.1;           # Active slot coefficient
+  SLOT_LENGTH = 0.2;
+  MAX_SUPPLY = 20000000000000000 * builtins.length globals.topology.coreNodes;
+  # End: Network parameters.
+  
   NIX_PATH = "nixpkgs=${path}";
   NIXOPS_DEPLOYMENT = "${globals.deploymentName}";
   passthru = {
