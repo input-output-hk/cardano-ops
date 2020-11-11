@@ -3,7 +3,8 @@ pkgs: with pkgs.iohkNix.cardanoLib; rec {
   withMonitoring = false;
   withExplorer = false;
 
-  environmentName = "priviledge";
+  # This should match the name of the topology file.
+  environmentName = "example";
 
   environmentConfig = rec {
     relays = "relays.${pkgs.globals.domain}";
