@@ -73,4 +73,6 @@ for i in `seq $((${#BFT_NODES[@]}+1)) $TOTAL_NODES`; do
               --signing-key-file node-vrf$i.skey
 done
 
-# ${renew-kes-keys}/bin/new-KES-keys-at-period 0
+cd ../../
+
+./scripts/renew-kes-keys.sh 0 ${#BFT_NODES[@]} $TOTAL_NODES
