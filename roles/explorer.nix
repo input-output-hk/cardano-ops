@@ -149,8 +149,8 @@ in {
       excludeList="$(sort ${relays_exclude_file})"
       cd $STATE_DIRECTORY
       for r in $(psql -t < ${extract_relays_sql} | jq -c '.[]'); do
-        addr=$(echo $r | jq -r '.addr')
-        port=$(echo $r | jq -r '.port')
+        addr=$(echo "$r" | jq -r '.addr')
+        port=$(echo "$r" | jq -r '.port')
         allAddresses="$addr\n$(dig +short $addr)"
         excludedAddresses=$(comm -12 <(echo "$allAddresses" | sort) <(echo "$excludeList"))
         nbExcludedAddresses=$(echo $excludedAddresses | wc -w)
@@ -161,8 +161,8 @@ in {
           set -e
           if [ $res -eq 0 ]; then
             geoinfo=$(curl -s https://json.geoiplookup.io/$addr)
-            continent=$(echo $geoinfo | jq -r '.continent_name')
-            country_code=$(echo $geoinfo | jq -r '.country_code')
+            continent=$(echo "$geoinfo" | jq -r '.continent_name')
+            country_code=$(echo "$geoinfo" | jq -r '.country_code')
             if [ "$country_code" == "US" ]; then
               state=$(echo $geoinfo | jq -r '.region')
             else
