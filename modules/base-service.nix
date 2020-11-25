@@ -94,6 +94,8 @@ in
       };
     };
     systemd.services.cardano-node = {
+      # FIXME: waiting for https://github.com/input-output-hk/cardano-node/pull/2124
+      after = lib.mkForce [ "network-online.target" "cardano-node.socket" ];
       path = [ gnutar gzip ];
       preStart = ''
         cd $STATE_DIRECTORY
