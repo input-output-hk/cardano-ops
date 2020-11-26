@@ -3,6 +3,7 @@ let
   nodeCfg = config.services.cardano-node;
   cfg = config.services.smash;
   hostAddr = getListenIp nodes.${name};
+  inherit (import (sourcePaths.smash + "/nix") {}) smashHaskellPackages;
 in {
   environment = {
     systemPackages = [
@@ -17,7 +18,10 @@ in {
     cardano-ops.modules.cardano-postgres
     (sourcePaths.smash+ "/nix/nixos")
   ];
-  services.cardano-node.producers = [ globals.relaysNew ];
+  services.cardano-node = {
+    producers = [ globals.relaysNew ];
+    package = smashHaskellPackages.cardano-node.components.exes.cardano-node;
+  };
   systemd.services.smash.serviceConfig = {
     # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
     SupplementaryGroups = "cardano-node";

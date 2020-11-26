@@ -6,6 +6,10 @@ let
   nodeCfg = config.services.cardano-node;
   nodeId = config.node.nodeId;
   hostAddr = getListenIp nodes.${name};
+  inherit (cardanoDbSyncHaskellPackages.cardano-db-sync.components.exes) cardano-db-sync;
+  inherit (cardanoDbSyncHaskellPackages.cardano-db-sync-extended.components.exes) cardano-db-sync-extended;
+  inherit (cardanoDbSyncHaskellPackages.cardano-node.components.exes) cardano-node;
+  inherit (cardanoDbSyncHaskellPackages.cardano-db.components.exes) cardano-db-tool;
 in {
   imports = [
     (sourcePaths.cardano-node + "/nix/nixos")
@@ -19,7 +23,7 @@ in {
 
   environment.systemPackages = with pkgs; [
     bat fd lsof netcat ncdu ripgrep tree vim dnsutils cardano-cli
-    cardano-db-sync-pkgs.haskellPackages.cardano-db.components.exes.cardano-db-tool
+    cardano-db-tool
   ];
   services.cardano-postgres.enable = true;
   services.postgresql = {
@@ -54,9 +58,9 @@ in {
   services.cardano-rosetta-server = {
     enable = true;
     topologyFilePath = nodeCfg.topology;
-    cardanoCliPath = pkgs.cardano-cli + /bin/cardano-cli;
+    cardanoCliPath = cardano-cli + /bin/cardano-cli;
     genesisPath = nodeCfg.nodeConfig.ShelleyGenesisFile;
-    cardanoNodePath = pkgs.cardano-node + /bin/cardano-node;
+    cardanoNodePath = cardano-node + /bin/cardano-node;
     cardanoNodeSocketPath = nodeCfg.socketPath;
     bindAddress = "127.0.0.1";
     port = 8082;
@@ -68,11 +72,14 @@ in {
   systemd.services.cardano-graphql.serviceConfig.Restart = "always";
   systemd.services.cardano-graphql.serviceConfig.RestartSec = "10s";
 
-  services.cardano-node.rtsArgs = lib.mkForce
-    (if globals.withHighCapacityExplorer then
-      [ "-N2" "-A10m" "-qg" "-qb" "-M10G" ]
-    else
-      [ "-N2" "-A10m" "-qg" "-qb" "-M3G" ]);
+  services.cardano-node = {
+    rtsArgs = lib.mkForce
+      (if globals.withHighCapacityExplorer then
+        [ "-N2" "-A10m" "-qg" "-qb" "-M10G" ]
+      else
+        [ "-N2" "-A10m" "-qg" "-qb" "-M3G" ]);
+    package = cardano-node;
+  };
 
   systemd.services.cardano-node.serviceConfig.MemoryMax = lib.mkForce
     (if globals.withHighCapacityExplorer then "14G" else "3.5G");
@@ -86,8 +93,8 @@ in {
     user = "cexplorer";
     extended = globals.withCardanoDBExtended;
     package = if globals.withCardanoDBExtended
-      then cardano-db-sync-pkgs.cardano-db-sync-extended
-      else cardano-db-sync-pkgs.cardano-db-sync;
+      then cardano-db-sync-extended
+      else cardano-db-sync;
     postgres = {
       database = "cexplorer";
     };

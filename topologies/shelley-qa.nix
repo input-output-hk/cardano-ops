@@ -71,5 +71,9 @@ in {
     services.nginx.virtualHosts."${globals.explorerHostName}.${globals.domain}".locations."/p" = lib.mkIf (__pathExists ../static/pool-metadata) {
       root = ../static/pool-metadata;
     };
+    services.cardano-graphql = {
+      allowListPath = mkForce null;
+      allowIntrospection = true;
+    };
   };
 }

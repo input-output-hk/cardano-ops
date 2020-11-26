@@ -73,15 +73,15 @@
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
     "cardano-node": {
-        "branch": "refs/tags/1.21.1",
+        "branch": "refs/tags/1.23.0",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "a819311473563cb2ab3cd91543cf0f63facdf43e",
-        "sha256": "1zj780z3j11rwbvazg79ja5110cgvskzdls81ms0dv3qy7lw4iyr",
+        "rev": "eed250546fa9acec4c9de557b3e3551c1f682a30",
+        "sha256": "0n74w8s6py7v59dl09a3khlk2b4h2k6cnh6p916gv35bx5p712bz",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/a819311473563cb2ab3cd91543cf0f63facdf43e.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/eed250546fa9acec4c9de557b3e3551c1f682a30.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rest": {
@@ -114,10 +114,22 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "f4790863d0d4e3f9018f012ec6575432c7952a48",
-        "sha256": "0jds3j5fqcwbgpmbddrp9cxia5mxz8kw7sqsw6jcq9bq5mv1x00d",
+        "rev": "72b62e35a3c4931a65d89026bbdecffb3442b88d",
+        "sha256": "1rdaa3c4sz3h1ky9ilp4sm5j9xm9v0vhnzlgnwcs3z1l8ygmvghf",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/f4790863d0d4e3f9018f012ec6575432c7952a48.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/72b62e35a3c4931a65d89026bbdecffb3442b88d.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "nixpkgs": {
+        "branch": "nixos-20.03",
+        "description": "Nix Packages collection",
+        "homepage": "",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "db31e48c5c8d99dcaf4e5883a96181f6ac4ad6f6",
+        "sha256": "1j5j7vbnq2i5zyl8498xrf490jca488iw6hylna3lfwji6rlcaqr",
+        "type": "tarball",
+        "url": "https://github.com/NixOS/nixpkgs/archive/db31e48c5c8d99dcaf4e5883a96181f6ac4ad6f6.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs-crystal": {
