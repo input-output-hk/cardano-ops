@@ -16,7 +16,6 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 88,
   "links": [],
   "panels": [
     {
@@ -718,7 +717,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "(rate(cardano_node_metrics_Forge_node_is_leader_int{alias!~\".*-dr-.*\"}[1h])/rate(cardano_node_metrics_Forge_forge_about_to_lead_int{alias!~\".*-dr-.*\"}[1h])) / on(alias) cardano_node_genesis_activeSlotsCoeff",
+          "expr": "(rate(cardano_node_metrics_Forge_node_is_leader_int{alias!~\".*-dr-.*\"}[1h])/rate(cardano_node_ChainDB_metrics_slotNum_int{alias!~\".*-dr-.*\"}[1h])) / on(alias) cardano_node_genesis_activeSlotsCoeff",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -727,7 +726,7 @@
           "refId": "A"
         },
         {
-          "expr": "sum((rate(cardano_node_metrics_Forge_node_is_leader_int{alias!~\".*-dr-.*\"}[1h])/rate(cardano_node_metrics_Forge_forge_about_to_lead_int{alias!~\".*-dr-.*\"}[1h])) / on(alias) cardano_node_genesis_activeSlotsCoeff)",
+          "expr": "sum((rate(cardano_node_metrics_Forge_node_is_leader_int{alias!~\".*-dr-.*\"}[1h])/rate(cardano_node_ChainDB_metrics_slotNum_int{alias!~\".*-dr-.*\"}[1h])) / on(alias) cardano_node_genesis_activeSlotsCoeff)",
           "hide": false,
           "interval": "",
           "legendFormat": "Total led slots",
@@ -1455,7 +1454,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "1/rate(cardano_node_metrics_Forge_forge_about_to_lead_int[600s])",
+          "expr": "1/rate(cardano_node_ChainDB_metrics_slotNum_int[600s])",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
