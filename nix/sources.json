@@ -24,27 +24,27 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync": {
-        "branch": "refs/tags/5.0.3",
+        "branch": "refs/tags/6.0.1",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "70d62366993b8887c749c7b2591e4f8caf09fe43",
-        "sha256": "0bln0cagwcxxbaz971ymdr9g1wi8z3lmmra1q4y5dv4apgwmy11c",
+        "rev": "a8129c54c7caa663dc8826a33a3655e32579d4d6",
+        "sha256": "0y0iznw7k1mjigwqvkyswp6bsj9s5s6yilsmlgypycb04w29z6f6",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/70d62366993b8887c749c7b2591e4f8caf09fe43.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/a8129c54c7caa663dc8826a33a3655e32579d4d6.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer-app": {
-        "branch": "refs/tags/1.2.0",
+        "branch": "release/1.2.1",
         "description": "Cardano Explorer App",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-explorer-app",
-        "rev": "eaae663a3a36513e4676306b65ef9d32e02fbfd3",
-        "sha256": "1qyh69g49w5msnhls726nk2iw5nn0phfbagav4vxia039q3xqmmh",
+        "rev": "a4db748ecbba032b0113f50c57f934f2e003d441",
+        "sha256": "1a5hs98iw68syswxaz3bjv5c4gh8a7kl5f8iqc8hvk9v6rnh48am",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/eaae663a3a36513e4676306b65ef9d32e02fbfd3.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/a4db748ecbba032b0113f50c57f934f2e003d441.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
@@ -60,15 +60,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
-        "branch": "refs/tags/2.2.0",
+        "branch": "refs/tags/3.0.1",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35",
-        "sha256": "0aidrrlhs3f3j1dqn7xrahkzhzg7izzdsxgjn1mdh7w62fyrkdj7",
+        "rev": "829144bdc4156a7b2c01b6552abcee4c2ed5b049",
+        "sha256": "1w2dgr6i14g59r4mvs964zcfjb12491dhid41w4js44gv30r8fqw",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/cc7f4ddf78182fb14c8d34516e6c72408ad3eb35.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/829144bdc4156a7b2c01b6552abcee4c2ed5b049.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
@@ -97,15 +97,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rosetta": {
-        "branch": "refs/tags/0.2.0",
+        "branch": "release/1.0.0",
         "description": "https://www.rosetta-api.org implementation for Cardano Node",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-rosetta",
-        "rev": "30970e71d1368c7650ad01c39cb1a336f9ba38e2",
-        "sha256": "07d9fng8iagpryz37a71xpx8p9qhy1mrpzpifg75hfwwxlafxp11",
+        "rev": "52774e810e7619b58dd0e2ae5f237559ad340917",
+        "sha256": "0314brnnrqg2g1aasr9bvhbmanpd9iwk3s1l27b7ijr53dzssyna",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/30970e71d1368c7650ad01c39cb1a336f9ba38e2.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/52774e810e7619b58dd0e2ae5f237559ad340917.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "iohk-nix": {
