@@ -94,7 +94,7 @@ in {
       lovelacesToGiveAnonymous = 1000000000;
       lovelacesToGiveApiKeyAuth = 1000000000000;
       useByronWallet = false;
-      faucetFrontendUrl = "https://testnets.cardano.org/en/cardano/tools/faucet/";
+      faucetFrontendUrl = "https://developers.cardano.org/en/cardano/tools/faucet/";
     };
   };
   explorer = {
