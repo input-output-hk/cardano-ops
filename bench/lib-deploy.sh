@@ -139,10 +139,6 @@ deploystate_deploy_profile() {
 --(   node:          $(profjq "$prof" .node      --compact-output)
 EOF
 
-        mkdir -p "$(dirname "$deploylog")"
-        echo >"$deploylog"
-        ln -sf "$deploylog" 'last-deploy.log'
-
         watcher_pid=
         if test -n "${watch_deploy}"
         then { sleep 0.3; tail -f "$deploylog"; } &
@@ -162,18 +158,19 @@ EOF
         then oprint "that's too much for a single deploy -- deploying in batches of $max_batch nodes"
 
              oprint "deploying non-host resources first:  ${other_resources[*]}"
-             deploy_resources ${other_resources[*]}
+             time deploy_resources "$prof" "$deploylog" "$watcher_pid" \
+                                   ${other_resources[*]}
 
              local base=0 batch
              while test $base -lt $host_count
              do local batch=(${host_resources[*]:$base:$max_batch})
                 oprint "deploying host batch:  ${batch[*]}"
-                time deploy_resources ${batch[*]}
+                time deploy_resources "$prof" "$deploylog" ${batch[*]}
                 oprint "deployed batch of ${#batch[*]} nodes:  ${batch[*]}"
                 base=$((base + max_batch))
              done
         else oprint "that's deployable in one go -- blasting ahead"
-             deploy_resources
+             time deploy_resources "$prof" "$deploylog" "$watcher_pid"
         fi
 
         if test -n "$watcher_pid"
@@ -183,17 +180,14 @@ EOF
         update_deployfiles "$prof" "$deploylog" "$include"
 }
 
-deploy_resources() {
-        local cmd=( nixops deploy
-                    --allow-reboot
-                    --confirm
-                    --cores 0 -j 4
-                    --max-concurrent-copy 50
-                    ${1:+--include} "$@"
-                  )
-        if test -n "$watcher_pid"
-        then oprint "nixops deploy log:"; fi
+run_nixops_deploy() {
+        local prof=$1 deploylog=$2 watcher_pid=$3
+        shift 3
+        local flags=("$@")
+        local cmd=(nixops deploy)
+        cmd+=(${flags[*]})
 
+        echo "-------------------- nixops deploy $*" >>"$deploylog"
         if export BENCHMARKING_PROFILE=${prof}; ! "${cmd[@]}" \
                  >>"$deploylog" 2>&1
         then echo "FATAL:  deployment failed, full log in ${deploylog}"
@@ -203,6 +197,26 @@ deploy_resources() {
                   tail -n200 "$deploylog"; fi
              return 1
         fi >&2
+        echo "deployment status:  success" >&2
+}
+
+deploy_build_only() {
+        local prof=$1 deploylog=$2 watcher_pid=$3
+        run_nixops_deploy "$prof" "$deploylog" "$watcher_pid" \
+                --build-only \
+                --confirm \
+                --cores 0 \
+                -j 4
+}
+
+deploy_resources() {
+        local prof=$1 deploylog=$2 watcher_pid=$3
+        run_nixops_deploy "$prof" "$deploylog" "$watcher_pid" \
+                --allow-reboot \
+                --confirm \
+                --cores 0 -j 4 \
+                --max-concurrent-copy 50 \
+                ${1:+--include} "$@"
 }
 
 deploystate_collect_machine_info() {

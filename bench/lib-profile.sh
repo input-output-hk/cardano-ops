@@ -20,6 +20,25 @@ profile_deploy() {
         local prof="${1:-default}" include=()
         prof=$(params resolve-profile "$prof")
 
+        mkdir -p runs/deploy-logs
+        deploylog=runs/deploy-logs/$(timestamp).deploy.$prof.log
+
+        mkdir -p "$(dirname "$deploylog")"
+        echo >"$deploylog"
+        ln -sf "$deploylog" 'last-deploy.log'
+
+        watcher_pid=
+        if test -n "${watch_deploy}"
+        then { sleep 0.3; tail -f "$deploylog"; } &
+             watcher_pid=$!; fi
+
+        oprint "prebuilding:"
+        ## 0. Prebuild:
+        time deploy_build_only "$prof" "$deploylog" "$watcher_pid"
+
+        if test -n "$watcher_pid"
+        then kill "$watcher_pid" >/dev/null 2>&1 || true; fi
+
         ## Determine if genesis update is necessary:
         ## 1. profile incompatible?
         regenesis_causes=(mandatory)
@@ -95,18 +114,10 @@ profile_deploy() {
         then final_include=$(echo "${include[*]}" | sed 's/explorer explorer/explorer/g')
         else final_include="${include[*]}"; fi
 
-        if test "$final_include" = "explorer $(params producers)"
-        then qualifier='full'
-        elif test "$final_include" = "$(params producers)"
-        then qualifier='producers'
-        else qualifier='explorer'; fi
-
         if test -z "${redeploy_causes[*]}"
         then return; fi
 
         oprint "redeploying, because:  ${redeploy_causes[*]}"
-        mkdir -p runs/deploy-logs
-        deploylog=runs/deploy-logs/$(timestamp).deploy.$qualifier.$prof.log
         if test -z "$no_deploy"
         then deploystate_deploy_profile "$prof" "$final_include" "$deploylog"
         else oprint "skippin' deploy, because:  CLI override"
