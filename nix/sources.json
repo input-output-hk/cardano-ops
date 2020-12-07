@@ -24,15 +24,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync": {
-        "branch": "refs/tags/6.0.1",
+        "branch": "release/7.0.x",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "a8129c54c7caa663dc8826a33a3655e32579d4d6",
-        "sha256": "0y0iznw7k1mjigwqvkyswp6bsj9s5s6yilsmlgypycb04w29z6f6",
+        "rev": "3819434adc74a4759744c6a1f0b0c5efc5b0a626",
+        "sha256": "10c7irlbhkk5q3p5gbb8sxmvsbh8sf29p60vr19sirjy2v8b8pdy",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/a8129c54c7caa663dc8826a33a3655e32579d4d6.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/3819434adc74a4759744c6a1f0b0c5efc5b0a626.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer-app": {
@@ -48,27 +48,27 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
-        "branch": "1.21.1-support",
+        "branch": "allegra-tmp",
         "description": "Faucet for Cardano",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "c00520b25e700503c8f20c90a4f7991228957bce",
-        "sha256": "0ff2pjwwxk85nqjcfckf656wimbh2jk0mi88fkrbsqfwv2i03v9c",
+        "rev": "b55e31e5a321b442bf14763abc7a6949d121cb0f",
+        "sha256": "0dzz7bf5nkn438z5hqh1kw9a8q30bcvymdms78g8mm7z7y9dqqkl",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/c00520b25e700503c8f20c90a4f7991228957bce.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/b55e31e5a321b442bf14763abc7a6949d121cb0f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
-        "branch": "refs/tags/3.0.1",
+        "branch": "master",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "829144bdc4156a7b2c01b6552abcee4c2ed5b049",
-        "sha256": "1w2dgr6i14g59r4mvs964zcfjb12491dhid41w4js44gv30r8fqw",
+        "rev": "159c71180f58e550760496ca4acc5ff0e318bc73",
+        "sha256": "02hnvjfc355ihcz82ipbxsv7r4yfl40a414vfrpmlvvr6nm2ihzv",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/829144bdc4156a7b2c01b6552abcee4c2ed5b049.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/159c71180f58e550760496ca4acc5ff0e318bc73.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
@@ -97,15 +97,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rosetta": {
-        "branch": "release/1.0.0",
+        "branch": "master",
         "description": "https://www.rosetta-api.org implementation for Cardano Node",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-rosetta",
-        "rev": "52774e810e7619b58dd0e2ae5f237559ad340917",
-        "sha256": "0314brnnrqg2g1aasr9bvhbmanpd9iwk3s1l27b7ijr53dzssyna",
+        "rev": "2f03c6f0547975b87c29be49fcd4261777c25b08",
+        "sha256": "1jmklwr8zxb299v0nzm10j0cl0xc6h2dl0s3wxjjl41wjqk9iqpc",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/52774e810e7619b58dd0e2ae5f237559ad340917.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/2f03c6f0547975b87c29be49fcd4261777c25b08.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "iohk-nix": {

@@ -49,7 +49,7 @@ in {
 
   "${globals.faucetHostname}" = {
     services.cardano-faucet = {
-      anonymousAccess = false;
+      anonymousAccess = true;
       faucetLogLevel = "DEBUG";
       secondsBetweenRequestsAnonymous = 86400;
       secondsBetweenRequestsApiKeyAuth = 86400;
