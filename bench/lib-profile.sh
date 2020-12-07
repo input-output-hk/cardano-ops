@@ -32,9 +32,10 @@ profile_deploy() {
         then { sleep 0.3; tail -f "$deploylog"; } &
              watcher_pid=$!; fi
 
-        oprint "prebuilding:"
-        ## 0. Prebuild:
-        time deploy_build_only "$prof" "$deploylog" "$watcher_pid"
+        if test -z "$no_prebuild"
+        then oprint "prebuilding:"
+             ## 0. Prebuild:
+             time deploy_build_only "$prof" "$deploylog" "$watcher_pid"; fi
 
         if test -n "$watcher_pid"
         then kill "$watcher_pid" >/dev/null 2>&1 || true; fi

@@ -151,7 +151,7 @@ EOF
         set -o pipefail
 
         local host_count=${#host_resources[*]}
-        oprint "hosts to deploy:  $host_count"
+        oprint "hosts to deploy:  $host_count total:  ${host_resources[*]}"
 
         local max_batch=10
         if test $host_count -gt $max_batch
@@ -222,7 +222,9 @@ deploy_resources() {
 deploystate_node_log_commit_id() {
         local mach=$1
 
+        set +o pipefail
         nixops ssh "$mach" -- journalctl -u cardano-node | grep commit | sed 's/.*"\([0-9a-f]\{40\}\)".*/\1/'
+        set -o pipefail
 }
 
 deploystate_check_node_log_commit_id() {

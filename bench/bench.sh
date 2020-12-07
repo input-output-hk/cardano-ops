@@ -108,6 +108,7 @@ EOF
 }
 
 verbose= debug= trace=
+no_prebuild=
 no_deploy=
 no_wait=
 force_deploy=
@@ -126,6 +127,8 @@ main() {
         while test $# -ge 1
         do case "$1" in
            --fast-unsafe | --fu ) no_deploy=t no_wait=t;;
+           --no-prebuild )        no_prebuild=t;;
+           --no-deploy )          no_deploy=t;;
            --deploy )             force_deploy=t;;
            --reuse-genesis | --keep-genesis )
                                   reuse_genesis=t;;
@@ -296,8 +299,11 @@ bench_profile() {
 
         oprint "benchmarking profile:  ${prof:?Unknown profile $profspec, see ${paramsfile}}"
         deploylog='./last-deploy.log'
-        oprint "deploying profile.."
-        time profile_deploy "${prof}"
+        if test -z "$no_deploy"
+        then oprint "deploying profile.."
+             time profile_deploy "${prof}"
+        else oprint "NOT deploying profile, due to --no-deploy!"
+        fi
 
         op_bench_start "${prof}" "${deploylog}"
         ret=$?
