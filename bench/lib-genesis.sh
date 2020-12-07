@@ -242,7 +242,6 @@ profile_genesis_shelley_incremental() {
         __KEY_ROOT="$target_dir"
 
         params=(--genesis-dir      "$target_dir"
-                --gen-utxo-keys    1
                 $(profile_shelley_genesis_cli_args "$prof" "$composition" 'create0'))
         cli genesis create "${params[@]}"
 
@@ -252,6 +251,7 @@ profile_genesis_shelley_incremental() {
         mv "$target_dir"/genesis.spec.json.  "$target_dir"/genesis.spec.json
 
         params=(--genesis-dir      "$target_dir"
+                --gen-utxo-keys    1
                 $(profile_shelley_genesis_cli_args "$prof" "$composition" 'create1'))
         ## update genesis from template
         cli genesis create "${params[@]}"

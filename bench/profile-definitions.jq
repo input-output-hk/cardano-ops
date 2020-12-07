@@ -107,7 +107,7 @@ def era_generator_params($era):
 
 def era_default_generator_profile($era):
 { byron:   { txs:  50000, add_tx_size: 100, io_arity: 2,  tps: 100 }
-, shelley: { txs:   3000, add_tx_size: 100, io_arity: 2,  tps: 100 }
+, shelley: { txs:   3000, add_tx_size:   0, io_arity: 2,  tps: 100 }
 } | .[$era];
 
 def era_generator_profiles($era):
@@ -158,12 +158,12 @@ def aux_profiles:
                , init_cooldown: 25, finish_patience: 4 }
   }
 , { name: "smoke",
-    generator: { txs: 100,   add_tx_size: 100, io_arity: 1,  tps: 100
+    generator: { txs: 100,   add_tx_size: 0, io_arity: 1,  tps: 100
                , init_cooldown: 25, finish_patience: 4 }
   }
 
 , { name: "k1000-52-1000kU-dlg0.33"
-  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
+  , generator: { txs: 44000, add_tx_size: 0, io_arity: 1,  tps: 2 }
   , genesis:
     { dense_pool_density:        20
     , extra_delegators:      333000
@@ -172,7 +172,7 @@ def aux_profiles:
     , genesis_future_offset: "22 minutes" }
   }
 , { name: "k1000-52-1000kU-dlg1.0"
-  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
+  , generator: { txs: 44000, add_tx_size: 0, io_arity: 1,  tps: 2 }
   , genesis:
     { dense_pool_density:        20
     , extra_delegators:     1000000
@@ -181,7 +181,7 @@ def aux_profiles:
     , genesis_future_offset: "32 minutes" }
   }
 , { name: "k500-52-1000kU"
-  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
+  , generator: { txs: 44000, add_tx_size: 0, io_arity: 1,  tps: 2 }
   , genesis:
     { dense_pool_density:        10
     , extra_delegators:      500000
@@ -190,7 +190,7 @@ def aux_profiles:
     , genesis_future_offset: "22 minutes" }
   }
 , { name: "k500-52-1500kU"
-  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
+  , generator: { txs: 44000, add_tx_size: 0, io_arity: 1,  tps: 2 }
   , genesis:
     { dense_pool_density:        10
     , extra_delegators:      750000
@@ -200,7 +200,7 @@ def aux_profiles:
   }
 
 , { name: "k1000-fast"
-  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , generator: { txs: 10000, add_tx_size: 0, io_arity: 1,  tps: 100 }
   , genesis:
     { dense_pool_density:        20
     , extra_delegators:      500000
@@ -209,7 +209,7 @@ def aux_profiles:
     , genesis_future_offset: "9 minutes" }
   }
 , { name: "k2000-fast"
-  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , generator: { txs: 10000, add_tx_size: 0, io_arity: 1,  tps: 100 }
   , genesis:
     { dense_pool_density:       200
     , extra_delegators:      500000
@@ -218,7 +218,7 @@ def aux_profiles:
     , genesis_future_offset: "9 minutes" }
   }
 , { name: "k1000"
-  , generator: { txs: 22000, add_tx_size: 100, io_arity: 1,  tps: 1 }
+  , generator: { txs: 22000, add_tx_size: 0, io_arity: 1,  tps: 1 }
   , genesis:
     { dense_pool_density:       100
     , extra_delegators:      500000
@@ -227,7 +227,7 @@ def aux_profiles:
     , genesis_future_offset: "9 minutes" }
   }
 , { name: "k2000"
-  , generator: { txs: 22000, add_tx_size: 100, io_arity: 1,  tps: 1 }
+  , generator: { txs: 22000, add_tx_size: 0, io_arity: 1,  tps: 1 }
   , genesis:
     { dense_pool_density:       200
     , extra_delegators:      500000
@@ -236,7 +236,7 @@ def aux_profiles:
     , genesis_future_offset: "9 minutes" }
   }
 , { name: "k3000"
-  , generator: { txs: 22000, add_tx_size: 100, io_arity: 1,  tps: 1 }
+  , generator: { txs: 22000, add_tx_size: 0, io_arity: 1,  tps: 1 }
   , genesis:
     { dense_pool_density:       300
     , extra_delegators:      500000
@@ -246,7 +246,7 @@ def aux_profiles:
   }
 
 , { name: "k1000-fast52"
-  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , generator: { txs: 10000, add_tx_size: 0, io_arity: 1,  tps: 100 }
   , genesis:
     { dense_pool_density:        20
     , extra_delegators:      500000
@@ -255,7 +255,7 @@ def aux_profiles:
     , genesis_future_offset: "22 minutes" }
   }
 , { name: "k1000-52-1500kU"
-  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
+  , generator: { txs: 44000, add_tx_size: 0, io_arity: 1,  tps: 2 }
   , genesis:
     { dense_pool_density:        20
     , extra_delegators:      750000
@@ -264,7 +264,7 @@ def aux_profiles:
     , genesis_future_offset: "32 minutes" }
   }
 , { name: "k1000-52-1000kU"
-  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
+  , generator: { txs: 44000, add_tx_size: 0, io_arity: 1,  tps: 2 }
   , genesis:
     { dense_pool_density:        20
     , extra_delegators:      500000
@@ -273,7 +273,7 @@ def aux_profiles:
     , genesis_future_offset: "22 minutes" }
   }
 , { name: "k1000-52-750kU"
-  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
+  , generator: { txs: 44000, add_tx_size: 0, io_arity: 1,  tps: 2 }
   , genesis:
     { dense_pool_density:        20
     , extra_delegators:      375000
@@ -282,7 +282,7 @@ def aux_profiles:
     , genesis_future_offset: "22 minutes" }
   }
 , { name: "k1000-52-500kU"
-  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
+  , generator: { txs: 44000, add_tx_size: 0, io_arity: 1,  tps: 2 }
   , genesis:
     { dense_pool_density:        20
     , extra_delegators:      250000
@@ -292,7 +292,7 @@ def aux_profiles:
   }
 
 , { name: "k2000-fast52"
-  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , generator: { txs: 10000, add_tx_size: 0, io_arity: 1,  tps: 100 }
   , genesis:
     { dense_pool_density:        40
     , extra_delegators:      500000
@@ -301,7 +301,7 @@ def aux_profiles:
     , genesis_future_offset: "22 minutes" }
   }
 , { name: "k2000-52"
-  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
+  , generator: { txs: 44000, add_tx_size: 0, io_arity: 1,  tps: 2 }
   , genesis:
     { dense_pool_density:        40
     , extra_delegators:      500000
@@ -311,7 +311,7 @@ def aux_profiles:
   }
 
 , { name: "k3000-fast52"
-  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+  , generator: { txs: 10000, add_tx_size: 0, io_arity: 1,  tps: 100 }
   , genesis:
     { dense_pool_density:        60
     , extra_delegators:      500000
@@ -320,7 +320,7 @@ def aux_profiles:
     , genesis_future_offset: "22 minutes" }
   }
 , { name: "k3000-52"
-  , generator: { txs: 44000, add_tx_size: 100, io_arity: 1,  tps: 2 }
+  , generator: { txs: 44000, add_tx_size: 0, io_arity: 1,  tps: 2 }
   , genesis:
     { dense_pool_density:        60
     , extra_delegators:      500000

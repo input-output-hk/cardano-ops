@@ -51,7 +51,6 @@ def shelley_genesis_protocol_params($p; $composition):
 def shelley_genesis_cli_args($p; $composition; $cmd):
 { create0:
   [ "--supply",                 $p.total_balance
-  , "--gen-genesis-keys",       $composition.n_bft_hosts
   , "--testnet-magic",          $p.protocol_magic
   ]
 , create1:
