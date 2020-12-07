@@ -211,6 +211,7 @@ deploy_build_only() {
 
 deploy_resources() {
         local prof=$1 deploylog=$2 watcher_pid=$3
+        shift 3
         run_nixops_deploy "$prof" "$deploylog" "$watcher_pid" \
                 --allow-reboot \
                 --confirm \

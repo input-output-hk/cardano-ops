@@ -244,7 +244,7 @@ profile_genesis_shelley_incremental() {
         params=(--genesis-dir      "$target_dir"
                 --gen-utxo-keys    1
                 $(profile_shelley_genesis_cli_args "$prof" "$composition" 'create0'))
-        cli shelley genesis create "${params[@]}"
+        cli genesis create "${params[@]}"
 
         ## set parameters in template
         profile_shelley_genesis_protocol_params "$prof" \
@@ -254,20 +254,20 @@ profile_genesis_shelley_incremental() {
         params=(--genesis-dir      "$target_dir"
                 $(profile_shelley_genesis_cli_args "$prof" "$composition" 'create1'))
         ## update genesis from template
-        cli shelley genesis create "${params[@]}"
+        cli genesis create "${params[@]}"
 
         local deleg_id=1
         for id in ${ids[*]}
         do
             mkdir -p "$target_dir"/node-keys/cold
 
-            cli shelley node key-gen-KES $(keypair_args KES $id)
+            cli node key-gen-KES $(keypair_args KES $id)
 
             #### cold keys (do not copy to production system)
             if jqtest ".[\"$id\"]" <<<$ids_pool_map; then   ## Stakepool node
-                cli shelley node key-gen \
+                cli node key-gen \
                   $(keypair_args cold $id 'cold-')
-                cli shelley node key-gen-VRF \
+                cli node key-gen-VRF \
                   $(keypair_args VRF  $id)
             else ## BFT node
                 cp -a $(key_depl deleg sig    $deleg_id) $(key_depl cold sig   $id)
@@ -279,7 +279,7 @@ profile_genesis_shelley_incremental() {
             fi
 
             # certificate (adapt kes-period for later certs)
-            cli shelley node issue-op-cert \
+            cli node issue-op-cert \
               --kes-period 0 \
               --hot-kes-verification-key-file         $(key_depl KES  ver    $id) \
               --cold-signing-key-file                 $(key_depl cold sig    $id) \
@@ -298,29 +298,29 @@ profile_genesis_shelley_incremental() {
         for id in ${ids_pool[*]}
         do
            ### Payment address keys
-           cli shelley address key-gen \
+           cli address key-gen \
                 --verification-key-file         "$target_dir"/addresses/pool-owner${id}.vkey \
                 --signing-key-file              "$target_dir"/addresses/pool-owner${id}.skey
 
            ### Stake address keys
-           cli shelley stake-address key-gen \
+           cli stake-address key-gen \
                 --verification-key-file         "$target_dir"/addresses/pool-owner${id}-stake.vkey \
                 --signing-key-file              "$target_dir"/addresses/pool-owner${id}-stake.skey
 
            ### Payment addresses
-           cli shelley address build \
+           cli address build \
                 --payment-verification-key-file "$target_dir"/addresses/pool-owner${id}.vkey \
                 --staking-verification-key-file   "$target_dir"/addresses/pool-owner${id}-stake.vkey \
                 --testnet-magic "$magic" \
                 --out-file "$target_dir"/addresses/pool-owner${id}.addr
 
-            pool_id=$(cli shelley stake-pool id \
+            pool_id=$(cli stake-pool id \
                       --verification-key-file   $(key_depl cold ver $id) --output-format hex)
-            pool_vrf=$(cli shelley node key-hash-VRF \
+            pool_vrf=$(cli node key-hash-VRF \
                        --verification-key-file  $(key_depl VRF  ver $id))
-            deleg_staking=$(cli shelley stake-address key-hash \
+            deleg_staking=$(cli stake-address key-hash \
                             --staking-verification-key-file "$target_dir"/addresses/pool-owner${id}-stake.vkey)
-            initial_addr=$(cli shelley address info --address $(cat "$target_dir"/addresses/pool-owner${id}.addr) |
+            initial_addr=$(cli address info --address $(cat "$target_dir"/addresses/pool-owner${id}.addr) |
                            jq '.base16' --raw-output)
             params=(
             --arg      poolId          "$pool_id"
@@ -369,10 +369,10 @@ profile_genesis_shelley_incremental() {
             "$target_dir"/utxo-keys/utxo1.vkey
         sed -i 's_Genesis UTxO signing key_PaymentSigningKeyShelley_' \
             "$target_dir"/utxo-keys/utxo1.skey
-        initial_addr_non_pool_bech32=$(cli shelley address build \
+        initial_addr_non_pool_bech32=$(cli address build \
                                        --payment-verification-key-file "$target_dir"/utxo-keys/utxo1.vkey \
                                        --testnet-magic "$magic")
-        initial_addr_non_pool_base16=$(cli shelley address info --address "$initial_addr_non_pool_bech32" |
+        initial_addr_non_pool_base16=$(cli address info --address "$initial_addr_non_pool_bech32" |
                                        jq '.base16' --raw-output)
 
         params=(--argjson pools                   "$pools_json"
@@ -440,7 +440,7 @@ profile_genesis_shelley_singleshot() {
         params=(--genesis-dir      "$target_dir"
                 --gen-utxo-keys    1
                 $(profile_shelley_genesis_cli_args "$prof" "$composition" 'create0'))
-        cli shelley genesis create "${params[@]}"
+        cli genesis create "${params[@]}"
 
         ## set parameters in template
         profile_shelley_genesis_protocol_params "$prof" "$composition" \
@@ -451,7 +451,7 @@ profile_genesis_shelley_singleshot() {
                 $(profile_shelley_genesis_cli_args "$prof" "$composition" 'create1')
                )
         ## update genesis from template
-        cli shelley genesis create-staked "${params[@]}"
+        cli genesis create-staked "${params[@]}"
 
         genesis_shelley_copy_keys "$prof" "$ids_pool_map"
 
@@ -577,7 +577,7 @@ genesis_profile_mismatches_shelley() {
         genesis_utxo_size=$(\
             jq '.initialFunds | keys | length' $g)
         genesis_n_bulk_creds=$(\
-            ls $genesis_dir/pools/bulk*.creds | wc -l)
+            ls $genesis_dir/pools/bulk*.creds 2>/dev/null | wc -l)
 
         local topofile ids_pool_map composition
         topofile=$(get_topology_file)
@@ -606,8 +606,8 @@ genesis_profile_mismatches_shelley() {
         then echo -n "genesis-utxo-${genesis_utxo_size}-less-than-profile-${prof_expected_utxo} "; fi
 
         local n=0 actual
-        for bulkf in $genesis_dir/pools/bulk*.creds
-        do actual=$(jq length $bulkf)
+        for bulkf in $(ls $genesis_dir/pools/bulk*.creds 2>/dev/null)
+        do actual=$(jq length $bulkf 2>/dev/null || echo 0)
            if test "$actual" -lt $prof_pool_density
            then echo -n " bulk-file-${n}-pools-${actual}-below-profile-pool-density-${prof_pool_density}"; fi
            n=$((n+1))
@@ -639,6 +639,6 @@ genesis_hash_byron() {
 genesis_hash_shelley() {
         local genesis_dir="${1:-./keys}"
 
-        cardano-cli shelley genesis hash --genesis "${genesis_dir}"/genesis.json |
+        cardano-cli genesis hash --genesis "${genesis_dir}"/genesis.json |
                 tr -d '"'
 }

@@ -424,7 +424,6 @@ op_register_new_run() {
 }
 EOF
         cp "${deploylog}"     "${dir}"/logs/deploy.log
-        mv "${deploylog}"     runs/"${tag}".deploy.log
 
         oprint "recording (local) genesis"
         ## TODO:  ideally, fetch this from the machines:
@@ -613,8 +612,9 @@ fetch_run() {
                -type f || true
         } | xargs tar cf logs-nodes.tar.xz    --xz --
 
-        rm -f -- logs-*/* startup/*
-        rmdir -- logs-*/  startup/ || true
+        ## These logs could be missing, due to cluster startup errors.
+        rm -f -- logs-*/* startup/* 2>/dev/null || true
+        rmdir -- logs-*/  startup/  2>/dev/null || true
 
         popd >/dev/null
 

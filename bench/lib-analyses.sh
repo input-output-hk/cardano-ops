@@ -195,7 +195,6 @@ analysis_leadership_checks() {
                  --dump-leaderships "$dir"/analysis/logs-"$mach".leaderships.json \
                  --pretty-timeline "$dir"/analysis/logs-"$mach".timeline.pretty.txt \
                  --export-timeline "$dir"/analysis/logs-"$mach".timeline.export.txt \
-                 --cpu-spans-histogram "$dir"/analysis/logs-"$mach".cpu85histogram.png \
                  --analysis-output "$dir"/analysis/logs-"$mach".analysis.json \
                  "$dir"/analysis/logs-"$mach".json
            echo -ne '\b\b'
