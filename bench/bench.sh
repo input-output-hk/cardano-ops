@@ -357,6 +357,12 @@ op_bench_start() {
         if ! nixops ssh "$canary" -- systemctl status cardano-node >/dev/null
         then fail "nodes service on $canary isn't running!"; fi
 
+        local sources_json_node_commit
+        sources_json_node_commit=$(jq '.["cardano-node"].rev' \
+                                      nix/sources.bench.json --raw-output)
+        deploystate_check_node_log_commit_id 'explorer' "$sources_json_node_commit"
+        deploystate_check_node_log_commit_id "$canary"  "$sources_json_node_commit"
+
         local now patience_start_pretty start_time
         now=$(date +%s)
         start_time=$(genesis_starttime)

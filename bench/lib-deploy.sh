@@ -219,6 +219,22 @@ deploy_resources() {
                 ${1:+--include} "$@"
 }
 
+deploystate_node_log_commit_id() {
+        local mach=$1
+
+        nixops ssh "$mach" -- journalctl -u cardano-node | grep commit | sed 's/.*"\([0-9a-f]\{40\}\)".*/\1/'
+}
+
+deploystate_check_node_log_commit_id() {
+        local mach=$1 expected=$2 actual=
+        actual=$(deploystate_node_log_commit_id "$mach")
+
+        oprint_ne "checking node commit on $mach:  "
+        if test "$expected" != "$actual"
+        then fail "expected $expected, got $actual"
+        else msg "ok, $expected"; fi
+}
+
 deploystate_collect_machine_info() {
         local cmd
         cmd=(
