@@ -72,7 +72,7 @@ def era_genesis_profiles($era):
 
 def era_node_profiles($era):
 { common:
-  [{ eventlog: false }, { eventlog: true }]
+  [{}]
 , byron:
   []
 , shelley:
@@ -81,7 +81,7 @@ def era_node_profiles($era):
 
 def era_node_params($era):
 { common:
-  { eventlog:                true
+  {
   }
 , byron:
   {

@@ -104,9 +104,6 @@ def profile_name($gtor; $gsis; $node):
   , (($gsis.max_block_size // error("genesis profile has no max_block_size"))
      | . / 1000        | tostring) + "kb"
   ]
-  | if $node.eventlog
-    then . + ["eventlog"]
-    else . end
   | join("-");
 
   era_generator_profiles($era)           as $generator_profiles

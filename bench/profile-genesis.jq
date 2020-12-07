@@ -56,6 +56,7 @@ def shelley_genesis_cli_args($p; $composition; $cmd):
   ]
 , create1:
   ([ "--supply",                 ($p.total_balance - $p.pools_balance)
+   , "--gen-genesis-keys",       $composition.n_bft_hosts
    , "--supply-delegated",       $p.pools_balance
    , "--gen-pools",              $p.n_pools
    , "--gen-stake-delegs",       ([$p.n_pools, $p.extra_delegators] | max)

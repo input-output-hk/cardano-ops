@@ -65,11 +65,7 @@ let
                     else 0; });
         pooledCores = map fixupPools topo.coreNodes;
     in (topo // {
-      coreNodes =
-        if prof.node.eventlog
-        then __trace "deploying with EVENTLOG enabled"
-          (map withEventlog pooledCores)
-        else pooledCores;
+      coreNodes = map withEventlog pooledCores;
     });
   withEventlog = def: recursiveUpdate {
     services.cardano-node.eventlog = mkForce true;
