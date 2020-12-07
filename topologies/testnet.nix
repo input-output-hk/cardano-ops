@@ -70,6 +70,10 @@ let
     (mkStakingPool "a" 1 "" { nodeId = 8; })
     (mkStakingPool "b" 1 "" { nodeId = 9; })
     (mkStakingPool "c" 1 "" { nodeId = 10; })
+    (mkStakingPool "d" 1 "" { nodeId = 11; })
+    (mkStakingPool "e" 1 "" { nodeId = 12; })
+    (mkStakingPool "f" 1 "" { nodeId = 13; })
+    (mkStakingPool "a" 2 "" { nodeId = 14; })
   ]);
 
   coreNodes = bftCoreNodes ++ stakingPoolNodes;
@@ -94,7 +98,7 @@ in {
       lovelacesToGiveAnonymous = 1000000000;
       lovelacesToGiveApiKeyAuth = 1000000000000;
       useByronWallet = false;
-      faucetFrontendUrl = "https://testnets.cardano.org/en/cardano/tools/faucet/";
+      faucetFrontendUrl = "https://developers.cardano.org/en/cardano/tools/faucet/";
     };
   };
   explorer = {

@@ -105,6 +105,7 @@ in {
       map $http_origin $origin_allowed {
         default 0;
         https://testnets.cardano.org 1;
+        https://developers.cardano.org 1;
         https://staging-testnets-cardano.netlify.app 1;
         http://localhost:8000 1;
       }
