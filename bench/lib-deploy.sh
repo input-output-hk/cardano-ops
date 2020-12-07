@@ -197,7 +197,6 @@ run_nixops_deploy() {
                   tail -n200 "$deploylog"; fi
              return 1
         fi >&2
-        echo "deployment status:  success" >&2
 }
 
 deploy_build_only() {

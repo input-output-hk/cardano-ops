@@ -352,10 +352,22 @@ op_bench_start() {
         then oprint "waiting ${generator_startup_delay}s for the nodes to establish business.."
              sleep ${generator_startup_delay}; fi
 
-        local mach='node-0'
-        oprint "checking node service on $mach.."
-        nixops ssh "$mach" -- systemctl status cardano-node >/dev/null ||
-                fail "nodes service on $mach isn't running!"
+        local canary='node-0'
+        oprint "checking node service on $canary.."
+        if ! nixops ssh "$canary" -- systemctl status cardano-node >/dev/null
+        then fail "nodes service on $canary isn't running!"; fi
+
+        local now patience_start_pretty start_time
+        now=$(date +%s)
+        start_time=$(genesis_starttime)
+        if test "$(max $start_time $now)" != "$now"
+        then oprint "waiting until cluster start time ($((start_time - now)) seconds).."
+             while now=$(date +%s); test $now -lt $((start_time + 15))
+             do sleep 1; done; fi
+
+        if nixops ssh "$canary" -- journalctl -u cardano-node |
+           grep "TraceNoLedgerView" >/dev/null
+        then fail "no ledger view, cluster is dead."; fi
 
         tag=$(generate_run_tag "${prof}")
         dir="./runs/${tag}"
