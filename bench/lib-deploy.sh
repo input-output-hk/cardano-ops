@@ -159,7 +159,7 @@ EOF
 
              oprint "deploying non-host resources first:  ${other_resources[*]}"
              time deploy_resources "$prof" "$deploylog" "$watcher_pid" \
-                                   ${other_resources[*]}
+                                   explorer ${other_resources[*]}
 
              local base=0 batch
              while test $base -lt $host_count
