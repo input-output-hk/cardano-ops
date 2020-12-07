@@ -150,16 +150,23 @@ def era_tolerances($era; $genesis):
 } | (.common + .[$era]);
 
 def aux_profiles:
-[ { name: "short",
-    generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
+[ { name: "short"
+  , generator: { txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
   }
-, { name: "small",
-    generator: { txs: 1000,  add_tx_size: 100, io_arity: 1,  tps: 100
+, { name: "small"
+  , generator: { txs: 1000,  add_tx_size: 100, io_arity: 1,  tps: 100
                , init_cooldown: 25, finish_patience: 4 }
   }
-, { name: "smoke",
-    generator: { txs: 100,   add_tx_size: 0, io_arity: 1,  tps: 100
+, { name: "smoke"
+  , generator: { txs: 100,   add_tx_size: 0, io_arity: 1,  tps: 100
                , init_cooldown: 25, finish_patience: 4 }
+  }
+, { name: "k1000-smoke"
+  , generator: { txs: 100,   add_tx_size: 0, io_arity: 1,  tps: 100
+               , init_cooldown: 25, finish_patience: 4 }
+  , genesis:
+    { reuse:                   true
+    , genesis_future_offset: "22 minutes" }
   }
 
 , { name: "k1000-52-1000kU-dlg0.33"
