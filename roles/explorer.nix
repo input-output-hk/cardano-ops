@@ -3,6 +3,7 @@ with pkgs;
 
 let
   maintenanceMode = false;
+  cfg = config.services.cardano-db-sync;
   nodeCfg = config.services.cardano-node;
   nodeId = config.node.nodeId;
   hostAddr = getListenIp nodes.${name};
@@ -39,6 +40,7 @@ in {
     identMap = ''
       explorer-users root cexplorer
       explorer-users cexplorer cexplorer
+      explorer-users rosetta cexplorer
       explorer-users postgres postgres
     '';
     authentication = ''
@@ -64,6 +66,7 @@ in {
     cardanoNodeSocketPath = nodeCfg.socketPath;
     bindAddress = "127.0.0.1";
     port = 8082;
+    dbConnectionString = "socket://${cfg.postgres.user}:*@${cfg.postgres.socketdir}?db=${cfg.postgres.database}";
   };
 
   # Temporarily required until the following cardano-graphql issue is fixed:
@@ -107,6 +110,11 @@ in {
     # FIXME: https://github.com/input-output-hk/cardano-db-sync/issues/102
     Restart = "always";
     RestartSec = "30s";
+  };
+
+  systemd.services.cardano-rosetta-server.serviceConfig = {
+    DynamicUser = true;
+    User = "rosetta";
   };
 
   systemd.services.cardano-submit-api.serviceConfig = lib.mkIf globals.withSubmitApi {
@@ -186,7 +194,7 @@ in {
       mv topology.json relays/topology.json
     '';
     serviceConfig = {
-      User = config.services.cardano-db-sync.user;
+      User = cfg.user;
       StateDirectory = "registered-relays-dump";
     };
   };
