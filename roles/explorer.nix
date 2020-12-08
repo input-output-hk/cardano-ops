@@ -40,7 +40,6 @@ in {
     identMap = ''
       explorer-users root cexplorer
       explorer-users cexplorer cexplorer
-      explorer-users rosetta cexplorer
       explorer-users postgres postgres
     '';
     authentication = ''
@@ -113,8 +112,8 @@ in {
   };
 
   systemd.services.cardano-rosetta-server.serviceConfig = {
-    DynamicUser = true;
-    User = "rosetta";
+    User = "cexplorer";
+    SupplementaryGroups = "cardano-node";
   };
 
   systemd.services.cardano-submit-api.serviceConfig = lib.mkIf globals.withSubmitApi {
