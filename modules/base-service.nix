@@ -70,7 +70,7 @@ in
     services.cardano-node = {
       enable = true;
       systemdSocketActivation = true;
-      rtsArgs = [ "-N2" "-A10m" "-qg" "-qb" "-M3G" ];
+      rtsArgs = [ "-N2" "-A10m" "-qg" "-qb" "-M8G" ];
       environment = globals.environmentName;
       inherit cardanoNodePkgs hostAddr nodeId topology;
       port = nodePort;
@@ -107,7 +107,7 @@ in
 
       '';
       serviceConfig = {
-        MemoryMax = "3.5G";
+        MemoryMax = "8G";
         KillSignal = "SIGINT";
         RestartKillSignal = "SIGINT";
       };

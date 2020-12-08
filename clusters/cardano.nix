@@ -155,7 +155,7 @@ let
       };
       deployment.ec2.region = def.region;
       imports = [
-        (if isDensePool then c5d-4xlarge else medium)
+        (c5d-4xlarge)
         (cardano-ops.roles.core def.nodeId)
       ];
       services.cardano-node = {

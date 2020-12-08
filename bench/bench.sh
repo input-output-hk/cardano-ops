@@ -115,7 +115,7 @@ force_deploy=
 reuse_genesis=
 watch_deploy=
 
-generator_startup_delay=15
+generator_startup_delay=40
 
 self=$(realpath "$0")
 

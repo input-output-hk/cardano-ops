@@ -77,12 +77,12 @@ in {
       (if globals.withHighCapacityExplorer then
         [ "-N2" "-A10m" "-qg" "-qb" "-M10G" ]
       else
-        [ "-N2" "-A10m" "-qg" "-qb" "-M3G" ]);
+        [ "-N2" "-A10m" "-qg" "-qb" "-M8G" ]);
     package = cardano-node;
   };
 
   systemd.services.cardano-node.serviceConfig.MemoryMax = lib.mkForce
-    (if globals.withHighCapacityExplorer then "14G" else "3.5G");
+    (if globals.withHighCapacityExplorer then "14G" else "8G");
 
   services.cardano-db-sync = {
     enable = true;
