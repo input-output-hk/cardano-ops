@@ -98,8 +98,7 @@ let
     ];
     options = {
       mapBackends = {
-        "cardano.node-metrics" = [ "KatipBK" ];
-        "cardano.node.metrics" = [ "KatipBK" ];
+        "cardano.node.resources" = [ "KatipBK" ];
       };
     };
   };

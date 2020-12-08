@@ -166,7 +166,7 @@ def aux_profiles:
                , init_cooldown: 25, finish_patience: 4 }
   , genesis:
     { reuse:                   true
-    , genesis_future_offset: "22 minutes" }
+    , genesis_future_offset: "32 minutes" }
   }
 
 , { name: "k1000-52-1000kU-dlg0.33"
@@ -176,7 +176,7 @@ def aux_profiles:
     , extra_delegators:      333000
     , stuffed_utxo:          667000
     , reuse:                   true
-    , genesis_future_offset: "22 minutes" }
+    , genesis_future_offset: "32 minutes" }
   }
 , { name: "k1000-52-1000kU-dlg1.0"
   , generator: { txs: 44000, add_tx_size: 0, io_arity: 1,  tps: 2 }
@@ -194,7 +194,7 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "22 minutes" }
+    , genesis_future_offset: "32 minutes" }
   }
 , { name: "k500-52-1500kU"
   , generator: { txs: 44000, add_tx_size: 0, io_arity: 1,  tps: 2 }
@@ -203,7 +203,7 @@ def aux_profiles:
     , extra_delegators:      750000
     , stuffed_utxo:          750000
     , reuse:                   true
-    , genesis_future_offset: "22 minutes" }
+    , genesis_future_offset: "32 minutes" }
   }
 
 , { name: "k1000-fast"
@@ -259,7 +259,7 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "22 minutes" }
+    , genesis_future_offset: "32 minutes" }
   }
 , { name: "k1000-52-1500kU"
   , generator: { txs: 44000, add_tx_size: 0, io_arity: 1,  tps: 2 }
@@ -277,7 +277,7 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "22 minutes" }
+    , genesis_future_offset: "32 minutes" }
   }
 , { name: "k1000-52-750kU"
   , generator: { txs: 44000, add_tx_size: 0, io_arity: 1,  tps: 2 }
@@ -286,7 +286,7 @@ def aux_profiles:
     , extra_delegators:      375000
     , stuffed_utxo:          375000
     , reuse:                   true
-    , genesis_future_offset: "22 minutes" }
+    , genesis_future_offset: "32 minutes" }
   }
 , { name: "k1000-52-500kU"
   , generator: { txs: 44000, add_tx_size: 0, io_arity: 1,  tps: 2 }
@@ -295,7 +295,7 @@ def aux_profiles:
     , extra_delegators:      250000
     , stuffed_utxo:          250000
     , reuse:                   true
-    , genesis_future_offset: "22 minutes" }
+    , genesis_future_offset: "32 minutes" }
   }
 
 , { name: "k2000-fast52"
@@ -305,7 +305,7 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "22 minutes" }
+    , genesis_future_offset: "32 minutes" }
   }
 , { name: "k2000-52"
   , generator: { txs: 44000, add_tx_size: 0, io_arity: 1,  tps: 2 }
@@ -314,7 +314,7 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "22 minutes" }
+    , genesis_future_offset: "32 minutes" }
   }
 
 , { name: "k3000-fast52"
@@ -324,7 +324,7 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "22 minutes" }
+    , genesis_future_offset: "32 minutes" }
   }
 , { name: "k3000-52"
   , generator: { txs: 44000, add_tx_size: 0, io_arity: 1,  tps: 2 }
@@ -333,6 +333,6 @@ def aux_profiles:
     , extra_delegators:      500000
     , stuffed_utxo:          500000
     , reuse:                   true
-    , genesis_future_offset: "22 minutes" }
+    , genesis_future_offset: "32 minutes" }
   }
 ];
