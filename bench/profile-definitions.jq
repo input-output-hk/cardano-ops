@@ -143,7 +143,7 @@ def era_tolerances($era; $genesis):
   , minimum_chain_density:          0.9
   }
 , shelley:
-  { finish_patience:                7
+  { finish_patience:                21
   , maximum_missed_slots:           0
   , minimum_chain_density:          ($genesis.active_slots_coeff * 0.5)
   }
