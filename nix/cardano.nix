@@ -10,6 +10,7 @@ in rec {
   inherit cardano-explorer-app-pkgs cardano-rest-pkgs cardanoNodePkgs;
   inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.cardano-cli.components.exes) cardano-cli;
   inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.cardano-node.components.exes) cardano-node;
+  inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.network-mux.components.exes) cardano-ping;
   inherit (cardano-rosetta-pkgs) cardano-rosetta-server;
 
   cardano-cli-completions = self.runCommand "cardano-cli-completions" {} ''

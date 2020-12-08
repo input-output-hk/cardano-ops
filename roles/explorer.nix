@@ -156,12 +156,14 @@ in {
       ) t;
     '';
     relays_exclude_file = builtins.toFile "relays-exclude.txt" (lib.concatStringsSep "\n" globals.static.relaysExcludeList);
+    networkMagic = (builtins.fromJSON (builtins.readFile globals.environmentConfig.nodeConfig.ShelleyGenesisFile)).networkMagic;
   in {
     path = [ config.services.postgresql.package jq netcat curl dnsutils ];
     script = ''
       set -uo pipefail
       excludeList="$(sort ${relays_exclude_file})"
       cd $STATE_DIRECTORY
+      rm -f relays.json
       for r in $(psql -t < ${extract_relays_sql} | jq -c '.[]'); do
         addr=$(echo "$r" | jq -r '.addr')
         port=$(echo "$r" | jq -r '.port')
@@ -170,10 +172,15 @@ in {
         nbExcludedAddresses=$(echo $excludedAddresses | wc -w)
         if [[ $nbExcludedAddresses == 0 ]]; then
           set +e
-          nc -w 1 -z $addr $port  > /dev/null
+          PING="$(timeout 2s ${cardano-ping}/bin/cardano-ping -h $addr -p $port -m ${toString networkMagic} -c 1 -q --json)"
           res=$?
+          if [ $res -eq 0 ]; then
+            echo $PING | ${jq}/bin/jq -c > /dev/null 2>&1
+            res=$?
+          fi
           set -e
           if [ $res -eq 0 ]; then
+            >&2 echo "Successfully pinged $addr:$port"
             geoinfo=$(curl -s https://json.geoiplookup.io/$addr)
             continent=$(echo "$geoinfo" | jq -r '.continent_name')
             country_code=$(echo "$geoinfo" | jq -r '.country_code')
@@ -182,13 +189,16 @@ in {
             else
               state=$country_code
             fi
-            echo $r | jq --arg continent "$continent" \
-              --arg state "$state" '. + {continent: $continent, state: $state}'
+            echo $r | jq -c --arg continent "$continent" \
+              --arg state "$state" '. + {continent: $continent, state: $state}' >> relays.json
+          else
+            >&2 echo "failed to cardano-ping $addr:$port"
           fi
         else
           >&2 echo "$addr excluded due to dns name or IPs being in exclude list:\n$excludedAddresses"
         fi
-      done | jq -n '. + [inputs]' | jq '{ Producers : . }' > topology.json
+      done
+      cat relays.json | jq -n '. + [inputs]' | jq '{ Producers : . }' > topology.json
       mkdir -p relays
       mv topology.json relays/topology.json
     '';
