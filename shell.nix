@@ -67,10 +67,15 @@ in  mkShell rec {
     telnet
     test-cronjob-script
     cardano-cli-completions
+    cardano-ping
   ];
+  # If any build input has bash completions, add it to the search
+  # path for shell completions.
   XDG_DATA_DIRS = lib.concatStringsSep ":" (
     [(builtins.getEnv "XDG_DATA_DIRS")] ++
-    (lib.filter builtins.pathExists (map (p: p + "/share") buildInputs))
+    (lib.filter
+      (share: builtins.pathExists (share + "/bash-completion"))
+      (map (p: p + "/share") buildInputs))
   );
   NIX_PATH = "nixpkgs=${path}";
   NIXOPS_DEPLOYMENT = "${globals.deploymentName}";
