@@ -85,15 +85,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rest": {
-        "branch": "refs/tags/2.1.3",
+        "branch": "refs/tags/3.0.0",
         "description": "HTTP interfaces for interacting with the Cardano blockchain.",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-rest",
-        "rev": "7e417e9f651cb8a9012ca975454d6b22452c42d0",
-        "sha256": "1vnpgzpq8d3g7ms9scf0hw8vs4nzddkx50fbladlvjg2hc60nrp2",
+        "rev": "377d266925bf1ae2cc886efde0735c89f173f61d",
+        "sha256": "0vacxn00g75gyli1m39w28j4kalzix0gcl0dr0qwmwzkp8xpiysn",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rest/archive/7e417e9f651cb8a9012ca975454d6b22452c42d0.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-rest/archive/377d266925bf1ae2cc886efde0735c89f173f61d.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rosetta": {
