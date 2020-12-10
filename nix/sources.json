@@ -60,15 +60,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
-        "branch": "refs/tags/3.1.1",
+        "branch": "3-2-stable",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "5b2b2e4f6cbc5a8a3a7d7e4927de5f71b09a80f8",
-        "sha256": "1f5xmsdf2aym6x64r8kaifx3gbbljr98k838rb8rpsvxwrxpf40k",
+        "rev": "53e533619fa60a90f1ab5d3fc8afa0503b341998",
+        "sha256": "1iha6b2dd2xiyx2gc4xjn86glz08398hc6wds5zlvdmarcb0z3lr",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/5b2b2e4f6cbc5a8a3a7d7e4927de5f71b09a80f8.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/53e533619fa60a90f1ab5d3fc8afa0503b341998.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
@@ -114,10 +114,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "2886b0893929e5c7316b349cf89dadf34347788d",
-        "sha256": "1k4rb7ixkdm0qi8lfp3p7p3dr95mhv7jsdrnkd5nhz68scwz9z4x",
+        "rev": "6479fb5deac5510526c897f68616bfa580a40170",
+        "sha256": "1xcvdj1nc4p5vwc4zpv3pbswbz0m8vkkzczdajbca20zspd236i3",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/2886b0893929e5c7316b349cf89dadf34347788d.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/6479fb5deac5510526c897f68616bfa580a40170.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
