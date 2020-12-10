@@ -49,9 +49,11 @@ in {
 
   services.graphql-engine.enable = true;
   services.cardano-graphql = {
+    cardanoCliPath = cardano-cli + /bin/cardano-cli;
     enable = true;
     genesisByron = nodeCfg.nodeConfig.ByronGenesisFile;
     genesisShelley = nodeCfg.nodeConfig.ShelleyGenesisFile;
+    jqPath = jq;
     allowListPath = cardano-explorer-app-pkgs.allowList;
     cardanoNodeSocketPath = nodeCfg.socketPath;
   };
