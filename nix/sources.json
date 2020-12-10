@@ -60,15 +60,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
-        "branch": "refs/tags/3.1.1",
+        "branch": "master",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "5b2b2e4f6cbc5a8a3a7d7e4927de5f71b09a80f8",
-        "sha256": "1f5xmsdf2aym6x64r8kaifx3gbbljr98k838rb8rpsvxwrxpf40k",
+        "rev": "201a3b89d75c183ca8f734405dd5c6464c8e1d78",
+        "sha256": "13xmhg96sxkggc0a7i9bkshgysxdbgfp85rqzpqzhpq42ly5mwzg",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/5b2b2e4f6cbc5a8a3a7d7e4927de5f71b09a80f8.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/201a3b89d75c183ca8f734405dd5c6464c8e1d78.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },

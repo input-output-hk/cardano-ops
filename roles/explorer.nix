@@ -54,12 +54,13 @@ in {
     genesisShelley = nodeCfg.nodeConfig.ShelleyGenesisFile;
     allowListPath = cardano-explorer-app-pkgs.allowList;
     cardanoNodeSocketPath = nodeCfg.socketPath;
+    # Default value is for mainnet. bypassing for other env (thus may throw if not fully sync):
+    currentEraFirstSlot = lib.mkIf (globals.environmentName != "mainnet") 1;
   };
 
   services.cardano-rosetta-server = {
     enable = true;
     topologyFilePath = nodeCfg.topology;
-    cardanoCliPath = cardano-cli + /bin/cardano-cli;
     genesisPath = nodeCfg.nodeConfig.ShelleyGenesisFile;
     cardanoNodePath = cardano-node + /bin/cardano-node;
     cardanoNodeSocketPath = nodeCfg.socketPath;
@@ -67,12 +68,6 @@ in {
     port = 8082;
     dbConnectionString = "socket://${cfg.postgres.user}:*@${cfg.postgres.socketdir}?db=${cfg.postgres.database}";
   };
-
-  # Temporarily required until the following cardano-graphql issue is fixed:
-  # https://github.com/input-output-hk/cardano-graphql/issues/268
-  systemd.services.cardano-graphql.startLimitIntervalSec = 0;
-  systemd.services.cardano-graphql.serviceConfig.Restart = "always";
-  systemd.services.cardano-graphql.serviceConfig.RestartSec = "10s";
 
   services.cardano-node = {
     rtsArgs = lib.mkForce
@@ -116,9 +111,16 @@ in {
     SupplementaryGroups = "cardano-node";
   };
 
-  systemd.services.cardano-graphql.serviceConfig = {
-    # Put cardano-graphql in "cardano-node" group so that it can write socket file:
-    SupplementaryGroups = "cardano-node";
+  systemd.services.cardano-graphql = {
+    environment = {
+      HOME = "/run/${config.systemd.services.cardano-graphql.serviceConfig.RuntimeDirectory}";
+    };
+    serviceConfig = {
+      User = "cexplorer";
+      RuntimeDirectory = "cardano-graphql";
+      # Put cardano-graphql in "cardano-node" group so that it can write socket file:
+      SupplementaryGroups = "cardano-node";
+    };
   };
 
   systemd.services.cardano-submit-api.serviceConfig = lib.mkIf globals.withSubmitApi {
