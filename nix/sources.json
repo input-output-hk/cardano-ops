@@ -24,7 +24,7 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync": {
-        "branch": "release/7.1.x",
+        "branch": "refs/tags/7.1.0",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
@@ -65,10 +65,10 @@
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "159c71180f58e550760496ca4acc5ff0e318bc73",
-        "sha256": "02hnvjfc355ihcz82ipbxsv7r4yfl40a414vfrpmlvvr6nm2ihzv",
+        "rev": "8b8c39d5f6facf3ff8a24ce71531b3f633dd7ebd",
+        "sha256": "1jqpbq6iphjmv5cd9adbyflbww84qxhqxn87lqjn1rk0cccfyvh3",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/159c71180f58e550760496ca4acc5ff0e318bc73.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/8b8c39d5f6facf3ff8a24ce71531b3f633dd7ebd.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
@@ -90,10 +90,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-rest",
-        "rev": "377d266925bf1ae2cc886efde0735c89f173f61d",
-        "sha256": "0vacxn00g75gyli1m39w28j4kalzix0gcl0dr0qwmwzkp8xpiysn",
+        "rev": "03520a706983944cffc274dd8b452d462fff9beb",
+        "sha256": "1zmy70jvllh9lscs69gkzddym48g63y2vvsxyfnacx8hij4fqyyg",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rest/archive/377d266925bf1ae2cc886efde0735c89f173f61d.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-rest/archive/03520a706983944cffc274dd8b452d462fff9beb.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rosetta": {
@@ -102,10 +102,10 @@
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-rosetta",
-        "rev": "2f03c6f0547975b87c29be49fcd4261777c25b08",
-        "sha256": "1jmklwr8zxb299v0nzm10j0cl0xc6h2dl0s3wxjjl41wjqk9iqpc",
+        "rev": "28537d338e1753d0c497988717f193ddd7836d9f",
+        "sha256": "0srjkflxp0yf3diinsga0xbjmyj2xqfrj7pyr3109pvkbznq9fpn",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/2f03c6f0547975b87c29be49fcd4261777c25b08.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/28537d338e1753d0c497988717f193ddd7836d9f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "iohk-nix": {
