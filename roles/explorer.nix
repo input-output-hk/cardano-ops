@@ -198,9 +198,11 @@ in {
           >&2 echo "$addr excluded due to dns name or IPs being in exclude list:\n$excludedAddresses"
         fi
       done
-      cat relays.json | jq -n '. + [inputs]' | jq '{ Producers : . }' > topology.json
-      mkdir -p relays
-      mv topology.json relays/topology.json
+      if [ -f relays.json ]; then
+        cat relays.json | jq -n '. + [inputs]' | jq '{ Producers : . }' > topology.json
+        mkdir -p relays
+        mv topology.json relays/topology.json
+      fi
     '';
     serviceConfig = {
       User = cfg.user;
