@@ -9,7 +9,7 @@
 , xlarge-monitor       # Standard monitor
 , t3-2xlarge-monitor   # High capacity monitor
 , c5-4xlarge           # High capacity explorer (postgres CPU intensive)
-, c5d-4xlarge          # Dense pools
+, c5d-2xlarge          # Dense pools
 , ...
 }:
 with pkgs;
@@ -155,7 +155,7 @@ let
       };
       deployment.ec2.region = def.region;
       imports = [
-        (c5d-4xlarge)
+        (c5d-2xlarge)
         (cardano-ops.roles.core def.nodeId)
       ];
       services.cardano-node = {

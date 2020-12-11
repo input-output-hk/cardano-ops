@@ -22,7 +22,7 @@ let
     xlarge-monitor = aws.t3a-xlargeMonitor;      # Standard monitor
     t3-2xlarge-monitor = aws.t3-2xlargeMonitor;  # High capacity monitor
     c5-4xlarge = aws.c5-4xlarge;                 # High capacity explorer (postgres CPU intensive)
-    c5d-4xlarge = aws.c5-4xlarge;                # Dense pools
+    c5d-2xlarge = aws.c5-2xlarge;                # Dense pools
   };
 
   nodes = filterAttrs (name: node:
