@@ -76,48 +76,6 @@ genesis_update_starttime() {
         genesis_update_starttime_"$(get_era)" "$start_timestamp" "$genesis_dir"
 }
 
-profile_byron_genesis_protocol_params() {
-        local prof=$1
-        jq --argjson prof "$(profgenjq "${prof}" .)" '
-          include "profile-genesis" { search: "bench" };
-
-          byron_genesis_protocol_params($prof)
-        ' --null-input
-}
-
-profile_byron_genesis_cli_args() {
-        local prof=$1
-        jq --argjson prof "$(profgenjq "${prof}" .)" '
-          include "profile-genesis" { search: "bench" };
-
-          byron_genesis_cli_args($prof)
-          | join(" ")
-        ' --null-input --raw-output
-}
-
-profile_genesis_byron() {
-        local prof=${1:-default}
-        local target_dir=${2:-./keys}
-        prof=$(params resolve-profile "$prof")
-
-        local byron_params_tmpfile
-        byron_params_tmpfile=$(mktemp --tmpdir)
-        profile_byron_genesis_protocol_params "$prof" >"$byron_params_tmpfile"
-
-        mkdir -p "$target_dir"
-        rm -rf -- ./"$target_dir"
-
-        genesis_cli_args=(
-        --genesis-output-dir         "$target_dir"
-        --protocol-parameters-file   "$byron_params_tmpfile"
-        $(profile_byron_genesis_cli_args "$prof"))
-
-        cardano-cli genesis --real-pbft "${genesis_cli_args[@]}"
-        rm -f "$byron_params_tmpfile"
-
-        oprint "generated genesis for $prof in:  $target_dir"
-}
-
 profile_shelley_genesis_protocol_params() {
         local prof=$1 composition=$2
         jq --argjson prof "$(profgenjq "${prof}" .)" \
@@ -515,23 +473,10 @@ profile_genesis_shelley() {
         profile_genesis_shelley_singleshot "$@"
 }
 
-genesis_starttime_byron() {
-        local genesis_dir=${1:-./keys}
-        jq '.startTime' "$genesis_dir"/genesis.json
-}
-
 genesis_starttime_shelley() {
         local genesis_dir=${1:-./keys}
         date --date=$(jq '.systemStart' "$genesis_dir"/genesis.json |
                       tr -d '"Z') +%s
-}
-
-genesis_profile_mismatches_byron() {
-        oprint "ASSUMING that genesis matches profile (genesis_profile_mismatches_byron)"
-}
-
-genesis_info_byron() {
-        oprint "no info"
 }
 
 genesis_info_shelley() {
@@ -614,26 +559,12 @@ genesis_profile_mismatches_shelley() {
         done
 }
 
-genesis_update_starttime_byron() {
-        local start_timestamp=$1 genesis_dir=${2:-./keys}
-
-        json_file_append "$genesis_dir"/genesis.json "
-          { startTime: \"$start_timestamp\" }" <<<0
-}
-
 genesis_update_starttime_shelley() {
         local start_timestamp=$1 genesis_dir=${2:-./keys} start_time
 
         start_time=$(date --iso-8601=s --date=@$start_timestamp --utc | cut -c-19)
         json_file_append "$genesis_dir"/genesis.json "
           { systemStart: \"${start_time}Z\" }" <<<0
-}
-
-genesis_hash_byron() {
-        local genesis_dir="${1:-./keys}"
-
-        cardano-cli byron genesis print-genesis-hash --genesis-json "${genesis_dir}"/genesis.json |
-                tail -1
 }
 
 genesis_hash_shelley() {

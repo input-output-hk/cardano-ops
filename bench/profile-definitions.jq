@@ -1,7 +1,7 @@
 ## Common parameters:
 ##
 ##  $era:
-##    "byron" or "shelley"
+##    "shelley"
 ##
 ##  $composition:
 ##    { n_bft_hosts:       INT
@@ -28,18 +28,6 @@ def era_genesis_params($era; $compo):
   , total_balance:           900000000000000
   , genesis_future_offset:   "3 minutes"
   }
-, byron:
-  { parameter_k:             2160
-  , n_poors:                 128
-  , n_delegates:             $compo.n_total
-    ## Note, that the delegate count doesnt have to match cluster size.
-  , delegate_share:          0.9
-  , avvm_entries:            128
-  , avvm_entry_balance:      100000000000000
-  , secret:                  2718281828
-  , slot_duration:           20
-  , max_block_size:          2000000
-  }
 , shelley:
   { parameter_k:             10
   , epoch_length:            2200   # Ought to be at least (10 * k / f).
@@ -56,16 +44,7 @@ def era_genesis_params($era; $compo):
 } | (.common + .[$era]);
 
 def era_genesis_profiles($era):
-{ byron:
-  [ { max_block_size: 2000000 }
-  , { max_block_size: 1000000 }
-  , { max_block_size:  500000 }
-  , { max_block_size:  250000 }
-  , { max_block_size:  128000 }
-  , { max_block_size:   64000 }
-  , { max_block_size:   32000 }
-  ]
-, shelley:
+{ shelley:
   [ { max_block_size:   64000 }
   ]
 } | .[$era];
@@ -73,17 +52,12 @@ def era_genesis_profiles($era):
 def era_node_profiles($era):
 { common:
   [{}]
-, byron:
-  []
 , shelley:
   []
 } | (.common + .[$era]);
 
 def era_node_params($era):
 { common:
-  {
-  }
-, byron:
   {
   }
 , shelley:
@@ -95,10 +69,6 @@ def era_generator_params($era):
 { common:
   {
   }
-, byron:
-  { init_cooldown:           120
-  , tx_fee:                  10000000
-  }
 , shelley:
   { init_cooldown:           40
   , tx_fee:                  1000000
@@ -106,19 +76,11 @@ def era_generator_params($era):
 } | (.common + .[$era]);
 
 def era_default_generator_profile($era):
-{ byron:   { txs:  50000, add_tx_size: 100, io_arity: 2,  tps: 100 }
-, shelley: { txs:   3000, add_tx_size:   0, io_arity: 2,  tps: 100 }
+{ shelley: { txs:   3000, add_tx_size:   0, io_arity: 2,  tps: 100 }
 } | .[$era];
 
 def era_generator_profiles($era):
-{ byron:
-  [ { txs:  50000, add_tx_size: 100, io_arity: 1,  tps: 100 }
-  , { txs:  50000, add_tx_size: 100, io_arity: 2,  tps: 100 }
-  , { txs:  50000, add_tx_size: 100, io_arity: 4,  tps: 100 }
-  , { txs:  50000, add_tx_size: 100, io_arity: 8,  tps: 100 }
-  , { txs:  50000, add_tx_size: 100, io_arity: 16, tps: 100 }
-  ]
-, shelley:
+{ shelley:
   [ { txs: 250000, add_tx_size: 100, io_arity: 2,  tps: 100 }
   , { txs:  50000, add_tx_size: 100, io_arity: 8,  tps: 100 }
   , { txs:  50000, add_tx_size: 100, io_arity: 4,  tps: 100 }
@@ -136,11 +98,6 @@ def era_tolerances($era; $genesis):
   , last_log_spread_s:              120
   , silence_since_last_block_s:     120
   , cluster_startup_overhead_s:     60
-  }
-, byron:
-  { finish_patience:                7
-  , maximum_missed_slots:           5
-  , minimum_chain_density:          0.9
   }
 , shelley:
   { finish_patience:                21

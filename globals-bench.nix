@@ -25,22 +25,16 @@ let
     else abort "${benchmarkingParamsFile} must define 'meta.era':  please run 'bench reinit' to update it";
   Protocol =
     { shelley = "TPraos";
-      byron   = "RealPBFT";
-    }."${benchmarkingParamsEra}";
+    }."${benchmarkingParamsEra}"
+      or throw "unsupported era: ${benchmarkingParamsEra}";
   coreEraOverlay =
     { shelley =
         { ShelleyGenesisHash = genesisHash;
-        };
-      byron =
-        { GenesisHash = genesisHash;
-          PBftSignatureThreshold =
-            (1.0 / __length benchmarkingTopology.coreNodes) * 1.5;
         };
     }."${benchmarkingParamsEra}";
   genesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/GENHASH);
   envConfigBase =
     { shelley = pkgs.iohkNix.cardanoLib.environments.testnet;
-      byron   = pkgs.iohkNix.cardanoLib.environments.shelley_staging_short;
     }."${benchmarkingParamsEra}";
 
   ### Benchmarking profiles are, currently, essentially name-tagger

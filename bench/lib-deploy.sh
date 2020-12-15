@@ -80,7 +80,6 @@ deploystate_node_process_genesis_startTime() {
                      $(nixops ssh ${core} -- jq .ShelleyGenesisFile \
                      $(sed 's_.* --config \([^ ]*\) .*_\1_' <<<$node_process)))
              case $(get_era) in
-                     byron )   jq .startTime      <<<$genesis;;
                      shelley ) jq '.systemStart
                                   | fromdateiso8601
                                   '  --raw-output <<<$genesis;;

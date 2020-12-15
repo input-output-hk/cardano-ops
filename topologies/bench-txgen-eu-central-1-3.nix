@@ -30,6 +30,4 @@
   legacyCoreNodes = [];
 
   legacyRelayNodes = [];
-
-  byronProxies = [];
 }
