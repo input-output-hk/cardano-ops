@@ -60,7 +60,7 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
-        "branch": "3-1-stable",
+        "branch": "refs/tags/3.1.0",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
@@ -85,27 +85,27 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rest": {
-        "branch": "refs/tags/3.0.0",
+        "branch": "refs/tags/3.1.1",
         "description": "HTTP interfaces for interacting with the Cardano blockchain.",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-rest",
-        "rev": "03520a706983944cffc274dd8b452d462fff9beb",
-        "sha256": "1zmy70jvllh9lscs69gkzddym48g63y2vvsxyfnacx8hij4fqyyg",
+        "rev": "1b6001c7e8aed262960c8c72721ec90f7be4cb6c",
+        "sha256": "0q1ici8hnfvd2s6f6lbcmwp04qnnfql46vs9iyy5dqp9bhbz8mrs",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rest/archive/03520a706983944cffc274dd8b452d462fff9beb.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-rest/archive/1b6001c7e8aed262960c8c72721ec90f7be4cb6c.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rosetta": {
-        "branch": "master",
+        "branch": "1-0-stable",
         "description": "https://www.rosetta-api.org implementation for Cardano Node",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-rosetta",
-        "rev": "28537d338e1753d0c497988717f193ddd7836d9f",
-        "sha256": "0srjkflxp0yf3diinsga0xbjmyj2xqfrj7pyr3109pvkbznq9fpn",
+        "rev": "5099d0213c4730c54eb2bd5d5093f84d8a7b619b",
+        "sha256": "1nqnfrwirfy7axzqz5zmz1n5xm21z77f6j8656l6hn9kppfzymd5",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/28537d338e1753d0c497988717f193ddd7836d9f.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/5099d0213c4730c54eb2bd5d5093f84d8a7b619b.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "iohk-nix": {
@@ -157,15 +157,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "smash": {
-        "branch": "refs/tags/1.2.0",
+        "branch": "refs/tags/1.3.0",
         "description": "Stakepool Metadata Aggregation Server",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "smash",
-        "rev": "f4a179a1e2de22d332ec731df8fedaed5d7d8754",
-        "sha256": "1wbfajh8l2pfvhxxzmaimr6hi9z2sqywzw2j302g3fb5i43r5xzh",
+        "rev": "901e11c53583a466c6ee658bf5c69b46f0bae2c7",
+        "sha256": "1g1n4g2y4scwzaafcrvh5qqvr1l7sahrj51brnnyi82wdc1lmmzw",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/smash/archive/f4a179a1e2de22d332ec731df8fedaed5d7d8754.tar.gz",
+        "url": "https://github.com/input-output-hk/smash/archive/901e11c53583a466c6ee658bf5c69b46f0bae2c7.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
