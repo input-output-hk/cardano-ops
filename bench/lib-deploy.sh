@@ -55,7 +55,6 @@ update_deployfiles() {
           , pins:
             { benchmarking:    $(jq '.["cardano-benchmarking"].rev' nix/sources.json)
             , node:            $(jq '.["cardano-node"].rev'         nix/sources.bench.json)
-            # , \"db-sync\":     $(jq '.["cardano-db-sync"].rev'      nix/sources.bench.json)
             , ops:             \"$(git rev-parse HEAD)\"
             }
           , ops_modified:      $(if git diff --quiet --exit-code
@@ -253,7 +252,6 @@ nixopsfile_producers() {
 
 op_stop() {
         nixops ssh-for-each --parallel "systemctl stop cardano-node 2>/dev/null || true"
-        # nixops ssh explorer            "systemctl stop cardano-db-sync 2>/dev/null || true"
         nixops ssh-for-each --parallel "systemctl stop systemd-journald 2>/dev/null || true"
 }
 

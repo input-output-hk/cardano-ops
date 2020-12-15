@@ -351,8 +351,6 @@ op_bench_start() {
         nixops ssh-for-each --parallel "systemctl start systemd-journald"
         sleep 3s
         nixops ssh-for-each --parallel "systemctl start cardano-node"
-        sleep 3s
-        # nixops ssh explorer "systemctl start cardano-db-sync"
 
         if test -z "$no_wait"
         then oprint "waiting ${generator_startup_delay}s for the nodes to establish business.."
@@ -411,8 +409,6 @@ fetch_systemd_unit_startup_logs() {
           > 'logs/startup/unit-startup-generator.log'
         nixops ssh explorer "journalctl --boot 0 -u cardano-node | head -n 100" \
           > 'logs/startup/unit-startup-explorer.log'
-        # nixops ssh explorer "journalctl --boot 0 -u cardano-db-sync | head -n 100" \
-        #   > 'logs/startup/unit-startup-db-sync.log'
 
         for node in $(params producers)
         do nixops ssh "${node}" "journalctl --boot 0 -u cardano-node | head -n 100" \
