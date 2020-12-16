@@ -320,14 +320,12 @@ genesis_profile_mismatches_shelley() {
         ids_pool_map=$(topology_id_pool_density_map "$topofile")
         composition=$(id_pool_map_composition "$ids_pool_map")
 
-        local prof_n_extra_delegs prof_pool_density prof_n_dense_hosts prof_n_dense_pools
-        prof_n_extra_delegs=$(profgenjq "$profile" .extra_delegators)
+        local prof_n_extra_delegs prof_pool_density
+        prof_n_extra_delegs=$(profgenjq "$profile" .delegators)
         prof_pool_density=$(profgenjq "$profile" .dense_pool_density)
-        prof_n_dense_hosts=$(($(jq .n_dense_hosts <<<$composition)))
-        prof_n_sing_hosts=$(($(jq .n_singular_hosts <<<$composition)))
-        prof_n_dense_pools=$((prof_pool_density * prof_n_dense_hosts))
-        prof_stuffed_utxo=$(profgenjq "$profile" .stuffed_utxo)
-        prof_expected_utxo=$((prof_stuffed_utxo + prof_n_extra_delegs + prof_n_sing_hosts))
+        prof_n_dense_pools=$(($(profgenjq "$profile" .n_dense_pools)))
+        prof_utxo=$(profgenjq "$profile" .utxo)
+        prof_expected_utxo=$prof_utxo
 
         if test "$genesis_delegation_map_size" -ne "$prof_n_extra_delegs"
         then echo -n "genesis-delegation-map-size-${genesis_delegation_map_size}-not-equal-to-profile-extra-delegs-${prof_n_extra_delegs} "; fi
@@ -335,11 +333,11 @@ genesis_profile_mismatches_shelley() {
         if test "$genesis_n_delegator_keys" -lt "$prof_n_extra_delegs"
         then echo -n "genesis-delegator-key-${genesis_n_delegator_keys}-count-less-than-profile-extra-delegs-${prof_n_extra_delegs} "; fi
 
-        if test "$genesis_n_bulk_creds" -lt "$prof_n_dense_hosts"
-        then echo -n "genesis-bulk-cred-file-count-${genesis_n_bulk_creds}-less-than-profile-pools-count-${prof_n_dense_hosts} "; fi
+        if test "$genesis_n_bulk_creds" -lt "$prof_n_dense_pools"
+        then echo -n "genesis-bulk-cred-file-count-${genesis_n_bulk_creds}-less-than-profile-dense-pools-count-${prof_n_dense_pools} "; fi
 
         if test "$genesis_utxo_size" -ne "$prof_expected_utxo"
-        then echo -n "genesis-utxo-${genesis_utxo_size}-less-than-profile-${prof_expected_utxo} "; fi
+        then echo -n "genesis-utxo-${genesis_utxo_size}-not-equal-profile-${prof_expected_utxo} "; fi
 
         local n=0 actual
         for bulkf in $(ls $genesis_dir/pools/bulk*.creds 2>/dev/null)

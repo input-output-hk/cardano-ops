@@ -46,18 +46,16 @@ id_pool_map_composition() {
 
         jq '.
            | to_entries
-           | length                                as $n_total
+           | length                                as $n_hosts
            | map (select (.value != 0))            as $pools
            | ($pools | map (select (.value == 1))) as $singular_pools
            | ($pools | map (select (.value  > 1))) as $dense_pools
            | ($singular_pools | length)            as $n_singular_hosts
            | map (select (.value == 0)) as $bfts
-           | { n_total:          $n_total
+           | { n_hosts:          $n_hosts
              , n_bft_hosts:      ($bfts  | length)
              , n_singular_hosts: ($singular_pools | length)
              , n_dense_hosts:    ($dense_pools    | length)
-             # , singular_pools:   ($singular_pools | from_entries)
-             # , dense_pools:      ($dense_pools    | from_entries)
              }
            ' <<<$ids_pool_map --compact-output
 }
@@ -89,95 +87,54 @@ params_init() {
         id_pool_map=$(topology_id_pool_density_map "$topology_file")
         composition=$(id_pool_map_composition "$id_pool_map")
 
-        local args=(--argjson composition "$composition"
+        local args=(--argjson compo       "$composition"
                     --arg     topology    "$topology"
                     --arg     era         "$era")
         jq "${args[@]}" '
 include "profile-definitions" { search: "bench" };
 
-def profile_name($gtor; $gsis; $node):
-  [ "dist\($composition.n_total)"
-  , ($gtor.txs         | tostring) + "tx"
-  , ($gtor.add_tx_size | tostring) + "b"
-  , ($gtor.tps         | tostring) + "tps"
-  , ($gtor.io_arity    | tostring) + "io"
-  , (($gsis.max_block_size // error("genesis profile has no max_block_size"))
-     | . / 1000        | tostring) + "kb"
-  ]
-  | join("-");
-
-  era_generator_profiles($era)           as $generator_profiles
-| era_node_profiles($era)                as $node_profiles
-| era_genesis_profiles($era)             as $genesis_profiles
-
-| era_generator_params($era)             as $generator_params
-| era_node_params($era)                  as $node_params
-| era_genesis_params($era; $composition) as $genesis_params
+  genesis_defaults($era; $compo)         as $genesis_defaults
+| generator_defaults($era)               as $generator_defaults
+| node_defaults($era)                    as $node_defaults
 
 | (aux_profiles | map(.name | {key: ., value: null}) | from_entries)
                                          as $aux_names
 
 ## For all IO arities and block sizes:
-| [[ ($genesis_profiles   | map(select((.name // "") | in($aux_names) | not)))
-   , ($node_profiles      | map(select((.name // "") | in($aux_names) | not)))
-   , ($generator_profiles | map(select((.name // "") | in($aux_names) | not)))
-   ]
-   | combinations
-   ]
+| profiles
 | . +
   ( aux_profiles
-  | map ([ $genesis_params * ( .genesis // {} )
-         , $node_params    * ( .node    // {} )
-         , era_default_generator_profile($era)
-           * ((.generator // {})
-               + { name: .name })
-         ]))
+  | map ({ name:      .name
+         , genesis:   ($genesis_defaults   * ( .genesis   // {} ))
+         , generator: ($generator_defaults * ( .generator // {} ))
+         , node:      ($node_defaults      * ( .node      // {} ))
+         }))
 | map
-  ( ($genesis_params * .[0])       as $genesis
-  | .[1]                           as $node
-  | .[2]                           as $generator
-  | era_tolerances($era; $genesis) as $tolerances
-  | { "\($generator.name // profile_name($generator; $genesis; $node))":
-      { generator:
-        ($generator_params +
-         ($generator | del(.name) | del(.txs) | del(.io_arity)
-                     | del(.finish_patience)) +
-        { tx_count:        $generator.txs
-        , inputs_per_tx:   $generator.io_arity
-        , outputs_per_tx:  $generator.io_arity
-        })
-      , genesis:
-        ($genesis *
-         ({ n_pools:         ($composition.n_singular_hosts
-                            + $composition.n_dense_hosts
-                              * $genesis.dense_pool_density)
-          } +
-          if $genesis.dense_pool_density > 1
-          then
-          { n_singular_pools:  $composition.n_singular_hosts
-          , n_dense_pools:    ($composition.n_dense_hosts
-                              * $genesis.dense_pool_density) }
-          else
-          { n_singular_pools: ($composition.n_singular_hosts
-                               + $composition.n_dense_hosts)
-          , n_dense_pools:     0 }
-          end
-          ))
-      , node: $node
-      , tolerances:
-        ($tolerances +
-        { finish_patience:
-            ## TODO:  fix ugly
-            ($generator.finish_patience // $tolerances.finish_patience)
-        })
-      }}
+  ( ($genesis_defaults    * .genesis)    as $gsis
+  | ($generator_defaults  * .generator)  as $gtor
+  | ($node_defaults       * .node)       as $node
+  | era_tolerances($era; $gsis)          as $tolr
+  | { genesis:
+        ($gsis * derived_genesis_params($compo; $gtor; $gsis; $node))
+    , generator:
+        ($gtor * derived_generator_params($compo; $gtor; $gsis; $node))
+    , node:
+        ($node * derived_node_params($compo; $gtor; $gsis; $node))
+    , tolerances:
+        ($tolr * derived_tolerances($compo; $gtor; $gsis; $node; $tolr))
+    }                                    as $prof
+  | { "\(.name //
+         profile_name($compo; $prof.genesis; $prof.generator; $prof.node))":
+      ($prof
+       | delpaths ([["generator", "epochs"]]))
+    }
   )
 | { meta:
     { era:                 $era
     , topology:            $topology
     , node_names:          ( [range(0; 100)]
                            | map ("node-\(.)")
-                           | .[:$composition.n_total])
+                           | .[:$compo.n_hosts])
     ## Note:  the above is a little ridiculous, but better than hard-coding.
     ##  The alternative is quite esoteric -- we have to evaluate the Nixops
     ##  deployment in a highly non-trivial manner and query that.
@@ -185,7 +142,7 @@ def profile_name($gtor; $gsis; $node):
     ## The first entry is the defprof defprof.
     , default_profile:     (.[0] | (. | keys) | .[0])
     , aux_profiles:        (aux_profiles | map(.name))
-    , composition:         $composition
+    , composition:         $compo
     }}
   + (. | add)
 ' > ${paramsfile} --null-input

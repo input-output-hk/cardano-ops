@@ -21,9 +21,10 @@ def shelley_genesis_cli_args($p; $composition; $cmd):
    , "--gen-genesis-keys",       $composition.n_bft_hosts
    , "--supply-delegated",       $p.pools_balance
    , "--gen-pools",              $p.n_pools
-   , "--gen-stake-delegs",       ([$p.n_pools, $p.extra_delegators] | max)
+   , "--gen-stake-delegs",       ([$p.n_pools, $p.delegators] | max)
    , "--testnet-magic",          $p.protocol_magic
-   , "--num-stuffed-utxo",       $p.stuffed_utxo
+   , "--num-stuffed-utxo",       ($p.utxo - $p.delegators - 1)
+                                 ## 1 is for the generator's very own funds.
    ] +
    if $p.dense_pool_density != 1
    then

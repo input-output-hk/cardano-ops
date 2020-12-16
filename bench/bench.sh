@@ -168,7 +168,8 @@ main() {
                 * ) params_check;; esac
 
         case "${op}" in
-                init-params | init )  params_init "$@";;
+                init-params | init )  params_init "$@"
+                                      rparmjq 'del(.meta) | keys';;
                 reinit-params | reinit )
                                       local node_count era topology
                                       node_count=$(parmetajq '.node_names | length')
@@ -178,7 +179,8 @@ main() {
                                       then fail "reinit:  cannot get node count from params file -- use init instead."; fi
                                       if test -z "$era"
                                       then fail "reinit:  cannot get era from params file -- use init instead."; fi
-                                      params_init "$node_count" "$era" "$topology" "$@";;
+                                      params_init "$node_count" "$era" "$topology" "$@"
+                                      rparmjq 'del(.meta) | keys';;
                 recreate-cluster | recreate )
                                       params_recreate_cluster "$@";;
 

@@ -25,8 +25,7 @@ let
     else abort "${benchmarkingParamsFile} must define 'meta.era':  please run 'bench reinit' to update it";
   Protocol =
     { shelley = "TPraos";
-    }."${benchmarkingParamsEra}"
-      or throw "unsupported era: ${benchmarkingParamsEra}";
+    }."${benchmarkingParamsEra}";
   coreEraOverlay =
     { shelley =
         { ShelleyGenesisHash = genesisHash;
