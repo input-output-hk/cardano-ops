@@ -10,16 +10,16 @@ let
 
   regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
-      minRelays = 12;
+      minRelays = 6;
     };
     b = { name = "us-east-2";      # US East (Ohio)
-      minRelays = 8;
-    };
-    c = { name = "ap-southeast-1"; # Asia Pacific (Singapore)
       minRelays = 4;
     };
+    c = { name = "ap-southeast-1"; # Asia Pacific (Singapore)
+      minRelays = 3;
+    };
     d = { name = "eu-west-2";      # Europe (London)
-      minRelays = 5;
+      minRelays = 3;
     };
     e = { name = "us-west-1";      # US West (N. California)
       minRelays = 4;
@@ -70,6 +70,10 @@ let
     (mkStakingPool "a" 1 "" { nodeId = 8; })
     (mkStakingPool "b" 1 "" { nodeId = 9; })
     (mkStakingPool "c" 1 "" { nodeId = 10; })
+    (mkStakingPool "d" 1 "" { nodeId = 11; })
+    (mkStakingPool "e" 1 "" { nodeId = 12; })
+    (mkStakingPool "f" 1 "" { nodeId = 13; })
+    (mkStakingPool "a" 2 "" { nodeId = 14; })
   ]);
 
   coreNodes = bftCoreNodes ++ stakingPoolNodes;
@@ -77,7 +81,8 @@ let
   relayNodes = map withAutoRestart (mkRelayTopology {
     inherit regions coreNodes;
     autoscaling = false;
-    maxProducersPerNode = 42;
+    maxProducersPerNode = 20;
+    maxInRegionPeers = 5;
   });
 
 in {
@@ -94,7 +99,7 @@ in {
       lovelacesToGiveAnonymous = 1000000000;
       lovelacesToGiveApiKeyAuth = 1000000000000;
       useByronWallet = false;
-      faucetFrontendUrl = "https://testnets.cardano.org/en/cardano/tools/faucet/";
+      faucetFrontendUrl = "https://developers.cardano.org/en/cardano/tools/faucet/";
     };
   };
   explorer = {

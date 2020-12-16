@@ -327,18 +327,15 @@
       "targets": [
         {
           "expr": "cardano_node_ChainDB_metrics_blockNum_int",
-          "legendFormat": "{{alias}}",
-          "refId": "C"
-        },
-        {
-          "expr": "cardano_node_metrics_ChainDB_blockNum_int",
           "format": "time_series",
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "{{alias}}",
           "refId": "A"
         },
         {
-          "expr": "cardano_byron_proxy_ChainDB_blockNum_int",
+          "expr": "cardano_node_metrics_blockNum_int",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "B"
         }
@@ -428,11 +425,13 @@
         {
           "expr": "cardano_node_ChainDB_metrics_slotNum_int",
           "hide": false,
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         },
         {
-          "expr": "cardano_node_metrics_ChainDB_slotNum_int",
+          "expr": "cardano_node_metrics_slotNum_int",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "B"
         }
@@ -528,7 +527,7 @@
           "refId": "A"
         },
         {
-          "expr": "cardano_node_metrics_ChainDB_density_real / on(alias) cardano_node_genesis_activeSlotsCoeff * 100",
+          "expr": "cardano_node_metrics_density_real / on(alias) cardano_node_genesis_activeSlotsCoeff * 100",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -621,11 +620,13 @@
       "targets": [
         {
           "expr": "cardano_node_ChainDB_metrics_epoch_int",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         },
         {
-          "expr": "cardano_node_metrics_ChainDB_epoch_int",
+          "expr": "cardano_node_metrics_epoch_int",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "B"
         }
@@ -717,7 +718,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "(rate(cardano_node_metrics_Forge_node_is_leader_int{alias!~\".*-dr-.*\"}[1h])/rate(cardano_node_ChainDB_metrics_slotNum_int{alias!~\".*-dr-.*\"}[1h])) / on(alias) cardano_node_genesis_activeSlotsCoeff",
+          "expr": "(rate(cardano_node_metrics_Forge_node_is_leader_int[1h])/rate(cardano_node_ChainDB_metrics_slotNum_int[1h])) / on(alias) cardano_node_genesis_activeSlotsCoeff",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -726,11 +727,23 @@
           "refId": "A"
         },
         {
-          "expr": "sum((rate(cardano_node_metrics_Forge_node_is_leader_int{alias!~\".*-dr-.*\"}[1h])/rate(cardano_node_ChainDB_metrics_slotNum_int{alias!~\".*-dr-.*\"}[1h])) / on(alias) cardano_node_genesis_activeSlotsCoeff)",
+          "expr": "sum((rate(cardano_node_metrics_Forge_node_is_leader_int[1h])/rate(cardano_node_ChainDB_metrics_slotNum_int[1h])) / on(alias) cardano_node_genesis_activeSlotsCoeff)",
           "hide": false,
           "interval": "",
           "legendFormat": "Total led slots",
           "refId": "B"
+        },
+        {
+          "expr": "(rate(cardano_node_metrics_Forge_node_is_leader_int[1h])/rate(cardano_node_metrics_slotNum_int[1h])) / on(alias) cardano_node_genesis_activeSlotsCoeff",
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "C"
+        },
+        {
+          "expr": "sum((rate(cardano_node_metrics_Forge_node_is_leader_int[1h])/rate(cardano_node_metrics_slotNum_int[1h])) / on(alias) cardano_node_genesis_activeSlotsCoeff)",
+          "interval": "",
+          "legendFormat": "Total led slots",
+          "refId": "D"
         }
       ],
       "thresholds": [],
@@ -821,6 +834,12 @@
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
+        },
+        {
+          "expr": "cardano_node_metrics_Forge_forged_int - cardano_node_metrics_Forge_adopted_int",
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "B"
         }
       ],
       "thresholds": [],
@@ -908,11 +927,13 @@
       "targets": [
         {
           "expr": "cardano_node_ChainDB_metrics_slotInEpoch_int",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         },
         {
-          "expr": "cardano_node_metrics_ChainDB_slotInEpoch_int",
+          "expr": "cardano_node_metrics_slotInEpoch_int",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "B"
         }
@@ -1025,9 +1046,16 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "avg(cardano_node_Forge_metrics_currentKESPeriod_int{alias!~\".*-dr-.*\"})",
+          "expr": "avg(cardano_node_Forge_metrics_currentKESPeriod_int)",
           "interval": "",
+          "legendFormat": "",
           "refId": "A"
+        },
+        {
+          "expr": "avg(cardano_node_metrics_currentKESPeriod_int)",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "B"
         }
       ],
       "thresholds": "",
@@ -1087,11 +1115,13 @@
       "targets": [
         {
           "expr": "rate(cardano_node_ChainDB_metrics_blockNum_int[150s])*60",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         },
         {
-          "expr": "rate(cardano_node_metrics_ChainDB_blockNum_int[150s])*60",
+          "expr": "rate(cardano_node_metrics_blockNum_int[150s])*60",
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "B"
         }
@@ -1184,6 +1214,12 @@
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "C"
+        },
+        {
+          "expr": "cardano_node_metrics_remainingKESPeriods_int",
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "A"
         }
       ],
       "thresholds": [],
@@ -1276,6 +1312,12 @@
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "C"
+        },
+        {
+          "expr": "cardano_node_metrics_remainingKESPeriods_int * on(alias) cardano_node_genesis_slotsPerKESPeriod * on(alias) cardano_node_genesis_slotLength",
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "A"
         }
       ],
       "thresholds": [],
@@ -1368,6 +1410,12 @@
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
+        },
+        {
+          "expr": "(cardano_node_genesis_slotLength * (cardano_node_genesis_slotsPerKESPeriod * ((cardano_node_decode_kesCreatedPeriod > -1) + cardano_node_genesis_maxKESEvolutions)) - on(alias) (cardano_node_genesis_slotLength * on(alias) cardano_node_metrics_slotNum_int))",
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "B"
         }
       ],
       "thresholds": [],
@@ -1458,6 +1506,12 @@
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
+        },
+        {
+          "expr": "1/rate(cardano_node_metrics_slotNum_int[600s])",
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "B"
         }
       ],
       "thresholds": [],

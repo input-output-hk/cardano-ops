@@ -173,6 +173,18 @@ in with pkgs; {
           return 0
         }
 
+        protocol_params() {
+          BASE_CMD="cardano-cli query protocol-parameters $MAGIC"
+          for era in shelley allegra mary; do
+            OUTPUT=$($BASE_CMD --$era-era 2>/dev/null)
+            if [ $? -eq 0 ]; then
+              echo $OUTPUT
+              return 0
+            fi
+          done
+          return 1
+        }
+
         # main
         #
         if VERSION_OUTPUT=$(cardano-cli version); then
@@ -192,7 +204,7 @@ in with pkgs; {
             IS_CARDANO="1"
             GENESIS=$(jq -r '.ShelleyGenesisFile' < "$CONFIG")
             MODE="--cardano-mode"
-            if cardano-cli shelley query protocol-parameters $MAGIC $MODE; then
+            if protocol_params; then
               IS_SHELLEY="1"
               IS_BYRON="0"
             else
@@ -226,12 +238,12 @@ in with pkgs; {
 
         if [ -f "$OPCERT" ]; then
           echo "Cardano node opcert file is: $OPCERT"
-          DECODED=$(cardano-cli shelley text-view decode-cbor --in-file "$OPCERT")
+          DECODED=$(cardano-cli text-view decode-cbor --in-file "$OPCERT")
           CERT_ISSUE_NUM=$(sed '7q;d' <<< "$DECODED" | awk -F '[()]' '{print $2}')
           KES_CREATED_PERIOD=$(sed '8q;d' <<< "$DECODED" | awk -F '[()]' '{print $2}')
         fi
 
-        if PROTOCOL_CONFIG=$(cardano-cli shelley query protocol-parameters $MAGIC $MODE); then
+        if PROTOCOL_CONFIG=$(protocol_params); then
           A_0=$(jq '.a0' <<< "$PROTOCOL_CONFIG")
           DECENTRALISATION_PARAM=$(jq '.decentralisationParam' <<< "$PROTOCOL_CONFIG")
           E_MAX=$(jq '.eMax' <<< "$PROTOCOL_CONFIG")
