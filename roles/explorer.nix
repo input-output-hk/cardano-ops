@@ -243,7 +243,7 @@ in {
         serverAliases = globals.explorerAliases;
         enableACME = true;
         forceSSL = globals.explorerForceSSL;
-        locations = if maintenanceMode then {
+        locations = (if maintenanceMode then {
           "/" = let
             maintenanceFile = __toFile "maintenance.html" ''
               <!doctype html>
@@ -314,11 +314,12 @@ in {
               error_page 500 =400 /;
             '';
           };
-          "/relays" = {
-            root = "/var/lib/registered-relays-dump";
-          };
           "/rosetta/" = {
             proxyPass = "http://127.0.0.1:8082/";
+          };
+        }) // {
+          "/relays" = {
+            root = "/var/lib/registered-relays-dump";
           };
         };
       };
