@@ -60,7 +60,7 @@ let
   stakingPoolNodes = let
     mkStakingPool = mkStakingPoolForRegions regions;
   in regionalConnectGroupWith bftCoreNodes
-  (oneHopConnectNodes [
+  (twoHopsConnectNodes [
     (mkStakingPool "a" 1 "IOG1" { nodeId = 8; })
     (mkStakingPool "b" 1 "IOG2" { nodeId = 9; })
     (mkStakingPool "c" 1 "IOG3" { nodeId = 10; })
