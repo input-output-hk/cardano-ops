@@ -129,6 +129,7 @@ in {
   systemd.services.cardano-explorer-api.startLimitIntervalSec = 0;
   systemd.services.cardano-explorer-api.serviceConfig.Restart = "always";
   systemd.services.cardano-explorer-api.serviceConfig.RestartSec = "10s";
+  systemd.services.cardano-explorer-api.serviceConfig.LimitNOFILE = 4096;
 
   services.cardano-submit-api = lib.mkIf globals.withSubmitApi {
     enable = true;
@@ -232,6 +233,8 @@ in {
                        '"$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
 
       access_log syslog:server=unix:/dev/log x-fwd;
+      limit_req_zone $binary_remote_addr zone=apiPerIP:100m rate=1r/s;
+      limit_req_status 429;
       map $http_accept_language $lang {
               default en;
               ~de de;
@@ -302,6 +305,9 @@ in {
           };
           "/api" = {
             proxyPass = "http://127.0.0.1:8100/api";
+            extraConfig = ''
+              limit_req zone=apiPerIP;
+            '';
           };
           "/graphql" = {
             proxyPass = "http://127.0.0.1:3100/";
