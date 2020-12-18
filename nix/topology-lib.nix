@@ -6,6 +6,9 @@ pkgs: with pkgs; with lib; rec {
   /* compose list of function */
   composeAll = builtins.foldl' compose id;
 
+  /* Round a float to integer, toward 0. */
+  rountToInt = f: toInt (head (splitString "." (toString f)));
+
   /* Auto restart cardano-node service every given hours
     (plus 'nodeId' minutes to reduce likelyhood of simultaneous restart of many nodes).
   */
@@ -289,8 +292,8 @@ pkgs: with pkgs; with lib; rec {
             in {
               inherit region name nodeIndex;
               producers = # one relay in each other regions, using a scale factor to spread accross all relays of other regions:
-                map (r: let scaleFactor = nbRelaysPerRegions.${r} / nbRelays; in
-                 "${relayPrefix}-${r}-${toString (mod ((nodeIndex - 1) * scaleFactor) nbRelaysPerRegions.${r} + 1)}")
+                map (r: let scaleFactor = (nbRelaysPerRegions.${r} + 0.0) / nbRelays; in
+                 "${relayPrefix}-${r}-${toString (rountToInt ((nodeIndex - 1) * scaleFactor) + 1)}")
                   (filter (r: r != rLetter) regionLetters)
                 # a share of the third-party relays:
                 ++ (filter (p: mod p.index nbRelays == (nodeIndex - 1)) (indexedThirdPartyRelays.${region} or []));
