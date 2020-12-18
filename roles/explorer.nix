@@ -304,15 +304,7 @@ in {
             proxyPass = "http://127.0.0.1:8100/api";
           };
           "/graphql" = {
-            proxyPass = "http://127.0.0.1:3100/graphql";
-            extraConfig = ''
-              # Temporary workaround until
-              # https://github.com/input-output-hk/cardano-graphql/issues/266
-              # is fixed so that we don't get alerted when someone
-              # submits an invalid query.
-              proxy_intercept_errors on;
-              error_page 500 =400 /;
-            '';
+            proxyPass = "http://127.0.0.1:3100/";
           };
           "/rosetta/" = {
             proxyPass = "http://127.0.0.1:8082/";
