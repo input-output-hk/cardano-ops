@@ -77,7 +77,7 @@ class RelayUpdate
       updateAbort("Unable to process the deployment name from the globals file.")
     end
 
-    if runCmdVerbose("nix eval --raw '(with import ./#{PATH_MOD}/nix {}; \"https://${globals.explorerHostName}.${globals.domain}/relays/topology.json\")'").success?
+    if runCmdVerbose("nix eval --raw '(with import ./#{PATH_MOD}/nix {}; \"https://${globals.explorerHostName}/relays/topology.json\")'").success?
       @explorerUrl = IO_CMD_OUT.to_s
     else
       updateAbort("Unable to process the explorer fqdn name from the globals file.")
