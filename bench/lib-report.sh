@@ -33,6 +33,6 @@ package_run() {
 
         oprint "Packaging $tag as:  $package"
         ln -sf "./runs/$tag" "$report_name"
-        tar cf "$package"    "$report_name" --xz --dereference
+        tar cf "$package"    "$report_name" --xz --dereference || true
         rm -f                "$report_name"
 }

@@ -126,7 +126,8 @@ include "profile-definitions" { search: "bench" };
   | { "\(.name //
          profile_name($compo; $prof.genesis; $prof.generator; $prof.node))":
       ($prof
-       | delpaths ([["generator", "epochs"]]))
+       | delpaths ([ ["generator", "epochs"]
+                   , ["generator", "finish_patience"]]))
     }
   )
 | { meta:

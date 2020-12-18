@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # shellcheck disable=2086,2119
 
+genesis_cache_root=../geneses
+
 genesisjq()
 {
         local q=$1; shift
@@ -13,28 +15,36 @@ profile_genesis_future_offset() {
         echo -n "$(profjq "$profile" .genesis.genesis_future_offset)"
 }
 
+genesis_cache_id()
+{
+        local genesis_params=$1 params_hash
+        params_hash=$(jq --sort-keys . <<<$genesis_params |
+                      sha1sum | cut -c-7)
+        jq <<<$genesis_params \
+           '"k\(.n_pools)-d\(.dense_pool_density)-\(.delegators / 1000)kD-\(.utxo / 1000)kU-\($params_hash)"
+           ' --arg params_hash "$params_hash" --raw-output
+}
+
 profile_genesis() {
-        local profile=$1 genesis_dir=${2:-./keys} genesis_future_offset hash non_reuse_reasons=()
+        local profile=$1 genesis_dir=${2:-./keys}
+        local genesis_params cache_id cache_path genesis_future_offset hash
 
-        if test -z "$reuse_genesis$(profgenjq "$profile" .reuse)"
-        then non_reuse_reasons+=('reuse_not_requested'); fi
-        if test ! -f "$genesis_dir"/genesis.json
-        then non_reuse_reasons+=('no_genesis_to_reuse'); fi
+        genesis_params=$(profgenjq "$profile" .)
+        cache_id=$(genesis_cache_id "$genesis_params")
+        cache_path=$genesis_cache_root/$cache_id
 
-        if test ${#non_reuse_reasons[*]} -eq 0
-        then local genesis_profile_mismatch
-             genesis_profile_mismatch=$(genesis_profile_mismatches "$profile" "$genesis_dir")
-             if test -n "$genesis_profile_mismatch"
-             then non_reuse_reasons+=('profile_mismatch:'"$genesis_profile_mismatch"); fi; fi
+        if test -f "$cache_path"/genesis.json
+        then cache_hit=t; cache_hit_desc='hit'
+        else cache_hit=;  cache_hit_desc='miss'; fi
+        oprint "genesis cache ${cache_hit_desc}:  $cache_id"
 
-        if test ${#non_reuse_reasons[*]} -gt 0
-        then oprint "regenerating genesis from scratch -- no reuse because:  ${non_reuse_reasons[*]}"
-             time profile_genesis_"$(get_era)" "$profile" "$genesis_dir"
-        elif test -n "$reuse_genesis"
-        then oprint "updating genesis (--reuse-genesis)"
-        elif test -n "$(profgenjq "$profile" .reuse)"
-        then oprint "updating genesis (.reuse in genesis profile)"
+        if test -z "$cache_hit"
+        then oprint "generating genesis due to miss:  $cache_id @$cache_path"
+             mkdir -p "$cache_path"
+             time profile_genesis_"$(get_era)" "$profile" "$cache_path"
         fi
+        rm -f "$genesis_dir"
+        ln -s "$cache_path" "$genesis_dir"
         genesis_future_offset=$(profile_genesis_future_offset "$profile")
         start_timestamp=$(date +%s --date="now + ${genesis_future_offset}")
 
@@ -206,13 +216,13 @@ profile_genesis_shelley_singleshot() {
         ## update genesis from template
         cli genesis create-staked "${params[@]}"
 
-        genesis_shelley_copy_keys "$prof" "$ids_pool_map"
+        genesis_shelley_remap_key_names "$prof" "$ids_pool_map"
 
         ## Fix up the key, so the generator can read it:
         sed -i 's_PaymentSigningKeyShelley_SigningKeyShelley_' "$target_dir"/utxo-keys/utxo1.skey
 }
 
-genesis_shelley_copy_keys() {
+genesis_shelley_remap_key_names() {
         local profile=$1 ids_pool_map=$2
         local ids ids_pool
 

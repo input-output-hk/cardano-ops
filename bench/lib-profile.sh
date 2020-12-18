@@ -63,64 +63,10 @@ profile_deploy() {
              } | tee "$genesislog";
         fi
 
-        redeploy_causes=(mandatory)
-        include=('explorer')
+        include="explorer $(params producers)"
 
-        if   test ! -f "${deployfile['explorer']}"
-        then redeploy_causes+=(missing-explorer-deployfile)
-             include+=('explorer')
-        elif ! depljq 'explorer' . >/dev/null 2>&1
-        then redeploy_causes+=(malformed-explorer-deployfile)
-             include+=('explorer')
-        elif njqtest "
-             ($(depljq 'explorer' .profile)         != \"$prof\") or
-             ($(depljq 'explorer' .profile_content) != $(profjq "$prof" .))"
-        then redeploy_causes+=(new-profile)
-             include+=('explorer')
-        elif njqtest "
-             $(genesisjq .params 2>/dev/null || echo '"missing"') !=
-             $(depljq 'explorer' .profile_content.genesis)"
-        then redeploy_causes+=(genesis-params-explorer)
-             include+=('explorer')
-        elif njqtest "
-             $(genesisjq .hash 2>/dev/null || echo '"missing"') !=
-             $(depljq 'explorer' .genesis_hash)"
-        then redeploy_causes+=(genesis-hash-explorer)
-             include+=('explorer'); fi
-
-
-        if test ! -f "${deployfile['producers']}"
-        then redeploy_causes+=(missing-producers-deployfile)
-             include+=($(params producers))
-        elif ! depljq 'producers' . >/dev/null 2>&1
-        then redeploy_causes+=(malformed-producers-deployfile)
-             include+=($(params producers))
-        elif njqtest "
-             $(genesisjq .params 2>/dev/null || echo '"missing"') !=
-             $(depljq 'producers' .profile_content.genesis)"
-        then redeploy_causes+=(genesis-params-producers)
-             include+=($(params producers))
-        elif njqtest "
-             $(genesisjq .hash 2>/dev/null || echo '"missing"') !=
-             $(depljq 'producers' .genesis_hash)"
-        then redeploy_causes+=(genesis-hash-producers)
-             include+=($(params producers)); fi
-
-        if test -n "${force_deploy}"
-        then redeploy_causes+=('--deploy')
-             include=('explorer' $(params producers)); fi
-
-        local final_include
-        if test "${include[0]}" = "${include[1]:-}"
-        then final_include=$(echo "${include[*]}" | sed 's/explorer explorer/explorer/g')
-        else final_include="${include[*]}"; fi
-
-        if test -z "${redeploy_causes[*]}"
-        then return; fi
-
-        oprint "redeploying, because:  ${redeploy_causes[*]}"
         if test -z "$no_deploy"
-        then deploystate_deploy_profile "$prof" "$final_include" "$deploylog"
+        then deploystate_deploy_profile "$prof" "$include" "$deploylog"
         else oprint "skippin' deploy, because:  CLI override"
              ln -sf "$deploylog" 'last-deploy.log'
         fi

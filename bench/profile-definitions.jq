@@ -107,7 +107,7 @@ def derived_generator_params($compo; $gtor; $gsis; $node):
 | ($epoch_duration * $gtor.epochs)           as $duration
 |
 { common:
-  { tx_count:                ($duration * $gtor.tps)
+  { tx_count:                ($duration * ([$gtor.tps, 7] | min))
   }
 } | (.common + (.[$era] // {}));
 
@@ -173,7 +173,9 @@ def pool_density_profiles:
 
 def utxo_delegators_density_profiles:
   [ { genesis: { utxo: 1000000, delegators:  125000 } }
-  , { genesis: { utxo: 1000000, delegators:  125000, dense_pool_density: 10 } }
+  , { genesis: { utxo: 1000000, delegators:  125000, dense_pool_density: 2 } }
+  , { genesis: { utxo: 1000000, delegators:  125000, dense_pool_density: 4 } }
+  , { genesis: { utxo: 1000000, delegators:  125000, dense_pool_density: 8 } }
   , { genesis: { utxo: 1000000, delegators:  125000, dense_pool_density: 20 } }
   , { genesis: { utxo: 1000000, delegators:  125000, dense_pool_density: 40 } }
   , { genesis: { utxo: 2000000, delegators:  125000 } }

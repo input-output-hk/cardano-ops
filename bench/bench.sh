@@ -127,7 +127,7 @@ main() {
         while test $# -ge 1
         do case "$1" in
            --fast-unsafe | --fu ) no_deploy=t no_wait=t;;
-           --no-prebuild )        no_prebuild=t;;
+           --no-prebuild | --skip-prebuild ) no_prebuild=t;;
            --no-deploy )          no_deploy=t;;
            --deploy )             force_deploy=t;;
            --reuse-genesis | --keep-genesis )
