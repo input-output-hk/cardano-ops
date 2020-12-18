@@ -242,7 +242,7 @@ in {
       }
     '';
     virtualHosts = {
-      "${globals.explorerHostName}.${globals.domain}" = {
+      "${globals.explorerHostName}" = {
         serverAliases = globals.explorerAliases;
         enableACME = true;
         forceSSL = globals.explorerForceSSL;
@@ -285,7 +285,7 @@ in {
           "/" = {
             root = (cardano-explorer-app-pkgs.overrideScope'(self: super: {
               static = super.static.override {
-                graphqlApiHost = "${globals.explorerHostName}.${globals.domain}";
+                graphqlApiHost = globals.explorerHostName;
                 cardanoNetwork = globals.environmentName;
                 gaTrackingId = globals.static.gaTrackingId or null;
               };

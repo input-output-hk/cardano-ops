@@ -134,7 +134,7 @@ pkgs: with pkgs; with lib; rec {
     }) topologies;
 
   /* return registered tird-party relays, as saved in static/registered_relays_topology.json from
-     https://${globals.explorerHostName}.${globals.domain}/relays/topology.json
+     https://${globals.explorerHostName}/relays/topology.json
   */
   thirdPartyRelays = globals.static.additionalPeers ++
     (filter (r: !(hasSuffix globals.relaysNew r.addr))

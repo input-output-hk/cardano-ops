@@ -68,7 +68,7 @@ in {
 
 
   explorer = {
-    services.nginx.virtualHosts."${globals.explorerHostName}.${globals.domain}".locations."/p" = lib.mkIf (__pathExists ../static/pool-metadata) {
+    services.nginx.virtualHosts.${globals.explorerHostName}.locations."/p" = lib.mkIf (__pathExists ../static/pool-metadata) {
       root = ../static/pool-metadata;
     };
     services.cardano-graphql = {
