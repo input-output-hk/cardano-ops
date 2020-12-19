@@ -32,12 +32,12 @@ let
 
   stakingPoolNodes = [];
 
-  coreNodes = bftCoreNodes;
+  coreNodes =  map (withAutoRestartEvery 6) bftCoreNodes;
 
-  relayNodes = mkRelayTopology {
+  relayNodes =  map (withAutoRestartEvery 6) (mkRelayTopology {
     inherit regions coreNodes;
     autoscaling = false;
-  };
+  });
 
 in {
 

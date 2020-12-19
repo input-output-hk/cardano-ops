@@ -1,13 +1,6 @@
 pkgs: with pkgs; with lib; with topology-lib;
 let
 
-  withAutoRestart = def: lib.recursiveUpdate {
-    systemd.services.cardano-node.serviceConfig = {
-      RuntimeMaxSec = 6 *
-        60 * 60 + 60 * (def.nodeId or 0);
-    };
-  } def;
-
   regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
       minRelays = 4;
@@ -65,9 +58,9 @@ let
 
   stakingPoolNodes = [];
 
-  coreNodes = bftCoreNodes ++ stakingPoolNodes;
+  coreNodes =  map (withAutoRestartEvery 6) (bftCoreNodes ++ stakingPoolNodes);
 
-  relayNodes = map withAutoRestart (mkRelayTopology {
+  relayNodes = map (withAutoRestartEvery 6) (mkRelayTopology {
     inherit regions coreNodes;
     autoscaling = false;
   });
