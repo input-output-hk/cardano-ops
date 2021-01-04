@@ -15,6 +15,18 @@ let
     protocol."TPraos" = null;
     in protocol.${globals.environmentConfig.nodeConfig.Protocol};
 
+  shelleyGenesis = builtins.fromJSON (builtins.readFile globals.environmentConfig.nodeConfig.ShelleyGenesisFile);
+
+  hoursUntilNextEpoch =
+    let inherit (shelleyGenesis) epochLength systemStart;
+    in writeShellScriptBin "hoursUntilNextEpoch" ''
+        elapsedSeconds=$(( $(date +\%s) - $(date +\%s -d "${systemStart}") ))
+        elapsedSecondsInEpoch=$(( $elapsedSeconds % ${toString epochLength} ))
+        secondsUntilNextEpoch=$(( ${toString epochLength} - $elapsedSecondsInEpoch ))
+        hoursUntilNextEpoch=$(( $secondsUntilNextEpoch / 3600 ))
+        echo $hoursUntilNextEpoch
+    '';
+
   create-shelley-genesis-and-keys =
     let nbCoreNodes = builtins.length globals.topology.coreNodes;
         maxSupply = 20000000000000000 * nbCoreNodes;
@@ -68,6 +80,7 @@ in  mkShell rec {
     test-cronjob-script
     cardano-cli-completions
     cardano-ping
+    hoursUntilNextEpoch
   ];
   # If any build input has bash completions, add it to the search
   # path for shell completions.
