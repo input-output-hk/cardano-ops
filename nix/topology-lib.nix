@@ -22,6 +22,11 @@ pkgs: with pkgs; with lib; rec {
   */
   withProfiling = p: nodes: def: lib.recursiveUpdate {
     services.cardano-node.profiling = mkIf (elem def.name nodes) p;
+    # Disable autorestart (which would override profiling data):
+    systemd.services.cardano-node.serviceConfig = {
+      RuntimeMaxSec = lib.mkForce "infinity";
+      Restart = lib.mkForce "no";
+    };
   } def;
 
   /* return the dns name of the continental group of relay
