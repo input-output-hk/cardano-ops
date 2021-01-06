@@ -15,7 +15,7 @@ let
       minRelays = 29;
     };
     e = { name = "us-west-1";      # US West (N. California)
-      minRelays = 25;
+      minRelays = 28;
     };
     f = { name = "ap-northeast-1"; # Asia Pacific (Tokyo)
       minRelays = 15;
