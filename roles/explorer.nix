@@ -116,6 +116,11 @@ in {
     SupplementaryGroups = "cardano-node";
   };
 
+  systemd.services.cardano-graphql.serviceConfig = {
+    # Put cardano-graphql in "cardano-node" group so that it can write socket file:
+    SupplementaryGroups = "cardano-node";
+  };
+
   systemd.services.cardano-submit-api.serviceConfig = lib.mkIf globals.withSubmitApi {
     # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
     SupplementaryGroups = "cardano-node";
