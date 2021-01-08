@@ -65,13 +65,13 @@ class RelayUpdate
       @sesSecret = ""
     end
 
-    if runCmdVerbose("nix-instantiate --eval -E --json '(import #{PATH_MOD}/globals.nix {}).environmentName'").success?
+    if runCmdVerbose("nix-instantiate --eval -E --json '(import #{PATH_MOD}/nix {}).globals.environmentName'").success?
       @cluster = IO_CMD_OUT.to_s.strip('"')
     else
       updateAbort("Unable to process the environment name from the globals file.")
     end
 
-    if runCmdVerbose("nix-instantiate --eval -E --json '(import #{PATH_MOD}/globals.nix {}).deploymentName'").success?
+    if runCmdVerbose("nix-instantiate --eval -E --json '(import #{PATH_MOD}/nix {}).globals.deploymentName'").success?
       @deployment = IO_CMD_OUT.to_s.strip('"')
     else
       updateAbort("Unable to process the deployment name from the globals file.")
