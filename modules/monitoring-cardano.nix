@@ -49,26 +49,26 @@ in {
     }
     {
       alert = "cardano_new_node_block_divergence";
-      expr = "abs(max(cardano_node_ChainDB_metrics_blockNum_int{alias!~\"bft-dr.*|rel-dr.*\"}) - ignoring(alias,instance,job,role) group_right(instance) cardano_node_ChainDB_metrics_blockNum_int{alias!~\"bft-dr.*|rel-dr.*\"}) > 2";
+      expr = "((abs(max(cardano_node_ChainDB_metrics_blockNum_int{alias!~\"bft-dr.*|rel-dr.*\"}) - ignoring(alias, instance, job, role) group_right(instance) cardano_node_ChainDB_metrics_blockNum_int{alias!~\"bft-dr.*|rel-dr.*\"}) > bool 2) - (abs(max(cardano_node_ChainDB_metrics_slotNum_int{alias!~\"bft-dr.*|rel-dr.*\"}) - ignoring(alias, instance, job, role) group_right(instance) cardano_node_ChainDB_metrics_slotNum_int{alias!~\"bft-dr.*|rel-dr.*\"}) < bool 60)) == 1";
       for = "5m";
       labels = {
         severity = "page";
       };
       annotations = {
         summary = "{{$labels.alias}}: cardano-node block divergence detected for more than 5 minutes";
-        description = "{{$labels.alias}}: cardano-node block divergence detected for more than 5 minutes";
+        description = "{{$labels.alias}}: cardano-node block divergence of more than 2 blocks and 60 seconds lag detected for more than 5 minutes";
       };
     }
     {
       alert = "cardano_shadow_node_block_divergence";
-      expr = "abs(max(cardano_node_ChainDB_metrics_blockNum_int{alias=~\"bft-dr.*|rel-dr.*\"}) - ignoring(alias,instance,job,role) group_right(instance) cardano_node_ChainDB_metrics_blockNum_int{alias=~\"bft-dr.*|rel-dr.*\"}) > 2";
+      expr = "((abs(max(cardano_node_ChainDB_metrics_blockNum_int{alias=~\"bft-dr.*|rel-dr.*\"}) - ignoring(alias, instance, job, role) group_right(instance) cardano_node_ChainDB_metrics_blockNum_int{alias=~\"bft-dr.*|rel-dr.*\"}) > bool 2) - (abs(max(cardano_node_ChainDB_metrics_slotNum_int{alias=~\"bft-dr.*|rel-dr.*\"}) - ignoring(alias, instance, job, role) group_right(instance) cardano_node_ChainDB_metrics_slotNum_int{alias=~\"bft-dr.*|rel-dr.*\"}) < bool 60)) == 1";
       for = "5m";
       labels = {
         severity = "page";
       };
       annotations = {
         summary = "{{$labels.alias}}: cardano-shadow-node block divergence detected for more than 5 minutes";
-        description = "{{$labels.alias}}: cardano-shadow-node block divergence detected for more than 5 minutes";
+        description = "{{$labels.alias}}: cardano-shadow-node block divergence of more than 2 blocks and 60 seconds lag detected for more than 5 minutes";
       };
     }
     {
