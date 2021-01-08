@@ -3,7 +3,7 @@ let
   inherit (pkgs.lib)
     attrValues attrNames filter filterAttrs flatten foldl' hasAttrByPath listToAttrs
     mapAttrs' mapAttrs nameValuePair recursiveUpdate unique optional any concatMap
-    getAttrs optionalString hasPrefix;
+    getAttrs optionalString hasPrefix take drop length concatStringsSep;
 
   inherit (globals.topology) coreNodes relayNodes;
   privateRelayNodes = globals.topology.privateRelayNodes or [];
@@ -106,8 +106,10 @@ let
         regions);
 
       route53RecordSets =
-        let mkRelayRecords = prefix: relayFilter: listToAttrs (map (relay:
-          nameValuePair "${prefix}${optionalString (prefix != "") "-"}relays-new-${relay.name}" (
+        let mkRelayRecords = prefix: let
+          relaysNewPrefix = "${prefix}${optionalString (prefix != "") "-"}relays-new";
+        in relayFilter: listToAttrs (map (relay:
+          nameValuePair "${relaysNewPrefix}-${relay.name}" (
           { resources, ... }: {
             zoneName = "${pkgs.globals.dnsZone}.";
             domainName = "${prefix}${optionalString (prefix != "") "."}${pkgs.globals.relaysNew}.";
@@ -117,7 +119,13 @@ let
             routingPolicy = "multivalue";
             accessKeyId = pkgs.globals.ec2.credentials.accessKeyIds.dns;
           })
-        ) (filter relayFilter relayNodes));
+          # AWS records are limited to 200 values:
+        ) (let relays = filter relayFilter relayNodes;
+          numberOfRelays = length relays;
+        in if (numberOfRelays > 200) then builtins.trace
+          "WARNING: Getting over the 200 values limit for ${relaysNewPrefix} dns entry (${toString numberOfRelays} relays). Excluding ${concatStringsSep " " (map (r: r.name) (drop 200 relays))}."
+          (take 200 relays)
+        else relays));
         in mkRelayRecords "" (_: true)
         // mkRelayRecords "asia-pacific" (n: hasPrefix "ap" n.region)
         // mkRelayRecords "north-america" (n: hasPrefix "us" n.region)
