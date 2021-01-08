@@ -39,6 +39,16 @@ pkgs: with pkgs; with lib; rec {
         else "europe";
       in "${prefix}.${globals.relaysNew}";
 
+  /* return the dns name of the continental group of relay, for the target env,
+     that is the nearest to the given region.
+  */
+  envRelayGroupForRegion = region:
+    let prefix =
+        if (hasPrefix "ap" region) then "asia-pacific"
+        else if (hasPrefix "us" region) then "north-america"
+        else "europe";
+      in "${prefix}.${globals.environmentConfig.relaysNew}";
+
   /* Connect a group of nodes (second arg) with the given group (first arg),
      so that every nodes of the first group appears exactly once
      among all the producers arrays of the nodes in the second group.
@@ -137,8 +147,8 @@ pkgs: with pkgs; with lib; rec {
       }
     ) indexedNodes;
     in map (n: n.node // {
-      producers = filter (p: !(elem p n.node.producers)) n.producers
-         ++ n.node.producers;
+      producers = filter (p: !(elem p (n.node.producers or []))) n.producers
+         ++ (n.node.producers or []);
     }) topologies;
 
   /* return registered tird-party relays, as saved in static/registered_relays_topology.json from
@@ -157,6 +167,17 @@ pkgs: with pkgs; with lib; rec {
   */
   regionalRelaysProducer = region: valency: {
     addr = relayGroupForRegion region;
+    port = globals.cardanoNodePort;
+    inherit valency;
+  };
+
+  /* return the target env relays regional dns entry that is closest to the given region,
+     as a producer with given valency.
+     For use by core nodes to avoid relying on specific relay nodes,
+     thus allowing restarting relays and scaling up/down easily without affecting core nodes.
+  */
+  envRegionalRelaysProducer = region: valency: {
+    addr = envRelayGroupForRegion region;
     port = globals.cardanoNodePort;
     inherit valency;
   };
