@@ -39,6 +39,10 @@ pkgs: {
     };
   };
 
+  relayUpdateArgs = "-m 1500 --maxNodes 12 -s -e devops@iohk.io";
+  # Trigger relay topology refresh 12 hours before next epoch
+  relayUpdateHoursBeforeNextEpoch = 12;
+
   alertChainDensityLow = "92";
   alertTcpHigh = "250";
   alertTcpCrit = "300";

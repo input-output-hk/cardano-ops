@@ -11,6 +11,10 @@ in {
   static = import ./static;
 
   deploymentName = "${builtins.baseNameOf ./.}";
+  deploymentPath = "$HOME/${pkgs.globals.deploymentName}";
+
+  relayUpdateArgs = "-m 1";
+  relayUpdatePeriod = "weekly";
 
   environmentName = pkgs.globals.deploymentName;
 

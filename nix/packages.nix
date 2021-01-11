@@ -1,8 +1,8 @@
-self: super: {
+self: super: with self; {
 
   pp = v: __trace (__toJSON v) v;
-  leftPad = number: width: self.lib.fixedWidthString width "0" (toString number);
-  shiftList = n: list: self.lib.drop n list ++ (self.lib.take n list);
+  leftPad = number: width: lib.fixedWidthString width "0" (toString number);
+  shiftList = n: list: lib.drop n list ++ (lib.take n list);
 
   getPublicIp = resources: nodes: nodeName:
     resources.elasticIPs."${nodeName}-ip".address or
@@ -36,7 +36,7 @@ self: super: {
   # "infinite recursions" occurs.
   # This can greatly improve nixops eval perf /memory usage
   # when pkgs is the same for all machines (common case).
-  importWithPkgs = with self.lib; dir:
+  importWithPkgs = with lib; dir:
     mapAttrs' (n: v:
       let l = stringLength n;
         nix = import (dir + "/${n}");
@@ -50,17 +50,79 @@ self: super: {
         in v == "regular" && (substring (l - 4) l n) == ".nix")
         (builtins.readDir dir));
 
-  aws-affinity-indexes = self.runCommand "aws-affinity-indexes" {
+  aws-affinity-indexes = runCommand "aws-affinity-indexes" {
     nativeBuildInputs = with self; [ csvkit jq ];
   } ''
     mkdir -p $out
-    csvjson -d ";" -I --blanks -H ${self.sourcePaths.aws-datacenters}/output/countries.index | jq 'map( { (.a): .c } ) | add' \
+    csvjson -d ";" -I --blanks -H ${sourcePaths.aws-datacenters}/output/countries.index | jq 'map( { (.a): .c } ) | add' \
       > $out/countries-index.json
-    csvjson -d ";" -I --blanks -H ${self.sourcePaths.aws-datacenters}/output/usa.index | jq 'map( { (.b): .c } ) | add' \
+    csvjson -d ";" -I --blanks -H ${sourcePaths.aws-datacenters}/output/usa.index | jq 'map( { (.b): .c } ) | add' \
       > $out/usa-index.json
     jq -s 'add' $out/countries-index.json $out/usa-index.json > $out/state-index.json
   '';
 
   topology-lib = import ./topology-lib.nix self;
 
+  relayUpdateTimer =
+    let
+      writeIni = filename: cfg: writeTextFile {
+        name = filename;
+        text = lib.generators.toINI {} cfg;
+        destination = "/${filename}";
+      } + "/${filename}";
+
+      runNodeUpdate = writeShellScript "run-node-update" ''
+        set -eu -o pipefail
+        cd ${globals.deploymentPath}
+        mkdir -p relay-update-logs
+        ${if global ? relayUpdateHoursBeforeNextEpoch
+          then ''nix-shell --run 'if [ $(hoursUntilNextEpoch) -le ${toString globals.relayUpdateHoursBeforeNextEpoch} ]; then [ -f refresh-done ] || node-update --refresh --relay ${globals.relayUpdateArgs} &> relay-update-logs/relay-update-$(date -u +"\%F_\%H-\%M-\%S").log && touch refresh-done; else rm -f refresh-done; fi' ''
+          else ''nix-shell --run 'node-update --refresh --relay ${globals.relayUpdateArgs}' &> relay-update-logs/relay-update-$(date -u +"\%F_\%H-\%M-\%S").log''
+        }
+      '';
+
+      service = writeIni "relay-update-${globals.deploymentName}.service" {
+        Unit = {};
+        Service = {
+           ExecStart = "${runNodeUpdate}";
+           Environment = "PATH=${lib.makeBinPath [ nix coreutils ]}";
+        };
+      };
+
+      timer = writeIni "relay-update-${globals.deploymentName}.timer" {
+        Unit = {};
+        Timer = {
+          OnCalendar = if (globals ? relayUpdateHoursBeforeNextEpoch)
+            then "hourly"
+            else globals.relayUpdatePeriod;
+          Unit = "relay-update-${globals.deploymentName}.service";
+        };
+        Install = {
+          WantedBy = "default.target";
+        };
+      };
+
+    in writeShellScriptBin "relay-update-timer" ''
+      set -eu -o pipefail
+      cd ${globals.deploymentPath}
+      MODE=''${1:-""}
+      if [ "$MODE" = "--install" ]; then
+        nix-store --indirect --add-root .nix-gc-roots/relay-update-service --realise ${service}
+        nix-store --indirect --add-root .nix-gc-roots/relay-update-timer  --realise ${timer}
+        mkdir -p ~/.config/systemd/user/
+        ln -sf ${service} ~/.config/systemd/user/
+        ln -sf ${timer} ~/.config/systemd/user/
+        systemctl --user enable relay-update-${globals.deploymentName}.timer
+      elif [ "$MODE" = "--uninstall" ]; then
+        rm -f .nix-gc-roots/relay-update-*
+        systemctl --user disable relay-update-${globals.deploymentName}.timer
+        systemctl --user disable relay-update-${globals.deploymentName}.service
+      else
+        echo "usage: relay-update-timer --(un)install"
+        echo ""
+        echo "after install, check status with:"
+        echo "  systemctl --user status relay-update-${globals.deploymentName}.timer"
+        echo "  systemctl --user status relay-update-${globals.deploymentName}.service"
+      fi
+    '';
 }

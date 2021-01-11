@@ -81,6 +81,7 @@ in  mkShell rec {
     cardano-cli-completions
     cardano-ping
     hoursUntilNextEpoch
+    relayUpdateTimer
   ];
   # If any build input has bash completions, add it to the search
   # path for shell completions.
