@@ -20,14 +20,14 @@ pkgs: with pkgs; with lib; rec {
   /* Enable the given profiling mode (first arg) for
     the given list of nodes (second arg).
   */
-  withProfiling = p: nodes: def: lib.recursiveUpdate {
-    services.cardano-node.profiling = mkIf (elem def.name nodes) p;
+  withProfiling = p: nodes: def: if (elem def.name nodes) then (lib.recursiveUpdate {
+    services.cardano-node.profiling = p;
     # Disable autorestart (which would override profiling data):
     systemd.services.cardano-node.serviceConfig = {
       RuntimeMaxSec = lib.mkForce "infinity";
       Restart = lib.mkForce "no";
     };
-  } def;
+  } def) else def;
 
   /* return the dns name of the continental group of relay
      that is the nearest to the given region.
