@@ -115,7 +115,7 @@ force_deploy=
 reuse_genesis=
 watch_deploy=
 
-generator_startup_delay=40
+generator_startup_delay=70
 
 self=$(realpath "$0")
 
@@ -358,15 +358,17 @@ op_bench_start() {
         then oprint "waiting ${generator_startup_delay}s for the nodes to establish business.."
              sleep ${generator_startup_delay}; fi
 
-        local canary='node-0'
-        oprint "checking node service on $canary.."
-        if ! nixops ssh "$canary" -- systemctl status cardano-node >/dev/null
-        then fail "nodes service on $canary isn't running!"; fi
-
         local sources_json_node_commit
         sources_json_node_commit=$(jq '.["cardano-node"].rev' \
                                       nix/sources.bench.json --raw-output)
+
+        if ! nixops ssh "explorer" -- systemctl status cardano-node >/dev/null
+        then fail "nodes service on explorer isn't running!"; fi
         deploystate_check_node_log_commit_id 'explorer' "$sources_json_node_commit"
+
+        local canary='node-0'
+        if ! nixops ssh "$canary" -- systemctl status cardano-node >/dev/null
+        then fail "nodes service on $canary isn't running!"; fi
         deploystate_check_node_log_commit_id "$canary"  "$sources_json_node_commit"
 
         local now patience_start_pretty start_time
