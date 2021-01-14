@@ -8,7 +8,7 @@ pkgs: {
 
   environmentName = "staging";
 
-  explorerAliases = [ "cardano-explorer.awstest.iohkdev.io" ];
+  explorerAliases = [ "cardano-explorer.staging.cardano.org" ];
   withSubmitApi = true;
   withHighLoadRelays = true;
   withSmash = true;
