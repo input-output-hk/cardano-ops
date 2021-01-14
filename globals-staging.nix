@@ -4,7 +4,7 @@ pkgs: {
 
   dnsZone = "${pkgs.globals.domain}";
 
-  domain = "awstest.iohkdev.io";
+  domain = "staging.cardano.org";
 
   environmentName = "staging";
 
