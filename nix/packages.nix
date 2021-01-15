@@ -75,7 +75,7 @@ self: super: with self; {
         set -eu -o pipefail
         cd ${globals.deploymentPath}
         mkdir -p relay-update-logs
-        ${if global ? relayUpdateHoursBeforeNextEpoch
+        ${if globals ? relayUpdateHoursBeforeNextEpoch
           then ''nix-shell --run 'if [ $(hoursUntilNextEpoch) -le ${toString globals.relayUpdateHoursBeforeNextEpoch} ]; then [ -f refresh-done ] || node-update --refresh --relay ${globals.relayUpdateArgs} &> relay-update-logs/relay-update-$(date -u +"%F_%H-%M-%S").log && touch refresh-done; else rm -f refresh-done; fi' ''
           else ''nix-shell --run 'node-update --refresh --relay ${globals.relayUpdateArgs}' &> relay-update-logs/relay-update-$(date -u +"%F_%H-%M-%S").log''
         }
