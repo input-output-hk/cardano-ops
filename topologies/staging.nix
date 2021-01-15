@@ -69,4 +69,15 @@ in {
 
   inherit coreNodes relayNodes;
 
+  "${globals.faucetHostname}" = {
+    services.cardano-faucet = {
+      anonymousAccess = false;
+      faucetLogLevel = "DEBUG";
+      secondsBetweenRequestsAnonymous = 86400;
+      secondsBetweenRequestsApiKeyAuth = 86400;
+      lovelacesToGiveAnonymous = 1000000000;
+      lovelacesToGiveApiKeyAuth = 10000000000;
+      useByronWallet = false;
+    };
+  };
 }

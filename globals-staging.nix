@@ -12,6 +12,8 @@ pkgs: {
   withSubmitApi = true;
   withHighLoadRelays = true;
   withSmash = true;
+  withFaucet = true;
+  faucetHostname = "faucet";
 
   topology = import ./topologies/staging.nix pkgs;
 
