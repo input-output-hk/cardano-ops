@@ -113,6 +113,7 @@ self: super: with self; {
         ln -sf ${service} ~/.config/systemd/user/
         ln -sf ${timer} ~/.config/systemd/user/
         systemctl --user enable relay-update-${globals.deploymentName}.timer
+        systemctl --user start relay-update-${globals.deploymentName}.timer
         systemctl --user status relay-update-${globals.deploymentName}.timer
       elif [ "$MODE" = "--uninstall" ]; then
         rm -f .nix-gc-roots/relay-update-*
