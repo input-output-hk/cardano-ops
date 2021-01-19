@@ -41,7 +41,7 @@ profile_genesis() {
         if test -z "$cache_hit"
         then oprint "generating genesis due to miss:  $cache_id @$cache_path"
              mkdir -p "$cache_path"
-             time profile_genesis_"$(get_era)" "$profile" "$cache_path"
+             time profile_genesis_singleshot "$profile" "$cache_path"
         fi
         rm -f "$genesis_dir"
         ln -s "$cache_path" "$genesis_dir"
@@ -80,30 +80,24 @@ genesis_info() {
         genesis_info_"$(get_era)" "$@"
 }
 
-genesis_update_starttime() {
-        local start_timestamp=$1 genesis_dir=$2 start_timestamp start_time
-
-        genesis_update_starttime_"$(get_era)" "$start_timestamp" "$genesis_dir"
-}
-
-profile_shelley_genesis_protocol_params() {
+profile_genesis_protocol_params() {
         local prof=$1 composition=$2
         jq --argjson prof "$(profgenjq "${prof}" .)" \
            --argjson comp "$composition" '
           include "profile-genesis" { search: "bench" };
 
-          . * shelley_genesis_protocol_params($prof; $comp)
+          . * genesis_protocol_params($prof; $comp)
         '
 }
 
-profile_shelley_genesis_cli_args() {
+profile_genesis_cli_args() {
         local prof=$1 composition=$2 cmd=$3
         jq --argjson prof        "$(profgenjq "${prof}" .)" \
            --argjson composition "$composition" \
            --arg     cmd         "$cmd" '
           include "profile-genesis" { search: "bench" };
 
-          shelley_genesis_cli_args($prof; $composition; $cmd)
+          genesis_cli_args($prof; $composition; $cmd)
           | join(" ")
         ' --null-input --raw-output
 }
@@ -168,7 +162,7 @@ cli() {
         cardano-cli "$@" || fail "cli invocation failed"
 }
 
-profile_genesis_shelley_singleshot() {
+profile_genesis_singleshot() {
         set -euo pipefail
 
         local prof="${1:-default}"
@@ -202,29 +196,29 @@ profile_genesis_shelley_singleshot() {
 
         params=(--genesis-dir      "$target_dir"
                 --gen-utxo-keys    1
-                $(profile_shelley_genesis_cli_args "$prof" "$composition" 'create0'))
+                $(profile_genesis_cli_args "$prof" "$composition" 'create0'))
         cli genesis create "${params[@]}"
 
         ## set parameters in template
-        profile_shelley_genesis_protocol_params "$prof" "$composition" \
+        profile_genesis_protocol_params "$prof" "$composition" \
          < "$target_dir"/genesis.spec.json > "$target_dir"/genesis.spec.json.
         mv "$target_dir"/genesis.spec.json.  "$target_dir"/genesis.spec.json
 
         params=(--genesis-dir      "$target_dir"
-                $(profile_shelley_genesis_cli_args "$prof" "$composition" 'create1')
+                $(profile_genesis_cli_args "$prof" "$composition" 'create1')
                )
         ## update genesis from template
         cli genesis create-staked "${params[@]}"
 
-        genesis_shelley_remap_key_names "$prof" "$ids_pool_map"
+        genesis_remap_key_names "$prof" "$ids_pool_map"
 
         ## Fix up the key, so the generator can read it:
         sed -i 's_PaymentSigningKeyShelley_SigningKeyShelley_' "$target_dir"/utxo-keys/utxo1.skey
 }
 
-genesis_shelley_remap_key_names() {
+genesis_remap_key_names() {
         local profile=$1 ids_pool_map=$2
-        local ids ids_pool
+        local ids
 
         set -e
 
@@ -270,17 +264,13 @@ genesis_shelley_remap_key_names() {
         done
 }
 
-profile_genesis_shelley() {
-        profile_genesis_shelley_singleshot "$@"
-}
-
-genesis_starttime_shelley() {
+genesis_starttime() {
         local genesis_dir=${1:-./keys}
         date --date=$(jq '.systemStart' "$genesis_dir"/genesis.json |
                       tr -d '"Z') +%s
 }
 
-genesis_info_shelley() {
+genesis_info() {
         local genesis_dir=${1:-./keys}
         local g=$genesis_dir/genesis.json
 
@@ -311,7 +301,7 @@ EOF
         echo
 }
 
-genesis_profile_mismatches_shelley() {
+genesis_profile_mismatches() {
         local profile=$1 genesis_dir=${2:-./keys}
         local g=$genesis_dir/genesis.json
 
@@ -358,7 +348,7 @@ genesis_profile_mismatches_shelley() {
         done
 }
 
-genesis_update_starttime_shelley() {
+genesis_update_starttime() {
         local start_timestamp=$1 genesis_dir=${2:-./keys} start_time
 
         start_time=$(date --iso-8601=s --date=@$start_timestamp --utc | cut -c-19)
@@ -366,7 +356,7 @@ genesis_update_starttime_shelley() {
           { systemStart: \"${start_time}Z\" }" <<<0
 }
 
-genesis_hash_shelley() {
+genesis_hash() {
         local genesis_dir="${1:-./keys}"
 
         cardano-cli genesis hash --genesis "${genesis_dir}"/genesis.json |

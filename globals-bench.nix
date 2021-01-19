@@ -19,22 +19,8 @@ let
         (import benchmarkingTopologyFile)
         benchmarkingProfile)
     else abort "Benchmarking topology file implied by configured node count ${toString (__length benchmarkingParams.meta.node_names)} does not exist: ${benchmarkingTopologyFile}";
-  benchmarkingParamsEra =
-    if __hasAttr "era" benchmarkingParams.meta
-    then benchmarkingParams.meta.era
-    else abort "${benchmarkingParamsFile} must define 'meta.era':  please run 'bench reinit' to update it";
-  Protocol =
-    { shelley = "TPraos";
-    }."${benchmarkingParamsEra}";
-  coreEraOverlay =
-    { shelley =
-        { ShelleyGenesisHash = genesisHash;
-        };
-    }."${benchmarkingParamsEra}";
   genesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/GENHASH);
-  envConfigBase =
-    { shelley = pkgs.iohkNix.cardanoLib.environments.testnet;
-    }."${benchmarkingParamsEra}";
+  envConfigBase = pkgs.iohkNix.cardanoLib.environments.testnet;
 
   ### Benchmarking profiles are, currently, essentially name-tagger
   ### generator configs.
@@ -114,11 +100,11 @@ in (rec {
     genesisFile = ./keys/genesis.json;
     private = true;
     networkConfig = envConfigBase.networkConfig // {
-      inherit Protocol;
+      Protocol = "TPraos";
       ShelleyGenesisFile = genesisFile;
     };
     nodeConfig = envConfigBase.nodeConfig // {
-      inherit Protocol;
+      Protocol = "TPraos";
       ShelleyGenesisFile = genesisFile;
       ShelleyGenesisHash = genesisHash;
     };
@@ -158,7 +144,8 @@ in (rec {
                minSeverity = "Debug";
                TurnOnLogMetrics = true;
                TraceMempool     = true;
-             } // coreEraOverlay));
+               ShelleyGenesisHash = genesisHash;
+             }));
     }) (benchmarkingTopology.coreNodes or []);
   };
 

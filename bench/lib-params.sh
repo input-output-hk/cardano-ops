@@ -115,13 +115,13 @@ include "profile-definitions" { search: "bench" };
   | ($node_defaults       * .node)       as $node
   | era_tolerances($era; $gsis)          as $tolr
   | { genesis:
-        ($gsis * derived_genesis_params($compo; $gtor; $gsis; $node))
+        ($gsis * derived_genesis_params($era; $compo; $gtor; $gsis; $node))
     , generator:
-        ($gtor * derived_generator_params($compo; $gtor; $gsis; $node))
+        ($gtor * derived_generator_params($era; $compo; $gtor; $gsis; $node))
     , node:
-        ($node * derived_node_params($compo; $gtor; $gsis; $node))
+        ($node * derived_node_params($era; $compo; $gtor; $gsis; $node))
     , tolerances:
-        ($tolr * derived_tolerances($compo; $gtor; $gsis; $node; $tolr))
+        ($tolr * derived_tolerances($era; $compo; $gtor; $gsis; $node; $tolr))
     }                                    as $prof
   | { "\(.name //
          profile_name($compo; $prof.genesis; $prof.generator; $prof.node))":

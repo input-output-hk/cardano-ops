@@ -80,7 +80,7 @@ def node_defaults($era):
   }
 } | (.common + (.[$era] // {}));
 
-def derived_genesis_params($compo; $gtor; $gsis; $node):
+def derived_genesis_params($era; $compo; $gtor; $gsis; $node):
   (if      $compo.n_hosts > 50 then 32
   else if $compo.n_hosts == 3 then 3
   else 10 end end)                      as $future_offset
@@ -102,20 +102,21 @@ def derived_genesis_params($compo; $gtor; $gsis; $node):
    end)
 } | (.common + (.[$era] // {}));
 
-def derived_generator_params($compo; $gtor; $gsis; $node):
+def derived_generator_params($era; $compo; $gtor; $gsis; $node):
   ($gsis.epoch_length * $gsis.slot_duration) as $epoch_duration
 | ($epoch_duration * $gtor.epochs)           as $duration
 |
 { common:
-  { tx_count:                ($duration * ([$gtor.tps, 7] | min))
+  { era:                     $era
+  , tx_count:                ($duration * ([$gtor.tps, 7] | min))
   }
 } | (.common + (.[$era] // {}));
 
-def derived_node_params($compo; $gtor; $gsis; $node):
+def derived_node_params($era; $compo; $gtor; $gsis; $node):
 { common: {}
 } | (.common + (.[$era] // {}));
 
-def derived_tolerances($compo; $gtor; $gsis; $node; $tolers):
+def derived_tolerances($era; $compo; $gtor; $gsis; $node; $tolers):
 { common:
   { finish_patience:
     ## TODO:  fix ugly
