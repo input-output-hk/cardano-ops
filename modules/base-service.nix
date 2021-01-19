@@ -44,6 +44,10 @@ in
         type = types.listOf (types.either types.str types.attrs);
         description = ''Static routes to peers.'';
       };
+      extraNodeConfig = mkOption {
+        type = types.attrs;
+        default = {};
+      };
     };
   };
 
@@ -77,7 +81,7 @@ in
       environments = {
         "${globals.environmentName}" = globals.environmentConfig;
       };
-      nodeConfig = globals.environmentConfig.nodeConfig // {
+      nodeConfig = recursiveUpdate globals.environmentConfig.nodeConfig (recursiveUpdate {
         hasPrometheus = [ hostAddr globals.cardanoNodePrometheusExporterPort ];
         # Use Journald output:
         setupScribes = [{
@@ -91,7 +95,7 @@ in
             "cardano"
           ]
         ];
-      };
+      } cfg.extraNodeConfig);
     };
     systemd.services.cardano-node = {
       # FIXME: waiting for https://github.com/input-output-hk/cardano-node/pull/2124
