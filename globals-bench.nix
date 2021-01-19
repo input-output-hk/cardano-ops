@@ -100,11 +100,11 @@ in (rec {
     genesisFile = ./keys/genesis.json;
     private = true;
     networkConfig = envConfigBase.networkConfig // {
-      Protocol = "TPraos";
+      Protocol = "Cardano";
       ShelleyGenesisFile = genesisFile;
     };
     nodeConfig = envConfigBase.nodeConfig // {
-      Protocol = "TPraos";
+      Protocol = "Cardano";
       ShelleyGenesisFile = genesisFile;
       ShelleyGenesisHash = genesisHash;
     };

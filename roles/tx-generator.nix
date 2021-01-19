@@ -7,7 +7,8 @@ let
   # We need a signing key with access to funds
   # to be able to run tx generator and sign generated transactions.
   signingKey =
-    { TPraos   = ../keys/utxo-keys/utxo1.skey;
+    { Cardano  = ../keys/utxo-keys/utxo1.skey;
+      TPraos   = ../keys/utxo-keys/utxo1.skey;
       RealPBft = ../keys/delegate-keys.000.key;
     }."${Protocol}"
       or (abort "Unsupported protocol: ${Protocol}");
@@ -138,7 +139,6 @@ in {
         };
       };
     });
-    signingKey = lib.mkForce "/var/lib/keys/cardano-node-signing";
   };
 
   deployment.keys = {
