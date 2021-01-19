@@ -17,17 +17,27 @@ pkgs: with pkgs; with lib; rec {
         60 * 60 + 60 * (def.nodeId or 0);
   } def;
 
+  /* Modify node definition for some nodes that statisfy predicate.
+  */
+  forNodesWith = p: modDef: def: if (p def)
+    then (lib.recursiveUpdate def modDef)
+    else def;
+
+  /* Modify node definition for some given nodes, by name.
+  */
+  forNodes = modDef: nodes: forNodesWith (def: elem def.name nodes) modDef;
+
   /* Enable the given profiling mode (first arg) for
     the given list of nodes (second arg).
   */
-  withProfiling = p: nodes: def: if (elem def.name nodes) then (lib.recursiveUpdate {
+  withProfiling = p: (forNodes {
     services.cardano-node.profiling = p;
     # Disable autorestart (which would override profiling data):
     systemd.services.cardano-node.serviceConfig = {
       RuntimeMaxSec = lib.mkForce "infinity";
       Restart = lib.mkForce "no";
     };
-  } def) else def;
+  });
 
   /* return the dns name of the continental group of relay
      that is the nearest to the given region.
