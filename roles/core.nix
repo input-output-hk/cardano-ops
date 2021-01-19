@@ -99,12 +99,30 @@ let
       else if !(builtins.pathExists vrfKey) then RealPBFT
       else lib.recursiveUpdate TPraos RealPBFT;
   };
+  eraSkipConfig = era: {
+    services.cardano-node.nodeConfig =
+      ({
+        shelley =
+          { TestShelleyHardForkAtEpoch = 0;
+          };
+        allegra =
+          { TestShelleyHardForkAtEpoch = 0;
+            TestAllegraHardForkAtEpoch = 0;
+          };
+        mary =
+          { TestShelleyHardForkAtEpoch = 0;
+            TestAllegraHardForkAtEpoch = 0;
+            TestMaryHardForkAtEpoch = 0;
+          };
+      }).${era};
+  };
 
 in {
 
   imports = [
     cardano-ops.modules.base-service
     keysConfig.${globals.environmentConfig.nodeConfig.Protocol}
+    (eraSkipConfig globals.environmentConfig.generatorConfig.era)
   ];
 
   users.users.cardano-node.extraGroups = [ "keys" ];

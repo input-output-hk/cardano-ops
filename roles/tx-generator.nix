@@ -138,7 +138,21 @@ in {
           "cardano.node-metrics" = [ "KatipBK" ];
         };
       };
-    });
+    } //
+    ({
+      shelley =
+        { TestShelleyHardForkAtEpoch = 0;
+        };
+      allegra =
+        { TestShelleyHardForkAtEpoch = 0;
+          TestAllegraHardForkAtEpoch = 0;
+        };
+      mary =
+        { TestShelleyHardForkAtEpoch = 0;
+          TestAllegraHardForkAtEpoch = 0;
+          TestMaryHardForkAtEpoch = 0;
+        };
+    }).${globals.environmentConfig.generatorConfig.era});
   };
 
   deployment.keys = {

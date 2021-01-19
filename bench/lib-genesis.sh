@@ -27,7 +27,7 @@ genesis_cache_id()
 
 profile_genesis() {
         local profile=$1 genesis_dir=${2:-./keys}
-        local genesis_params cache_id cache_path genesis_future_offset hash
+        local genesis_params cache_id cache_path genesis_future_offset
 
         genesis_params=$(profgenjq "$profile" .)
         cache_id=$(genesis_cache_id "$genesis_params")
@@ -48,24 +48,28 @@ profile_genesis() {
         genesis_future_offset=$(profile_genesis_future_offset "$profile")
         start_timestamp=$(date +%s --date="now + ${genesis_future_offset}")
 
-        genesis_update_starttime "$start_timestamp" "$genesis_dir"
+        profile_genesis_byron "$profile" "$genesis_dir/byron"
 
+        genesis_update_starttime       "$start_timestamp" "$genesis_dir"
+        genesis_update_starttime_byron "$start_timestamp" "$genesis_dir/byron"
+
+        local hash hash_byron
         hash=$(genesis_hash "$genesis_dir")
         echo -n "$hash"> "$genesis_dir"/GENHASH
+
+        hash_byron=$(genesis_hash_byron "$genesis_dir/byron")
+        echo -n "$hash"> "$genesis_dir/byron"/GENHASH
 
         profgenjq "$profile" . | jq > "$genesis_dir"/genesis-meta.json "
           { profile:    \"$profile\"
           , hash:       \"$hash\"
+          , hash_byron: \"$hash_byron\"
           , start_time: $start_timestamp
           , params:     ($(profgenjq "$profile" .))
           }"
 
         start_time=$(date --iso-8601=s --date=@$start_timestamp --utc | cut -c-19)
         oprint "genesis start time:  $start_time, $genesis_future_offset from now"
-}
-
-genesis_hash() {
-        genesis_hash_"$(get_era)" "$@"
 }
 
 genesis_starttime() {

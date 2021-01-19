@@ -1,4 +1,4 @@
-def shelley_genesis_protocol_params($p; $composition):
+def genesis_protocol_params($p; $composition):
 { activeSlotsCoeff:           $p.active_slots_coeff
 , epochLength:                $p.epoch_length
 , securityParam:              $p.parameter_k
@@ -11,7 +11,7 @@ def shelley_genesis_protocol_params($p; $composition):
   }
 };
 
-def shelley_genesis_cli_args($p; $composition; $cmd):
+def genesis_cli_args($p; $composition; $cmd):
 { create0:
   [ "--supply",                 $p.total_balance
   , "--testnet-magic",          $p.protocol_magic

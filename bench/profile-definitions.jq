@@ -47,6 +47,20 @@ def genesis_defaults($era; $compo):
 
   ## Cluster composition
   , dense_pool_density:      1
+
+  ## Ahh, the sweet dear legacy..
+  , byron:
+    { parameter_k:             2160
+    , n_poors:                 128
+    , n_delegates:             $compo.n_total
+    ## Note, that the delegate count doesnt have to match cluster size.
+    , delegate_share:          0.9
+    , avvm_entries:            128
+    , avvm_entry_balance:      100000000000000
+    , secret:                  2718281828
+    , slot_duration:           20
+    , max_block_size:          2000000
+    }
   }
 
 , shelley:
@@ -229,6 +243,10 @@ def aux_profiles:
 , { name: "smoke"
   , generator: { tx_count: 100,   add_tx_size: 0, inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
                , init_cooldown: 25, finish_patience: 4 }
+  , genesis:
+    { genesis_future_offset: "3 minutes"
+    , utxo:                  100
+    }
   }
 , { name: "k1000-smoke"
   , generator: { tx_count: 100,   add_tx_size: 0, inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100

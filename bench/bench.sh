@@ -10,6 +10,7 @@ __BENCH_BASEPATH=$(dirname "$(realpath "$0")")
 . "$__BENCH_BASEPATH"/lib-deploy.sh
 . "$__BENCH_BASEPATH"/lib-fetch.sh
 . "$__BENCH_BASEPATH"/lib-genesis.sh
+. "$__BENCH_BASEPATH"/lib-genesis-byron.sh
 . "$__BENCH_BASEPATH"/lib-params.sh
 . "$__BENCH_BASEPATH"/lib-profile.sh
 . "$__BENCH_BASEPATH"/lib-sanity.sh

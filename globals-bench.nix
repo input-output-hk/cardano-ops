@@ -19,7 +19,10 @@ let
         (import benchmarkingTopologyFile)
         benchmarkingProfile)
     else abort "Benchmarking topology file implied by configured node count ${toString (__length benchmarkingParams.meta.node_names)} does not exist: ${benchmarkingTopologyFile}";
-  genesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/GENHASH);
+  ShelleyGenesisFile = ./keys/genesis.json;
+  ShelleyGenesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/GENHASH);
+  ByronGenesisFile = ./keys/byron/genesis.json;
+  ByronGenesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/byron/GENHASH);
   envConfigBase = pkgs.iohkNix.cardanoLib.environments.testnet;
 
   ### Benchmarking profiles are, currently, essentially name-tagger
@@ -94,23 +97,22 @@ in (rec {
   sourcesJsonOverride = ./nix/sources.bench.json;
 
   environmentConfig = rec {
-    inherit genesisHash;
     relays = "relays.${pkgs.globals.domain}";
     edgePort = pkgs.globals.cardanoNodePort;
-    genesisFile = ./keys/genesis.json;
     private = true;
     networkConfig = envConfigBase.networkConfig // {
       Protocol = "Cardano";
-      ShelleyGenesisFile = genesisFile;
+      inherit ShelleyGenesisFile ShelleyGenesisHash;
+      inherit   ByronGenesisFile   ByronGenesisHash;
     };
     nodeConfig = envConfigBase.nodeConfig // {
       Protocol = "Cardano";
-      ShelleyGenesisFile = genesisFile;
-      ShelleyGenesisHash = genesisHash;
+      inherit ShelleyGenesisFile ShelleyGenesisHash;
+      inherit   ByronGenesisFile   ByronGenesisHash;
     };
     txSubmitConfig = {
       inherit (networkConfig) RequiresNetworkMagic;
-      GenesisFile = genesisFile;
+      inherit ShelleyGenesisFile ByronGenesisFile;
     } // pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig;
 
     ## This is overlaid atop the defaults in the tx-generator service,
@@ -140,11 +142,11 @@ in (rec {
           (recursiveUpdate
             (benchmarkingLogConfig "node")
             ({
+               inherit ShelleyGenesisHash ByronGenesisHash;
                TracingVerbosity = "NormalVerbosity";
                minSeverity = "Debug";
                TurnOnLogMetrics = true;
                TraceMempool     = true;
-               ShelleyGenesisHash = genesisHash;
              }));
     }) (benchmarkingTopology.coreNodes or []);
   };
