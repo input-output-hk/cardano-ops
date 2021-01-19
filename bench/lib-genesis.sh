@@ -58,7 +58,7 @@ profile_genesis() {
         echo -n "$hash"> "$genesis_dir"/GENHASH
 
         hash_byron=$(genesis_hash_byron "$genesis_dir/byron")
-        echo -n "$hash"> "$genesis_dir/byron"/GENHASH
+        echo -n "$hash_byron"> "$genesis_dir/byron"/GENHASH
 
         profgenjq "$profile" . | jq > "$genesis_dir"/genesis-meta.json "
           { profile:    \"$profile\"
