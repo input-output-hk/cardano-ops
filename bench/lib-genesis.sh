@@ -18,7 +18,9 @@ profile_genesis_future_offset() {
 genesis_cache_id()
 {
         local genesis_params=$1 params_hash
-        params_hash=$(jq --sort-keys . <<<$genesis_params |
+        params_hash=$(jq '
+                      del(.era)
+                      ' --sort-keys <<<$genesis_params |
                       sha1sum | cut -c-7)
         jq <<<$genesis_params \
            '"k\(.n_pools)-d\(.dense_pool_density)-\(.delegators / 1000)kD-\(.utxo / 1000)kU-\($params_hash)"
