@@ -250,7 +250,7 @@ Hostname 18.196.206.34
       for the parametrisation.
 
       These topology files reside in the =topologies= subdirectory of
-      =cardano-ops=, and are called =bench-txgen-TYPE-N.nix=, where N is the
+      =cardano-ops=, and are called =bench-TYPE-N.nix=, where N is the
       intended cluster size, and TYPE is topology type -- either =distrib= or
       =eu-central-1=.
 

@@ -295,7 +295,7 @@ benchmarking infrastructure via concordant control mechanisms:
     forms the basis for the parametrisation.
     
     These topology files reside in the `topologies` subdirectory of
-    `cardano-ops`, and are called `bench-txgen-TYPE-N.nix`, where N is
+    `cardano-ops`, and are called `bench-TYPE-N.nix`, where N is
     the intended cluster size, and TYPE is topology type -- either `distrib` or
     `eu-central-1`.
     

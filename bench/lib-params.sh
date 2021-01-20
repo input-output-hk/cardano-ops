@@ -13,7 +13,7 @@ get_topology_file() {
         type=${1:-$(parmetajq '.topology')}
         node_count=${2:-$(parmetajq '.node_names | length')}
 
-        realpath "$__BENCH_BASEPATH"/../topologies/bench-txgen-${type}-${node_count}.nix
+        realpath "$__BENCH_BASEPATH"/../topologies/bench-${type}-${node_count}.nix
 }
 
 params_recreate_cluster() {

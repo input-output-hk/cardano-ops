@@ -11,7 +11,7 @@ let
             else abort "${benchmarkingParamsFile} must define the 'meta' section:  please run 'bench reinit' to update it"
     else abort "Benchmarking requires ${toString benchmarkingParamsFile} to exist.  Please, refer to documentation.";
   benchmarkingTopologyFile =
-    ./topologies + "/bench-txgen-${benchmarkingParams.meta.topology}-${toString (__length benchmarkingParams.meta.node_names)}.nix";
+    ./topologies + "/bench-${benchmarkingParams.meta.topology}-${toString (__length benchmarkingParams.meta.node_names)}.nix";
   benchmarkingTopology =
     if __pathExists benchmarkingTopologyFile
     then __trace "Using topology:  ${benchmarkingTopologyFile}"
@@ -92,7 +92,7 @@ in (rec {
   withMonitoring = false;
   withExplorer = true;
 
-  environmentName = "bench-txgen-${benchmarkingParams.meta.topology}-${benchmarkingProfileName}";
+  environmentName = "bench-${benchmarkingParams.meta.topology}-${benchmarkingProfileName}";
 
   sourcesJsonOverride = ./nix/sources.bench.json;
 
