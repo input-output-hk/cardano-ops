@@ -122,7 +122,8 @@ def derived_generator_params($era; $compo; $gtor; $gsis; $node):
 |
 { common:
   { era:                     $era
-  , tx_count:                ($duration * ([$gtor.tps, 7] | min))
+  , tx_count:                ($gtor.tx_count
+                              // ($duration * ([$gtor.tps, 7] | min)))
   }
 } | (.common + (.[$era] // {}));
 
