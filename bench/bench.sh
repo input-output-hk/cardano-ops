@@ -111,6 +111,7 @@ EOF
 verbose= debug= trace=
 no_prebuild=
 no_deploy=
+no_analysis=
 no_wait=
 force_deploy=
 reuse_genesis=
@@ -129,7 +130,8 @@ main() {
         do case "$1" in
            --fast-unsafe | --fu ) no_deploy=t no_wait=t;;
            --no-prebuild | --skip-prebuild ) no_prebuild=t;;
-           --no-deploy )          no_deploy=t;;
+           --no-deploy | --skip-deploy )     no_deploy=t;;
+           --no-analysis | --skip-analysis ) no_analysis=t;;
            --deploy )             force_deploy=t;;
            --reuse-genesis | --keep-genesis )
                                   reuse_genesis=t;;
@@ -324,7 +326,7 @@ bench_profile() {
         time fetch_run "$dir"
         oprint "concluded run:  ${tag}"
 
-        if analyse_run "${dir}"
+        if test -z "$no_analysis" && analyse_run "${dir}"
         then package_run "${dir}"
         fi
 }
