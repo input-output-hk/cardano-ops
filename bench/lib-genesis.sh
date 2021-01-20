@@ -15,24 +15,36 @@ profile_genesis_future_offset() {
         echo -n "$(profjq "$profile" .genesis.genesis_future_offset)"
 }
 
-genesis_cache_id()
+genesis_params_cache_params()
+{
+        jq '
+            del(.era) |
+            del(.genesis_future_offset) |
+            del(.byron)
+            ' --sort-keys <<<$1
+}
+
+genesis_cache_params_cache_id()
 {
         local genesis_params=$1 params_hash
-        params_hash=$(jq '
-                      del(.era)
-                      ' --sort-keys <<<$genesis_params |
-                      sha1sum | cut -c-7)
+        params_hash=$(jq . --sort-keys <<<$genesis_params |
+                              sha1sum | cut -c-7)
         jq <<<$genesis_params \
            '"k\(.n_pools)-d\(.dense_pool_density)-\(.delegators / 1000)kD-\(.utxo / 1000)kU-\($params_hash)"
            ' --arg params_hash "$params_hash" --raw-output
 }
 
+genesis_cache_id() {
+        genesis_cache_params_cache_id "$(genesis_params_cache_params "$1")"
+}
+
 profile_genesis() {
         local profile=$1 genesis_dir=${2:-./keys}
-        local genesis_params cache_id cache_path genesis_future_offset
+        local genesis_params genesis_cache_params cache_id cache_path genesis_future_offset
 
         genesis_params=$(profgenjq "$profile" .)
-        cache_id=$(genesis_cache_id "$genesis_params")
+        genesis_cache_params=$(genesis_params_cache_params "$genesis_params")
+        cache_id=$(genesis_cache_params_cache_id "$genesis_cache_params")
         cache_path=$genesis_cache_root/$cache_id
 
         if test -f "$cache_path"/genesis.json
@@ -44,6 +56,8 @@ profile_genesis() {
         then oprint "generating genesis due to miss:  $cache_id @$cache_path"
              mkdir -p "$cache_path"
              time profile_genesis_singleshot "$profile" "$cache_path"
+             cat <<<$genesis_cache_params > "$cache_path"/cache.params
+             cat <<<$cache_id > "$cache_path"/cache.params.id
         fi
         rm -f "$genesis_dir"
         ln -s "$cache_path" "$genesis_dir"

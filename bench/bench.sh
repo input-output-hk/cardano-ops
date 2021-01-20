@@ -194,7 +194,30 @@ main() {
 
                 genesis )             profile_genesis ${1:-$(params resolve-profile 'default')};;
                 genesis-info | gi )   genesis_info "$@";;
-
+                profile-genesis-cache | pgc )
+                                      prof=$(profgenjq "$1" .)
+                                      cache_id=$(genesis_cache_id "$prof")
+                                      dir=../geneses/$cache_id
+                                      cat <<EOF
+Profile $1
+Genesis cache entry:  $(ls -d $dir 2>&1)
+Genesis cache id:     $cache_id
+Genesis cache key:
+$(genesis_params_cache_params "$prof")
+EOF
+                                      ;;
+                profile-genesis-cache-rehash | pgc-rehash )
+                                      old_cache_id=$1
+                                      dir=../geneses/$old_cache_id
+                                      test -f "$dir/genesis-meta.json" ||
+                                              fail "no genesis cache with id $old_cache_id: $dir"
+                                      prof=$(jq .profile --raw-output $dir/genesis-meta.json)
+                                      oprint "rehashing cache $old_cache_id for profile $prof"
+                                      new_cache_id=$(genesis_cache_id "$(profgenjq "$prof" .)")
+                                      genesis_params_cache_params "$(profgenjq "$prof" .)" > "$dir"/cache.params
+                                      cat <<<$new_cache_id > "$dir"/cache.params.id
+                                      mv "$dir" ../geneses/"$new_cache_id"
+                                      ;;
                 wait-for-empty-blocks | wait-empty | wait )
                                       op_wait_for_empty_blocks "$@";;
                 stop )                op_stop "$@";;
@@ -469,6 +492,7 @@ EOF
 { meta:
   { tag:               \"${tag}\"
   , profile:           \"${prof}\"
+  , genesis_cache_id:  \"$(genesis_cache_id "$(profgenjq "$prof" .)")\"
   , timestamp:         ${stamp}
   , date:              \"${date}\"
   , profile_content:   $(profjq "${prof}" .)
