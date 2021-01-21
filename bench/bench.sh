@@ -495,6 +495,7 @@ EOF
   , genesis_cache_id:  \"$(genesis_cache_id "$(profgenjq "$prof" .)")\"
   , timestamp:         ${stamp}
   , date:              \"${date}\"
+  , pins:              $(depljq explorer  .pins)
   , profile_content:   $(profjq "${prof}" .)
   , manifest:
     [ \"${date}\"
@@ -513,6 +514,10 @@ EOF
 
     , \"tools/*.sql\"
     , \"tools/*.sh\" ]
+  , deployment_state:
+    { explorer:  $(depljq explorer  .)
+    , producers: $(depljq producers .)
+    }
   }
 , hostname:
   $(jq 'to_entries
