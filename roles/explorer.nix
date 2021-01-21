@@ -50,7 +50,7 @@ in {
   services.graphql-engine.enable = true;
   services.cardano-graphql = {
     enable = true;
-    genesisByron = nodeCfg.nodeConfig.ByronGenesisFile;
+    genesisByron = lib.mkIf (nodeCfg.nodeConfig ? ByronGenesisFile) nodeCfg.nodeConfig.ByronGenesisFile;
     genesisShelley = nodeCfg.nodeConfig.ShelleyGenesisFile;
     allowListPath = cardano-explorer-app-pkgs.allowList;
     cardanoNodeSocketPath = nodeCfg.socketPath;
