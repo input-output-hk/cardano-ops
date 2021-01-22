@@ -408,7 +408,7 @@ class RelayUpdate
             prevSlot = 0
             i = 0
             while i < METRICS_WAIT_ITERATIONS
-              if runCmdVerbose("nixops ssh #{n} -- 'curl -s #{n}:#{NODE_METRICS_PORT}/metrics | grep -oP \"cardano_node_ChainDB_metrics_slotNum_int \\K[0-9]+\"'").success?
+              if runCmdVerbose("nixops ssh #{n} -- 'curl -s #{n}:#{NODE_METRICS_PORT}/metrics | grep -oP \"cardano_node_metrics_slotNum_int \\K[0-9]+\"'").success?
                 slot = IO_CMD_OUT.to_s
                 IO_TEE_OUT.puts "Found slotNum_int metrics post topology update deploy on target node: #{n} at #{slot}"
                 if (slot.to_i >= lastSlot)

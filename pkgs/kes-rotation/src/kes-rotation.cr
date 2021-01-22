@@ -217,7 +217,7 @@ class KesRotate
 
     nodeKesPeriod = Hash(String, Int64).new
     kesNodes.as(Array).each do |n|
-      if scriptCmdPrivate("nixops ssh #{n} -- 'curl -s #{n}:#{NODE_METRICS_PORT}/metrics | grep -oP \"cardano_node_ChainDB_metrics_slotNum_int \\K[0-9]+\"'").success?
+      if scriptCmdPrivate("nixops ssh #{n} -- 'curl -s #{n}:#{NODE_METRICS_PORT}/metrics | grep -oP \"cardano_node_metrics_slotNum_int \\K[0-9]+\"'").success?
         slotHeight = IO_CMD_OUT.to_s
       else
         kesAbort("Failed to obtain slotHeight for node #{n}")
@@ -289,7 +289,7 @@ class KesRotate
       IO_TEE_OUT.puts "Waiting for metrics to re-appear on core node: #{n}"
       deployFinished = false
       METRICS_WAIT_ITERATIONS.times do |i|
-        if scriptCmdPrivate("nixops ssh #{n} -- 'curl -s #{n}:#{NODE_METRICS_PORT}/metrics | grep -oP \"cardano_node_ChainDB_metrics_slotNum_int \\K[0-9]+\"'").success?
+        if scriptCmdPrivate("nixops ssh #{n} -- 'curl -s #{n}:#{NODE_METRICS_PORT}/metrics | grep -oP \"cardano_node_metrics_slotNum_int \\K[0-9]+\"'").success?
           IO_TEE_OUT.puts "Found slotNum_int metrics post KES update deploy on core node: #{n} at #{IO_CMD_OUT.to_s}"
           deployFinished = true
           break
