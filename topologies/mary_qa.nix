@@ -30,7 +30,12 @@ let
     })
   ]);
 
-  stakingPoolNodes = [];
+  stakingPoolNodes = let
+    mkStakingPool = mkStakingPoolForRegions regions;
+  in regionalConnectGroupWith bftCoreNodes
+  (fullyConnectNodes [
+    (mkStakingPool "a" 1 "IOHK1" { nodeId = 4; })
+  ]);
 
   coreNodes = bftCoreNodes;
 
