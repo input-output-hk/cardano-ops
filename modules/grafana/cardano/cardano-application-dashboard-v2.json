@@ -1755,7 +1755,8 @@
         "y": 46
       },
       "hiddenSeries": false,
-      "id": 30,
+      "id": 17,
+      "interval": "",
       "legend": {
         "avg": false,
         "current": false,
@@ -1781,8 +1782,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "(cardano_node_metrics_Stat_rss_int*4096)/(1024*1024)",
-          "interval": "",
+          "expr": "100 - (avg by(alias) (irate(node_cpu_seconds_total{mode=\"idle\"}[1m])) * 100)",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -1791,7 +1791,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Node RSS (allocated memory in RAM, in MB)",
+      "title": "CPU Utilization (1m avg)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1807,7 +1807,7 @@
       },
       "yaxes": [
         {
-          "format": "short",
+          "format": "none",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -2009,6 +2009,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
+      "description": "",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -2018,7 +2019,7 @@
         "y": 54
       },
       "hiddenSeries": false,
-      "id": 17,
+      "id": 26,
       "interval": "",
       "legend": {
         "avg": false,
@@ -2045,7 +2046,9 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "100 - (avg by(alias) (irate(node_cpu_seconds_total{mode=\"idle\"}[1m])) * 100)",
+          "expr": "(time()-node_boot_time_seconds)",
+          "hide": false,
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -2054,7 +2057,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "CPU Utilization (1m avg)",
+      "title": "Node Uptime",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -2070,7 +2073,7 @@
       },
       "yaxes": [
         {
-          "format": "none",
+          "format": "s",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -2285,7 +2288,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
-      "description": "",
+      "description": "Counts memory that is free as well as reclaimable from caches and buffers",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -2295,7 +2298,7 @@
         "y": 62
       },
       "hiddenSeries": false,
-      "id": 26,
+      "id": 24,
       "interval": "",
       "legend": {
         "avg": false,
@@ -2322,7 +2325,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "(time()-node_boot_time_seconds)",
+          "expr": "node_memory_MemFree_bytes{alias!~\"monitoring.*\"} / node_memory_MemTotal_bytes{alias!~\"monitoring.*\"} * 100",
           "hide": false,
           "interval": "",
           "legendFormat": "{{alias}}",
@@ -2333,7 +2336,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Node Uptime",
+      "title": "Node Memory Free (%)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -2349,7 +2352,7 @@
       },
       "yaxes": [
         {
-          "format": "s",
+          "format": "none",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -2554,104 +2557,13 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
-      "description": "Counts memory that is free as well as reclaimable from caches and buffers",
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 70
-      },
-      "hiddenSeries": false,
-      "id": 24,
-      "interval": "",
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "node_memory_MemFree_bytes{alias!~\"monitoring.*\"} / node_memory_MemTotal_bytes{alias!~\"monitoring.*\"} * 100",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "{{alias}}",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Node Memory Free (%)",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "none",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "prometheus",
       "description": "Counts only memory that is physically free",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 8,
+        "x": 0,
         "y": 70
       },
       "hiddenSeries": false,
@@ -2716,6 +2628,102 @@
         {
           "format": "short",
           "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "description": "20 second rolling time average",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 70
+      },
+      "hiddenSeries": false,
+      "id": 20,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "rate(node_network_receive_bytes_total{alias!~\"monitoring.*\",device!~\"lo\"}[20s]) * 8",
+          "legendFormat": "{{alias}}",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(node_network_transmit_bytes_total{alias!~\"monitoring.*\",device!~\"lo\"}[20s]) * -8",
+          "legendFormat": "{{alias}}",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Node Bandwidth (bps)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "decbits",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "",
           "logBase": 1,
           "max": null,
           "min": null,
@@ -2901,102 +2909,6 @@
         {
           "format": "short",
           "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "prometheus",
-      "description": "20 second rolling time average",
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 78
-      },
-      "hiddenSeries": false,
-      "id": 20,
-      "interval": "",
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "rate(node_network_receive_bytes_total{alias!~\"monitoring.*\",device!~\"lo\"}[20s]) * 8",
-          "legendFormat": "{{alias}}",
-          "refId": "A"
-        },
-        {
-          "expr": "rate(node_network_transmit_bytes_total{alias!~\"monitoring.*\",device!~\"lo\"}[20s]) * -8",
-          "legendFormat": "{{alias}}",
-          "refId": "B"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Node Bandwidth (bps)",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": null,
-          "format": "decbits",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "decimals": null,
-          "format": "short",
-          "label": "",
           "logBase": 1,
           "max": null,
           "min": null,
