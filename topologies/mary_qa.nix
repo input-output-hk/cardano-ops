@@ -37,7 +37,7 @@ let
     (mkStakingPool "a" 1 "IOHK1" { nodeId = 4; })
   ]);
 
-  coreNodes = bftCoreNodes;
+  coreNodes = bftCoreNodes ++ stakingPoolNodes;
 
   relayNodes = mkRelayTopology {
     inherit regions coreNodes;
