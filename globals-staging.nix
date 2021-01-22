@@ -4,11 +4,11 @@ pkgs: {
 
   dnsZone = "${pkgs.globals.domain}";
 
-  domain = "awstest.iohkdev.io";
+  domain = "staging.cardano.org";
 
   environmentName = "staging";
 
-  explorerAliases = [ "cardano-explorer.awstest.iohkdev.io" ];
+  explorerAliases = [ "cardano-explorer.staging.cardano.org" ];
   withSubmitApi = true;
   withHighLoadRelays = true;
   withSmash = true;

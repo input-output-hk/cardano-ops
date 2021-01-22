@@ -56,9 +56,23 @@ let
     })
   ]);
 
-  stakingPoolNodes = [];
+  stakingPoolNodes = let
+    mkStakingPool = mkStakingPoolForRegions regions;
+  in regionalConnectGroupWith bftCoreNodes
+  (fullyConnectNodes [
+    (mkStakingPool "a" 1 "IOGS1" { nodeId = 8; })
+    (mkStakingPool "b" 1 "IOGS2" { nodeId = 9; })
+    (mkStakingPool "c" 1 "IOGS3" { nodeId = 10; })
+    (mkStakingPool "d" 1 "IOGS4" { nodeId = 11; })
+    (mkStakingPool "e" 1 "IOGS5" { nodeId = 12; })
+    (mkStakingPool "f" 1 "IOGS6" { nodeId = 13; })
+    (mkStakingPool "a" 2 "IOGS7" { nodeId = 14; })
+  ]);
 
-  coreNodes =  map (withAutoRestartEvery 6) (bftCoreNodes ++ stakingPoolNodes);
+  coreNodes =  map (composeAll [
+    (withAutoRestartEvery 6)
+    (withProfiling "time" ["bft-c-1" "bft-a-1"])
+  ]) (bftCoreNodes ++ stakingPoolNodes);
 
   relayNodes = map (withAutoRestartEvery 6) (mkRelayTopology {
     inherit regions coreNodes;
