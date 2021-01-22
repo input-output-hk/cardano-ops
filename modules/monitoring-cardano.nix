@@ -13,7 +13,7 @@ in {
   services.monitoring-services.applicationRules = [
     {
       alert = "chain_quality_degraded";
-      expr = "(cardano_node_ChainDB_metrics_density_real{alias!~\"bft-dr-.*|rel-dr-.*\"} / on(alias) cardano_node_genesis_activeSlotsCoeff * 100) < ${chainDensityLow}";
+      expr = "(cardano_node_metrics_density_real / on(alias) cardano_node_genesis_activeSlotsCoeff * 100) < ${chainDensityLow}";
       for = "5m";
       labels = {
         severity = "page";
@@ -21,18 +21,6 @@ in {
       annotations = {
         summary = "{{$labels.alias}}: Degraded Chain Density (<${chainDensityLow}%).";
         description = "{{$labels.alias}}: Degraded Chain Density (<${chainDensityLow}%).";
-      };
-    }
-    {
-      alert = "shadow_chain_quality_degraded";
-      expr = "(cardano_node_ChainDB_metrics_density_real{alias=~\"bft-dr-.*|rel-dr-.*\"} / on(alias) cardano_node_genesis_activeSlotsCoeff * 100) < 90";
-      for = "5m";
-      labels = {
-        severity = "page";
-      };
-      annotations = {
-        summary = "{{$labels.alias}}: Shadow Cluster Degraded Chain Density (<90%).";
-        description = "{{$labels.alias}}: Shadow Cluster Degraded Chain Density (<90%).";
       };
     }
     {
@@ -49,7 +37,7 @@ in {
     }
     {
       alert = "cardano_new_node_block_divergence";
-      expr = "((abs(max(cardano_node_ChainDB_metrics_blockNum_int{alias!~\"bft-dr.*|rel-dr.*\"}) - ignoring(alias, instance, job, role) group_right(instance) cardano_node_ChainDB_metrics_blockNum_int{alias!~\"bft-dr.*|rel-dr.*\"}) > bool 2) - (abs(max(cardano_node_ChainDB_metrics_slotNum_int{alias!~\"bft-dr.*|rel-dr.*\"}) - ignoring(alias, instance, job, role) group_right(instance) cardano_node_ChainDB_metrics_slotNum_int{alias!~\"bft-dr.*|rel-dr.*\"}) < bool 60)) == 1";
+      expr = "((abs(max(cardano_node_metrics_blockNum_int) - ignoring(alias, instance, job, role) group_right(instance) cardano_node_metrics_blockNum_int) > bool 2) - (abs(max(cardano_node_metrics_slotNum_int) - ignoring(alias, instance, job, role) group_right(instance) cardano_node_metrics_slotNum_int) < bool 60)) == 1";
       for = "5m";
       labels = {
         severity = "page";
@@ -60,20 +48,8 @@ in {
       };
     }
     {
-      alert = "cardano_shadow_node_block_divergence";
-      expr = "((abs(max(cardano_node_ChainDB_metrics_blockNum_int{alias=~\"bft-dr.*|rel-dr.*\"}) - ignoring(alias, instance, job, role) group_right(instance) cardano_node_ChainDB_metrics_blockNum_int{alias=~\"bft-dr.*|rel-dr.*\"}) > bool 2) - (abs(max(cardano_node_ChainDB_metrics_slotNum_int{alias=~\"bft-dr.*|rel-dr.*\"}) - ignoring(alias, instance, job, role) group_right(instance) cardano_node_ChainDB_metrics_slotNum_int{alias=~\"bft-dr.*|rel-dr.*\"}) < bool 60)) == 1";
-      for = "5m";
-      labels = {
-        severity = "page";
-      };
-      annotations = {
-        summary = "{{$labels.alias}}: cardano-shadow-node block divergence detected for more than 5 minutes";
-        description = "{{$labels.alias}}: cardano-shadow-node block divergence of more than 2 blocks and 60 seconds lag detected for more than 5 minutes";
-      };
-    }
-    {
       alert = "cardano_new_node_blockheight_unchanged";
-      expr = "rate(cardano_node_ChainDB_metrics_blockNum_int[1m]) == 0";
+      expr = "rate(cardano_node_metrics_blockNum_int[1m]) == 0";
       for = "5m";
       labels = {
         severity = "page";
@@ -97,7 +73,7 @@ in {
     }
     {
       alert = "cardano_new_node_KES_expiration_metric_notice";
-      expr = "cardano_node_genesis_slotLength * cardano_node_genesis_slotsPerKESPeriod * on (alias) cardano_node_Forge_metrics_remainingKESPeriods_int < (5 * 24 * 3600) + 1";
+      expr = "cardano_node_genesis_slotLength * cardano_node_genesis_slotsPerKESPeriod * on (alias) cardano_node_metrics_remainingKESPeriods_int < (5 * 24 * 3600) + 1";
       for = "5m";
       labels = {
         severity = "page";
@@ -109,7 +85,7 @@ in {
     }
     {
       alert = "cardano_new_node_KES_expiration_metric_warning";
-      expr = "cardano_node_genesis_slotLength * cardano_node_genesis_slotsPerKESPeriod * on (alias) cardano_node_Forge_metrics_remainingKESPeriods_int < (24 * 3600) + 1";
+      expr = "cardano_node_genesis_slotLength * cardano_node_genesis_slotsPerKESPeriod * on (alias) cardano_node_metrics_remainingKESPeriods_int < (24 * 3600) + 1";
       for = "5m";
       labels = {
         severity = "page";
@@ -121,7 +97,7 @@ in {
     }
     {
       alert = "cardano_new_node_KES_expiration_metric_critical";
-      expr = "cardano_node_genesis_slotLength * cardano_node_genesis_slotsPerKESPeriod * on (alias) cardano_node_Forge_metrics_remainingKESPeriods_int < (4 * 3600) + 1";
+      expr = "cardano_node_genesis_slotLength * cardano_node_genesis_slotsPerKESPeriod * on (alias) cardano_node_metrics_remainingKESPeriods_int < (4 * 3600) + 1";
       for = "5m";
       labels = {
         severity = "page";
@@ -135,7 +111,7 @@ in {
       alert = "cardano_new_node_KES_expiration_decoded_notice";
       expr = "(cardano_node_genesis_slotLength * (cardano_node_genesis_slotsPerKESPeriod " +
              "* ((cardano_node_decode_kesCreatedPeriod > -1) + cardano_node_genesis_maxKESEvolutions)) " +
-             "- on(alias) (cardano_node_genesis_slotLength * on (alias) cardano_node_ChainDB_metrics_slotNum_int)) < (5 * 24 * 3600) + 1";
+             "- on(alias) (cardano_node_genesis_slotLength * on (alias) cardano_node_metrics_slotNum_int)) < (5 * 24 * 3600) + 1";
       for = "5m";
       labels = {
         severity = "page";
@@ -149,7 +125,7 @@ in {
       alert = "cardano_new_node_KES_expiration_decoded_warning";
       expr = "(cardano_node_genesis_slotLength * (cardano_node_genesis_slotsPerKESPeriod " +
              "* ((cardano_node_decode_kesCreatedPeriod > -1) + cardano_node_genesis_maxKESEvolutions)) " +
-             "- on(alias) (cardano_node_genesis_slotLength * on (alias) cardano_node_ChainDB_metrics_slotNum_int)) < (24 * 3600) + 1";
+             "- on(alias) (cardano_node_genesis_slotLength * on (alias) cardano_node_metrics_slotNum_int)) < (24 * 3600) + 1";
       for = "5m";
       labels = {
         severity = "page";
@@ -163,7 +139,7 @@ in {
       alert = "cardano_new_node_KES_expiration_decoded_critical";
       expr = "(cardano_node_genesis_slotLength * (cardano_node_genesis_slotsPerKESPeriod " +
              "* ((cardano_node_decode_kesCreatedPeriod > -1) + cardano_node_genesis_maxKESEvolutions)) " +
-             "- on(alias) (cardano_node_genesis_slotLength * on (alias) cardano_node_ChainDB_metrics_slotNum_int)) < (4 * 3600) + 1";
+             "- on(alias) (cardano_node_genesis_slotLength * on (alias) cardano_node_metrics_slotNum_int)) < (4 * 3600) + 1";
       for = "5m";
       labels = {
         severity = "page";
@@ -175,7 +151,7 @@ in {
     }
     {
       alert = "explorer_node_db_block_divergence";
-      expr = "abs(cardano_node_ChainDB_metrics_blockNum_int{alias=~\"explorer.*\"} - on() db_block_height{alias=~\"explorer.*\"}) > 5";
+      expr = "abs(cardano_node_metrics_blockNum_int{alias=~\"explorer.*\"} - on() db_block_height{alias=~\"explorer.*\"}) > 5";
       for = "5m";
       labels = {
         severity = "page";
