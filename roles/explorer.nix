@@ -10,7 +10,7 @@ let
   inherit (cardanoDbSyncHaskellPackages.cardano-db-sync.components.exes) cardano-db-sync;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-sync-extended.components.exes) cardano-db-sync-extended;
   inherit (cardanoDbSyncHaskellPackages.cardano-node.components.exes) cardano-node;
-  inherit (cardanoDbSyncHaskellPackages.cardano-db.components.exes) cardano-db-tool;
+  inherit (cardanoDbSyncHaskellPackages.cardano-db-tool.components.exes) cardano-db-tool;
 in {
   imports = [
     (sourcePaths.cardano-node + "/nix/nixos")
