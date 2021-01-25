@@ -59,4 +59,12 @@ in {
     };
   };
 
+  explorer = {
+    services.cardano-graphql = {
+      allowListPath = mkForce null;
+      allowIntrospection = true;
+      eraName = "mary";
+    };
+  };
+
 }
