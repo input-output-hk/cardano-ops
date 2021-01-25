@@ -61,6 +61,7 @@ in {
   services.cardano-rosetta-server = {
     enable = true;
     topologyFilePath = nodeCfg.topology;
+    cardanoCliPath = cardano-cli + /bin/cardano-cli;
     genesisPath = nodeCfg.nodeConfig.ShelleyGenesisFile;
     cardanoNodePath = cardano-node + /bin/cardano-node;
     cardanoNodeSocketPath = nodeCfg.socketPath;
