@@ -186,6 +186,18 @@ in {
       };
     }
     {
+      alert = "smash_node_db_block_divergence";
+      expr = "abs(cardano_node_ChainDB_metrics_blockNum_int{alias=~\"smash.*\"} - on() db_block_height{alias=~\"smash.*\"}) > 5";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: cardano-node db block divergence on smash detected for more than 5 minutes";
+        description = "{{$labels.alias}}: cardano-node db block divergence detected on smash of more than 5 blocks for more than 5 minutes";
+      };
+    }
+    {
       alert = "faucet_value_zero_available";
       expr = "cardano_faucet_metrics_value_available{alias=~\".*faucet.*\"} == bool 0 == 1";
       for = "5m";

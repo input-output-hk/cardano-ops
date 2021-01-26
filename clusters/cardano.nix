@@ -51,6 +51,15 @@ let
             }];
           }
           {
+            job_name = "smash-exporter";
+            scrape_interval = "10s";
+            metrics_path = "/metrics2/exporter";
+            static_configs = [{
+              targets = [ "smash-ip" ];
+              labels = { alias = "smash-exporter"; };
+            }];
+          }
+          {
             job_name = "cardano-graphql-exporter";
             scrape_interval = "10s";
             metrics_path = "/metrics2/cardano-graphql";
