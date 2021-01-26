@@ -63,6 +63,7 @@ let
     '';
 in  mkShell rec {
   buildInputs = [
+    bashInteractive
     cardano-cli
     dnsutils
     iohkNix.niv
