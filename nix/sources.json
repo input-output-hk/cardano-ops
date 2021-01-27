@@ -48,15 +48,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
-        "branch": "allegra-tmp",
+        "branch": "master",
         "description": "Faucet for Cardano",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "8c4d4926fe1fe2a74cda36193b80b2cc9b3e9192",
-        "sha256": "1qn48wl10207y3jg3nnmjch7dmfx55i1zbhb9fixxzjrh0npy8ps",
+        "rev": "167741acd15f97097f7dec02d6e2315f0adb091b",
+        "sha256": "1i5ix319w6wqplbwlpsxd66k5l514744mq11s7plp1jpbrfhsaw9",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/8c4d4926fe1fe2a74cda36193b80b2cc9b3e9192.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/167741acd15f97097f7dec02d6e2315f0adb091b.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
