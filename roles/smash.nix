@@ -22,12 +22,25 @@ in {
     producers = [ globals.relaysNew ];
     package = smashHaskellPackages.cardano-node.components.exes.cardano-node;
   };
+
+  # Disallow smash to restart more than 3 times within a 30 minute window
+  # This ensures the service stops and an alert will get sent if ledger state is corrupt
+  # This also allows for some additional startup time before failure and restart
+  #
+  # If smash fails and the service needs to be restarted manually before the 30 min window ends, run:
+  # systemctl reset-failed smash && systemctl start smash
+  #
+  systemd.services.smash.startLimitIntervalSec = 1800;
+
   systemd.services.smash.serviceConfig = {
     # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
     SupplementaryGroups = "cardano-node";
     # FIXME: https://github.com/input-output-hk/cardano-db-sync/issues/102
     Restart = "always";
     RestartSec = "30s";
+
+    # Not yet available as an attribute for the Unit section in nixpkgs 20.09
+    StartLimitBurst = 3;
   };
   services.smash = {
     enable = true;
