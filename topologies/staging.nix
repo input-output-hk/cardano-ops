@@ -71,7 +71,7 @@ let
 
   coreNodes =  map (composeAll [
     (withAutoRestartEvery 6)
-    (withProfiling "time" ["bft-c-1" "bft-a-1"])
+    #(withProfiling "time" ["bft-c-1" "bft-a-1"])
   ]) (bftCoreNodes ++ stakingPoolNodes);
 
   relayNodes = map (withAutoRestartEvery 6) (mkRelayTopology {
