@@ -163,7 +163,7 @@ in {
     }
     {
       alert = "smash_node_db_block_divergence";
-      expr = "abs(cardano_node_ChainDB_metrics_blockNum_int{alias=~\"smash.*\"} - on() db_block_height{alias=~\"smash.*\"}) > 5";
+      expr = "abs(cardano_node_metrics_blockNum_int{alias=~\"smash.*\"} - on() db_block_height{alias=~\"smash.*\"}) > 5";
       for = "5m";
       labels = {
         severity = "page";

@@ -6,7 +6,7 @@ pkgs: {
   withFaucet = true;
   withExplorer = true;
   withCardanoDBExtended = true;
-  withSmash = false;
+  withSmash = true;
   withSubmitApi = true;
   faucetHostname = "faucet";
 
