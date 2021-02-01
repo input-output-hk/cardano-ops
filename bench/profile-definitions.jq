@@ -78,7 +78,7 @@ def genesis_defaults($era; $compo):
 
 def generator_defaults($era):
 { common:
-  { add_tx_size:             0
+  { add_tx_size:             100
   , init_cooldown:           25
   , inputs_per_tx:           2
   , outputs_per_tx:          2
@@ -202,15 +202,15 @@ def utxo_delegators_density_profiles:
   , { genesis: { utxo: 2000000, delegators: 2000000 } }
   ## TPS profiles
   , { genesis: { utxo: 1000000, delegators:  125000 }
-    , generator: { tps: 5,  epochs: 3,  add_tx_size: 100 } }
+    , generator: { tps: 5,  epochs: 3 } }
   , { genesis: { utxo: 1000000, delegators:  125000 }
-    , generator: { tps: 10, epochs: 3,  add_tx_size: 100 } }
+    , generator: { tps: 10, epochs: 3 } }
   , { genesis: { utxo: 1000000, delegators:  125000 }
-    , generator: { tps: 20, epochs: 3,  add_tx_size: 100 } }
+    , generator: { tps: 20, epochs: 3 } }
   , { genesis: { utxo: 1000000, delegators:  125000 }
-    , generator: { tps: 30, epochs: 3,  add_tx_size: 100 } }
+    , generator: { tps: 30, epochs: 3 } }
   , { genesis: { utxo: 1000000, delegators:  125000 }
-    , generator: { tps: 40, epochs: 3,  add_tx_size: 100 } }
+    , generator: { tps: 40, epochs: 3 } }
   ];
 
 def generator_profiles:
@@ -253,7 +253,7 @@ def aux_profiles:
                , init_cooldown: 25, finish_patience: 4 }
   }
 , { name: "smoke"
-  , generator: { tx_count: 100,   add_tx_size: 0, inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
+  , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
                , init_cooldown: 25, finish_patience: 4 }
   , genesis:
     { genesis_future_offset: "3 minutes"
@@ -261,7 +261,7 @@ def aux_profiles:
     }
   }
 , { name: "k1000-smoke"
-  , generator: { tx_count: 100,   add_tx_size: 0, inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
+  , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
                , init_cooldown: 25, finish_patience: 4 }
   , genesis:
     { genesis_future_offset: "32 minutes" }
