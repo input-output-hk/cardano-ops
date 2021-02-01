@@ -97,15 +97,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rosetta": {
-        "branch": "refs/tags/1.0.0",
+        "branch": "feat/multiple-era-transactions-support",
         "description": "https://www.rosetta-api.org implementation for Cardano Node",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-rosetta",
-        "rev": "49c8cb51905759a86f9831c2c266dfab2e507dfd",
-        "sha256": "1jfm64fv5h0w12vbli47yqcg18lfz1lm1maq7s1ifxaf68sl1ssi",
+        "rev": "b64a8598a7f9b8fcc6f631503ee124aee61d4d3c",
+        "sha256": "1680ybpypkp5lvws7bpzirv5ldc74kx410w0nii5as9nh2q4qynd",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/49c8cb51905759a86f9831c2c266dfab2e507dfd.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/b64a8598a7f9b8fcc6f631503ee124aee61d4d3c.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "iohk-nix": {
