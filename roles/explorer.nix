@@ -80,8 +80,7 @@ in {
         [ "-N2" "-A10m" "-qg" "-qb" "-M10G" ]
       else
         [ "-N2" "-A10m" "-qg" "-qb" "-M3G" ]);
-    # FIXME Reactivate when smash update to 1.25+:
-    #package = smashHaskellPackages.cardano-node.components.exes.cardano-node;
+    package = cardano-node;
   };
 
   systemd.services.cardano-node.serviceConfig.MemoryMax = lib.mkForce
