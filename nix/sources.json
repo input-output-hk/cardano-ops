@@ -53,10 +53,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "167741acd15f97097f7dec02d6e2315f0adb091b",
-        "sha256": "1i5ix319w6wqplbwlpsxd66k5l514744mq11s7plp1jpbrfhsaw9",
+        "rev": "05d5571633b1a3ace35527558d9dadf030e19f94",
+        "sha256": "1i3v4q47mzhp09vnr0dn83fpwd6ni9b01s0wa6mhqk1g2yf009yl",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/167741acd15f97097f7dec02d6e2315f0adb091b.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/05d5571633b1a3ace35527558d9dadf030e19f94.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
@@ -97,15 +97,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rosetta": {
-        "branch": "feat/multiple-era-transactions-support",
+        "branch": "refs/tags/1.1.0",
         "description": "https://www.rosetta-api.org implementation for Cardano Node",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-rosetta",
-        "rev": "b64a8598a7f9b8fcc6f631503ee124aee61d4d3c",
-        "sha256": "1680ybpypkp5lvws7bpzirv5ldc74kx410w0nii5as9nh2q4qynd",
+        "rev": "46f814f78884377010b46e6e307746ebea02ffce",
+        "sha256": "0f9xxb2xcn1zi6s41fm6i44k7r452pygxbqhka6wmqklf3h1ai9f",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/b64a8598a7f9b8fcc6f631503ee124aee61d4d3c.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/46f814f78884377010b46e6e307746ebea02ffce.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "iohk-nix": {
