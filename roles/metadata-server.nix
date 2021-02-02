@@ -6,6 +6,9 @@ let
   nginxCachePath = "/var/lib/nginx/data-cache";
   nginxCacheLife = "30d";
   metadataServerPort = 8080;
+  metadataWebhookPort = 8081;
+
+  webhookKeys = import ../static/metadata-webhook-secrets.nix;
 in {
   environment = {
     systemPackages = with pkgs; [
@@ -26,8 +29,16 @@ in {
   # systemctl reset-failed metadata-server && systemctl start metadata-server
   #
   systemd.services.metadata-server.startLimitIntervalSec = 1800;
+  systemd.services.metadata-webhook.startLimitIntervalSec = 1800;
 
   systemd.services.metadata-server.serviceConfig = {
+    Restart = "always";
+    RestartSec = "30s";
+
+    # Not yet available as an attribute for the Unit section in nixpkgs 20.09
+    StartLimitBurst = 3;
+  };
+  systemd.services.metadata-webhook.serviceConfig = {
     Restart = "always";
     RestartSec = "30s";
 
@@ -39,6 +50,20 @@ in {
     port = metadataServerPort;
     #inherit (globals) environmentName;
     #environment = globals.environmentConfig;
+  };
+  services.metadata-webhook = {
+    enable = true;
+    port = metadataWebhookPort;
+    webHookSecret = webhookKeys.webHookSecret;
+    gitHubToken = webhookKeys.gitHubToken;
+    postgres = {
+      socketdir = config.services.metadata-server.postgres.socketdir;
+      port = config.services.metadata-server.postgres.port;
+      database = config.services.metadata-server.postgres.database;
+      table = config.services.metadata-server.postgres.table;
+      user = config.services.metadata-server.postgres.user;
+      numConnections = config.services.metadata-server.postgres.numConnections;
+    };
   };
   services.cardano-postgres.enable = true;
   services.postgresql = {
@@ -54,6 +79,7 @@ in {
     identMap = ''
       metadata-server-users root ${cfg.postgres.user}
       metadata-server-users ${cfg.user} ${cfg.postgres.user}
+      metadata-server-users ${config.services.metadata-webhook.user} ${cfg.postgres.user}
       metadata-server-users postgres postgres
     '';
     authentication = ''
@@ -175,11 +201,14 @@ in {
               return 204;
             }
           '';
-          endpoints = [
+          serverEndpoints = [
             "/metadata/query"
             "/metadata"
           ];
-          in lib.recursiveUpdate (lib.genAttrs endpoints (p: {
+          webhookEndpoints = [
+            "/webhook"
+          ];
+          in (lib.recursiveUpdate (lib.genAttrs serverEndpoints (p: {
             proxyPass = "http://127.0.0.1:${toString metadataServerPort}${p}";
             extraConfig = corsConfig;
           })) {
@@ -202,6 +231,13 @@ in {
             #  proxy_cache_valid any ${nginxCacheLife};
             #  proxy_cache_bypass $bypass_method;
             #'';
+          }) // (lib.recursiveUpdate (lib.genAttrs webhookEndpoints (p: {
+            proxyPass = "http://127.0.0.1:${toString metadataWebhookPort}${p}";
+            extraConfig = corsConfig;
+          }))) {
+            "/webhook".extraConfig = ''
+              ${corsConfig}
+            '';
           };
       };
       "metadata-server-ip" = {
