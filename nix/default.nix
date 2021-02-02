@@ -36,7 +36,7 @@ let
         sha256 = "1hjysrl15kh5233w7apq298cc2bp4q1z5mvaqcka9pdl90m0vhbw";
       };
     };
-  in {
+  in rec {
     nginxExplorer = super.nginxStable.override (oldAttrs: {
       modules = oldAttrs.modules ++ [
         acceptLanguage
@@ -48,6 +48,7 @@ let
         self.nginxModules.lua
       ];
     });
+    nginxMetadataServer = nginxSmash;
   };
 
   # our own overlays:

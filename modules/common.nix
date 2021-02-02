@@ -19,14 +19,16 @@ in {
         type = lib.types.int;
       };
       roles = {
+        isByronProxy = boolOption;
+        isCardanoCore = boolOption;
         isCardanoLegacyCore = boolOption;
         isCardanoLegacyRelay = boolOption;
-        isCardanoCore = boolOption;
         isCardanoRelay = boolOption;
-        isByronProxy = boolOption;
-        isMonitor = boolOption;
         isExplorer = boolOption;
         isFaucet = boolOption;
+        isMonitor = boolOption;
+        isMetadataServer = boolOption;
+        isSmash = boolOption;
       };
     };
   };
