@@ -37,6 +37,7 @@ in {
   withFaucet = false;
   withFaucetOptions = {};
   withSmash = false;
+  withMetadataServer = false;
 
   initialPythonExplorerDBSyncDone = false;
 

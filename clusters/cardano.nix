@@ -77,7 +77,18 @@ let
               targets = [ "${globals.faucetHostname}.${globals.domain}" ];
               labels = { alias = "cardano-faucet"; };
             }];
-          }));
+          }
+          ));
+          #)) ++ (lib.optional globals.withMetadataServer (
+          #{
+          #  job_name = "metadata-server";
+          #  scrape_interval = "10s";
+          #  metrics_path = "/metrics";
+          #  static_configs = [{
+          #    targets = [ "metadata-ip" ];
+          #    labels = { alias = "metadata-server"; };
+          #  }];
+          #}));
           #})) ++
           #[{
           #  job_name = "netdata";
@@ -139,8 +150,22 @@ let
         cardano-ops.roles.smash
       ];
       node = {
-        roles.isExplorer = true;
+        roles.isSmash = true;
         nodeId = def.nodeId or 100;
+        org = "IOHK";
+      };
+    } def;
+  }) // (lib.optionalAttrs globals.withMetadataServer {
+    metadata = let def = (topology.metadataServer or {}); in mkNode {
+      deployment.ec2 = {
+        region = "eu-central-1";
+      };
+      imports = [
+        medium
+        cardano-ops.roles.metadata-server
+      ];
+      node = {
+        roles.isMetadataServer = true;
         org = "IOHK";
       };
     } def;
