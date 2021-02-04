@@ -258,30 +258,23 @@
       "pluginVersion": "6.7.4",
       "targets": [
         {
-          "expr": "min(cardano_node_config_lastKnownBlockVersionMajor{alias!~\".*-dr-.*\"})",
+          "expr": "min(cardano_node_protocol_protocolVersion_major)",
           "instant": true,
           "interval": "",
-          "legendFormat": "Major Block Version",
+          "legendFormat": "Major protocol version",
           "refId": "A"
         },
         {
-          "expr": "min(cardano_node_config_lastKnownBlockVersionMinor{alias!~\".*-dr-.*\"})",
+          "expr": "min(cardano_node_protocol_protocolVersion_minor)",
           "instant": true,
           "interval": "",
-          "legendFormat": "Minor Block Version",
+          "legendFormat": "Minor protocol version",
           "refId": "B"
-        },
-        {
-          "expr": "min(cardano_node_config_lastKnownBlockVersionAlt{alias!~\".*-dr-.*\"})",
-          "instant": true,
-          "interval": "",
-          "legendFormat": "Alt Block Version",
-          "refId": "C"
         }
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Current Block Version",
+      "title": "Current Protocol Version",
       "type": "stat"
     },
     {
