@@ -64,10 +64,8 @@ let
 in  mkShell rec {
   buildInputs = [
     cardano-cli
-    create-shelley-genesis-and-keys
     dnsutils
     iohkNix.niv
-    kes-rotation
     nivOverrides
     nix
     nix-diff
@@ -75,14 +73,18 @@ in  mkShell rec {
     pandoc
     pstree
     node-update
-    renew-kes-keys
     telnet
     test-cronjob-script
     cardano-cli-completions
     cardano-ping
     hoursUntilNextEpoch
     relayUpdateTimer
-  ];
+  ] ++ (lib.optionals (globals.environmentName != "mainnet") [
+    # scripts NOT for use on mainnet:
+    kes-rotation
+    renew-kes-keys
+    create-shelley-genesis-and-keys
+  ]);
   # If any build input has bash completions, add it to the search
   # path for shell completions.
   XDG_DATA_DIRS = lib.concatStringsSep ":" (
