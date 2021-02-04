@@ -157,15 +157,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "smash": {
-        "branch": "refs/tags/1.3.0",
+        "branch": "refs/tags/v1.4.0",
         "description": "Stakepool Metadata Aggregation Server",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "smash",
-        "rev": "901e11c53583a466c6ee658bf5c69b46f0bae2c7",
-        "sha256": "1g1n4g2y4scwzaafcrvh5qqvr1l7sahrj51brnnyi82wdc1lmmzw",
+        "rev": "5da923f901dde65a933b9b0cd9820f3b7d1ff6a8",
+        "sha256": "0kysn90h2ak9gsjcf9qzy8n8cjp52fn6xc1qpr8kv0bgjb0a9wh1",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/smash/archive/901e11c53583a466c6ee658bf5c69b46f0bae2c7.tar.gz",
+        "url": "https://github.com/input-output-hk/smash/archive/5da923f901dde65a933b9b0cd9820f3b7d1ff6a8.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

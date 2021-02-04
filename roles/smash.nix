@@ -31,7 +31,8 @@ in {
 
   services.cardano-node = {
     producers = [ globals.relaysNew ];
-    package = smashHaskellPackages.cardano-node.components.exes.cardano-node;
+    # FIXME Reactivate when smash update to 1.25+:
+    #package = smashHaskellPackages.cardano-node.components.exes.cardano-node;
   };
 
   # Disallow smash to restart more than 3 times within a 30 minute window
