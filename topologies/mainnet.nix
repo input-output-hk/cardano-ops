@@ -95,6 +95,7 @@ let
     (mkStakingPool "a" 6 "IOGP31" { nodeId = 57; })
     (mkStakingPool "b" 6 "IOGP32" { nodeId = 58; })
     (mkStakingPool "c" 6 "IOGP33" { nodeId = 59; })
+    (mkStakingPool "d" 6 "LEO1"   { nodeId = 60; })
   ]);
 
   coreNodes = map (withAutoRestartEvery 6)
