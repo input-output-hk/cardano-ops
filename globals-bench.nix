@@ -147,6 +147,7 @@ in (rec {
                minSeverity = "Debug";
                TurnOnLogMetrics = true;
                TraceMempool     = true;
+               TraceTxInbound   = true;
              }));
     }) (benchmarkingTopology.coreNodes or []);
   };

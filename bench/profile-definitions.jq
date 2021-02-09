@@ -202,15 +202,15 @@ def utxo_delegators_density_profiles:
   , { genesis: { utxo: 2000000, delegators: 2000000 } }
   ## TPS profiles
   , { genesis: { utxo: 1000000, delegators:  125000 }
-    , generator: { tps: 5,  epochs: 3 } }
+    , generator: { tps: 5,  epochs: 5 } }
   , { genesis: { utxo: 1000000, delegators:  125000 }
-    , generator: { tps: 10, epochs: 3 } }
+    , generator: { tps: 10, epochs: 5 } }
   , { genesis: { utxo: 1000000, delegators:  125000 }
-    , generator: { tps: 20, epochs: 3 } }
+    , generator: { tps: 20, epochs: 5 } }
   , { genesis: { utxo: 1000000, delegators:  125000 }
-    , generator: { tps: 30, epochs: 3 } }
+    , generator: { tps: 30, epochs: 5 } }
   , { genesis: { utxo: 1000000, delegators:  125000 }
-    , generator: { tps: 40, epochs: 3 } }
+    , generator: { tps: 40, epochs: 5 } }
   ];
 
 def generator_profiles:
