@@ -51,15 +51,6 @@ let
             }];
           }
           {
-            job_name = "smash-exporter";
-            scrape_interval = "10s";
-            metrics_path = "/metrics2/exporter";
-            static_configs = [{
-              targets = [ "smash-ip" ];
-              labels = { alias = "smash-exporter"; };
-            }];
-          }
-          {
             job_name = "cardano-graphql-exporter";
             scrape_interval = "10s";
             metrics_path = "/metrics2/cardano-graphql";
@@ -68,7 +59,17 @@ let
               labels = { alias = "cardano-graphql-exporter"; };
             }];
           }
-          ])) ++ (lib.optional globals.withFaucet (
+          ])) ++ (lib.optionals globals.withSmash [
+          {
+            job_name = "smash-exporter";
+            scrape_interval = "10s";
+            metrics_path = "/metrics2/exporter";
+            static_configs = [{
+              targets = [ "smash-ip" ];
+              labels = { alias = "smash-exporter"; };
+            }];
+          }
+          ]) ++ (lib.optional globals.withFaucet (
           {
             job_name = "cardano-faucet";
             scrape_interval = "10s";
