@@ -4,8 +4,6 @@ let
   cfg = config.services.smash;
   hostAddr = getListenIp nodes.${name};
   inherit (import (sourcePaths.smash + "/nix") {}) smashHaskellPackages;
-  nginxCachePath = "/var/lib/nginx/data-cache";
-  nginxCacheLife = "30d";
 in {
   environment = {
     systemPackages = [
@@ -87,27 +85,76 @@ in {
   };
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
-  # Ensure the nginx caching directory is set up and accessible to nginx
-  system.activationScripts = {
-    nginxCacheSetup = ''
-      mkdir -p "${nginxCachePath}"
-      chown -R nginx:nginx /var/lib/nginx
-    '';
-  };
-
   # Ensure that nginx doesn't hit a file limit with handling cache files
   systemd.services.nginx.serviceConfig.LimitNOFILE = 65535;
 
+  services.varnish = {
+    enable = true;
+    config = ''
+      vcl 4.1;
+
+      import std;
+
+      backend default {
+        .host = "127.0.0.1";
+        .port = "3100";
+      }
+      acl purge {
+        "localhost";
+        "127.0.0.1";
+      }
+      sub vcl_recv {
+        unset req.http.x-cache;
+        # allow PURGE from localhost
+        if (req.method == "PURGE") {
+          if (!client.ip ~ purge) {
+            return(synth(405,"Not allowed."));
+          }
+          return (purge);
+        }
+      }
+      sub vcl_hit {
+        set req.http.x-cache = "hit";
+      }
+      sub vcl_miss {
+        set req.http.x-cache = "miss";
+      }
+
+      sub vcl_pass {
+        set req.http.x-cache = "pass";
+      }
+
+      sub vcl_pipe {
+        set req.http.x-cache = "pipe";
+      }
+
+      sub vcl_synth {
+        set req.http.x-cache = "synth synth";
+        set resp.http.x-cache = req.http.x-cache;
+      }
+
+      sub vcl_deliver {
+        if (obj.uncacheable) {
+          set req.http.x-cache = req.http.x-cache + " uncacheable";
+        } else {
+          set req.http.x-cache = req.http.x-cache + " cached";
+        }
+        set resp.http.x-cache = req.http.x-cache;
+      }
+      sub vcl_backend_response {
+        set beresp.ttl = 30d;
+        if (beresp.status == 404) {
+          set beresp.ttl = 1h;
+        }
+      }
+    '';
+  };
   services.nginx = {
     enable = true;
     package = nginxSmash;
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;
-    preStart = ''
-      [ -d "${nginxCachePath}" ] || { echo "The nginx data cache dir does not exist"; exit 1; }
-      [ -w "${nginxCachePath}" ] || { echo "The nginx data cache dir is not writable by nginx"; exit 1; }
-    '';
     eventsConfig = ''
       worker_connections 2048;
     '';
@@ -115,11 +162,11 @@ in {
       apiKeys = import ../static/smash-keys.nix;
       allowedOrigins = lib.optionals (builtins.pathExists ../static/smash-allow-origins.nix) (import ../static/smash-allow-origins.nix);
     in ''
-      log_format x-fwd '$remote_addr - $remote_user $upstream_cache_status [$time_local] '
+      log_format x-fwd '$remote_addr - $remote_user [$time_local] '
                        '"$request" $status $body_bytes_sent '
                        '"$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
 
-      access_log syslog:server=unix:/dev/log x-fwd if=$not_cached;
+      access_log syslog:server=unix:/dev/log x-fwd;
 
       map $arg_apiKey $api_client_name {
         default "";
@@ -137,44 +184,7 @@ in {
         default "";
         1 $http_origin;
       }
-    '' +
-    # Per: https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache
-    # 800,000 keys ~= 100m for keys_zone
-    #
-    # The number of keys in use can be estimated by file count at the cache location
-    # Cache size utilized is also shown in the nginx vts status page
-    #
-    # To fully purge the cache (where nginxCachePath = "/var/lib/nginx/data-cache" in this example):
-    # systemctl stop nginx && rm -rf /var/lib/nginx/data-cache/* && systemctl start nginx
-    #
-    # To selectively refresh cached files from the smash origin server, from localhost run:
-    # curl -kv https://127.0.0.1/api/v1/$ENDPOINT_PATH
-    ''
-      proxy_cache_path ${nginxCachePath} levels=1:2
-                       keys_zone=smash_metadata:100m max_size=2g
-                       inactive=${nginxCacheLife} use_temp_path=off;
-
-      geo $bypass_allowed {
-        default 0;
-        127.0.0.1 1;
-      }
-
-      map $request_method $bypass_method {
-        GET $bypass_allowed;
-        default 0;
-      }
-
-      map $status $not_status_404 {
-        404 0;
-        default 1;
-      }
-
-      map $upstream_cache_status $not_cached {
-        HIT 0;
-        STALE $not_status_404;
-        default 1;
-      }
-    '';
+    ''; # +
 
     virtualHosts = {
       "smash.${globals.domain}" = {
@@ -215,7 +225,7 @@ in {
             "/api/v1/status"
           ];
           in lib.recursiveUpdate (lib.genAttrs endpoints (p: {
-            proxyPass = "http://127.0.0.1:3100${p}";
+            proxyPass = "http://127.0.0.1:6081${p}";
             extraConfig = corsConfig;
           })) {
             "/api/v1/delist".extraConfig = ''
@@ -228,15 +238,6 @@ in {
             '';
             "/api/v1/metadata".extraConfig = ''
               ${corsConfig}
-              add_header 'X-Proxy-Cache' $upstream_cache_status always;
-              proxy_cache smash_metadata;
-              proxy_cache_use_stale error timeout http_403
-                                    http_429 http_500 http_502 http_503 http_504;
-              proxy_cache_background_update on;
-              proxy_cache_lock on;
-              proxy_cache_valid 404 1h;
-              proxy_cache_valid any ${nginxCacheLife};
-              proxy_cache_bypass $bypass_method;
             '';
           };
       };
@@ -244,6 +245,9 @@ in {
         locations = {
           "/metrics2/exporter" = {
             proxyPass = "http://127.0.0.1:8080/";
+          };
+          "/metrics/varnish" = {
+            proxyPass = "http://127.0.0.1:9131/metrics";
           };
         };
       };
