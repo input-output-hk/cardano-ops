@@ -369,9 +369,6 @@ op_bench_start() {
         oprint "stopping nodes & explorer.."
         op_stop
 
-        # oprint "cleaning explorer DB.."
-        # nixops ssh explorer -- sh -c "'PGPASSFILE=/var/lib/cexplorer/pgpass psql cexplorer cexplorer --command \"delete from tx_in *; delete from tx_out *; delete from tx *; delete from block; delete from slot_leader *; delete from epoch *; delete from meta *; delete from schema_version *;\"'"
-
         oprint "resetting node states: node DBs & logs.."
         nixops ssh-for-each --parallel "rm -rf /var/log/journal/* /var/lib/cardano-node/db* /var/lib/cardano-node/logs/*"
 
@@ -512,7 +509,6 @@ EOF
     , \"logs/logs-explorer.tar.xz\"
     , \"logs/logs-nodes.tar.xz\"
 
-    , \"tools/*.sql\"
     , \"tools/*.sh\" ]
   , deployment_state:
     { explorer:  $(depljq explorer  .)
