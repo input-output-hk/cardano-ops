@@ -200,6 +200,7 @@ in {
             "/swagger.json"
             "/api/v1/metadata"
             "/api/v1/errors"
+            "/api/v1/exists"
             "/api/v1/enlist"
             "/api/v1/delist"
             "/api/v1/delisted"
