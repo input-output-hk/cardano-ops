@@ -24,15 +24,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync": {
-        "branch": "refs/tags/7.1.0",
+        "branch": "refs/tags/8.0.0",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "3cf868ec8c06265e4b670ac737af640d716e5ef7",
-        "sha256": "152yhay3riak41saz5s5zdhlkb5c5iqpy1gw1rvwjp6rwg1mc77n",
+        "rev": "1c7dbdac93e4d75118f1592dbb411f4f6a617128",
+        "sha256": "0wiqijrvahdn4w4mzdps22l85h9fb7dgmqq8p1alrmj4jb1hy3bb",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/3cf868ec8c06265e4b670ac737af640d716e5ef7.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/1c7dbdac93e4d75118f1592dbb411f4f6a617128.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer-app": {
@@ -41,10 +41,10 @@
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-explorer-app",
-        "rev": "6637431a8bf1bb3e09f99f5f7a863bd6dc2c12fd",
+        "rev": "506f36da8073fb44cc2af3e4900145d516fcee97",
         "sha256": "1hmzp2g11hvrr2gkl1i75fvw881s5r89zp7xmmrsik1m1jq27y0l",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/6637431a8bf1bb3e09f99f5f7a863bd6dc2c12fd.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/506f36da8073fb44cc2af3e4900145d516fcee97.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
@@ -53,22 +53,22 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "167741acd15f97097f7dec02d6e2315f0adb091b",
-        "sha256": "1i5ix319w6wqplbwlpsxd66k5l514744mq11s7plp1jpbrfhsaw9",
+        "rev": "05d5571633b1a3ace35527558d9dadf030e19f94",
+        "sha256": "1i3v4q47mzhp09vnr0dn83fpwd6ni9b01s0wa6mhqk1g2yf009yl",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/167741acd15f97097f7dec02d6e2315f0adb091b.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/05d5571633b1a3ace35527558d9dadf030e19f94.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
-        "branch": "refs/tags/3.1.1",
+        "branch": "refs/tags/3.2.0",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "5b2b2e4f6cbc5a8a3a7d7e4927de5f71b09a80f8",
-        "sha256": "1f5xmsdf2aym6x64r8kaifx3gbbljr98k838rb8rpsvxwrxpf40k",
+        "rev": "914746b13c44895f6c9905ca3b0b7a05f5cd3886",
+        "sha256": "1w7jll40fkb1bwcqi9dpvvrdlcj1ffgvbxkiq30vyysrsnlgfag3",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/5b2b2e4f6cbc5a8a3a7d7e4927de5f71b09a80f8.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/914746b13c44895f6c9905ca3b0b7a05f5cd3886.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
@@ -85,27 +85,27 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rest": {
-        "branch": "refs/tags/3.1.1",
+        "branch": "refs/tags/3.1.2",
         "description": "HTTP interfaces for interacting with the Cardano blockchain.",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-rest",
-        "rev": "1b6001c7e8aed262960c8c72721ec90f7be4cb6c",
-        "sha256": "0q1ici8hnfvd2s6f6lbcmwp04qnnfql46vs9iyy5dqp9bhbz8mrs",
+        "rev": "fa66fbd5305a1e6e2718024c480098cc9ad4f313",
+        "sha256": "0vgdi4pz2svv6kafbizspwjpanznzzykhswyyi5h5l2i0pbc556s",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rest/archive/1b6001c7e8aed262960c8c72721ec90f7be4cb6c.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-rest/archive/fa66fbd5305a1e6e2718024c480098cc9ad4f313.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rosetta": {
-        "branch": "refs/tags/1.0.0",
+        "branch": "refs/tags/1.1.0",
         "description": "https://www.rosetta-api.org implementation for Cardano Node",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-rosetta",
-        "rev": "49c8cb51905759a86f9831c2c266dfab2e507dfd",
-        "sha256": "1jfm64fv5h0w12vbli47yqcg18lfz1lm1maq7s1ifxaf68sl1ssi",
+        "rev": "46f814f78884377010b46e6e307746ebea02ffce",
+        "sha256": "0f9xxb2xcn1zi6s41fm6i44k7r452pygxbqhka6wmqklf3h1ai9f",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/49c8cb51905759a86f9831c2c266dfab2e507dfd.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/46f814f78884377010b46e6e307746ebea02ffce.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "iohk-nix": {
@@ -114,10 +114,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "2886b0893929e5c7316b349cf89dadf34347788d",
-        "sha256": "1k4rb7ixkdm0qi8lfp3p7p3dr95mhv7jsdrnkd5nhz68scwz9z4x",
+        "rev": "4efc38924c64c23a582c84950c8c25f72ff049cc",
+        "sha256": "0nhwyrd0xc72yj5q3jqa2wl4khp4g7n72i45cxy2rgn9nrp8wqh0",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/2886b0893929e5c7316b349cf89dadf34347788d.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/4efc38924c64c23a582c84950c8c25f72ff049cc.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {

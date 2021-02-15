@@ -10,7 +10,7 @@ let
   inherit (cardanoDbSyncHaskellPackages.cardano-db-sync.components.exes) cardano-db-sync;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-sync-extended.components.exes) cardano-db-sync-extended;
   inherit (cardanoDbSyncHaskellPackages.cardano-node.components.exes) cardano-node;
-  inherit (cardanoDbSyncHaskellPackages.cardano-db.components.exes) cardano-db-tool;
+  inherit (cardanoDbSyncHaskellPackages.cardano-db-tool.components.exes) cardano-db-tool;
 in {
   imports = [
     (sourcePaths.cardano-node + "/nix/nixos")
@@ -68,12 +68,6 @@ in {
     dbConnectionString = "socket://${cfg.postgres.user}:*@${cfg.postgres.socketdir}?db=${cfg.postgres.database}";
   };
 
-  # Temporarily required until the following cardano-graphql issue is fixed:
-  # https://github.com/input-output-hk/cardano-graphql/issues/268
-  systemd.services.cardano-graphql.startLimitIntervalSec = 0;
-  systemd.services.cardano-graphql.serviceConfig.Restart = "always";
-  systemd.services.cardano-graphql.serviceConfig.RestartSec = "10s";
-
   services.cardano-node = {
     rtsArgs = lib.mkForce
       (if globals.withHighCapacityExplorer then
@@ -116,9 +110,16 @@ in {
     SupplementaryGroups = "cardano-node";
   };
 
-  systemd.services.cardano-graphql.serviceConfig = {
-    # Put cardano-graphql in "cardano-node" group so that it can write socket file:
-    SupplementaryGroups = "cardano-node";
+  systemd.services.cardano-graphql = {
+    environment = {
+      HOME = "/run/${config.systemd.services.cardano-graphql.serviceConfig.RuntimeDirectory}";
+    };
+    serviceConfig = {
+      User = "cexplorer";
+      RuntimeDirectory = "cardano-graphql";
+      # Put cardano-graphql in "cardano-node" group so that it can write socket file:
+      SupplementaryGroups = "cardano-node";
+    };
   };
 
   systemd.services.cardano-submit-api.serviceConfig = lib.mkIf globals.withSubmitApi {
@@ -268,7 +269,7 @@ in {
               <article>
                   <h1>We&rsquo;ll be back soon!</h1>
                   <div>
-                      <p>Sorry for the inconvenience, but we&rsquo;re performing some maintenance at the moment. We&rsquo;ll be back online shortly!</p>
+                      <p>Sorry for the inconvenience, but we&rsquo;re performing some routine maintenance on the explorer at the moment. We&rsquo;ll be back online shortly!</p>
                       <p>&mdash; IOHK DevOps</p>
                   </div>
               </article>

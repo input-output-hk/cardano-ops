@@ -64,4 +64,14 @@ in {
     };
   };
 
+  explorer = {
+    services.nginx.virtualHosts.${globals.explorerHostName}.locations."/p" = lib.mkIf (__pathExists ../static/pool-metadata) {
+      root = ../static/pool-metadata;
+    };
+    services.cardano-graphql = {
+      allowListPath = mkForce null;
+      allowIntrospection = true;
+    };
+  };
+
 }
