@@ -79,7 +79,7 @@ def genesis_defaults($era; $compo):
 def generator_defaults($era):
 { common:
   { add_tx_size:             100
-  , init_cooldown:           25
+  , init_cooldown:           60
   , inputs_per_tx:           2
   , outputs_per_tx:          2
   , tx_fee:                  1000000
