@@ -10,8 +10,7 @@ pkgs: {
   withFaucet = true;
   withSmash = true;
 
-  faucetHostname = "faucet2";
-  faucetHostnameNew = "faucet";
+  faucetHostname = "faucet";
 
   initialPythonExplorerDBSyncDone = true;
 
