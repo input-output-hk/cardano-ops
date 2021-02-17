@@ -12,6 +12,7 @@ pkgs: {
   withMetadataServer = true;
 
   faucetHostname = "faucet2";
+  faucetHostnameNew = "faucet";
 
   initialPythonExplorerDBSyncDone = true;
 

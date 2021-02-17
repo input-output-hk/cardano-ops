@@ -41,22 +41,22 @@
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-explorer-app",
-        "rev": "c409b15fff0b5b44eb1c9d9852e47221fba0b93a",
-        "sha256": "0qz6ygyf6y82ridjkiiimn7sc1p3lxn59r7q2accpss58f9546xv",
+        "rev": "ce831117b41e2774e61bf8c0be404def2a6f184f",
+        "sha256": "11zx45n8m7rshp09jh9k2yz82cxxpmx1fism7gjb8jxz67lydbr9",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/c409b15fff0b5b44eb1c9d9852e47221fba0b93a.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/ce831117b41e2774e61bf8c0be404def2a6f184f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
-        "branch": "master",
+        "branch": "multiasset",
         "description": "Faucet for Cardano",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "05d5571633b1a3ace35527558d9dadf030e19f94",
-        "sha256": "1i3v4q47mzhp09vnr0dn83fpwd6ni9b01s0wa6mhqk1g2yf009yl",
+        "rev": "19180860d27a74a1b9d96747e3153b10ed401830",
+        "sha256": "145q4ga1l1gz5f14if4d1id01nl3mpks8j8b1da7z3b6dj353l1q",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/05d5571633b1a3ace35527558d9dadf030e19f94.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/19180860d27a74a1b9d96747e3153b10ed401830.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
@@ -121,15 +121,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "metadata-server": {
-        "branch": "feature/metadata-vertical-slice",
+        "branch": "master",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "metadata-server",
-        "rev": "fc6eb8fda07c259da4e0ef3e6e1c9c62f137a0d0",
-        "sha256": "04wls2d2b8kvicz2gnssmdpkzpwkfsjlam4fw33fsi1q425w6lpr",
+        "rev": "4347d46f656db40057be877a1d11c7536f4f53f9",
+        "sha256": "0m2nydkdi714i0fca7f470zk4370fm7dm0p6y6wq5mqv99bvx3mb",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/metadata-server/archive/fc6eb8fda07c259da4e0ef3e6e1c9c62f137a0d0.tar.gz",
+        "url": "https://github.com/input-output-hk/metadata-server/archive/4347d46f656db40057be877a1d11c7536f4f53f9.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
