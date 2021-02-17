@@ -246,6 +246,14 @@ in {
               ~de de;
               ~ja ja;
       }
+
+      # set search paths for pure Lua external libraries (';;' is the default path):
+      lua_package_path '${luajit}/share/lua/${luajit.lua.luaversion}/?.lua;${luajit}/lib/lua/${luajit.lua.luaversion}/?.lua;;';
+      # set search paths for Lua external libraries written in C (can also use ';;'):
+      lua_package_cpath '${luajit}/lib/lua/${luajit.lua.luaversion}/?.so;${luajit}/share/lua/${luajit.lua.luaversion}/?.so;;';
+      init_by_lua_block {
+        json = require "cjson"
+      }
     '';
     virtualHosts = {
       "${globals.explorerHostName}" = {
@@ -287,7 +295,37 @@ in {
             '';
             tryFiles = "$uri /index.html";
           };
-        } else {
+        } else
+          let graphqlRewriter = query: postProcessing: ''
+            rewrite_by_lua_block {
+                ngx.req.read_body()
+                ngx.req.set_header("Content-Type", "application/json")
+                ngx.req.set_method(ngx.HTTP_POST)
+                ngx.req.set_uri("/graphql")
+                ngx.req.set_body_data("{\"query\":\"${query}\"}")
+              }
+              header_filter_by_lua_block {
+                ngx.header.content_length = nil
+              }
+              body_filter_by_lua_block {
+                local chunk, eof = ngx.arg[1], ngx.arg[2]
+                local buf = ngx.ctx.buf
+                if eof then
+                  if buf then
+                    local obj = json.decode(buf .. chunk)
+                    ngx.arg[1] = ${postProcessing}
+                  end
+                else
+                  if buf then
+                    ngx.ctx.buf = buf .. chunk
+                  else
+                    ngx.ctx.buf = chunk
+                  end
+                  ngx.arg[1] = nil
+                end
+              }
+            '';
+        in {
           "/" = {
             root = (cardano-explorer-app-pkgs.overrideScope'(self: super: {
               static = super.static.override {
@@ -320,6 +358,18 @@ in {
           };
           "/rosetta/" = {
             proxyPass = "http://127.0.0.1:8082/";
+          };
+          "/supply/total" = {
+            proxyPass = "http://127.0.0.1:3100/";
+            extraConfig = graphqlRewriter
+              "{ ada { supply { total } } }"
+              "obj.data.ada.supply.total / 1000000";
+          };
+          "/supply/circulating" = {
+            proxyPass = "http://127.0.0.1:3100/";
+            extraConfig = graphqlRewriter
+              "{ ada { supply { circulating } } }"
+              "obj.data.ada.supply.circulating / 1000000";
           };
         }) // {
           "/relays" = {

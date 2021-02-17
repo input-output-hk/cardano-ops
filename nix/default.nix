@@ -37,9 +37,12 @@ let
       };
     };
   in {
+    luajit = super.luajit.withPackages (ps: with ps; [cjson]);
     nginxExplorer = super.nginxStable.override (oldAttrs: {
       modules = oldAttrs.modules ++ [
         acceptLanguage
+        self.nginxModules.develkit
+        self.nginxModules.lua
       ];
     });
     nginxSmash = super.nginxStable.override (oldAttrs: {
