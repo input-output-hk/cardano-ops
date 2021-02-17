@@ -95,6 +95,8 @@ in
             "cardano"
           ]
         ];
+        # TraceMempool makes cpu usage x3, disabling by default:
+        TraceMempool = false;
       } cfg.extraNodeConfig);
     };
     systemd.services.cardano-node = {

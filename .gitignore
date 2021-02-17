@@ -20,3 +20,4 @@ static
 /*.json
 /*.split
 /*.tar.xz
+.nix-gc-roots

@@ -94,6 +94,10 @@ in {
       chown -R nginx:nginx /var/lib/nginx
     '';
   };
+
+  # Ensure that nginx doesn't hit a file limit with handling cache files
+  systemd.services.nginx.serviceConfig.LimitNOFILE = 65535;
+
   services.nginx = {
     enable = true;
     package = nginxSmash;
@@ -103,6 +107,9 @@ in {
     preStart = ''
       [ -d "${nginxCachePath}" ] || { echo "The nginx data cache dir does not exist"; exit 1; }
       [ -w "${nginxCachePath}" ] || { echo "The nginx data cache dir is not writable by nginx"; exit 1; }
+    '';
+    eventsConfig = ''
+      worker_connections 2048;
     '';
     commonHttpConfig = let
       apiKeys = import ../static/smash-keys.nix;
@@ -223,7 +230,7 @@ in {
               ${corsConfig}
               add_header 'X-Proxy-Cache' $upstream_cache_status always;
               proxy_cache smash_metadata;
-              proxy_cache_use_stale error timeout updating http_403 http_404
+              proxy_cache_use_stale error timeout http_403
                                     http_429 http_500 http_502 http_503 http_504;
               proxy_cache_background_update on;
               proxy_cache_lock on;

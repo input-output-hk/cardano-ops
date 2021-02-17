@@ -1,6 +1,6 @@
 pkgs:
 with pkgs; with lib;
-{
+{name, ...}: {
 
   imports = [
     cardano-ops.roles.relay
@@ -12,7 +12,13 @@ with pkgs; with lib;
 
   # Similarly, increase the max gc memory -- modify `-M` param
   # https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html
-  services.cardano-node.rtsArgs = lib.mkForce [ "-N4" "-A10m" "-qg" "-qb" "-M10G" ];
+  services.cardano-node.rtsArgs = lib.mkForce (if (name == "rel-a-2") then
+          [ "-N2" "-A16m" "-qg" "-qb" "-M10G" ]
+        else if (name == "rel-a-3") then
+          [ "-N1" "-A1m" "-M10G" ]
+        else if (name == "rel-a-4") then
+          [ "-N2" "-A16m" "-M10G" ]
+        else [ "-N4" "-A10m" "-qg" "-qb" "-M10G" ]);
 
   systemd.services.cardano-node.serviceConfig.LimitNOFILE = "65535";
 
