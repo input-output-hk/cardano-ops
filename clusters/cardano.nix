@@ -129,7 +129,21 @@ let
         org = "IOHK";
       };
     } def;
-  })// (lib.optionalAttrs globals.withSmash {
+  }) // (lib.optionalAttrs globals.withFaucet {
+    "${globals.faucetHostnameNew}" = let def = (topology.${globals.faucetHostnameNew} or {}); in mkNode {
+      deployment.ec2 = {
+        region = "eu-central-1";
+      };
+      imports = [
+        medium
+        cardano-ops.roles.faucet
+      ];
+      node = {
+        roles.isFaucet = true;
+        org = "IOHK";
+      };
+    } def;
+  }) // (lib.optionalAttrs globals.withSmash {
     smash = let def = (topology.smash or {}); in mkNode {
       deployment.ec2 = {
         region = "eu-central-1";

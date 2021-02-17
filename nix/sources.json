@@ -53,10 +53,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "05d5571633b1a3ace35527558d9dadf030e19f94",
-        "sha256": "1i3v4q47mzhp09vnr0dn83fpwd6ni9b01s0wa6mhqk1g2yf009yl",
+        "rev": "8200d6bb7e2f4630dee3aa463a9aa5450c71065b",
+        "sha256": "145q4ga1l1gz5f14if4d1id01nl3mpks8j8b1da7z3b6dj353l1q",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/05d5571633b1a3ace35527558d9dadf030e19f94.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/8200d6bb7e2f4630dee3aa463a9aa5450c71065b.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
