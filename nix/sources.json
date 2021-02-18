@@ -120,6 +120,18 @@
         "url": "https://github.com/input-output-hk/iohk-nix/archive/4efc38924c64c23a582c84950c8c25f72ff049cc.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "metadata-server": {
+        "branch": "master",
+        "description": null,
+        "homepage": null,
+        "owner": "input-output-hk",
+        "repo": "metadata-server",
+        "rev": "7b89f0ece438cb2639aa3ba3b040aeb9c64e3464",
+        "sha256": "0a2x7qpvfhayiq2wmmgy46041mx8sxg0542y0yfv1f32gfzr6hg1",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/metadata-server/archive/7b89f0ece438cb2639aa3ba3b040aeb9c64e3464.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "nixpkgs": {
         "branch": "nixos-20.03",
         "description": "Nix Packages collection",
