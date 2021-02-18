@@ -166,7 +166,7 @@ in {
                        '"$request" $status $body_bytes_sent '
                        '"$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
 
-      access_log syslog:server=unix:/dev/log x-fwd;
+      access_log syslog:server=unix:/dev/log x-fwd if=$loggable;
 
       map $arg_apiKey $api_client_name {
         default "";
@@ -178,6 +178,17 @@ in {
         default 0;
 
         ${lib.concatStringsSep "\n" (map (origin: "${origin} 1;") allowedOrigins)}
+      }
+
+      map $sent_http_x_cache $loggable_varnish {
+        "hit cached" 0;
+        default 1;
+      }
+
+      map $request_uri $loggable {
+        /status/format/prometheus 0;
+        /metrics2/exporter 0;
+        default $loggable_varnish;
       }
 
       map $origin_allowed $origin {
