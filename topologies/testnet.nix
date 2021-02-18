@@ -86,13 +86,16 @@ in {
   "${globals.faucetHostname}" = {
     services.cardano-faucet = {
       anonymousAccess = true;
+      anonymousAccessAssets = true;
       faucetLogLevel = "DEBUG";
       secondsBetweenRequestsAnonymous = 86400;
+      secondsBetweenRequestsAnonymousAssets = 86400;
       secondsBetweenRequestsApiKeyAuth = 86400;
       lovelacesToGiveAnonymous = 1000000000;
+      assetsToGiveAnonymous = 2;
       lovelacesToGiveApiKeyAuth = 1000000000000;
       useByronWallet = false;
-      faucetFrontendUrl = "https://developers.cardano.org/en/cardano/tools/faucet/";
+      faucetFrontendUrl = "https://developers.cardano.org/en/testnets/cardano/tools/faucet/";
     };
   };
   explorer = {

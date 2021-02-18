@@ -31,6 +31,10 @@ in {
     monitoringPort
   ];
 
+  environment.systemPackages = with pkgs; [
+    sqlite-interactive
+  ];
+
   services.monitoring-exporters.extraPrometheusExportersPorts = [ monitoringPort ];
   services.custom-metrics = {
     enable = true;

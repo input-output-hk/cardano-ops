@@ -129,7 +129,7 @@ let
         org = "IOHK";
       };
     } def;
-  })// (lib.optionalAttrs globals.withSmash {
+  }) // (lib.optionalAttrs globals.withSmash {
     smash = let def = (topology.smash or {}); in mkNode {
       deployment.ec2 = {
         region = "eu-central-1";
