@@ -162,7 +162,7 @@ in {
       apiKeys = import ../static/smash-keys.nix;
       allowedOrigins = lib.optionals (builtins.pathExists ../static/smash-allow-origins.nix) (import ../static/smash-allow-origins.nix);
     in ''
-      log_format x-fwd '$remote_addr - $remote_user [$time_local] '
+      log_format x-fwd '$remote_addr - $remote_user $sent_http_x_cache [$time_local] '
                        '"$request" $status $body_bytes_sent '
                        '"$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
 
