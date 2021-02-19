@@ -38,7 +38,10 @@ let
 
   coreNodes = map (withAutoRestartEvery 6) (bftCoreNodes ++ stakingPoolNodes);
 
-  relayNodes = map (withAutoRestartEvery 6) (mkRelayTopology {
+  relayNodes = map (composeAll [
+    (withAutoRestartEvery 6)
+    #(withProfiling "time" ["rel-a-1"])
+  ]) (mkRelayTopology {
     inherit regions coreNodes;
     autoscaling = false;
     maxProducersPerNode = 20;

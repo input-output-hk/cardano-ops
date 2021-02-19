@@ -1,7 +1,6 @@
 pkgs: { options, config, name, nodes, resources,  ... }:
 with pkgs; with lib;
 let
-
   nodeId = config.node.nodeId;
   cfg = config.services.cardano-node;
   nodePort = globals.cardanoNodePort;
@@ -12,22 +11,47 @@ let
   hostName = name: "${name}.cardano";
   staticRouteIp = getStaticRouteIp resources nodes;
 
-  deployedProducers = lib.filter (n: nodes ? ${n.addr or n}) cfg.producers;
+  splitProducers = partition (n: nodes ? ${n.addr or n}) cfg.allProducers;
+  deployedProducers = splitProducers.right;
+  thirdParyProducers = splitProducers.wrong;
+  splitDeployed = partition (n: nodes.${n}.config.node.roles.isCardanoCore) deployedProducers;
+  coreNodeProducers = splitDeployed.right;
+  relayNodeProducers = splitDeployed.wrong;
+  splitRelays = partition (r: nodes.${r}.config.deployment.ec2.region == nodes.${name}.config.deployment.ec2.region) relayNodeProducers;
+  sameRegionRelays = splitRelays.right;
+  otherRegionRelays = splitRelays.wrong;
 
   cardanoHostList = map (nodeName: {
     name = hostName nodeName;
     ip = staticRouteIp nodeName;
   }) deployedProducers;
 
-  producers = map (n: {
+  toNormalizedProducer = n: {
     addr = let a = n.addr or n; in if (nodes ? ${a}) then hostName a else a;
     port = n.port or nodePort;
     valency = n.valency or 1;
-  }) cfg.producers;
+  };
 
-  topology = builtins.toFile "topology.yaml" (builtins.toJSON {
-    Producers = producers;
-  });
+  producerShare = i: producers: let
+      indexed = imap0 (idx: node: { inherit idx node;}) producers;
+      filtered = filter ({idx, ...}: mod idx cfg.instances == i) indexed;
+    in catAttrs "node" filtered;
+
+  intraInstancesTopologies = topology-lib.connectNodesWithin
+    cfg.maxIntraInstancesPeers
+    (genList (i: {name = i;}) cfg.instances);
+
+  instanceProducers = i: map toNormalizedProducer (concatLists [
+      (concatMap (i: map (p: {
+        addr = cfg.ipv6HostAddr;
+        port = cfg.port + p;
+      }) i.producers) (filter (x: x.name == i) intraInstancesTopologies))
+      (producerShare i sameRegionRelays)
+      (producerShare (cfg.instances - i - 1) otherRegionRelays)
+      (producerShare i coreNodeProducers)
+      (producerShare (cfg.instances - i - 1) thirdParyProducers)
+    ]);
+
 in
 {
   imports = [
@@ -39,7 +63,7 @@ in
   options = {
     services.cardano-node = {
       publicIp = mkOption { type = types.str; default = staticRouteIp name;};
-      producers = mkOption {
+      allProducers = mkOption {
         default = [];
         type = types.listOf (types.either types.str types.attrs);
         description = ''Static routes to peers.'';
@@ -47,6 +71,14 @@ in
       extraNodeConfig = mkOption {
         type = types.attrs;
         default = {};
+      };
+      totalMaxHeapSizeMbytes = mkOption {
+        type = types.float;
+        default = config.node.memory * 1024 * 0.875;
+      };
+      maxIntraInstancesPeers = mkOption {
+        type = types.int;
+        default = 5;
       };
     };
   };
@@ -57,14 +89,14 @@ in
     environment.variables = {
       CARDANO_NODE_SOCKET_PATH = cfg.socketPath;
     };
-    services.monitoring-exporters.extraPrometheusExportersPorts = [ monitoringPort ];
+    services.monitoring-exporters.extraPrometheusExportersPorts = genList (i: monitoringPort + i) cfg.instances;
     services.custom-metrics = {
       enable = true;
       statsdExporter = "node";
     };
 
     networking.firewall = {
-      allowedTCPPorts = [ nodePort monitoringPort ];
+      allowedTCPPorts = [ nodePort ];
 
       # TODO: securing this depends on CSLA-27
       # NOTE: this implicitly blocks DHCPCD, which uses port 68
@@ -74,9 +106,11 @@ in
     services.cardano-node = {
       enable = true;
       systemdSocketActivation = true;
-      rtsArgs = [ "-N2" "-A10m" "-qg" "-qb" "-M3G" ];
+      # https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html
+      rtsArgs = [ "-N2" "-A16m" "-qg" "-qb" "-M${toString (cfg.totalMaxHeapSizeMbytes / cfg.instances)}M" ];
       environment = globals.environmentName;
-      inherit cardanoNodePkgs hostAddr nodeId topology;
+      inherit cardanoNodePkgs hostAddr nodeId instanceProducers;
+      producers = mkDefault [];
       port = nodePort;
       environments = {
         "${globals.environmentName}" = globals.environmentConfig;
@@ -98,29 +132,24 @@ in
         # TraceMempool makes cpu usage x3, disabling by default:
         TraceMempool = false;
       } cfg.extraNodeConfig);
+      extraServiceConfig = _: {
+        serviceConfig = {
+          MemoryMax = "${toString (1.15 * cfg.totalMaxHeapSizeMbytes / cfg.instances)}M";
+          LimitNOFILE = "65535";
+        };
+      };
     };
     systemd.services.cardano-node = {
-      # FIXME: waiting for https://github.com/input-output-hk/cardano-node/pull/2124
-      after = lib.mkForce [ "network-online.target" "cardano-node.socket" ];
       path = [ gnutar gzip ];
       preStart = ''
         cd $STATE_DIRECTORY
         if [ -f db-restore.tar.gz ]; then
-          rm -rf db-${globals.environmentName}
+          rm -rf db-${globals.environmentName}*
           tar xzf db-restore.tar.gz
           rm db-restore.tar.gz
         fi
-
       '';
-      serviceConfig = {
-        MemoryMax = "3.5G";
-        KillSignal = "SIGINT";
-        RestartKillSignal = "SIGINT";
-      };
     };
-
-    # FIXME: https://github.com/input-output-hk/cardano-node/issues/1023
-    systemd.sockets.cardano-node.partOf = [ "cardano-node.service" ];
 
     services.dnsmasq = {
       enable = true;

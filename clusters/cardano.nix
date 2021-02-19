@@ -108,7 +108,7 @@ let
       services.monitoring-exporters.extraPrometheusExportersPorts =
         [ globals.cardanoNodePrometheusExporterPort ];
 
-      services.cardano-node.producers = if (relayNodes != [])
+      services.cardano-node.allProducers = if (relayNodes != [])
         then [ pkgs.globals.relaysNew ]
         else (map (n: n.name) coreNodes);
 
@@ -178,9 +178,7 @@ let
         (def.instance or instances.core-node)
         (cardano-ops.roles.core def.nodeId)
       ];
-      services.cardano-node = {
-        inherit (def) producers;
-      };
+      services.cardano-node.allProducers = def.producers;
     } def;
   };
 
@@ -192,9 +190,7 @@ let
         roles.isCardanoRelay = true;
         inherit (def) org nodeId;
       };
-      services.cardano-node = {
-        inherit (def) producers;
-      };
+      services.cardano-node.allProducers = def.producers;
       deployment.ec2.region = def.region;
       imports = [(def.instance or instances.relay-node)] ++ (
         if (def.withHighLoadRelays or globals.withHighLoadRelays)

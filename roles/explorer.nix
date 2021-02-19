@@ -77,17 +77,9 @@ in {
     dbConnectionString = "socket://${cfg.postgres.user}:*@${cfg.postgres.socketdir}?db=${cfg.postgres.database}";
   };
 
-  services.cardano-node = {
-    rtsArgs = lib.mkForce
-      (if globals.withHighCapacityExplorer then
-        [ "-N2" "-A10m" "-qg" "-qb" "-M10G" ]
-      else
-        [ "-N2" "-A10m" "-qg" "-qb" "-M3G" ]);
-    package = cardano-node;
-  };
+  services.cardano-node.package = cardano-node;
 
-  systemd.services.cardano-node.serviceConfig.MemoryMax = lib.mkForce
-    (if globals.withHighCapacityExplorer then "14G" else "3.5G");
+  services.cardano-node.totalMaxHeapSizeMbytes = lib.mkIf globals.withHighCapacityExplorer (14 * 1024);
 
   services.cardano-db-sync = {
     enable = true;
@@ -103,7 +95,6 @@ in {
     postgres = {
       database = "cexplorer";
     };
-
   };
 
   systemd.services.cardano-db-sync.serviceConfig = {
