@@ -61,7 +61,7 @@ let
       groups = [ allow-public-www-https ];
     }
     {
-      nodes = (filterAttrs (_: n: n.node.roles.isMetadataServer or false) nodes);
+      nodes = (filterAttrs (_: n: n.node.roles.isMetadata or false) nodes);
       groups = [ allow-public-www-https ];
     }
     {

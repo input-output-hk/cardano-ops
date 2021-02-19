@@ -38,8 +38,8 @@ in {
   withFaucetOptions = {};
   withSmash = false;
 
-  withMetadataServer = false;
-  metadataHostName = "tokens.${pkgs.globals.domain}";
+  withMetadata = false;
+  metadataHostName = "metadata.${pkgs.globals.domain}";
 
   initialPythonExplorerDBSyncDone = false;
 

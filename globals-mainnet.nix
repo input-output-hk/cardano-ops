@@ -16,7 +16,7 @@ pkgs: {
   withHighLoadRelays = true;
   withSmash = true;
 
-  withMetadataServer = true;
+  withMetadata = true;
   metadataHostName = "tokens.cardano.org";
 
   initialPythonExplorerDBSyncDone = true;

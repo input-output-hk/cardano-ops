@@ -80,14 +80,14 @@ let
             }];
           }
           ));
-          #)) ++ (lib.optional globals.withMetadataServer (
+          #)) ++ (lib.optional globals.withMetadata (
           #{
-          #  job_name = "metadata-server";
+          #  job_name = "metadata";
           #  scrape_interval = "10s";
           #  metrics_path = "/metrics";
           #  static_configs = [{
           #    targets = [ "metadata-ip" ];
-          #    labels = { alias = "metadata-server"; };
+          #    labels = { alias = "metadata"; };
           #  }];
           #}));
           #})) ++
@@ -156,17 +156,17 @@ let
         org = "IOHK";
       };
     } def;
-  }) // (lib.optionalAttrs globals.withMetadataServer {
+  }) // (lib.optionalAttrs globals.withMetadata {
     metadata = let def = (topology.metadata or {}); in mkNode {
       deployment.ec2 = {
         region = "eu-central-1";
       };
       imports = [
         medium
-        cardano-ops.roles.metadata-server
+        cardano-ops.roles.metadata
       ];
       node = {
-        roles.isMetadataServer = true;
+        roles.isMetadata = true;
         org = def.org or "IOHK";
       };
     } def;
