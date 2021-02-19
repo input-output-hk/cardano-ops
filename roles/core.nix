@@ -86,4 +86,7 @@ in {
 
   users.users.cardano-node.extraGroups = [ "keys" ];
 
+  deployment.ec2.ebsInitialRootDiskSize = globals.systemDiskAllocationSize
+    + globals.nodeDbDiskAllocationSize;
+
 }

@@ -9,18 +9,26 @@ pkgs: with pkgs; with lib; rec {
   /* Round a float to integer, toward 0. */
   rountToInt = f: toInt (head (splitString "." (toString f)));
 
+  withModule = m: def: def // {
+    imports = (def.imports  or []) ++ [m];
+  };
+
   /* Auto restart cardano-node service every given hours
     (plus 'nodeId' minutes to reduce likelyhood of simultaneous restart of many nodes).
   */
-  withAutoRestartEvery = h: def: lib.recursiveUpdate {
-    systemd.services.cardano-node.serviceConfig.RuntimeMaxSec = h *
-        60 * 60 + 60 * (def.nodeId or 0);
+  withAutoRestartEvery = h: def: withModule {
+    services.cardano-node.extraServiceConfig = i: {
+      serviceConfig.RuntimeMaxSec = h *
+        60 * 60 + 60 * ((def.nodeId or 0) + (5 * i));
+    };
   } def;
 
   /* Modify node definition for some nodes that statisfy predicate.
   */
   forNodesWith = p: modDef: def: if (p def)
-    then (lib.recursiveUpdate def modDef)
+    then (lib.recursiveUpdate def modDef) // (optionalAttrs (modDef ? imports) {
+      imports = (def.imports  or []) ++ modDef.imports;
+    })
     else def;
 
   /* Modify node definition for some given nodes, by name.
@@ -31,11 +39,15 @@ pkgs: with pkgs; with lib; rec {
     the given list of nodes (second arg).
   */
   withProfiling = p: (forNodes {
-    services.cardano-node.profiling = p;
-    # Disable autorestart (which would override profiling data):
-    systemd.services.cardano-node.serviceConfig = {
-      RuntimeMaxSec = lib.mkForce "infinity";
-      Restart = lib.mkForce "no";
+    services.cardano-node = {
+      profiling = p;
+      extraServiceConfig = _: {
+        serviceConfig = {
+          # Disable autorestart (which would override profiling data):
+          RuntimeMaxSec = "infinity";
+          Restart = "no";
+        };
+      };
     };
   });
 
@@ -298,10 +310,12 @@ pkgs: with pkgs; with lib; rec {
         # we scale so that relays have less than `maxRelaysPerNode` producer relays per node, with a given minimum of relays:
         let
           nbThirdPartyRelays = length (thirdPartyRelaysByRegions.${name} or []);
-          nbProducersToShare = nbCoreNodes + nbThirdPartyRelays;
+          intraInstancesProducers = nbPeersWithin maxInRegionPeers globals.nbInstancesPerRelay;
+          nbProducersToShare = nbCoreNodes + nbThirdPartyRelays + (nbRegions - 1);
           autoScale = nbRelaysInput:
-            # producer slots available, excluding peers to other regions and the local region peers:
-            let availableProducersSlots = maxProducersPerNode - (nbRegions - 1) - (nbPeersWithin maxInRegionPeers nbRelaysInput);
+            # producer slots available, excluding local region peers:
+            let availableProducersSlots = globals.nbInstancesPerRelay * (maxProducersPerNode - intraInstancesProducers)
+              - (nbPeersWithin maxInRegionPeers nbRelaysInput);
             nbRelays = nbProducersToShare / availableProducersSlots + # round up the division:
               (if (mod nbProducersToShare availableProducersSlots == 0) then 0 else 1);
             in max nbRelaysInput nbRelays; # 'max' is used to ensure convergence (this can oversize a bit, but also allows some growth without re-scaling)
@@ -334,6 +348,7 @@ pkgs: with pkgs; with lib; rec {
                 # a share of the third-party relays:
                 ++ (filter (p: mod p.index nbRelays == (nodeIndex - 1)) (indexedThirdPartyRelays.${region} or []));
               org = "IOHK";
+              services.cardano-node.maxIntraInstancesPeers = maxInRegionPeers;
             }
           ) relayIndexesInRegion;
           # coreNodes shift in a way that accomplish full rotation accross regions:

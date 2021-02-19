@@ -45,11 +45,4 @@ in
       edgeNodes = [];
     };
   };
-  systemd.services.cardano-node.serviceConfig.MemoryMax = "3.5G";
-  # TODO remove next two line for next release cardano-node 1.7 release:
-  systemd.services.cardano-node.preStart = ''
-    if [ -d ${cfg.databasePath}-${toString cfg.nodeId} ]; then
-      mv ${cfg.databasePath}-${toString cfg.nodeId} ${cfg.databasePath}
-    fi
-  '';
 }

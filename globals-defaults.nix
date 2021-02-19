@@ -62,10 +62,9 @@ in {
   netdataExporterPort = 19999;
 
   extraPrometheusExportersPorts = [
-    pkgs.globals.cardanoNodePrometheusExporterPort
     pkgs.globals.cardanoExplorerPrometheusExporterPort
     pkgs.globals.netdataExporterPort
-  ];
+  ] ++ builtins.genList (i: pkgs.globals.cardanoNodePrometheusExporterPort + i) pkgs.globals.nbInstancesPerRelay;
 
   alertChainDensityLow = "99";
   alertMemPoolHigh = "190";
@@ -74,11 +73,21 @@ in {
   alertMbpsHigh = "150";
   alertMbpsCrit = "200";
 
+  # base line number of cardano-node instance per relay,
+  # can be scaled up on a per node basis by scaling up on instance type, cf roles/relays.nix.
+  nbInstancesPerRelay = pkgs.globals.ec2.instances.relay-node.node.cpus / 2;
+
+  # disk allocation for system (GBytes):
+  systemDiskAllocationSize = 15;
+
+  # disk allocation for each cardano-node instance (GBytes):
+  nodeDbDiskAllocationSize = 15;
+
   ec2.instances = with pkgs; with iohk-ops-lib.physical.aws; {
     inherit targetEnv;
     core-node = t3a-medium;
     relay-node = if globals.withHighLoadRelays
-      then t3-xlarge
+      then t3-2xlarge
       else t3a-medium;
     test-node = m5ad-xlarge;
     smash = t3a-xlarge;

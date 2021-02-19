@@ -10,6 +10,7 @@ pkgs: {
   withFaucet = true;
   withSmash = true;
   withMetadata = true;
+  withHighLoadRelays = true;
 
   faucetHostname = "faucet";
 

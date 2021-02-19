@@ -12,6 +12,7 @@ pkgs: {
   withSmash = true;
   withSubmitApi = true;
   faucetHostname = "faucet";
+  nbInstancesPerRelay = 2;
 
   ec2 = {
     credentials = {

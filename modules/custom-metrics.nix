@@ -104,7 +104,7 @@ in with pkgs; {
     systemd.services.custom-metrics = {
       path = with pkgs; [ cardano-cli coreutils gawk gnugrep gnused jq nmap procps ];
       environment = {
-        CARDANO_NODE_SOCKET_PATH = "/run/cardano-node/node.socket";
+        CARDANO_NODE_SOCKET_PATH = config.services.cardano-node.socketPath;
       };
       script = ''
         STATSD_HOST="localhost"
@@ -194,7 +194,7 @@ in with pkgs; {
           CARDANO_CLI_VERSION_PATCH=$(echo $VERSION | cut -f 3 -d ".")
         fi
 
-        if CONFIG=$(pgrep -a cardano-node | grep -oP ".*--config \K.*\.json"); then
+        if CONFIG=$(pgrep -a cardano-node | grep -oP ".*--config \K.*-0\.json"); then
           echo "Cardano node config file is: $CONFIG"
           PROTOCOL=$(jq -r '.Protocol' < "$CONFIG")
           LAST_KNOWN_BLOCK_VERSION_MAJOR=$(jq -r '."LastKnownBlockVersion-Major"'  < "$CONFIG")

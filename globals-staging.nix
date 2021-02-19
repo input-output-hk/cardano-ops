@@ -10,7 +10,6 @@ pkgs: {
 
   explorerAliases = [ "cardano-explorer.staging.cardano.org" ];
   withSubmitApi = true;
-  withHighLoadRelays = true;
   withSmash = true;
   withFaucet = true;
   faucetHostname = "faucet";
@@ -26,6 +25,7 @@ pkgs: {
         dns = "dns";
       };
     };
+    instances.relay-node = pkgs.iohk-ops-lib.physical.aws.t3-xlarge;
   };
 
   alertChainDensityLow = "90";

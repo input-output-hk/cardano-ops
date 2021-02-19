@@ -28,7 +28,7 @@ in {
   '';
 
   services.cardano-node = {
-    producers = [ globals.relaysNew ];
+    allProducers = [ globals.relaysNew ];
     # FIXME Reactivate when smash update to 1.25+:
     #package = smashHaskellPackages.cardano-node.components.exes.cardano-node;
   };

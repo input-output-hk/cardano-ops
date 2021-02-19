@@ -101,15 +101,15 @@ let
   coreNodes = map (withAutoRestartEvery 6)
     (bftCoreNodes ++ stakingPoolNodes);
 
-    relayNodes = let
-      relays = mkRelayTopology {
-        inherit regions coreNodes;
-        autoscaling = false;
-        maxProducersPerNode = 20;
-        maxInRegionPeers = 5;
-      };
-     unlisted = map (n: n.name) (drop 200 relays);
-    in map (composeAll [
+  relayNodes = let
+    relays = mkRelayTopology {
+      inherit regions coreNodes;
+      autoscaling = false;
+      maxProducersPerNode = 20;
+      maxInRegionPeers = 5;
+    };
+    unlisted = map (n: n.name) (drop 200 relays);
+  in map (composeAll [
     (withAutoRestartEvery 6)
     (forNodes {
       services.cardano-node.extraNodeConfig = {
