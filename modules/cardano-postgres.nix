@@ -18,6 +18,11 @@ in {
         type = types.nullOr types.str;
         default = null;
       };
+      withHighCapacityPostgres = mkOption {
+        description = "Configure postgresql to use additional resources to support high RAM and connection requirements.";
+        type = types.bool;
+        default = globals.withHighCapacityExplorer;
+      };
     };
   };
   config = mkIf cfg.enable {
@@ -27,7 +32,7 @@ in {
       dataDir = mkIf (cfg.postgresqlDataDir != null) cfg.postgresqlDataDir;
       enableTCPIP = false;
     } // (lib.optionalAttrs (!(lib.hasPrefix "20.03"  lib.version)) {
-      settings = if globals.withHighCapacityExplorer then {
+      settings = if cfg.withHighCapacityPostgres then {
         # Optimized for:
         # DB Version: 12
         # OS Type: linux
@@ -86,7 +91,7 @@ in {
         "pg_stat_statements.track" = "all";
       };
     }) // (lib.optionalAttrs (lib.hasPrefix "20.03"  lib.version) {
-      extraConfig = if globals.withHighCapacityExplorer then ''
+      extraConfig = if cfg.withHighCapacityPostgres then ''
         # Optimized for:
         # DB Version: 12
         # OS Type: linux

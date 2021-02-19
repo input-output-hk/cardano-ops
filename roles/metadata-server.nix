@@ -65,7 +65,10 @@ in {
       numConnections = config.services.metadata-server.postgres.numConnections;
     };
   };
-  services.cardano-postgres.enable = true;
+  services.cardano-postgres = {
+    enable = true;
+    withHighCapacityPostgres = false;
+  };
   services.postgresql = {
     ensureDatabases = [ "${cfg.postgres.database}" ];
     ensureUsers = [
@@ -175,7 +178,7 @@ in {
     '';
 
     virtualHosts = {
-      "metadata.${globals.domain}" = {
+      "${globals.metadataHostName}" = {
         enableACME = true;
         forceSSL = globals.explorerForceSSL;
         locations =

@@ -157,7 +157,7 @@ let
       };
     } def;
   }) // (lib.optionalAttrs globals.withMetadataServer {
-    metadata = let def = (topology.metadataServer or {}); in mkNode {
+    metadata = let def = (topology.metadata or {}); in mkNode {
       deployment.ec2 = {
         region = "eu-central-1";
       };
@@ -167,7 +167,7 @@ let
       ];
       node = {
         roles.isMetadataServer = true;
-        org = "IOHK";
+        org = def.org or "IOHK";
       };
     } def;
   });
