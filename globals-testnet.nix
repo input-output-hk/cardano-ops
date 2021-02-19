@@ -9,7 +9,7 @@ pkgs: {
   withSubmitApi = true;
   withFaucet = true;
   withSmash = true;
-  withMetadataServer = true;
+  withMetadata = true;
 
   faucetHostname = "faucet";
 

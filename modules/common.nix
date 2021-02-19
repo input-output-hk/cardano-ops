@@ -27,7 +27,7 @@ in {
         isExplorer = boolOption;
         isFaucet = boolOption;
         isMonitor = boolOption;
-        isMetadataServer = boolOption;
+        isMetadata = boolOption;
         isSmash = boolOption;
       };
     };

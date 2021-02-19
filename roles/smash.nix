@@ -195,7 +195,7 @@ in {
         default "";
         1 $http_origin;
       }
-    ''; # +
+    '';
 
     virtualHosts = {
       "smash.${globals.domain}" = {
