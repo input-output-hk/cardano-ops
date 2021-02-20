@@ -5,8 +5,8 @@ let
   inherit (import (sourcePaths.metadata-server + "/nix") {}) metadataServerHaskellPackages;
   metadataServerPort = 8080;
   metadataWebhookPort = 8081;
-
   webhookKeys = import ../static/metadata-webhook-secrets.nix;
+  maxPostSizeCachableKb = 1;
 in {
   environment = {
     systemPackages = with pkgs; [
@@ -92,21 +92,133 @@ in {
   };
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
-  # Ensure the nginx caching directory is set up and accessible to nginx
+  services.varnish = {
+    enable = false;
+    # enable = true;
+    # extraModules = [ pkgs.varnishPackages.bodyaccess ];
+    config = ''
+      vcl 4.1;
+
+      import std;
+      import bodyaccess;
+
+      backend default {
+        .host = "127.0.0.1";
+        .port = "${toString metadataServerPort}";
+      }
+
+      acl purge {
+        "localhost";
+        "127.0.0.1";
+      }
+
+      sub vcl_recv {
+        unset req.http.X-Body-Len;
+        unset req.http.x-cache;
+
+        # Allow PURGE from localhost
+        if (req.method == "PURGE") {
+          if (!client.ip ~ purge) {
+            return(synth(405,"Not allowed."));
+          }
+          return (purge);
+        }
+
+        # Allow POST caching
+        else if (req.method == "POST") {
+          # Caches the body which enables POST retries if needed
+          std.cache_req_body(${toString maxPostSizeCachableKb}KB);
+          set req.http.X-Body-Len = bodyaccess.len_req_body();
+
+          if (req.http.X-Body-Len == "-1") {
+            return(synth(400, "The request body size exceeds the limit"));
+          }
+          return(hash);
+        }
+      }
+
+      sub vcl_hash {
+        # For caching POSTs, hash the body also
+        if (req.http.X-Body-Len) {
+          bodyaccess.hash_req_body();
+        }
+        else {
+          hash_data("");
+        }
+      }
+
+      sub vcl_hit {
+        set req.http.x-cache = "hit";
+      }
+
+      sub vcl_miss {
+        set req.http.x-cache = "miss";
+      }
+
+      sub vcl_pass {
+        set req.http.x-cache = "pass";
+      }
+
+      sub vcl_pipe {
+        set req.http.x-cache = "pipe";
+      }
+
+      sub vcl_synth {
+        set req.http.x-cache = "synth synth";
+        set resp.http.x-cache = req.http.x-cache;
+      }
+
+      sub vcl_deliver {
+        if (obj.uncacheable) {
+          set req.http.x-cache = req.http.x-cache + " uncacheable";
+        } else {
+          set req.http.x-cache = req.http.x-cache + " cached";
+        }
+        set resp.http.x-cache = req.http.x-cache;
+      }
+
+      sub vcl_backend_fetch {
+        if (bereq.http.X-Body-Len) {
+          set bereq.method = "POST";
+        }
+      }
+
+      sub vcl_backend_response {
+        set beresp.ttl = 30d;
+        if (beresp.status == 404) {
+          set beresp.ttl = 1h;
+        }
+      }
+    '';
+  };
+
+  # Ensure that nginx doesn't hit a file limit with handling cache files
+  systemd.services.nginx.serviceConfig.LimitNOFILE = 65535;
+
   services.nginx = {
     enable = true;
     package = nginxMetadataServer;
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;
+    eventsConfig = ''
+      worker_connections 2048;
+    '';
     commonHttpConfig = ''
-      #log_format x-fwd '$remote_addr - $remote_user $upstream_cache_status [$time_local] '
-      log_format x-fwd '$remote_addr - $remote_user [$time_local] '
+      log_format x-fwd '$remote_addr - $remote_user $sent_http_x_cache [$time_local] '
                        '"$request" $status $body_bytes_sent '
                        '"$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
 
-      access_log syslog:server=unix:/dev/log x-fwd;
-      #access_log syslog:server=unix:/dev/log x-fwd if=$not_cached;
+      access_log syslog:server=unix:/dev/log x-fwd if=$loggable;
+
+      map $sent_http_x_cache $loggable_varnish {
+        default 1;
+        "hit cached" 0;
+      }
+
+      map $request_uri $loggable {
+        default $loggable_varnish;
+      }
     '';
 
     virtualHosts = {
@@ -134,10 +246,15 @@ in {
           webhookEndpoints = [
             "/webhook"
           ];
-          in (lib.genAttrs serverEndpoints (p: {
+          in (lib.recursiveUpdate (lib.genAttrs serverEndpoints (p: {
             proxyPass = "http://127.0.0.1:${toString metadataServerPort}${p}";
             extraConfig = corsConfig;
-          })) // (lib.genAttrs webhookEndpoints (p: {
+          })) {
+          # }))
+          # {
+          #   # Add varnish caching to only the `/metadata/query` endpoint
+          #   "/metadata/query".proxyPass = "http://127.0.0.1:6081/metadata/query";
+          }) // (lib.genAttrs webhookEndpoints (p: {
             proxyPass = "http://127.0.0.1:${toString metadataWebhookPort}${p}";
             extraConfig = corsConfig;
           }));
