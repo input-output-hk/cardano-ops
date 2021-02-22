@@ -54,6 +54,37 @@ let
     nginxMetadataServer = nginxSmash;
   };
 
+  varnish-overlay = self: super: rec {
+    inherit (super.callPackages ../pkgs/varnish {})
+      varnish60
+      varnish61
+      varnish62
+      varnish63
+      varnish64
+      varnish65;
+
+    inherit (super.callPackages ../pkgs/varnish/packages.nix { inherit
+      varnish60
+      varnish61
+      varnish62
+      varnish63
+      varnish64
+      varnish65;
+    })
+      varnish60Packages
+      varnish61Packages
+      varnish62Packages
+      varnish63Packages
+      varnish64Packages
+      varnish65Packages;
+
+    varnishPackages = varnish65Packages;
+    varnish = varnishPackages.varnish;
+    varnish-modules = varnishPackages.modules;
+
+    prometheus-varnish-exporter = super.callPackage ../pkgs/prometheus-varnish-exporter {};
+  };
+
   # our own overlays:
   local-overlays = [
     (import ./cardano.nix)
@@ -104,6 +135,7 @@ let
     [
       upstream-overlay
       nginx-overlay
+      varnish-overlay
       crystalEnvIsolated
     ];
 
