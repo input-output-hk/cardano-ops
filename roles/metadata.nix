@@ -93,9 +93,8 @@ in {
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
   services.varnish = {
-    enable = false;
-    # enable = true;
-    # extraModules = [ pkgs.varnishPackages.bodyaccess ];
+    enable = true;
+    extraModules = [ pkgs.varnish-modules ];
     config = ''
       vcl 4.1;
 
@@ -184,7 +183,7 @@ in {
       }
 
       sub vcl_backend_response {
-        set beresp.ttl = 30d;
+        set beresp.ttl = 4h;
         if (beresp.status == 404) {
           set beresp.ttl = 1h;
         }
@@ -249,11 +248,9 @@ in {
           in (lib.recursiveUpdate (lib.genAttrs serverEndpoints (p: {
             proxyPass = "http://127.0.0.1:${toString metadataServerPort}${p}";
             extraConfig = corsConfig;
-          })) {
-          # }))
-          # {
-          #   # Add varnish caching to only the `/metadata/query` endpoint
-          #   "/metadata/query".proxyPass = "http://127.0.0.1:6081/metadata/query";
+           })) {
+           # Add varnish caching to only the `/metadata/query` endpoint
+           "/metadata/query".proxyPass = "http://127.0.0.1:6081/metadata/query";
           }) // (lib.genAttrs webhookEndpoints (p: {
             proxyPass = "http://127.0.0.1:${toString metadataWebhookPort}${p}";
             extraConfig = corsConfig;
