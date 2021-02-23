@@ -101,7 +101,9 @@ in {
       log_format x-fwd '$remote_addr - $remote_user [$time_local] '
                         '"$request" $status $body_bytes_sent '
                         '"$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
+
       access_log syslog:server=unix:/dev/log x-fwd;
+
       limit_req_zone $binary_remote_addr zone=faucetPerIP:100m rate=1r/s;
       limit_req_status 429;
       server_names_hash_bucket_size 128;
