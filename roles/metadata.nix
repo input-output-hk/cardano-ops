@@ -6,7 +6,12 @@ let
   metadataServerPort = 8080;
   metadataWebhookPort = 8081;
   webhookKeys = import ../static/metadata-webhook-secrets.nix;
-  maxPostSizeCachableKb = 1;
+
+  # The maximum POST size allowed for a metadata/query body payload
+  maxPostSizeBodyKb = 1;
+
+  # The maximum cacheable POST size before varnish will disconnect and cause nginx to 502
+  maxPostSizeCachableKb = 50;
 in {
   environment = {
     systemPackages = with pkgs; [
@@ -117,10 +122,10 @@ in {
 
         # Allow PURGE from localhost
         if (req.method == "PURGE") {
-          if (!client.ip ~ purge) {
+          if (!std.ip(req.http.X-Real-Ip, "0.0.0.0") ~ purge) {
             return(synth(405,"Not allowed."));
           }
-          return (purge);
+          return(purge);
         }
 
         # Allow POST caching
@@ -129,8 +134,9 @@ in {
           std.cache_req_body(${toString maxPostSizeCachableKb}KB);
           set req.http.X-Body-Len = bodyaccess.len_req_body();
 
-          if (req.http.X-Body-Len == "-1") {
-            return(synth(400, "The request body size exceeds the limit"));
+          if ((std.integer(req.http.X-Body-Len, ${toString (1024 * maxPostSizeCachableKb)}) > ${toString (1024 * maxPostSizeBodyKb)}) ||
+              (req.http.X-Body-Len == "-1")) {
+            return(synth(413, "Payload Too Large"));
           }
           return(hash);
         }
@@ -163,14 +169,15 @@ in {
       }
 
       sub vcl_synth {
-        set req.http.x-cache = "synth synth";
+        set req.http.x-cache = "synth";
         set resp.http.x-cache = req.http.x-cache;
       }
 
       sub vcl_deliver {
         if (obj.uncacheable) {
           set req.http.x-cache = req.http.x-cache + " uncacheable";
-        } else {
+        }
+        else {
           set req.http.x-cache = req.http.x-cache + " cached";
         }
         set resp.http.x-cache = req.http.x-cache;
