@@ -99,23 +99,28 @@ in {
         .host = "127.0.0.1";
         .port = "3100";
       }
+
       acl purge {
         "localhost";
         "127.0.0.1";
       }
+
       sub vcl_recv {
         unset req.http.x-cache;
-        # allow PURGE from localhost
+
+        # Allow PURGE from localhost
         if (req.method == "PURGE") {
-          if (!client.ip ~ purge) {
-            return(synth(405,"Not allowed."));
+          if (!std.ip(req.http.X-Real-Ip, "0.0.0.0") ~ purge) {
+            return(synth(405,"Not Allowed"));
           }
-          return (purge);
+          return(purge);
         }
       }
+
       sub vcl_hit {
         set req.http.x-cache = "hit";
       }
+
       sub vcl_miss {
         set req.http.x-cache = "miss";
       }
@@ -136,11 +141,13 @@ in {
       sub vcl_deliver {
         if (obj.uncacheable) {
           set req.http.x-cache = req.http.x-cache + " uncacheable";
-        } else {
+        }
+        else {
           set req.http.x-cache = req.http.x-cache + " cached";
         }
         set resp.http.x-cache = req.http.x-cache;
       }
+
       sub vcl_backend_response {
         set beresp.ttl = 30d;
         if (beresp.status == 404) {

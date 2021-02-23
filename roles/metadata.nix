@@ -8,10 +8,10 @@ let
   webhookKeys = import ../static/metadata-webhook-secrets.nix;
 
   # The maximum POST size allowed for a metadata/query body payload
-  maxPostSizeBodyKb = 1;
+  maxPostSizeBodyKb = 64;
 
   # The maximum cacheable POST size before varnish will disconnect and cause nginx to 502
-  maxPostSizeCachableKb = 50;
+  maxPostSizeCachableKb = 100;
 in {
   environment = {
     systemPackages = with pkgs; [
@@ -123,7 +123,7 @@ in {
         # Allow PURGE from localhost
         if (req.method == "PURGE") {
           if (!std.ip(req.http.X-Real-Ip, "0.0.0.0") ~ purge) {
-            return(synth(405,"Not allowed."));
+            return(synth(405,"Not Allowed"));
           }
           return(purge);
         }
@@ -169,7 +169,7 @@ in {
       }
 
       sub vcl_synth {
-        set req.http.x-cache = "synth";
+        set req.http.x-cache = "synth synth";
         set resp.http.x-cache = req.http.x-cache;
       }
 
@@ -217,12 +217,17 @@ in {
 
       access_log syslog:server=unix:/dev/log x-fwd if=$loggable;
 
+      limit_req_zone $binary_remote_addr zone=metadataQueryPerIP:100m rate=1r/s;
+      limit_req_status 429;
+      server_names_hash_bucket_size 128;
+
       map $sent_http_x_cache $loggable_varnish {
         default 1;
         "hit cached" 0;
       }
 
       map $request_uri $loggable {
+        /status/format/prometheus 0;
         default $loggable_varnish;
       }
     '';
@@ -258,6 +263,10 @@ in {
            })) {
            # Add varnish caching to only the `/metadata/query` endpoint
            "/metadata/query".proxyPass = "http://127.0.0.1:6081/metadata/query";
+           "/metadata/query".extraConfig = ''
+             limit_req zone=metadataQueryPerIP;
+             ${corsConfig}
+           '';
           }) // (lib.genAttrs webhookEndpoints (p: {
             proxyPass = "http://127.0.0.1:${toString metadataWebhookPort}${p}";
             extraConfig = corsConfig;
