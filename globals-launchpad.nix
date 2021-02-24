@@ -17,4 +17,6 @@ pkgs: {
       };
     };
   };
+
+  alertChainDensityLow = "90";
 }
