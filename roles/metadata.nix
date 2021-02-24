@@ -217,7 +217,7 @@ in {
 
       access_log syslog:server=unix:/dev/log x-fwd if=$loggable;
 
-      limit_req_zone $binary_remote_addr zone=metadataQueryPerIP:100m rate=1r/s;
+      limit_req_zone $binary_remote_addr zone=metadataQueryPerIP:100m rate=10r/s;
       limit_req_status 429;
       server_names_hash_bucket_size 128;
 
@@ -264,7 +264,7 @@ in {
            # Add varnish caching to only the `/metadata/query` endpoint
            "/metadata/query".proxyPass = "http://127.0.0.1:6081/metadata/query";
            "/metadata/query".extraConfig = ''
-             limit_req zone=metadataQueryPerIP;
+             limit_req zone=metadataQueryPerIP burst=20 nodelay;
              ${corsConfig}
            '';
           }) // (lib.genAttrs webhookEndpoints (p: {
