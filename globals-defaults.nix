@@ -73,4 +73,40 @@ in {
   alertTcpCrit = "150";
   alertMbpsHigh = "150";
   alertMbpsCrit = "200";
+
+  ec2.instances = with pkgs; with iohk-ops-lib.physical.aws; {
+    inherit targetEnv;
+    core-node = t3a-medium;
+    relay-node = if globals.withHighLoadRelays
+      then t3-xlarge
+      else t3a-medium;
+    test-node = m5ad-xlarge;
+    smash = t3a-xlarge;
+    faucet = t3a-medium;
+    metadata = t3a-medium;
+    explorer = if globals.withHighCapacityExplorer
+      then c5-4xlarge
+      else t3a-xlarge;
+    monitoring = if globals.withHighCapacityMonitoring
+      then t3-2xlargeMonitor
+      else t3a-xlargeMonitor;
+  };
+
+  libvirtd.instances = with pkgs; with iohk-ops-lib.physical.libvirtd; {
+    inherit targetEnv;
+    core-node = medium;
+    relay-node = if globals.withHighLoadRelays
+      then medium
+      else large;
+    test-node = large;
+    smash = medium;
+    faucet = medium;
+    metadata = medium;
+    explorer = if globals.withHighCapacityExplorer
+      then large
+      else medium;
+    monitoring = if globals.withHighCapacityMonitoring
+      then large
+      else medium;
+  };
 }
