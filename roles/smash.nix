@@ -264,11 +264,17 @@ in {
           "/metrics2/exporter" = {
             proxyPass = "http://127.0.0.1:8080/";
           };
-          "/metrics/varnish" = {
-            proxyPass = "http://127.0.0.1:9131/metrics";
-          };
         };
       };
     };
   };
+
+  services.monitoring-exporters.extraPrometheusExporters = [
+    {
+      job_name = "smash-exporter";
+      scrape_interval = "10s";
+      metrics_path = "/metrics2/exporter";
+      labels = { alias = "smash-exporter"; };
+    }
+  ];
 }

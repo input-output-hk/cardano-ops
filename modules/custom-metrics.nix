@@ -361,5 +361,13 @@ in with pkgs; {
       };
       wantedBy = [ "timers.target" ];
     };
+
+    services.monitoring-exporters.extraPrometheusExporters = lib.optional (cfg.enableNetdata)
+      {
+        job_name = "netdata";
+        scrape_interval = "60s";
+        metrics_path = "/api/v1/allmetrics?format=prometheus";
+        port = globals.netdataExporterPort;
+      };
   };
 }

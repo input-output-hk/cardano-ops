@@ -157,15 +157,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
-        "branch": "master",
+        "branch": "extraPrometheusExporters",
         "description": "NixOps deployment configuration library for IOHK devops ",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "fd89385a37e7d37922c0f03ca7d26ec3bc626688",
-        "sha256": "00jx1q5ghzs0k4f2a5hn2jf97f4cbgal3b3jpwrshqpwlv2b1hcq",
+        "rev": "b0e17c04a4d9ab760dca263d1a214d3bbd971273",
+        "sha256": "146a22azd5bhwnfabwyz8zw82p8nchnb8fbg63yrrkhhd8aay94s",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/fd89385a37e7d37922c0f03ca7d26ec3bc626688.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/b0e17c04a4d9ab760dca263d1a214d3bbd971273.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "smash": {

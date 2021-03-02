@@ -89,7 +89,13 @@ in
     environment.variables = {
       CARDANO_NODE_SOCKET_PATH = cfg.socketPath;
     };
-    services.monitoring-exporters.extraPrometheusExportersPorts = genList (i: monitoringPort + i) cfg.instances;
+    services.monitoring-exporters.extraPrometheusExporters = genList (i: {
+      job_name = "cardano-node";
+      scrape_interval = "10s";
+      port = monitoringPort + i;
+      metrics_path = "/metrics";
+      labels = optionalAttrs (i > 0) { alias = "${name}.${toString i}"; };
+    }) cfg.instances;
     services.custom-metrics = {
       enable = true;
       statsdExporter = "node";

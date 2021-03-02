@@ -58,7 +58,10 @@ in {
 
   services.cardano-rosetta-server = {
     enable = true;
-    topologyFilePath = nodeCfg.topology;
+    topologyFilePath = iohkNix.cardanoLib.mkEdgeTopology {
+      edgeNodes = map (p: p.addr) nodeCfg.producers;
+      port = nodeCfg.port;
+    };
     cardanoCliPath = cardano-cli + /bin/cardano-cli;
     genesisPath = nodeCfg.nodeConfig.ShelleyGenesisFile;
     cardanoNodePath = cardano-node + /bin/cardano-node;
@@ -380,4 +383,20 @@ in {
       };
     };
   };
+
+  services.monitoring-exporters.extraPrometheusExporters = [
+    # TODO: remove once explorer exports metrics at path `/metrics`
+    {
+      job_name = "explorer-exporter";
+      scrape_interval = "10s";
+      metrics_path = "/metrics2/exporter";
+      labels = { alias = "explorer-exporter"; };
+    }
+    {
+      job_name = "cardano-graphql-exporter";
+      scrape_interval = "10s";
+      metrics_path = "/metrics2/cardano-graphql";
+      labels = { alias = "cardano-graphql-exporter"; };
+    }
+  ];
 }

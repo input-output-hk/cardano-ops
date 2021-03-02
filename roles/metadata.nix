@@ -278,11 +278,16 @@ in {
           #"/metrics/metadata" = {
           #  proxyPass = "http://127.0.0.1:8080/";
           #};
-          "/metrics/varnish" = {
-            proxyPass = "http://127.0.0.1:9131/metrics";
-          };
         };
       };
     };
   };
+
+  services.monitoring-exporters.extraPrometheusExporters = [
+    #{
+    #  job_name = "metadata";
+    #  scrape_interval = "10s";
+    #  metrics_path = "/metrics/metadata";
+    #}
+  ];
 }
