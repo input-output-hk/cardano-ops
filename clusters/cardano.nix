@@ -28,70 +28,6 @@ let
         roles.isMonitor = true;
         org = def.org or "IOHK";
       };
-
-      services.prometheus = {
-        scrapeConfigs = (lib.optionals globals.withExplorer ([
-          # TODO: remove once explorer exports metrics at path `/metrics`
-          {
-            job_name = "explorer-exporter";
-            scrape_interval = "10s";
-            metrics_path = "/metrics2/exporter";
-            static_configs = [{
-              targets = [ "explorer-ip" ];
-              labels = { alias = "explorer-exporter"; };
-            }];
-          }
-          {
-            job_name = "cardano-graphql-exporter";
-            scrape_interval = "10s";
-            metrics_path = "/metrics2/cardano-graphql";
-            static_configs = [{
-              targets = [ "explorer-ip" ];
-              labels = { alias = "cardano-graphql-exporter"; };
-            }];
-          }
-          ])) ++ (lib.optionals globals.withSmash [
-          {
-            job_name = "smash-exporter";
-            scrape_interval = "10s";
-            metrics_path = "/metrics2/exporter";
-            static_configs = [{
-              targets = [ "smash-ip" ];
-              labels = { alias = "smash-exporter"; };
-            }];
-          }
-          ]) ++ (lib.optional globals.withFaucet (
-          {
-            job_name = "cardano-faucet";
-            scrape_interval = "10s";
-            metrics_path = "/metrics";
-            static_configs = [{
-              targets = [ "${globals.faucetHostname}.${globals.domain}" ];
-              labels = { alias = "cardano-faucet"; };
-            }];
-          }
-          ));
-          #)) ++ (lib.optional globals.withMetadata (
-          #{
-          #  job_name = "metadata";
-          #  scrape_interval = "10s";
-          #  metrics_path = "/metrics";
-          #  static_configs = [{
-          #    targets = [ "metadata-ip" ];
-          #    labels = { alias = "metadata"; };
-          #  }];
-          #}));
-          #})) ++
-          #[{
-          #  job_name = "netdata";
-          #  scrape_interval = "60s";
-          #  metrics_path = "/api/v1/allmetrics?format=prometheus";
-          #  static_configs = pkgs.lib.traceValFn (x: __toJSON x) (map (n: {
-          #    targets = [ "${n.name}-ip:${toString globals.netdataExporterPort}" ];
-          #    labels = { alias = "${n.name}"; };
-          #  }) (coreNodes ++ relayNodes ++ (topology.testNodes or [])));
-          #}];
-      };
     } def;
   }) // (lib.optionalAttrs globals.withExplorer {
     explorer = let def = (topology.explorer or {}); in mkNode {
@@ -104,9 +40,6 @@ let
         (def.instance or instances.explorer)
         cardano-ops.roles.explorer
       ];
-
-      services.monitoring-exporters.extraPrometheusExportersPorts =
-        [ globals.cardanoNodePrometheusExporterPort ];
 
       services.cardano-node.allProducers = if (relayNodes != [])
         then [ pkgs.globals.relaysNew ]
