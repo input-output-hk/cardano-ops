@@ -184,8 +184,6 @@ main() {
                                       then fail "reinit:  cannot get era from params file -- use init instead."; fi
                                       params_init "$node_count" "$era" "$topology" "$@"
                                       rparmjq 'del(.meta) | keys';;
-                recreate-cluster | recreate )
-                                      params_recreate_cluster "$@";;
 
                 deploy )              profile_deploy "$@";;
                 update-deployfiles | update )
@@ -259,12 +257,9 @@ EOF
 
                 profiles | profile | p )
                                       op_bench "$@";;
-                profiles-jq | pjq )
-                                      local q=$1; shift
-                                      op_bench "jq($q)" "$@";;
-                rerun-profile | rerun | re )
-                                      op_bench "$(jq --raw-output .meta.profile ./last-meta.json)";;
-                smoke-test | smoke )  op_bench 'smoke';;
+                profiles-jq | pjq )   local batch=$1 query=$2; shift 2
+                                      op_bench "$batch" "jq($query)" "$@";;
+                smoke-test | smoke )  op_bench 'smoke' 'smoke';;
 
                 list-runs | runs | ls )
                                       ls -1 runs/*/meta.json | cut -d/ -f2;;
@@ -299,11 +294,13 @@ EOF
 ###
 
 op_bench() {
-        local prof=${1:?Usage:  bench profile PROFILE}
+        local batch=${1:?Usage:  bench profile BATCH PROFILE}
+        local  prof=${2:?Usage:  bench profile BATCH PROFILE}
         local benchmark_schedule
+        shift 1
 
         if   test "$1" = 'all'
-        then benchmark_schedule=($(params profiles))
+        then benchma1k_schedule=($(params profiles))
         elif case "$1" in jq\(*\) ) true;; * ) false;; esac
         then local query=$(sed 's_^jq(\(.*\))$_\1_' <<<$1)
              oprint "selecting profiles with:  $query"
@@ -314,26 +311,26 @@ op_bench() {
         fi
 
         if test ${#benchmark_schedule[*]} -gt 1
-        then oprint "benchmark across profiles:  ${benchmark_schedule[*]}"; fi
+        then oprint "batch ${batch}:  benchmarking profiles:  ${benchmark_schedule[*]}"; fi
 
         for p in ${benchmark_schedule[*]}
-        do bench_profile "${p}"
+        do bench_profile "$batch" "${p}"
         done
 }
 
 bench_profile() {
-        local profspec="${1:-default}" prof deploylog
+        local batch=$1 profspec=${2:-default} prof deploylog
         prof=$(params resolve-profile "$profspec")
 
-        oprint "benchmarking profile:  ${prof:?Unknown profile $profspec, see ${paramsfile}}"
+        oprint "benchmarking profile:  ${prof:?Unknown profile $profspec, see ${paramsfile}}, batch $batch"
         deploylog='./last-deploy.log'
         if test -z "$no_deploy"
         then oprint "deploying profile.."
-             time profile_deploy "${prof}"
+             time profile_deploy "$batch" "$prof"
         else oprint "NOT deploying profile, due to --no-deploy!"
         fi
 
-        op_bench_start "${prof}" "${deploylog}"
+        op_bench_start "$batch" "$prof" "$deploylog"
         ret=$?
 
         local tag dir
@@ -355,7 +352,7 @@ bench_profile() {
 }
 
 op_bench_start() {
-        local prof="$1" deploylog="$2" tag dir
+        local batch=$1 prof=$2 deploylog=$3 tag dir
 
         if ! params has-profile "${prof}"
         then fail "Unknown profile '${prof}': check ${paramsfile}"; fi
@@ -406,10 +403,10 @@ op_bench_start() {
            grep "TraceNoLedgerView" >/dev/null
         then fail "no ledger view, cluster is dead."; fi
 
-        tag=$(generate_run_tag "${prof}")
+        tag=$(generate_run_tag "${batch}" "${prof}")
         dir="./runs/${tag}"
         oprint "creating new run:  ${tag}"
-        op_register_new_run "${prof}" "${tag}" "${deploylog}"
+        op_register_new_run "${batch}" "${prof}" "${tag}" "${deploylog}"
 
         time { oprint "$(date), starting generator.."
                nixops ssh explorer "systemctl start tx-generator"
@@ -445,8 +442,18 @@ fetch_systemd_unit_startup_logs() {
         popd >/dev/null
 }
 
+git_local_repo_query_description() {
+        local pins=$1 name=$2 pin
+
+        pin=$(jq ".\"$name\"" <<<$pins)
+
+        test -d "../$name/.git" &&
+        git -C "../$name/" describe --match '1.*' --tags "${pin}" 2>/dev/null | cut -d- -f1,2 ||
+        true
+}
+
 op_register_new_run() {
-        local prof="$1" tag="$2" deploylog="$3"
+        local batch=$1 prof=$2 tag=$3 deploylog=$4
 
         test -f "${deploylog}" ||
                 fail "no deployment log found, but is required for registering a new benchmarking run."
@@ -488,10 +495,14 @@ EOF
         jq      > "${metafile}" "
 { meta:
   { tag:               \"${tag}\"
+  , batch:             \"${batch}\"
   , profile:           \"${prof}\"
   , genesis_cache_id:  \"$(genesis_cache_id "$(profgenjq "$prof" .)")\"
   , timestamp:         ${stamp}
   , date:              \"${date}\"
+  , node_commit_desc:  \"$(git_local_repo_query_description \
+                              \"$(depljq explorer .pins)\"
+                              'cardano-node')\"
   , pins:              $(depljq explorer  .pins)
   , profile_content:   $(profjq "${prof}" .)
   , manifest:

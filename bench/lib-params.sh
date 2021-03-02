@@ -16,20 +16,6 @@ get_topology_file() {
         realpath "$__BENCH_BASEPATH"/../topologies/bench-${type}-${node_count}.nix
 }
 
-params_recreate_cluster() {
-        local n=$1 prof=${2:-default}
-
-        oprint "reconfiguring cluster to size $n, profile $prof"
-        deploystate_destroy
-
-        params_init "$n"
-        deploystate_create
-
-        ## This can be done only after the paramsfile is updated.
-        prof=$(params resolve-profile "$prof")
-        profile_deploy "$prof"
-}
-
 topology_id_pool_density_map() {
         local topology_file=${1:-}
 

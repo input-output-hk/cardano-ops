@@ -17,11 +17,11 @@ profgenjq()
 }
 
 profile_deploy() {
-        local prof="${1:-default}" include=()
+        local batch=$1 prof=${2:-default} include=()
         prof=$(params resolve-profile "$prof")
 
         mkdir -p runs/deploy-logs
-        deploylog=runs/deploy-logs/$(timestamp).deploy.$prof.log
+        deploylog=runs/deploy-logs/$(timestamp).$batch.$prof.log
 
         mkdir -p "$(dirname "$deploylog")"
         echo >"$deploylog"
