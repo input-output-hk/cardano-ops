@@ -3,19 +3,19 @@ let
 
   regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
-      minRelays = 4;
+      minRelays = 3;
     };
     b = { name = "us-east-2";      # US East (Ohio)
       minRelays = 2;
     };
     c = { name = "ap-southeast-1"; # Asia Pacific (Singapore)
-      minRelays = 2;
+      minRelays = 1;
     };
     d = { name = "eu-west-2";      # Europe (London)
-      minRelays = 3;
+      minRelays = 1;
     };
     e = { name = "us-west-1";      # US West (N. California)
-      minRelays = 2;
+      minRelays = 1;
     };
     f = { name = "ap-northeast-1"; # Asia Pacific (Tokyo)
       minRelays = 1;
