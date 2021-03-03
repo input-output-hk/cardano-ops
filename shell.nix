@@ -63,6 +63,7 @@ let
     '';
 in  mkShell rec {
   buildInputs = [
+    awscli2
     bashInteractive
     cardano-cli
     dnsutils
