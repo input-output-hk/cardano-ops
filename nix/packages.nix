@@ -61,6 +61,11 @@ self: super: with self; {
     jq -s 'add' $out/countries-index.json $out/usa-index.json > $out/state-index.json
   '';
 
+  # workaround https://github.com/NixOS/nixpkgs/issues/47900
+  awscli2 = (super.awscli2.overrideAttrs (old: {
+    makeWrapperArgs = (old.makeWrapperArgs or []) ++ ["--unset" "PYTHONPATH"];
+  }));
+
   topology-lib = import ./topology-lib.nix self;
 
   relayUpdateTimer =
