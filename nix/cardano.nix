@@ -12,10 +12,4 @@ in rec {
   inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.cardano-node.components.exes) cardano-node;
   inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.network-mux.components.exes) cardano-ping;
   inherit (cardano-rosetta-pkgs) cardano-rosetta-server;
-
-  cardano-cli-completions = self.runCommand "cardano-cli-completions" {} ''
-    BASH_COMPLETIONS=$out/share/bash-completion/completions
-    mkdir -p $BASH_COMPLETIONS
-    ${self.cardano-cli}/bin/cardano-cli --bash-completion-script cardano-cli > $BASH_COMPLETIONS/cardano-cli
-  '';
 }
