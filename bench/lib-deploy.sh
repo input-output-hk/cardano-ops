@@ -53,9 +53,9 @@ update_deployfiles() {
           , genesis_hash:      \"$(genesis_hash)\"
           , profile_content:   $(profjq "${prof}" .)
           , pins:
-            { benchmarking:    $(jq '.["cardano-benchmarking"].rev' nix/sources.json)
-            , node:            $(jq '.["cardano-node"].rev'         nix/sources.bench.json)
-            , ops:             \"$(git rev-parse HEAD)\"
+            { \"cardano-benchmarking\":  $(jq '.["cardano-benchmarking"].rev' nix/sources.json)
+            , \"cardano-node\":          $(jq '.["cardano-node"].rev'         nix/sources.bench.json)
+            , \"cardano-ops\":           \"$(git rev-parse HEAD)\"
             }
           , ops_modified:      $(if git diff --quiet --exit-code
                                  then echo false; else echo true; fi)
@@ -118,7 +118,6 @@ deploystate_deploy_profile() {
         ops_rev=$(git rev-parse HEAD)
         ops_branch=$(maybe_local_repo_branch . ${ops_rev})
         ops_checkout_state=$(git diff --quiet --exit-code || echo '(modified)')
-        to=${include:-the entire cluster}
 
         if ! nixops info >/dev/null 2>&1
         then oprint "nixops info returned status $?, creating deployment.."
@@ -126,7 +125,7 @@ deploystate_deploy_profile() {
         fi
 
         cat <<EOF
---( deploying profile $prof to:  ${to#--include }
+--( deploying profile $prof
 --(   era:           $era
 --(   topology:      $topology
 --(   node:          $node_rev
@@ -157,13 +156,13 @@ EOF
 
              oprint "deploying non-host resources first:  ${other_resources[*]}"
              time deploy_resources "$prof" "$deploylog" "$watcher_pid" \
-                                   explorer ${other_resources[*]}
+                                   ${other_resources[*]}
 
              local base=0 batch
              while test $base -lt $host_count
              do local batch=(${host_resources[*]:$base:$max_batch})
                 oprint "deploying host batch:  ${batch[*]}"
-                time deploy_resources "$prof" "$deploylog" ${batch[*]}
+                time deploy_resources "$prof" "$deploylog" "$watcher_pid" ${batch[*]}
                 oprint "deployed batch of ${#batch[*]} nodes:  ${batch[*]}"
                 base=$((base + max_batch))
              done
@@ -239,7 +238,7 @@ deploystate_collect_machine_info() {
         local cmd
         cmd=(
                 eval echo
-                '\"$(hostname)\": { \"local_ip\": \"$(ip addr show scope global | sed -n "/^    inet / s_.*inet \([0-9\.]*\)/.*_\1_; T skip; p; :skip")\", \"public_ip\": \"$(curl --silent http://169.254.169.254/latest/meta-data/public-ipv4)\", \"account\": $(curl --silent http://169.254.169.254/latest/meta-data/identity-credentials/ec2/info | jq .AccountId), \"placement\": $(curl --silent http://169.254.169.254/latest/meta-data/placement/availability-zone | jq --raw-input), \"sgs\": $(curl --silent http://169.254.169.254/latest/meta-data/security-groups | jq --raw-input | jq --slurp), \"timestamp\": $(date +%s), \"timestamp_readable\": \"$(date)\" }'
+                '\"$(hostname)\": { \"local_ip\": \"$(ip addr show scope global | sed -n "/^    inet / s_.*inet \([0-9\.]*\)/.*_\1_; T skip; p; :skip")\", \"public_ip\": \"$(curl --silent http://169.254.169.254/latest/meta-data/public-ipv4)\", \"placement\": \"$(curl --silent http://169.254.169.254/latest/meta-data/placement/availability-zone)\", \"timestamp\": $(date +%s), \"timestamp_readable\": \"$(date)\" }'
         )
         nixops ssh-for-each --parallel -- "${cmd[@]@Q}" 2>&1 | cut -d'>' -f2-
 }

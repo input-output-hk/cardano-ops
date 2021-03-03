@@ -40,28 +40,14 @@ profile_deploy() {
         if test -n "$watcher_pid"
         then kill "$watcher_pid" >/dev/null 2>&1 || true; fi
 
-        ## Determine if genesis update is necessary:
-        ## 1. profile incompatible?
-        regenesis_causes=(mandatory)
-
-        if   ! genesisjq . >/dev/null 2>&1
-        then regenesis_causes+=('missing-or-malformed-genesis-metadata')
-        else
-             if   njqtest "
-                  $(genesisjq .params) !=
-                  $(profjq "${prof}" .genesis)"
-             then regenesis_causes+=('profile-requires-new-genesis'); fi; fi
-
-        if test -n "${regenesis_causes[*]}"
-        then oprint "regenerating genesis, because:  ${regenesis_causes[*]}"
-             local genesislog
-             genesislog=runs/$(timestamp).genesis.$prof.log
-             profile_genesis "$prof" 2>&1 || {
-                     fprint "genesis generation failed:"
-                     cat "$genesislog" >&2
-                     exit 1
-             } | tee "$genesislog";
-        fi
+        oprint "regenerating genesis.."
+        local genesislog
+        genesislog=runs/$(timestamp).genesis.$prof.log
+        profile_genesis "$prof" 2>&1 || {
+                fprint "genesis generation failed:"
+                cat "$genesislog" >&2
+                exit 1
+        } | tee "$genesislog";
 
         include="explorer $(params producers)"
 

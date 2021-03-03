@@ -70,6 +70,7 @@ usage_extra() {
 
     --fast-unsafe         Ignore safety, go fast.  Deploys won't be made,
                             unprocessed logs will be lost.
+    --pre-deploy          An extra deployment phase, before the genesis is generated.
     --deploy              Force redeployment, event if benchmarking
                             a single profile.
     --keep-genesis        Only update genesis start time & hash,
@@ -113,6 +114,7 @@ no_prebuild=
 no_deploy=
 no_analysis=
 no_wait=
+predeploy=
 force_deploy=
 reuse_genesis=
 watch_deploy=
@@ -133,6 +135,7 @@ main() {
            --no-deploy | --skip-deploy )     no_deploy=t;;
            --no-analysis | --skip-analysis ) no_analysis=t;;
            --deploy )             force_deploy=t;;
+           --pre-deploy | --predeploy ) predeploy=t;;
            --reuse-genesis | --keep-genesis )
                                   reuse_genesis=t;;
            --watch | --watch-deploy )
@@ -443,9 +446,7 @@ fetch_systemd_unit_startup_logs() {
 }
 
 git_local_repo_query_description() {
-        local pins=$1 name=$2 pin
-
-        pin=$(jq ".\"$name\"" <<<$pins)
+        local name=$1 pin=$2
 
         test -d "../$name/.git" &&
         git -C "../$name/" describe --match '1.*' --tags "${pin}" 2>/dev/null | cut -d- -f1,2 ||
@@ -490,6 +491,7 @@ EOF
         local date=$(date "+%Y-%m-%d-%H.%M.%S") stamp=$(date +%s)
         touch                 "${dir}/${date}"
 
+        oprint "creating the initial run metafile"
         local        metafile="${dir}"/meta.json
         ln -sf    "${metafile}" last-meta.json
         jq      > "${metafile}" "
@@ -501,26 +503,10 @@ EOF
   , timestamp:         ${stamp}
   , date:              \"${date}\"
   , node_commit_desc:  \"$(git_local_repo_query_description \
-                              \"$(depljq explorer .pins)\"
-                              'cardano-node')\"
+                              'cardano-node' \
+                              $(depljq explorer .pins.cardano-node))\"
   , pins:              $(depljq explorer  .pins)
   , profile_content:   $(profjq "${prof}" .)
-  , manifest:
-    [ \"${date}\"
-    , \"${paramsfilename}\"
-    , \"${deployfilename[explorer]}\"
-    , \"${deployfilename[producers]}\"
-    , \"meta.json\"
-    , \"genesis.json\"
-
-    , \"meta/cluster.raw.json\"
-
-    , \"logs/deploy.log\"
-    , \"logs/block-arrivals.gauge\"
-    , \"logs/logs-explorer.tar.xz\"
-    , \"logs/logs-nodes.tar.xz\"
-
-    , \"tools/*.sh\" ]
   , deployment_state:
     { explorer:  $(depljq explorer  .)
     , producers: $(depljq producers .)
