@@ -133,15 +133,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
-        "branch": "nixos-20.03",
+        "branch": "nixos-20.09",
         "description": "Nix Packages collection",
-        "homepage": "",
-        "owner": "NixOS",
+        "homepage": null,
+        "owner": "input-output-hk",
         "repo": "nixpkgs",
-        "rev": "db31e48c5c8d99dcaf4e5883a96181f6ac4ad6f6",
-        "sha256": "1j5j7vbnq2i5zyl8498xrf490jca488iw6hylna3lfwji6rlcaqr",
+        "rev": "1b62dba204e0f8084c7cc26f0ade3bba126feec8",
+        "sha256": "1g975ga28kah4xzjsavpim0v9m9zfvaacvh2vcxbl5rzmxsdpvr4",
         "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/db31e48c5c8d99dcaf4e5883a96181f6ac4ad6f6.tar.gz",
+        "url": "https://github.com/input-output-hk/nixpkgs/archive/1b62dba204e0f8084c7cc26f0ade3bba126feec8.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs-crystal": {
