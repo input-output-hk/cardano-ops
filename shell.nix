@@ -76,7 +76,6 @@ in  mkShell rec {
     node-update
     telnet
     test-cronjob-script
-    cardano-cli-completions
     cardano-ping
     hoursUntilNextEpoch
     relayUpdateTimer

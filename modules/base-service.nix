@@ -85,7 +85,7 @@ in
 
   config = {
 
-    environment.systemPackages = [ pkgs.cardano-cli pkgs.cardano-cli-completions ];
+    environment.systemPackages = [ pkgs.cardano-cli ];
     environment.variables = {
       CARDANO_NODE_SOCKET_PATH = cfg.socketPath;
     };
