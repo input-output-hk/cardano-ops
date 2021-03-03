@@ -2,12 +2,12 @@
 let
   sources = import ./nix/sources.nix;
   pkgs = import ./nix {};
+  shell = import ./shell.nix { inherit pkgs; }
 
 in pkgs.lib.fix (self: {
   inherit (pkgs)
-    kes-rotation
+    shell
     nginxExplorer
-    node-update
     prometheus-varnish-exporter
     varnish
     varnish-modules;
