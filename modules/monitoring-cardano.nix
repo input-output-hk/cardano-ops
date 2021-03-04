@@ -26,7 +26,7 @@ in {
     {
       alert = "mempoolsize_tx_count_too_large";
       expr = "max_over_time(cardano_node_metrics_txsInMempool_int[5m]) > ${memPoolHigh}";
-      for = "1m";
+      for = "5m";
       labels = {
         severity = "page";
       };
@@ -72,7 +72,19 @@ in {
       };
     }
     {
-      alert = "cardano_new_node_KES_expiration_metric_notice";
+      alert = "cardano_new_node_KES_expiration_metric_10day_notice";
+      expr = "cardano_node_genesis_slotLength * cardano_node_genesis_slotsPerKESPeriod * on (alias) cardano_node_metrics_remainingKESPeriods_int < (10 * 24 * 3600) + 1";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: cardano-node KES expiration notice: less than 10 days until KES expiration";
+        description = "{{$labels.alias}}: cardano-node KES expiration notice: less than 10 days until KES expiration; calculated from node metrics";
+      };
+    }
+    {
+      alert = "cardano_new_node_KES_expiration_metric_5day_notice";
       expr = "cardano_node_genesis_slotLength * cardano_node_genesis_slotsPerKESPeriod * on (alias) cardano_node_metrics_remainingKESPeriods_int < (5 * 24 * 3600) + 1";
       for = "5m";
       labels = {
@@ -84,7 +96,7 @@ in {
       };
     }
     {
-      alert = "cardano_new_node_KES_expiration_metric_warning";
+      alert = "cardano_new_node_KES_expiration_metric_1day_warning";
       expr = "cardano_node_genesis_slotLength * cardano_node_genesis_slotsPerKESPeriod * on (alias) cardano_node_metrics_remainingKESPeriods_int < (24 * 3600) + 1";
       for = "5m";
       labels = {
@@ -96,7 +108,7 @@ in {
       };
     }
     {
-      alert = "cardano_new_node_KES_expiration_metric_critical";
+      alert = "cardano_new_node_KES_expiration_metric_4hour_critical";
       expr = "cardano_node_genesis_slotLength * cardano_node_genesis_slotsPerKESPeriod * on (alias) cardano_node_metrics_remainingKESPeriods_int < (4 * 3600) + 1";
       for = "5m";
       labels = {
@@ -108,7 +120,21 @@ in {
       };
     }
     {
-      alert = "cardano_new_node_KES_expiration_decoded_notice";
+      alert = "cardano_new_node_KES_expiration_decoded_10day_notice";
+      expr = "(cardano_node_genesis_slotLength * (cardano_node_genesis_slotsPerKESPeriod " +
+             "* ((cardano_node_decode_kesCreatedPeriod > -1) + cardano_node_genesis_maxKESEvolutions)) " +
+             "- on(alias) (cardano_node_genesis_slotLength * on (alias) cardano_node_metrics_slotNum_int)) < (10 * 24 * 3600) + 1";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: cardano-node KES expiration notice: less than 10 days until KES expiration";
+        description = "{{$labels.alias}}: cardano-node KES expiration notice: less than 10 days until KES expiration; calculated from opcert decoding";
+      };
+    }
+    {
+      alert = "cardano_new_node_KES_expiration_decoded_5day_notice";
       expr = "(cardano_node_genesis_slotLength * (cardano_node_genesis_slotsPerKESPeriod " +
              "* ((cardano_node_decode_kesCreatedPeriod > -1) + cardano_node_genesis_maxKESEvolutions)) " +
              "- on(alias) (cardano_node_genesis_slotLength * on (alias) cardano_node_metrics_slotNum_int)) < (5 * 24 * 3600) + 1";
@@ -122,7 +148,7 @@ in {
       };
     }
     {
-      alert = "cardano_new_node_KES_expiration_decoded_warning";
+      alert = "cardano_new_node_KES_expiration_decoded_1day_warning";
       expr = "(cardano_node_genesis_slotLength * (cardano_node_genesis_slotsPerKESPeriod " +
              "* ((cardano_node_decode_kesCreatedPeriod > -1) + cardano_node_genesis_maxKESEvolutions)) " +
              "- on(alias) (cardano_node_genesis_slotLength * on (alias) cardano_node_metrics_slotNum_int)) < (24 * 3600) + 1";
@@ -136,7 +162,7 @@ in {
       };
     }
     {
-      alert = "cardano_new_node_KES_expiration_decoded_critical";
+      alert = "cardano_new_node_KES_expiration_decoded_4hour_critical";
       expr = "(cardano_node_genesis_slotLength * (cardano_node_genesis_slotsPerKESPeriod " +
              "* ((cardano_node_decode_kesCreatedPeriod > -1) + cardano_node_genesis_maxKESEvolutions)) " +
              "- on(alias) (cardano_node_genesis_slotLength * on (alias) cardano_node_metrics_slotNum_int)) < (4 * 3600) + 1";
