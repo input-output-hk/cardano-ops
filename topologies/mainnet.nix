@@ -132,6 +132,9 @@ in {
   };
 
   metadata = {
-    node.org = "CF";
+    node = {
+      org = "CF";
+      roles.isPublicSsh = true;
+    };
   };
 }

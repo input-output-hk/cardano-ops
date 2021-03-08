@@ -28,6 +28,7 @@ in {
         isFaucet = boolOption;
         isMonitor = boolOption;
         isMetadata = boolOption;
+        isPublicSsh = boolOption;
         isSmash = boolOption;
       };
     };
