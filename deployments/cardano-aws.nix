@@ -60,6 +60,10 @@ let
       groups = [ allow-public-www-https ];
     }
     {
+      nodes = (filterAttrs (_: n: n.node.roles.isPublicSsh or false) nodes);
+      groups = [ allow-ssh ];
+    }
+    {
       inherit nodes;
       groups = [ allow-deployer-ssh ]
                ++ optional doMonitoring
