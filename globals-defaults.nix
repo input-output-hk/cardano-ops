@@ -158,6 +158,7 @@ in {
     monitoring = if globals.withHighCapacityMonitoring
       then t3-2xlargeMonitor
       else t3a-xlargeMonitor;
+    dense-pool = c5-2xlarge;
   };
 
   libvirtd.instances = with iohk-ops-lib.physical.libvirtd; {

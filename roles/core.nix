@@ -9,6 +9,7 @@ let
   vrfKey = ../keys/node-keys/node-vrf + "${toString nodeId}.skey";
   kesKey = ../keys/node-keys/node-kes + "${toString nodeId}.skey";
   operationalCertificate = ../keys/node-keys/node + "${toString nodeId}.opcert";
+  bulkCredentials = ../keys/node-keys/bulk + "${toString nodeId}.creds";
 
   keysConfig = rec {
     RealPBFT = {
@@ -36,45 +37,84 @@ let
         };
       };
     };
-    TPraos = {
-      _file = ./core.nix;
-      services.cardano-node = {
-        kesKey = "/var/lib/keys/cardano-node-kes-signing";
-        vrfKey = "/var/lib/keys/cardano-node-vrf-signing";
-        operationalCertificate = "/var/lib/keys/cardano-node-operational-cert";
-      };
+    TPraos =
+      {
+        _file = ./core.nix;
 
-      systemd.services."cardano-node" = {
-        after = [ "cardano-node-vrf-signing-key.service" "cardano-node-kes-signing-key.service" "cardano-node-operational-cert-key.service" ];
-        wants = [ "cardano-node-vrf-signing-key.service" "cardano-node-kes-signing-key.service" "cardano-node-operational-cert-key.service" ];
-        partOf = [ "cardano-node-vrf-signing-key.service" "cardano-node-kes-signing-key.service" "cardano-node-operational-cert-key.service" ];
-      };
+        services.cardano-node =
+          if (! config.node.roles.isCardanoDensePool)
+          then {
+            kesKey = "/var/lib/keys/cardano-node-kes-signing";
+            vrfKey = "/var/lib/keys/cardano-node-vrf-signing";
+            operationalCertificate = "/var/lib/keys/cardano-node-operational-cert";
+            extraArgs = [ "+RTS" "-l-agu" "-t" "--machine-readable" "-RTS"];
+          } else {
+            extraArgs = [ "+RTS" "-l-agu" "-t" "--machine-readable" "-RTS" "--bulk-credentials-file" "/var/lib/keys/cardano-node-bulk-credentials"];
+          };
 
-      deployment.keys = {
-        "cardano-node-vrf-signing" = builtins.trace ("${name}: using " + (toString vrfKey)) {
-            keyFile = vrfKey;
-            user = "cardano-node";
-            group = "cardano-node";
-            destDir = "/var/lib/keys";
-        };
-        "cardano-node-kes-signing" = builtins.trace ("${name}: using " + (toString kesKey)) {
-            keyFile = kesKey;
-            user = "cardano-node";
-            group = "cardano-node";
-            destDir = "/var/lib/keys";
-        };
-        "cardano-node-operational-cert" = builtins.trace ("${name}: using " + (toString operationalCertificate)) {
-            keyFile = operationalCertificate;
-            user = "cardano-node";
-            group = "cardano-node";
-            destDir = "/var/lib/keys";
-        };
+        systemd.services."cardano-node" =
+          if (! config.node.roles.isCardanoDensePool)
+          then {
+            after = [ "cardano-node-vrf-signing-key.service" "cardano-node-kes-signing-key.service" "cardano-node-operational-cert-key.service" ];
+            wants = [ "cardano-node-vrf-signing-key.service" "cardano-node-kes-signing-key.service" "cardano-node-operational-cert-key.service" ];
+            partOf = [ "cardano-node-vrf-signing-key.service" "cardano-node-kes-signing-key.service" "cardano-node-operational-cert-key.service" ];
+          } else {
+            after  = [ "cardano-node-bulk-credentials-key.service" ];
+            wants  = [ "cardano-node-bulk-credentials-key.service" ];
+            partOf = [ "cardano-node-bulk-credentials-key.service" ];
+          };
+
+        deployment.keys =
+          if (! config.node.roles.isCardanoDensePool)
+          then {
+            "cardano-node-vrf-signing" = builtins.trace ("${name}: using " + (toString vrfKey)) {
+              keyFile = vrfKey;
+              user = "cardano-node";
+              group = "cardano-node";
+              destDir = "/var/lib/keys";
+            };
+            "cardano-node-kes-signing" = builtins.trace ("${name}: using " + (toString kesKey)) {
+              keyFile = kesKey;
+              user = "cardano-node";
+              group = "cardano-node";
+              destDir = "/var/lib/keys";
+            };
+            "cardano-node-operational-cert" = builtins.trace ("${name}: using " + (toString operationalCertificate)) {
+              keyFile = operationalCertificate;
+              user = "cardano-node";
+              group = "cardano-node";
+              destDir = "/var/lib/keys";
+            };
+          } else {
+            "cardano-node-bulk-credentials" = builtins.trace ("${name}: using " + (toString bulkCredentials)) {
+              keyFile = bulkCredentials;
+              user = "cardano-node";
+              group = "cardano-node";
+              destDir = "/var/lib/keys";
+            };
+          };
       };
-    };
     Cardano =
       if !(builtins.pathExists signingKey) then TPraos
       else if !(builtins.pathExists vrfKey) then RealPBFT
       else lib.recursiveUpdate TPraos RealPBFT;
+  };
+  eraSkipConfig = era: {
+    services.cardano-node.nodeConfig =
+      ({
+        shelley =
+          { TestShelleyHardForkAtEpoch = 0;
+          };
+        allegra =
+          { TestShelleyHardForkAtEpoch = 0;
+            TestAllegraHardForkAtEpoch = 0;
+          };
+        mary =
+          { TestShelleyHardForkAtEpoch = 0;
+            TestAllegraHardForkAtEpoch = 0;
+            TestMaryHardForkAtEpoch = 0;
+          };
+      }).${era};
   };
 
 in {
@@ -82,6 +122,7 @@ in {
   imports = [
     cardano-ops.modules.base-service
     keysConfig.${globals.environmentConfig.nodeConfig.Protocol}
+    (eraSkipConfig globals.environmentConfig.generatorConfig.era)
   ];
 
   users.users.cardano-node.extraGroups = [ "keys" ];
