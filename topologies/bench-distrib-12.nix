@@ -6,7 +6,7 @@
       org = "IOHK";
       region = "eu-central-1";
       producers = ["node-1" "node-2" "node-3" "node-4" "node-5" "node-6" "node-7" "node-8" "node-9" "node-10" "node-11"];
-      stakePool = true;
+      pools = 1;
     }
     {
       name = "node-1";
@@ -14,7 +14,7 @@
       org = "IOHK";
       region = "eu-central-1";
       producers = ["node-0" "node-2" "node-3" "node-4" "node-5" "node-6" "node-7" "node-8" "node-9" "node-10" "node-11"];
-      stakePool = true;
+      pools = 1;
     }
     {
       name = "node-2";
@@ -29,7 +29,7 @@
       org = "IOHK";
       region = "eu-central-1";
       producers = ["node-0" "node-1" "node-2" "node-4" "node-5" "node-6" "node-7" "node-8" "node-9" "node-10" "node-11"];
-      stakePool = true;
+      pools = 1;
     }
     {
       name = "node-4";
@@ -37,7 +37,7 @@
       org = "IOHK";
       region = "ap-southeast-2";
       producers = ["node-0" "node-1" "node-2" "node-3" "node-5" "node-6" "node-7" "node-8" "node-9" "node-10" "node-11"];
-      stakePool = true;
+      pools = 1;
     }
     {
       name = "node-5";
@@ -52,7 +52,7 @@
       org = "IOHK";
       region = "ap-southeast-2";
       producers = ["node-0" "node-1" "node-2" "node-3" "node-4" "node-5" "node-7" "node-8" "node-9" "node-10" "node-11"];
-      stakePool = true;
+      pools = 1;
     }
     {
       name = "node-7";
@@ -60,7 +60,7 @@
       org = "IOHK";
       region = "ap-southeast-2";
       producers = ["node-0" "node-1" "node-2" "node-3" "node-4" "node-5" "node-6" "node-8" "node-9" "node-10" "node-11"];
-      stakePool = true;
+      pools = 1;
     }
 
     {
@@ -76,7 +76,7 @@
       org = "IOHK";
       region = "us-east-1";
       producers = ["node-0" "node-1" "node-2" "node-3" "node-4" "node-5" "node-6" "node-7" "node-8" "node-10" "node-11"];
-      stakePool = true;
+      pools = 1;
     }
     {
       name = "node-10";
@@ -84,7 +84,7 @@
       org = "IOHK";
       region = "us-east-1";
       producers = ["node-0" "node-1" "node-2" "node-3" "node-4" "node-5" "node-6" "node-7" "node-8" "node-9" "node-11"];
-      stakePool = true;
+      pools = 1;
     }
     {
       name = "node-11";

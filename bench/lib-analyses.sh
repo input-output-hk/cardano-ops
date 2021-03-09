@@ -27,7 +27,6 @@ analysis_unpack() {
 
         tar x -C "$dir"/analysis -af "$dir"/logs/logs-explorer.tar.xz
         tar x -C "$dir"/analysis -af "$dir"/logs/logs-nodes.tar.xz
-        tar x -C "$dir"/analysis -af "$dir"/logs/db-analysis.tar.xz '00-results-table.sql.csv'
 }
 
 analysis_list+=(analysis_log_inventory)
@@ -51,31 +50,6 @@ analysis_log_inventory()
                                        | max_by(.latest) | .latest)
            , logs:                $logs
            }' --slurpfile logs "$dir"/analysis/log-inventory.json <<<0
-}
-
-analysis_list+=(analysis_dbsync_slot_span)
-analysis_dbsync_slot_span() {
-        local dir=${1:-.}; shift
-        local machines=("$@")
-        local fst_nodes last_nodes logs
-
-        logs=($(logs_of_nodes "$dir" "${machines[@]}"))
-
-        fst_nodes=$(grep -Fh '"TraceStartLeadershipCheck"' "${logs[@]}" |
-                     sort | head -n1 | jq .data.slot)
-        last_nodes=$(grep -Fh '"TraceStartLeadershipCheck"' "${logs[@]}" |
-                     sort | tail -n1 | jq .data.slot)
-        args=(--argjson fst_dbsync  "$(grep -E '^[0-9]+' "$dir"/analysis/00-results-table.sql.csv | head -n1 | cut -d, -f1 || echo $fst_nodes)"
-              --argjson last_dbsync "$(grep -E '^[0-9]+' "$dir"/analysis/00-results-table.sql.csv | tail -n1 | cut -d, -f1 || echo $last_nodes)"
-              --argjson fst_nodes  "$fst_nodes"
-              --argjson last_nodes "$last_nodes"
-        )
-        json_file_prepend "$dir"/analysis.json \
-          '{ slot_spans:
-             { db_sync: { first: $fst_dbsync, last: $last_dbsync }
-             , nodes:   { first: $fst_nodes,  last: $last_nodes }
-             }
-           }' "${args[@]}" <<<0
 }
 
 analysis_list+=(analysis_timetoblock)
@@ -186,56 +160,50 @@ analysis_TraceForgeInvalidBlock() {
            ' --slurp --compact-output > "$dir"/analysis/node."$msg".json
 }
 
-analysis_list+=(analysis_message_types)
-analysis_message_types() {
-        local dir=${1:-.} mach tnum sub_tids; shift
-        local machines=("$@")
+to_node_list() {
+        local dir=$1 machines; shift
+        machines=($*)
 
+        if test ${#machines[*]} -eq 0
+        then (cd "$dir"/analysis;
+              find . -type d -name 'logs-node-*' |
+                      sed 's_^\./logs-__';)
+        else echo ${machines[*]}; fi
+}
+
+analysis_list+=(analysis_leadership_checks)
+analysis_leadership_checks() {
+        local dir=${1:-.} machines; shift
+        local keyfile leadership_analysis_args prof
+        machines=($(to_node_list "$dir" "$@"))
+        prof=$(jq '.meta.profile' "$dir"/meta.json --raw-output)
+
+        leadership_analysis_args=(
+                analyse leadership
+                --slot-length  "$(profjq "$prof" .genesis.slot_duration)"
+                --system-start "$(jq .systemStart "$dir"/genesis.json -r)"
+        )
+
+        keyfile=$(mktemp -t XXXXXXXXXX.keys)
+        locli analyse substring-keys > "$keyfile"
+
+        local count=0
+        printf "mach#/${#machines[*]}: 00"
         for mach in ${machines[*]}
-        do echo -n .$mach >&2
-           local types key
-           "$dir"/tools/msgtypes.sh \
-             "$dir/analysis/logs-$mach"/node-*.json |
-           while read -r ty
-                 test -n "$ty"
-           do key=$(jq .kind <<<$ty -r | sed 's_.*\.__g')
-              jq '{ key: .kind, value: $count }' <<<$ty \
-                --argjson count "$(grep -Fh "$key\"" \
-                                     "$dir/analysis/logs-$mach"/node-*.json |
-                                   wc -l)"
-           done |
-           jq '{ "\($name)": from_entries }
-               '  --slurp --arg name "$mach"
-           # jq '{ "\($name)": $types }
-           #     ' --arg     name  "$mach" --null-input \
-           #       --argjson types "$("$dir"/tools/msgtypes.sh \
-           #                          "$dir/analysis/logs-$mach"/node-*.json |
-           #                          jq . --slurp)"
-        done | analysis_append "$dir" \
-                 '{ message_types: add
-                  }' --slurp
-}
+        do grep -hFf "$keyfile" "$dir"/analysis/logs-"$mach"/*.json > "$dir"/analysis/logs-"$mach".json
+           locli ${leadership_analysis_args[*]} \
+                 --dump-leaderships "$dir"/analysis/logs-"$mach".leaderships.json \
+                 --pretty-timeline "$dir"/analysis/logs-"$mach".timeline.pretty.txt \
+                 --export-timeline "$dir"/analysis/logs-"$mach".timeline.export.txt \
+                 --analysis-output "$dir"/analysis/logs-"$mach".analysis.json \
+                 "$dir"/analysis/logs-"$mach".json
+           echo -ne '\b\b'
+           count=$((count+1))
+           printf "%02d" $count
+        done
+        echo
 
-analysis_list+=(analysis_repackage_db)
-analysis_repackage_db() {
-        local dir=${1:-.}
-
-        tar x -C "$dir"/analysis -af "$dir"/logs/db-analysis.tar.xz \
-            --wildcards '*.csv' '*.txt'
-}
-
-# TODO: broken
-# analysis_list+=(analysis_tx_losses)
-analysis_tx_losses() {
-        local dir=${1:-.}
-        dir=$(realpath "$dir")
-
-        pushd "$dir"/analysis >/dev/null || return 1
-        if jqtest '(.tx_stats.tx_missing != 0)' "$dir"/analysis.json
-        then echo -n " missing-txs"
-             . "$dir"/tools/lib-loganalysis.sh
-             op_analyse_losses; fi
-        popd >/dev/null || return 1
+        rm -f "$keyfile"
 }
 
 analysis_list+=(analysis_derived)
