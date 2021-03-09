@@ -449,7 +449,8 @@ git_local_repo_query_description() {
         local name=$1 pin=$2
 
         test -d "../$name/.git" &&
-        git -C "../$name/" describe --match '1.*' --tags "${pin}" 2>/dev/null | cut -d- -f1,2 ||
+        git -C "../$name/" fetch &&
+        git -C "../$name/" describe --match '1.*' --tags $pin 2>/dev/null | cut -d- -f1,2 ||
         true
 }
 
@@ -504,7 +505,7 @@ EOF
   , date:              \"${date}\"
   , node_commit_desc:  \"$(git_local_repo_query_description \
                               'cardano-node' \
-                              $(depljq explorer .pins.cardano-node))\"
+                              $(depljq explorer '.pins["cardano-node"]' --raw-output))\"
   , pins:              $(depljq explorer  .pins)
   , profile_content:   $(profjq "${prof}" .)
   , deployment_state:
