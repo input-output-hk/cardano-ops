@@ -68,6 +68,7 @@ in  mkShell rec {
     cardano-cli
     dnsutils
     iohkNix.niv
+    locli.components.exes.locli
     nivOverrides
     nix
     nix-diff
