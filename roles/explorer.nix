@@ -73,7 +73,8 @@ in {
 
   services.cardano-node.package = cardano-node;
 
-  services.cardano-node.totalMaxHeapSizeMbytes = lib.mkIf globals.withHighCapacityExplorer (14 * 1024);
+  services.cardano-node.totalMaxHeapSizeMbytes =
+    lib.mkIf globals.withHighCapacityExplorer (14 * 1024);
 
   services.cardano-db-sync = {
     enable = true;

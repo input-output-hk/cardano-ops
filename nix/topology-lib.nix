@@ -51,6 +51,12 @@ pkgs: with pkgs; with lib; rec {
     };
   });
 
+  /* Enable eventlog collection for the given list of nodes (first arg).
+  */
+  withEventlog = nodes: def: lib.recursiveUpdate {
+    services.cardano-node.eventlog = true;
+  } def;
+
   /* return the dns name of the continental group of relay
      that is the nearest to the given region.
   */

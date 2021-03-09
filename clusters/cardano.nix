@@ -98,17 +98,24 @@ let
 
   nodes = cardanoNodes // otherNodes;
 
-  mkCoreNode =  def: {
+  mkCoreNode =  def:
+    let poolsVal  = def.pools or 0;
+        poolsValN = if poolsVal == null then 0 else poolsVal;
+        isDensePool = poolsValN > 1;
+    in {
     inherit (def) name;
     value = mkNode {
       _file = ./cardano.nix;
       node = {
         roles.isCardanoCore = true;
+        roles.isCardanoDensePool = isDensePool;
         inherit (def) org nodeId;
       };
       deployment.ec2.region = def.region;
       imports = [
-        (def.instance or instances.core-node)
+        (if ! isDensePool
+         then def.instance or instances.core-node
+         else instances.dense-pool)
         (cardano-ops.roles.core def.nodeId)
       ];
       services.cardano-node.allProducers = def.producers;
@@ -167,6 +174,7 @@ let
         "dynamicSubscribe"
         "stakePool"
         "instance"
+        "pools"
       ]);
 
 in {

@@ -21,6 +21,7 @@ in {
       roles = {
         isByronProxy = boolOption;
         isCardanoCore = boolOption;
+        isCardanoDensePool = boolOption;
         isCardanoLegacyCore = boolOption;
         isCardanoLegacyRelay = boolOption;
         isCardanoRelay = boolOption;
