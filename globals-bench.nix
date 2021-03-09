@@ -132,6 +132,7 @@ in (rec {
         })
       ];
       services.cardano-graphql.enable = mkForce false;
+      services.cardano-rosetta-server.enable = mkForce false;
       services.graphql-engine.enable = mkForce false;
       services.cardano-node.package = mkForce pkgs.cardano-node-eventlogged;
     };
