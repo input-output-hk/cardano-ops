@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 generate_run_tag() {
-        local prof=$1
+        local batch=$1 prof=$2
 
-        echo "$(date +'%Y'-'%m'-'%d'-'%H.%M').$prof"
+        echo "$(date +'%Y'-'%m'-'%d'-'%H.%M').$batch.$prof"
 }
 
 run_report_name() {
@@ -11,8 +11,9 @@ run_report_name() {
         dir=${1:-.}
         metafile="$dir"/meta.json
         meta=$(jq .meta "$metafile" --raw-output)
+        batch=$(jq .batch  <<<$meta --raw-output)
         prof=$(jq .profile <<<$meta --raw-output)
-        date=$(date +'%Y'-'%m'-'%d'-'%H.%M' --date=@"$(jq .timestamp <<<$meta)")
+        date=$(date +'%Y'-'%m'-'%d'-'%H%M' --date=@"$(jq .timestamp <<<$meta)")
 
         test -n "$meta" -a -n "$prof" ||
                 fail "Bad run meta.json format:  $metafile"
@@ -20,7 +21,7 @@ run_report_name() {
         if is_run_broken "$dir"
         then suffix='broken'; fi
 
-        echo "$date.$prof${suffix:+.$suffix}"
+        echo "$date.$batch.$prof${suffix:+.$suffix}"
 }
 
 run_fetch_benchmarking() {
@@ -30,7 +31,7 @@ run_fetch_benchmarking() {
         test -d "$nix_store_benchmarking" ||
                 fail "couldn't fetch 'cardano-benchmarking'"
         mkdir -p "$targetdir"
-        cp -fa "$nix_store_benchmarking"/scripts/*.{sh,sql} "$targetdir"
+        cp -fa "$nix_store_benchmarking"/scripts/*.sh "$targetdir"
 }
 
 is_run_broken() {
@@ -57,7 +58,6 @@ process_broken_run() {
         local dir=${1:-.}
 
         op_stop
-        set -x
         fetch_run      "$dir"
         analyse_run    "$dir"
         package_run    "$dir" "$(realpath ../bench-results-bad)"

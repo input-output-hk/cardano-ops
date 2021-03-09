@@ -17,104 +17,43 @@ profgenjq()
 }
 
 profile_deploy() {
-        local prof="${1:-default}" include=()
+        local batch=$1 prof=${2:-default} include=()
         prof=$(params resolve-profile "$prof")
 
-        ## Determine if genesis update is necessary:
-        ## 1. old enough?
-        ## 2. profile incompatible?
-        regenesis_causes=()
+        mkdir -p runs/deploy-logs
+        deploylog=runs/deploy-logs/$(timestamp).$batch.$prof.log
 
-        if test -n "${force_genesis}"
-        then regenesis_causes+=('--genesis'); fi
+        mkdir -p "$(dirname "$deploylog")"
+        echo >"$deploylog"
+        ln -sf "$deploylog" 'last-deploy.log'
 
-        if   ! genesisjq . >/dev/null 2>&1
-        then regenesis_causes+=('missing-or-malformed-genesis-metadata')
-        else
-             if ! genesis_check_age "$(genesisjq .start_time)"
-             then regenesis_causes+=('local-genesis-old-age'); fi
-             if   njqtest "
-                  $(genesisjq .params) !=
-                  $(profjq "${prof}" .genesis)"
-             then regenesis_causes+=('profile-requires-new-genesis'); fi; fi
+        watcher_pid=
+        if test -n "${watch_deploy}"
+        then { sleep 0.3; tail -f "$deploylog"; } &
+             watcher_pid=$!; fi
 
-        if test -n "${regenesis_causes[*]}"
-        then oprint "regenerating genesis, because:  ${regenesis_causes[*]}"
-             local genesislog
-             genesislog=runs/$(timestamp).genesis.$prof.log
-             profile_genesis "$prof" >"$genesislog" 2>&1 || {
-                     fprint "genesis generation failed:"
-                     cat "$genesislog" >&2
-                     exit 1
-             }; fi
+        if test -z "$no_prebuild"
+        then oprint "prebuilding:"
+             ## 0. Prebuild:
+             time deploy_build_only "$prof" "$deploylog" "$watcher_pid"; fi
 
-        redeploy_causes=(mandatory)
-        include=('explorer')
+        if test -n "$watcher_pid"
+        then kill "$watcher_pid" >/dev/null 2>&1 || true; fi
 
-        if   test ! -f "${deployfile['explorer']}"
-        then redeploy_causes+=(missing-explorer-deployfile)
-             include+=('explorer')
-        elif ! depljq 'explorer' . >/dev/null 2>&1
-        then redeploy_causes+=(malformed-explorer-deployfile)
-             include+=('explorer')
-        elif njqtest "
-             ($(depljq 'explorer' .profile)         != \"$prof\") or
-             ($(depljq 'explorer' .profile_content) != $(profjq "$prof" .))"
-        then redeploy_causes+=(new-profile)
-             include+=('explorer')
-        elif njqtest "
-             $(genesisjq .params 2>/dev/null || echo '"missing"') !=
-             $(depljq 'explorer' .profile_content.genesis)"
-        then redeploy_causes+=(genesis-params-explorer)
-             include+=('explorer')
-        elif njqtest "
-             $(genesisjq .hash 2>/dev/null || echo '"missing"') !=
-             $(depljq 'explorer' .genesis_hash)"
-        then redeploy_causes+=(genesis-hash-explorer)
-             include+=('explorer'); fi
+        oprint "regenerating genesis.."
+        local genesislog
+        genesislog=runs/$(timestamp).genesis.$prof.log
+        profile_genesis "$prof" 2>&1 || {
+                fprint "genesis generation failed:"
+                cat "$genesislog" >&2
+                exit 1
+        } | tee "$genesislog";
 
+        include="explorer $(params producers)"
 
-        if test ! -f "${deployfile['producers']}"
-        then redeploy_causes+=(missing-producers-deployfile)
-             include+=($(params producers))
-        elif ! depljq 'producers' . >/dev/null 2>&1
-        then redeploy_causes+=(malformed-producers-deployfile)
-             include+=($(params producers))
-        elif njqtest "
-             $(genesisjq .params 2>/dev/null || echo '"missing"') !=
-             $(depljq 'producers' .profile_content.genesis)"
-        then redeploy_causes+=(genesis-params-producers)
-             include+=($(params producers))
-        elif njqtest "
-             $(genesisjq .hash 2>/dev/null || echo '"missing"') !=
-             $(depljq 'producers' .genesis_hash)"
-        then redeploy_causes+=(genesis-hash-producers)
-             include+=($(params producers)); fi
-
-        if test -n "${force_deploy}"
-        then redeploy_causes+=('--deploy')
-             include=('explorer' $(params producers)); fi
-
-        local final_include
-        if test "${include[0]}" = "${include[1]:-}"
-        then final_include=$(echo "${include[*]}" | sed 's/explorer explorer/explorer/g')
-        else final_include="${include[*]}"; fi
-
-        if test "$final_include" = "explorer $(params producers)"
-        then qualifier='full'
-        elif test "$final_include" = "$(params producers)"
-        then qualifier='producers'
-        else qualifier='explorer'; fi
-
-        if test -z "${redeploy_causes[*]}"
-        then return; fi
-
-        oprint "redeploying, because:  ${redeploy_causes[*]}"
-        deploylog=runs/$(timestamp).deploy.$qualifier.$prof.log
         if test -z "$no_deploy"
-        then deploystate_deploy_profile "$prof" "$final_include" "$deploylog"
+        then deploystate_deploy_profile "$prof" "$include" "$deploylog"
         else oprint "skippin' deploy, because:  CLI override"
-             echo "DEPLOYMENT_METADATA=" > "$deploylog"
              ln -sf "$deploylog" 'last-deploy.log'
         fi
 }
