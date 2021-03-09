@@ -28,7 +28,7 @@ The benchmarking infrastructure consists of the following components:
     
       - the general cluster deployment infrastructure,
       - a specific, benchmarking-oriented deployment type, defined in
-        `globals-bench-txgen-simple.nix`,
+        `globals-bench.nix`,
       - the `bench` script, that automates benchmark runs.
 
   - Resources on the development deployer, available under the `dev`
@@ -272,9 +272,9 @@ benchmarking infrastructure via concordant control mechanisms:
     
     Following pins are relevant in the benchmarking context:
     
-      - `cardano-node`, stored in `nix/sources.bench-txgen-simple.json`
+      - `cardano-node`, stored in `nix/sources.bench.json`
       - `cardano-db-sync`, stored in
-        `nix/sources.bench-txgen-simple.json`
+        `nix/sources.bench.json`
       - `cardano-benchmarking`, stored in `nix/sources.json`
     
     These pins can be automatically updated to match a particular branch
@@ -295,7 +295,7 @@ benchmarking infrastructure via concordant control mechanisms:
     forms the basis for the parametrisation.
     
     These topology files reside in the `topologies` subdirectory of
-    `cardano-ops`, and are called `bench-txgen-TYPE-N.nix`, where N is
+    `cardano-ops`, and are called `bench-TYPE-N.nix`, where N is
     the intended cluster size, and TYPE is topology type -- either `distrib` or
     `eu-central-1`.
     
@@ -433,7 +433,7 @@ Following phases constitute a benchmark run:
 
 1.  Profile activation:
     
-      - genesis age check and potential regeneration
+      - genesis regeneration
       - deployment, either just on the explorer node, or across the
         cluster, depending on circumstances
 

@@ -1,11 +1,14 @@
 ## Common parameters:
 ##
 ##  $era:
-##    "byron" or "shelley"
+##    "shelley"
+##    "allegra"
+##    "mary"
 ##
 ##  $composition:
-##    { n_bft_delegates: INT
-##    , n_pools:         INT
+##    { n_bft_hosts:       INT
+##    , n_singular_hosts:  INT
+##    , n_dense_hosts:     INT
 ##    }
 ##
 ## This specification is interpreted by 'lib-params.sh' as follows:
@@ -19,113 +22,241 @@
 ##     yielding _final benchmarking profiles_.
 ##
 
-def era_genesis_params($era; $composition):
+def genesis_defaults($era; $compo):
 { common:
+
+  ## Trivia
   { protocol_magic:          42
-    ## XXX: for some reason, Shelley genesis generator does not respect
-    ##      --testnet-magic
+
+  ## UTxO & delegation
   , total_balance:           900000000000000
-  }
-, byron:
-  { parameter_k:             2160
-  , n_poors:                 128
-  , n_delegates:             $composition.n_total
-    ## Note, that the delegate count doesnt have to match cluster size.
-  , delegate_share:          0.9
-  , avvm_entries:            128
-  , avvm_entry_balance:      100000000000000
-  , secret:                  2718281828
-  , slot_duration:           20
-  }
-, shelley:
-  { parameter_k:             10
-  , epoch_length:            2200   # Ought to be at least (10 * k / f).
-  , slot_duration:           1
-  , decentralisation_param:  0.5
-  , max_tx_size:             16384
   , pools_balance:           800000000000000
+  , delegators:              $compo.n_dense_hosts
+  , utxo:                    1000000
+
+  ## Blockchain time & block density
   , active_slots_coeff:      0.05
+  , epoch_length:            2200   # Ought to be at least (10 * k / f).
+  , parameter_k:             10
+  , slot_duration:           1
+  , genesis_future_offset:   "3 minutes"
+
+  ## Block size & contents
+  , max_block_size:          64000
+  , max_tx_size:             16384
+
+  ## Cluster composition
+  , dense_pool_density:      1
+
+  ## Ahh, the sweet dear legacy..
+  , byron:
+    { parameter_k:             2160
+    , n_poors:                 128
+    , n_delegates:             $compo.n_total
+    ## Note, that the delegate count doesnt have to match cluster size.
+    , delegate_share:          0.9
+    , avvm_entries:            128
+    , avvm_entry_balance:      100000000000000
+    , secret:                  2718281828
+    , slot_duration:           20
+    , max_block_size:          2000000
+    }
+  }
+
+, shelley:
+  { decentralisation_param:  0.5
+  }
+
+, allegra:
+  { decentralisation_param:  0.5
+  }
+
+, mary:
+  { decentralisation_param:  0.5
   }
 } | (.common + .[$era]);
 
-def era_genesis_profiles($era):
-{ byron:
-  [ { max_block_size: 2000000 }
-  , { max_block_size: 1000000 }
-  , { max_block_size:  500000 }
-  , { max_block_size:  250000 }
-  , { max_block_size:  128000 }
-  , { max_block_size:   64000 }
-  , { max_block_size:   32000 }
-  ]
-, shelley:
-  [ { max_block_size:   64000 }
-  ]
-} | .[$era];
+def generator_defaults($era):
+{ common:
+  { add_tx_size:             100
+  , init_cooldown:           60
+  , inputs_per_tx:           2
+  , outputs_per_tx:          2
+  , tx_fee:                  1000000
+  , epochs:                  10
+  , tps:                     2
+  }
+} | (.common + (.[$era] // {}));
 
-def era_generator_params($era):
+def node_defaults($era):
 { common:
   {
   }
-, byron:
-  { init_cooldown:           120
-  , tx_fee:                  10000000
-  }
-, shelley:
-  { init_cooldown:           40
-  , tx_fee:                  1000000
-  }
-} | (.common + .[$era]);
+} | (.common + (.[$era] // {}));
 
-def era_generator_profiles($era):
-{ byron:
-  [ { txs:  50000, add_tx_size: 100, io_arity: 1,  tps: 100 }
-  , { txs:  50000, add_tx_size: 100, io_arity: 2,  tps: 100 }
-  , { txs:  50000, add_tx_size: 100, io_arity: 4,  tps: 100 }
-  , { txs:  50000, add_tx_size: 100, io_arity: 8,  tps: 100 }
-  , { txs:  50000, add_tx_size: 100, io_arity: 16, tps: 100 }
+def derived_genesis_params($era; $compo; $gtor; $gsis; $node):
+  (if      $compo.n_hosts > 50 then 32
+  else if $compo.n_hosts == 3 then 3
+  else 10 end end)                      as $future_offset
+|
+{ common:
+  ({ n_pools: ($compo.n_singular_hosts
+             + $compo.n_dense_hosts * $gsis.dense_pool_density)
+   , genesis_future_offset: "\($future_offset) minutes"
+   } +
+   if $gsis.dense_pool_density > 1
+   then
+   { n_singular_pools:  $compo.n_singular_hosts
+   , n_dense_pools:    ($compo.n_dense_hosts
+                       * $gsis.dense_pool_density) }
+   else
+   { n_singular_pools: ($compo.n_singular_hosts
+                        + $compo.n_dense_hosts)
+   , n_dense_pools:     0 }
+   end)
+} | (.common + (.[$era] // {}));
+
+def derived_generator_params($era; $compo; $gtor; $gsis; $node):
+  ($gsis.epoch_length * $gsis.slot_duration) as $epoch_duration
+| ($epoch_duration * $gtor.epochs)           as $duration
+|
+{ common:
+  { era:                     $era
+  , tx_count:                ($gtor.tx_count
+                              // ($duration * ([$gtor.tps, 7] | min)))
+  }
+} | (.common + (.[$era] // {}));
+
+def derived_node_params($era; $compo; $gtor; $gsis; $node):
+{ common: {}
+} | (.common + (.[$era] // {}));
+
+def derived_tolerances($era; $compo; $gtor; $gsis; $node; $tolers):
+{ common:
+  { finish_patience:
+    ## TODO:  fix ugly
+    ($gtor.finish_patience // $tolers.finish_patience)
+  }
+} | (.common + (.[$era] // {}));
+
+def may_attr($attr; $dict; $defdict; $scale; $suf):
+  if ($dict[$attr] //
+      error("undefined attr: \($attr)"))
+     != $defdict[$attr]
+  then [($dict[$attr] | . / $scale | tostring) + $suf] else [] end;
+
+def profile_name($compo; $gsis; $gtor; $node):
+  ## Genesis
+  [ "k\($gsis.n_pools)" ]
+  + may_attr("dense_pool_density";
+             $gsis; genesis_defaults($era; $compo); 1; "ppn")
+  + [ ($gtor.epochs                | tostring) + "ep"
+    , ($gsis.utxo       | . / 1000 | tostring) + "kU"
+    , ($gsis.delegators | . / 1000 | tostring) + "kD"
+    ]
+  + may_attr("tps";
+             $gtor; generator_defaults($era); 1; "tps")
+  + may_attr("max_block_size";
+             $gsis; genesis_defaults($era; $compo); 1000; "kb")
+  + may_attr("add_tx_size";
+             $gtor; generator_defaults($era); 1; "b")
+  + may_attr("inputs_per_tx";
+             $gtor; generator_defaults($era); 1; "i")
+  + may_attr("outputs_per_tx";
+             $gtor; generator_defaults($era); 1; "o")
+  | join("-");
+
+def utxo_profiles:
+  [ { genesis: { utxo:         1000000 } }
+  , { genesis: { utxo:         2000000 } }
+  , { genesis: { utxo:         4000000 } }
+  ];
+
+def delegator_profiles:
+  [ { genesis: { delegators:    125000 } }
+  , { genesis: { delegators:    250000 } }
+  , { genesis: { delegators:    500000 } }
+  , { genesis: { delegators:   1000000 } }
+  , { genesis: { delegators:   2000000 } }
+  ];
+
+def pool_density_profiles:
+  [ { genesis: { dense_pool_density: 1  } }
+  , { genesis: { dense_pool_density: 10 } }
+  , { genesis: { dense_pool_density: 20 } }
+  , { genesis: { dense_pool_density: 40 } }
+  ];
+
+def utxo_delegators_density_profiles:
+  [ { genesis: { utxo: 2000000, delegators:  500000 } }
+  , { genesis: { utxo: 2000000, delegators:  750000 } }
+  , { genesis: { utxo: 2000000, delegators: 1000000 } }
+  , { genesis: { utxo: 3000000, delegators:  500000 } }
+  , { genesis: { utxo: 4000000, delegators:  500000 } }
+  , { genesis: { utxo: 4000000, delegators: 1000000 } }
+  , { genesis: { utxo: 2000000, delegators:  500000, dense_pool_density: 10 } }
+  , { genesis: { utxo: 2000000, delegators:  500000, dense_pool_density: 20 } }
+  , { genesis: { utxo: 2000000, delegators:  500000 }
+    , generator: { tps: 5 } }
+  , { genesis: { utxo: 2000000, delegators:  500000 }
+    , generator: { tps: 10 } }
+  , { genesis: { utxo: 4000000, delegators: 1000000 }
+    , generator: { tps: 5 } }
+  , { genesis: { utxo: 4000000, delegators: 1000000 }
+    , generator: { tps: 10 } }
+  ];
+
+def generator_profiles:
+  [ { generator: {} }
+  ];
+
+def node_profiles:
+  [ { node: {} }
+  ];
+
+def profiles:
+  [ utxo_delegators_density_profiles
+  , generator_profiles
+  , node_profiles
   ]
-, shelley:
-  [ { txs: 250000, add_tx_size: 100, io_arity: 1,  tps: 100 }
-  , { txs:  50000, add_tx_size: 100, io_arity: 1,  tps: 100 }
-  , { txs:  10000, add_tx_size: 100, io_arity: 1,  tps: 100 }
-  , { txs:   3000, add_tx_size: 100, io_arity: 1,  tps: 100 }
-  ]
-} | .[$era];
+  | [combinations]
+  | map (reduce .[] as $item ({}; . * $item));
 
 def era_tolerances($era; $genesis):
 { common:
-  { tx_loss_ratio:                  0.0
-  , start_log_spread_s:             60
-  , last_log_spread_s:              60
-  , slot_spread_dbsync_first:       5
-  , slot_spread_dbsync_last:        5
-  , silence_since_last_block_s:     40
-  , cluster_startup_overhead_s:     60
-  }
-, byron:
-  { finish_patience:                7
-  , maximum_missed_slots:           5
-  , minimum_chain_density:          0.9
+  { cluster_startup_overhead_s:     60
+  , start_log_spread_s:             120
+  , last_log_spread_s:              120
+  , silence_since_last_block_s:     120
+  , tx_loss_ratio:                  0.02
+  , finish_patience:                21
+  , minimum_chain_density:          ($genesis.active_slots_coeff * 0.5)
   }
 , shelley:
-  { finish_patience:                15
-  , maximum_missed_slots:           0
-  , minimum_chain_density:          ($genesis.active_slots_coeff * 0.5)
+  { maximum_missed_slots:           0
   }
 } | (.common + .[$era]);
 
-def generator_aux_profiles:
+def aux_profiles:
 [ { name: "short"
-  , txs: 10000, add_tx_size: 100, io_arity: 1,  tps: 100
+  , generator: { tx_count: 10000, inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100 }
   }
 , { name: "small"
-  , txs: 1000,  add_tx_size: 100, io_arity: 1,  tps: 100
-  , init_cooldown: 25, finish_patience: 4 }
-, { name: "edgesmoke"
-  , txs: 100,   add_tx_size: 100, io_arity: 1,  tps: 100
-  , init_cooldown: 25, finish_patience: 3 }
+  , generator: { tx_count: 1000,  inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
+               , init_cooldown: 25, finish_patience: 4 }
+  }
 , { name: "smoke"
-  , txs: 100,   add_tx_size: 100, io_arity: 1,  tps: 100
-  , init_cooldown: 25, finish_patience: 4 }
+  , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
+               , init_cooldown: 25, finish_patience: 4 }
+  , genesis:
+    { genesis_future_offset: "3 minutes"
+    , utxo:                  100
+    }
+  }
+, { name: "k1000-smoke"
+  , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
+               , init_cooldown: 25, finish_patience: 4 }
+  , genesis:
+    { genesis_future_offset: "32 minutes" }
+  }
 ];
