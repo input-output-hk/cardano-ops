@@ -20,14 +20,8 @@ depljq() {
 update_deployfiles() {
         local prof=$1 deploylog=$2 include=${3##--include }
         local date=$(date "+%Y-%m-%d-%H.%M.%S") stamp=$(date +%s)
-        local nixops_meta machine_info cores files targets
+        local machine_info cores files targets
 
-        if test -z "$no_deploy"
-        then echo "--( collecting NixOps metadata.."
-             nixops_meta=$(grep DEPLOYMENT_METADATA= "$deploylog" |
-                                   head -n1 | cut -d= -f2 | xargs jq .)
-        else nixops_meta="{ fake: true }"
-        fi
         cores=($(params producers))
         case "$include" in
                 '' | "explorer ${cores[*]}" | "${cores[*]} explorer" )
@@ -56,18 +50,16 @@ update_deployfiles() {
           , timestamp:         ${stamp}
           , date:              \"${date}\"
           , targets:           $targetlist
-          , genesis_hash:      \"$(profile_genesis_hash)\"
+          , genesis_hash:      \"$(genesis_hash)\"
           , profile_content:   $(profjq "${prof}" .)
           , pins:
-            { benchmarking:    $(jq '.["cardano-benchmarking"].rev' nix/sources.json)
-            , node:            $(jq '.["cardano-node"].rev'         nix/sources.bench-txgen-simple.json)
-            # , \"db-sync\":     $(jq '.["cardano-db-sync"].rev'      nix/sources.bench-txgen-simple.json)
-            , ops:             \"$(git rev-parse HEAD)\"
+            { \"cardano-benchmarking\":  $(jq '.["cardano-benchmarking"].rev' nix/sources.json)
+            , \"cardano-node\":          $(jq '.["cardano-node"].rev'         nix/sources.bench.json)
+            , \"cardano-ops\":           \"$(git rev-parse HEAD)\"
             }
           , ops_modified:      $(if git diff --quiet --exit-code
                                  then echo false; else echo true; fi)
           , machine_info:      $machine_info
-          , nixops:            $nixops_meta
           }
           " --null-input
         if test ${#files[*]} -gt 1
@@ -84,10 +76,9 @@ deploystate_node_process_genesis_startTime() {
         local genesis
         if test -n "$node_process"
         then genesis=$(nixops ssh ${core} -- jq . \
-                     $(nixops ssh ${core} -- jq .GenesisFile \
+                     $(nixops ssh ${core} -- jq .ShelleyGenesisFile \
                      $(sed 's_.* --config \([^ ]*\) .*_\1_' <<<$node_process)))
              case $(get_era) in
-                     byron )   jq .startTime      <<<$genesis;;
                      shelley ) jq '.systemStart
                                   | fromdateiso8601
                                   '  --raw-output <<<$genesis;;
@@ -97,11 +88,6 @@ deploystate_node_process_genesis_startTime() {
 
 deploystate_local_genesis_startTime() {
         genesisjq '.start_time'
-}
-
-deploystate_check_deployed_genesis_age() {
-        if ! genesis_check_age "$(deploystate_node_process_genesis_startTime 'node-0')"
-        then fail "genesis needs update"; fi
 }
 
 deploystate_destroy() {
@@ -128,34 +114,79 @@ deploystate_deploy_profile() {
         era=$(get_era)
         topology=$(parmetajq .topology)
         benchmarking_rev=$(jq --raw-output '.["cardano-benchmarking"].rev' nix/sources.json)
-        node_rev=$(jq --raw-output '.["cardano-node"].rev' nix/sources.bench-txgen-simple.json)
+        node_rev=$(jq --raw-output '.["cardano-node"].rev' nix/sources.bench.json)
         ops_rev=$(git rev-parse HEAD)
         ops_branch=$(maybe_local_repo_branch . ${ops_rev})
         ops_checkout_state=$(git diff --quiet --exit-code || echo '(modified)')
-        to=${include:-the entire cluster}
+
+        if ! nixops info >/dev/null 2>&1
+        then oprint "nixops info returned status $?, creating deployment.."
+             deploystate_create
+        fi
 
         cat <<EOF
---( deploying profile $prof to:  ${to#--include }
+--( deploying profile $prof
 --(   era:           $era
 --(   topology:      $topology
 --(   node:          $node_rev
 --(   benchmarking:  $benchmarking_rev
 --(   ops:           $ops_rev / $ops_branch  $ops_checkout_state
+--(   generator:     $(profjq "$prof" .generator --compact-output)
+--(   genesis:       $(profjq "$prof" .genesis   --compact-output)
+--(   node:          $(profjq "$prof" .node      --compact-output)
 EOF
-        local cmd=( nixops deploy
-                    --max-concurrent-copy 50 --cores 0 -j 4
-                    ${include:+--include $include}
-                  )
 
-        local watcher_pid=
+        watcher_pid=
         if test -n "${watch_deploy}"
-        then oprint "nixops deploy log:"
-             { sleep 0.3; tail -f "$deploylog"; } &
+        then { sleep 0.3; tail -f "$deploylog"; } &
              watcher_pid=$!; fi
 
-        ln -sf "$deploylog" 'last-deploy.log'
+        set +o pipefail
+        local host_resources other_resources
+        host_resources=( $(nixops info --plain 2>/dev/null | sed 's/^\([a-zA-Z0-9-]*\).*/\1/' | grep -ve '-ip$\|cardano-keypair-\|allow-'))
+        other_resources=($(nixops info --plain 2>/dev/null | sed 's/^\([a-zA-Z0-9-]*\).*/\1/' | grep  -e '-ip$\|cardano-keypair-\|allow-'))
+        set -o pipefail
+
+        local host_count=${#host_resources[*]}
+        oprint "hosts to deploy:  $host_count total:  ${host_resources[*]}"
+
+        local max_batch=10
+        if test $host_count -gt $max_batch
+        then oprint "that's too much for a single deploy -- deploying in batches of $max_batch nodes"
+
+             oprint "deploying non-host resources first:  ${other_resources[*]}"
+             time deploy_resources "$prof" "$deploylog" "$watcher_pid" \
+                                   ${other_resources[*]}
+
+             local base=0 batch
+             while test $base -lt $host_count
+             do local batch=(${host_resources[*]:$base:$max_batch})
+                oprint "deploying host batch:  ${batch[*]}"
+                time deploy_resources "$prof" "$deploylog" "$watcher_pid" ${batch[*]}
+                oprint "deployed batch of ${#batch[*]} nodes:  ${batch[*]}"
+                base=$((base + max_batch))
+             done
+        else oprint "that's deployable in one go -- blasting ahead"
+             time deploy_resources "$prof" "$deploylog" "$watcher_pid"
+        fi
+
+        if test -n "$watcher_pid"
+        then kill "$watcher_pid" >/dev/null 2>&1 || true; fi
+
+        oprint "deployment complete, refreshing deploy files.."
+        update_deployfiles "$prof" "$deploylog" "$include"
+}
+
+run_nixops_deploy() {
+        local prof=$1 deploylog=$2 watcher_pid=$3
+        shift 3
+        local flags=("$@")
+        local cmd=(nixops deploy)
+        cmd+=(${flags[*]})
+
+        echo "-------------------- nixops deploy $*" >>"$deploylog"
         if export BENCHMARKING_PROFILE=${prof}; ! "${cmd[@]}" \
-                 >"$deploylog" 2>&1
+                 >>"$deploylog" 2>&1
         then echo "FATAL:  deployment failed, full log in ${deploylog}"
              if test -n "$watcher_pid"
              then kill "$watcher_pid" >/dev/null 2>&1 || true
@@ -163,18 +194,51 @@ EOF
                   tail -n200 "$deploylog"; fi
              return 1
         fi >&2
+}
 
-        if test -n "$watcher_pid"
-        then kill "$watcher_pid" >/dev/null 2>&1 || true; fi
+deploy_build_only() {
+        local prof=$1 deploylog=$2 watcher_pid=$3
+        run_nixops_deploy "$prof" "$deploylog" "$watcher_pid" \
+                --build-only \
+                --confirm \
+                --cores 0 \
+                -j 4
+}
 
-        update_deployfiles "$prof" "$deploylog" "$include"
+deploy_resources() {
+        local prof=$1 deploylog=$2 watcher_pid=$3
+        shift 3
+        run_nixops_deploy "$prof" "$deploylog" "$watcher_pid" \
+                --allow-reboot \
+                --confirm \
+                --cores 0 -j 4 \
+                --max-concurrent-copy 50 \
+                ${1:+--include} "$@"
+}
+
+deploystate_node_log_commit_id() {
+        local mach=$1
+
+        set +o pipefail
+        nixops ssh "$mach" -- journalctl -u cardano-node | grep commit | sed 's/.*"\([0-9a-f]\{40\}\)".*/\1/'
+        set -o pipefail
+}
+
+deploystate_check_node_log_commit_id() {
+        local mach=$1 expected=$2 actual=
+        actual=$(deploystate_node_log_commit_id "$mach")
+
+        oprint_ne "checking node commit on $mach:  "
+        if test "$expected" != "$actual"
+        then fail "expected $expected, got $actual"
+        else msg "ok, $expected"; fi
 }
 
 deploystate_collect_machine_info() {
         local cmd
         cmd=(
                 eval echo
-                '\"$(hostname)\": { \"local_ip\": \"$(ip addr show scope global | sed -n "/^    inet / s_.*inet \([0-9\.]*\)/.*_\1_; T skip; p; :skip")\", \"public_ip\": \"$(curl --silent http://169.254.169.254/latest/meta-data/public-ipv4)\", \"account\": $(curl --silent http://169.254.169.254/latest/meta-data/identity-credentials/ec2/info | jq .AccountId), \"placement\": $(curl --silent http://169.254.169.254/latest/meta-data/placement/availability-zone | jq --raw-input), \"sgs\": $(curl --silent http://169.254.169.254/latest/meta-data/security-groups | jq --raw-input | jq --slurp), \"timestamp\": $(date +%s), \"timestamp_readable\": \"$(date)\" }'
+                '\"$(hostname)\": { \"local_ip\": \"$(ip addr show scope global | sed -n "/^    inet / s_.*inet \([0-9\.]*\)/.*_\1_; T skip; p; :skip")\", \"public_ip\": \"$(curl --silent http://169.254.169.254/latest/meta-data/public-ipv4)\", \"placement\": \"$(curl --silent http://169.254.169.254/latest/meta-data/placement/availability-zone)\", \"timestamp\": $(date +%s), \"timestamp_readable\": \"$(date)\" }'
         )
         nixops ssh-for-each --parallel -- "${cmd[@]@Q}" 2>&1 | cut -d'>' -f2-
 }
@@ -187,7 +251,6 @@ nixopsfile_producers() {
 
 op_stop() {
         nixops ssh-for-each --parallel "systemctl stop cardano-node 2>/dev/null || true"
-        # nixops ssh explorer            "systemctl stop cardano-db-sync 2>/dev/null || true"
         nixops ssh-for-each --parallel "systemctl stop systemd-journald 2>/dev/null || true"
 }
 

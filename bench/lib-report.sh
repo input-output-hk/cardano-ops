@@ -12,15 +12,6 @@ patch_run() {
              sed -i "1 s_^_${tag_format_timetoblock_header}\n_; s_;_,_g" \
                  "$dir"/analysis/timetoblock.csv
         fi
-
-        if test "$(head -n1 "$dir"/analysis/00-results-table.sql.csv)" \
-                == "DROP TABLE"
-        then echo "---| patching $dir/analysis/00-results-table.sql.csv"
-             tail -n+3 "$dir"/analysis/00-results-table.sql.csv \
-               > "$dir"/analysis/00-results-table.sql.csv.fixed
-             mv "$dir"/analysis/00-results-table.sql.csv.fixed \
-                "$dir"/analysis/00-results-table.sql.csv;
-        fi
 }
 
 package_run() {
@@ -29,14 +20,19 @@ package_run() {
         tag=$(run_tag "$dir")
         report_name=$(run_report_name "$dir")
 
+        local dirgood dirbad
+        dirgood=$(realpath ../bench-results-bad)
+        dirbad=$(realpath ../bench-results)
+        mkdir -p "$dirgood"
+        mkdir -p "$dirbad"
         if is_run_broken "$dir"
-        then resultroot=$(realpath ../bench-results-bad)
-        else resultroot=$(realpath ../bench-results); fi
+        then resultroot=$dir
+        else resultroot=$dirbad; fi
 
         package=${resultroot}/$report_name.tar.xz
 
         oprint "Packaging $tag as:  $package"
         ln -sf "./runs/$tag" "$report_name"
-        tar cf "$package"    "$report_name" --xz --dereference
+        tar cf "$package"    "$report_name" --xz --dereference || true
         rm -f                "$report_name"
 }
