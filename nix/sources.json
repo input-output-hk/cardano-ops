@@ -126,10 +126,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "metadata-server",
-        "rev": "dfbe1baa7dd89fa097a67c84797a7d59baeaecb0",
-        "sha256": "1qp9ac2cvsmmmbkfwiry9crc8h95k38l4x8kfdkmray3dmqpidr8",
+        "rev": "fd298bacfe2015fa7c4c2da061baea89b2eba797",
+        "sha256": "1ij3qhz2psay3hac4c3fd2jx9zxi8nkv6890ppy2nhgsawc10rfc",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/metadata-server/archive/dfbe1baa7dd89fa097a67c84797a7d59baeaecb0.tar.gz",
+        "url": "https://github.com/input-output-hk/metadata-server/archive/fd298bacfe2015fa7c4c2da061baea89b2eba797.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
