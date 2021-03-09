@@ -13,4 +13,6 @@ in rec {
   inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.cardano-node.components.exes) cardano-node;
   inherit (ouroboros-network-pkgs.ouroborosNetworkHaskellPackages.network-mux.components.exes) cardano-ping;
   inherit (cardano-rosetta-pkgs) cardano-rosetta-server;
+
+  cardano-node-eventlogged = cardanoNodePkgs.cardanoNodeEventlogHaskellPackages.cardano-node.components.exes.cardano-node;
 }

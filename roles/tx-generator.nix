@@ -7,7 +7,8 @@ let
   # We need a signing key with access to funds
   # to be able to run tx generator and sign generated transactions.
   signingKey =
-    { TPraos   = ../keys/utxo-keys/utxo1.skey;
+    { Cardano  = ../keys/utxo-keys/utxo1.skey;
+      TPraos   = ../keys/utxo-keys/utxo1.skey;
       RealPBft = ../keys/delegate-keys.000.key;
     }."${Protocol}"
       or (abort "Unsupported protocol: ${Protocol}");
@@ -27,10 +28,14 @@ in {
   services.tx-generator = {
     enable = true;
     targetNodes = __mapAttrs
-      (name: node: { ip = getPublicIp resources nodes name;
-                     port = node.config.services.cardano-node.port;
-                   })
-      cardanoNodes;
+      (name: node:
+        { ip   = let ip = getPublicIp resources nodes name;
+                 in __trace "generator target:  ${name}/${ip}" ip;
+          port = node.config.services.cardano-node.port;
+        })
+      (lib.filterAttrs
+        (_: n: ! (n.config.node.roles.isExplorer))
+        cardanoNodes);
 
     ## nodeConfig of the locally running observer node.
     localNodeConf = config.services.cardano-node;
@@ -101,7 +106,7 @@ in {
           }; }
       ];
       minSeverity = "Debug";
-      TracingVerbosity = "MaximalVerbosity";
+      TracingVerbosity = "NormalVerbosity";
 
       TraceBlockFetchClient             = true;
       TraceBlockFetchDecisions          = false;
@@ -133,9 +138,21 @@ in {
           "cardano.node-metrics" = [ "KatipBK" ];
         };
       };
-    });
-
-    signingKey = lib.mkForce "/var/lib/keys/cardano-node-signing";
+    } //
+    ({
+      shelley =
+        { TestShelleyHardForkAtEpoch = 0;
+        };
+      allegra =
+        { TestShelleyHardForkAtEpoch = 0;
+          TestAllegraHardForkAtEpoch = 0;
+        };
+      mary =
+        { TestShelleyHardForkAtEpoch = 0;
+          TestAllegraHardForkAtEpoch = 0;
+          TestMaryHardForkAtEpoch = 0;
+        };
+    }).${globals.environmentConfig.generatorConfig.era});
   };
 
   deployment.keys = {

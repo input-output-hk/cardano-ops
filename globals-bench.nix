@@ -11,52 +11,19 @@ let
             else abort "${benchmarkingParamsFile} must define the 'meta' section:  please run 'bench reinit' to update it"
     else abort "Benchmarking requires ${toString benchmarkingParamsFile} to exist.  Please, refer to documentation.";
   benchmarkingTopologyFile =
-    ./topologies + "/bench-txgen-${benchmarkingParams.meta.topology}-${toString (__length benchmarkingParams.meta.node_names)}.nix";
+    ./topologies + "/bench-${benchmarkingParams.meta.topology}-${toString (__length benchmarkingParams.meta.node_names)}.nix";
   benchmarkingTopology =
     if __pathExists benchmarkingTopologyFile
     then __trace "Using topology:  ${benchmarkingTopologyFile}"
-         (import benchmarkingTopologyFile)
+      (rewriteTopologyForProfile
+        (import benchmarkingTopologyFile)
+        benchmarkingProfile)
     else abort "Benchmarking topology file implied by configured node count ${toString (__length benchmarkingParams.meta.node_names)} does not exist: ${benchmarkingTopologyFile}";
-  benchmarkingParamsEra =
-    if __hasAttr "era" benchmarkingParams.meta
-    then benchmarkingParams.meta.era
-    else abort "${benchmarkingParamsFile} must define 'meta.era':  please run 'bench reinit' to update it";
-  Protocol =
-    { shelley = "TPraos";
-      byron   = "RealPBFT";
-    }."${benchmarkingParamsEra}";
-  coreEraOverlay =
-    { shelley = {};
-      byron =
-        { GenesisHash = genesisHash;
-          PBftSignatureThreshold =
-            (1.0 / __length benchmarkingTopology.coreNodes) * 1.5;
-        };
-    }."${benchmarkingParamsEra}";
-  genesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/GENHASH);
-  envConfigBase =
-    { shelley = pkgs.iohkNix.cardanoLib.environments.shelley_testnet;
-      byron   = pkgs.iohkNix.cardanoLib.environments.shelley_staging_short;
-    }."${benchmarkingParamsEra}";
-  envConfigEraOverlay =
-    { shelley =
-        {
-        };
-      byron =
-        { inherit genesisHash;
-          networkConfig =
-            { GenesisHash = genesisHash;
-              NumCoreNodes = builtins.length topology.coreNodes;
-            };
-          nodeConfig =
-            { GenesisHash = genesisHash;
-              NumCoreNodes = builtins.length topology.coreNodes;
-            };
-          txSubmitConfig =
-            { GenesisHash = genesisHash;
-            };
-        };
-    }."${benchmarkingParamsEra}";
+  ShelleyGenesisFile = ./keys/genesis.json;
+  ShelleyGenesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/GENHASH);
+  ByronGenesisFile = ./keys/byron/genesis.json;
+  ByronGenesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/byron/GENHASH);
+  envConfigBase = pkgs.iohkNix.cardanoLib.environments.testnet;
 
   ### Benchmarking profiles are, currently, essentially name-tagger
   ### generator configs.
@@ -71,11 +38,25 @@ let
     then __trace "Using profile:  ${benchmarkingProfileName}"
          benchmarkingParams."${benchmarkingProfileName}"
     else abort "${benchmarkingParamsFile} does not define benchmarking profile '${benchmarkingProfileName}'.";
+
+  rewriteTopologyForProfile =
+    topo: prof:
+    let fixupPools = core: (core //
+          { pools = if __hasAttr "pools" core && core.pools != null
+                    then (if core.pools == 1 then 1 else prof.genesis.dense_pool_density)
+                    else 0; });
+        pooledCores = map fixupPools topo.coreNodes;
+    in (topo // {
+      coreNodes = map withEventlog pooledCores;
+    });
+  withEventlog = def: recursiveUpdate {
+    services.cardano-node.eventlog = mkForce true;
+    services.cardano-node.package = mkForce pkgs.cardano-node-eventlogged;
+  } def;
+
   metadata = {
     inherit benchmarkingProfileName benchmarkingProfile benchmarkingTopology;
   };
-  reportDeployment = x:
-    __trace "DEPLOYMENT_METADATA=${__toFile "nixops-metadata.json" (__toJSON metadata)}" x;
 
   benchmarkingLogConfig = name: {
     defaultScribes = [
@@ -99,38 +80,39 @@ let
     ];
     options = {
       mapBackends = {
-        "cardano.node-metrics" = [ "KatipBK" ];
+        "cardano.node.resources" = [ "KatipBK" ];
       };
     };
   };
 
-in reportDeployment (rec {
+in (rec {
 
   networkName = "Benchmarking, size ${toString (__length benchmarkingTopology.coreNodes)}";
 
   withMonitoring = false;
   withExplorer = true;
 
-  environmentName = "bench-txgen-${benchmarkingParams.meta.topology}-${benchmarkingProfileName}";
+  environmentName = "bench-${benchmarkingParams.meta.topology}-${benchmarkingProfileName}";
 
-  sourcesJsonOverride = ./nix/sources.bench-txgen-simple.json;
+  sourcesJsonOverride = ./nix/sources.bench.json;
 
   environmentConfig = rec {
     relays = "relays.${pkgs.globals.domain}";
     edgePort = pkgs.globals.cardanoNodePort;
-    genesisFile = ./keys/genesis.json;
     private = true;
     networkConfig = envConfigBase.networkConfig // {
-      inherit Protocol;
-      GenesisFile = genesisFile;
+      Protocol = "Cardano";
+      inherit ShelleyGenesisFile ShelleyGenesisHash;
+      inherit   ByronGenesisFile   ByronGenesisHash;
     };
     nodeConfig = envConfigBase.nodeConfig // {
-      inherit Protocol;
-      GenesisFile = genesisFile;
+      Protocol = "Cardano";
+      inherit ShelleyGenesisFile ShelleyGenesisHash;
+      inherit   ByronGenesisFile   ByronGenesisHash;
     };
     txSubmitConfig = {
       inherit (networkConfig) RequiresNetworkMagic;
-      GenesisFile = genesisFile;
+      inherit ShelleyGenesisFile ByronGenesisFile;
     } // pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig;
 
     ## This is overlaid atop the defaults in the tx-generator service,
@@ -147,61 +129,26 @@ in reportDeployment (rec {
           services.cardano-explorer-api.enable = mkForce false;
           services.cardano-submit-api.enable = mkForce false;
           systemd.services.cardano-explorer-api.enable = mkForce false;
-          # services.cardano-submit-api = {
-          #   environment = pkgs.globals.environmentConfig;
-          #   socketPath = config.services.cardano-node.socketPath;
-          # };
-          # systemd.services.cardano-db-sync = {
-          #   wantedBy = [ "multi-user.target" ];
-          #   requires = [ "postgresql.service" ];
-          #   path = [ pkgs.netcat ];
-          #   preStart = ''
-          #   '';
-          #   serviceConfig = {
-          #     ExecStartPre = mkForce
-          #       ("+" + pkgs.writeScript "cardano-db-sync-prestart" ''
-          #                 #!/bin/sh
-          #                 set -xe
-
-          #                 chmod -R g+w /var/lib/cardano-node
-          #                 for x in {1..10}
-          #                 do nc -z localhost ${toString config.services.cardano-db-sync.postgres.port} && break
-          #                    echo loop $x: waiting for postgresql 2 sec...
-          #                    sleep 2; done
-          #              '');
-          #   };
-          # };
         })
       ];
       services.cardano-graphql.enable = mkForce false;
       services.graphql-engine.enable = mkForce false;
-      # services.cardano-db-sync = {
-      #   logConfig =
-      #     recursiveUpdate
-      #       pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig
-      #       (recursiveUpdate
-      #         (benchmarkingLogConfig "db-sync")
-      #         {
-      #           options.mapSeverity = {
-      #             "db-sync-node.Subscription" = "Error";
-      #             "db-sync-node.Mux" = "Error";
-      #             "db-sync-node" = "Info";
-      #           };
-      #         });
-      # };
+      services.cardano-node.package = mkForce pkgs.cardano-node-eventlogged;
     };
-    coreNodes = map (n : n // {
+    coreNodes = map (recursiveUpdate {
       services.cardano-node.nodeConfig =
         recursiveUpdate
           pkgs.globals.environmentConfig.nodeConfig
           (recursiveUpdate
             (benchmarkingLogConfig "node")
             ({
-               TracingVerbosity = "MaximalVerbosity";
+               inherit ShelleyGenesisHash ByronGenesisHash;
+               TracingVerbosity = "NormalVerbosity";
                minSeverity = "Debug";
                TurnOnLogMetrics = true;
                TraceMempool     = true;
-             } // coreEraOverlay));
+               TraceTxInbound   = true;
+             }));
     }) (benchmarkingTopology.coreNodes or []);
   };
 
