@@ -122,6 +122,12 @@ in {
     };
   };
 
+  systemd.services.graphql-engine = {
+    environment = {
+      HASURA_GRAPHQL_LOG_LEVEL = "warn";
+    };
+  };
+
   systemd.services.cardano-submit-api.serviceConfig = lib.mkIf globals.withSubmitApi {
     # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
     SupplementaryGroups = "cardano-node";
