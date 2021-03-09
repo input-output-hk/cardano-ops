@@ -171,17 +171,17 @@ to_node_list() {
         else echo ${machines[*]}; fi
 }
 
-analysis_list+=(analysis_leadership_checks)
-analysis_leadership_checks() {
+analysis_list+=(analysis_locli_timeline)
+analysis_locli_timeline() {
         local dir=${1:-.} machines; shift
-        local keyfile leadership_analysis_args prof
+        local keyfile locli_timeline_args prof
         machines=($(to_node_list "$dir" "$@"))
         prof=$(jq '.meta.profile' "$dir"/meta.json --raw-output)
 
-        leadership_analysis_args=(
-                analyse leadership
-                --slot-length  "$(profjq "$prof" .genesis.slot_duration)"
-                --system-start "$(jq .systemStart "$dir"/genesis.json -r)"
+        locli_timeline_args=(
+            analyse perf-timeline
+            --genesis      "$dir"/genesis.json
+            --run-metafile "$dir"/meta.json
         )
 
         keyfile=$(mktemp -t XXXXXXXXXX.keys)
@@ -191,11 +191,11 @@ analysis_leadership_checks() {
         printf "mach#/${#machines[*]}: 00"
         for mach in ${machines[*]}
         do grep -hFf "$keyfile" "$dir"/analysis/logs-"$mach"/*.json > "$dir"/analysis/logs-"$mach".json
-           locli ${leadership_analysis_args[*]} \
-                 --dump-leaderships "$dir"/analysis/logs-"$mach".leaderships.json \
-                 --pretty-timeline "$dir"/analysis/logs-"$mach".timeline.pretty.txt \
-                 --export-timeline "$dir"/analysis/logs-"$mach".timeline.export.txt \
-                 --analysis-output "$dir"/analysis/logs-"$mach".analysis.json \
+           locli ${locli_timeline_args[*]} \
+                 --slotstats-json  "$dir"/analysis/logs-"$mach".leaderships.json \
+                 --timeline-pretty "$dir"/analysis/logs-"$mach".timeline.pretty.txt \
+                 --timeline-csv    "$dir"/analysis/logs-"$mach".timeline.export.txt \
+                 --analysis-json   "$dir"/analysis/logs-"$mach".analysis.json \
                  "$dir"/analysis/logs-"$mach".json
            echo -ne '\b\b'
            count=$((count+1))
