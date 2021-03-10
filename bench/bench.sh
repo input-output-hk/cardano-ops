@@ -119,8 +119,6 @@ force_deploy=
 reuse_genesis=
 watch_deploy=
 
-generator_startup_delay=70
-
 self=$(realpath "$0")
 
 main() {
@@ -355,7 +353,7 @@ bench_profile() {
 }
 
 op_bench_start() {
-        local batch=$1 prof=$2 deploylog=$3 tag dir
+        local batch=$1 prof=$2 deploylog=$3 tag dir generator_startup_delay
 
         if ! params has-profile "${prof}"
         then fail "Unknown profile '${prof}': check ${paramsfile}"; fi
@@ -377,9 +375,10 @@ op_bench_start() {
         sleep 3s
         nixops ssh-for-each --parallel "systemctl start cardano-node"
 
+        node_activation_time=$(profjq "${prof}" .node.expected_activation_time)
         if test -z "$no_wait"
-        then oprint "waiting ${generator_startup_delay}s for the nodes to establish business.."
-             sleep ${generator_startup_delay}; fi
+        then oprint "waiting ${node_activation_time}s for the nodes to establish business.."
+             sleep ${node_activation_time}; fi
 
         local sources_json_node_commit
         sources_json_node_commit=$(jq '.["cardano-node"].rev' \
