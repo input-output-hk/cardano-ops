@@ -90,7 +90,7 @@ def generator_defaults($era):
 
 def node_defaults($era):
 { common:
-  {
+  { expected_activation_time:      30
   }
 } | (.common + (.[$era] // {}));
 
@@ -220,7 +220,16 @@ def profiles:
   , node_profiles
   ]
   | [combinations]
-  | map (reduce .[] as $item ({}; . * $item));
+  | map (reduce .[] as $item ({}; . * $item))
+  | map (. *
+        { node:
+          { expected_activation_time:
+            (600 * ((.genesis.delegators / 500000)
+                    +
+                    (.genesis.utxo       / 2000000))
+                 / 2)
+          }
+        });
 
 def era_tolerances($era; $genesis):
 { common:
