@@ -132,9 +132,13 @@ in (rec {
         })
       ];
       services.cardano-graphql.enable = mkForce false;
+      services.cardano-postgres.enable = mkForce false;
+      services.postgresql.enable = mkForce false;
       services.cardano-rosetta-server.enable = mkForce false;
+      services.custom-metrics.enable = mkForce false;
       services.graphql-engine.enable = mkForce false;
       services.cardano-node.package = mkForce pkgs.cardano-node-eventlogged;
+      systemd.services.dump-registered-relays-topology.enable = mkForce false;
     };
     coreNodes = map (recursiveUpdate {
       services.cardano-node.nodeConfig =
@@ -150,6 +154,7 @@ in (rec {
                TraceMempool     = true;
                TraceTxInbound   = true;
              }));
+      services.custom-metrics.enable = mkForce false;
     }) (benchmarkingTopology.coreNodes or []);
   };
 
