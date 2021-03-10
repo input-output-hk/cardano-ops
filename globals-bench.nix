@@ -133,6 +133,7 @@ in (rec {
       ];
       services.cardano-graphql.enable = mkForce false;
       services.cardano-rosetta-server.enable = mkForce false;
+      services.custom-metrics.enable = mkForce false;
       services.graphql-engine.enable = mkForce false;
       services.cardano-node.package = mkForce pkgs.cardano-node-eventlogged;
     };
@@ -150,6 +151,7 @@ in (rec {
                TraceMempool     = true;
                TraceTxInbound   = true;
              }));
+      services.custom-metrics.enable = mkForce false;
     }) (benchmarkingTopology.coreNodes or []);
   };
 
