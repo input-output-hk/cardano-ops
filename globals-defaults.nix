@@ -85,14 +85,14 @@ in {
 
   ec2.instances = with pkgs; with iohk-ops-lib.physical.aws; {
     inherit targetEnv;
-    core-node = t3a-medium;
+    core-node = t3a-large;
     relay-node = if globals.withHighLoadRelays
       then t3-2xlarge
-      else t3a-medium;
+      else t3a-large;
     test-node = m5ad-xlarge;
     smash = t3a-xlarge;
-    faucet = t3a-medium;
-    metadata = t3a-medium;
+    faucet = t3a-large;
+    metadata = t3a-large;
     explorer = if globals.withHighCapacityExplorer
       then c5-4xlarge
       else t3a-xlarge;
