@@ -63,7 +63,6 @@ profile_genesis_byron() {
         --genesis-output-dir         "$target_dir"
         --protocol-parameters-file   "$byron_params_tmpfile"
         --start-time                 1
-        --byron-legacy-formats
         $(profile_byron_genesis_cli_args))
 
         cardano-cli byron genesis genesis "${genesis_cli_args[@]}"
