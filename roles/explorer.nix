@@ -26,6 +26,15 @@ in {
     bat fd lsof netcat ncdu ripgrep tree vim dnsutils cardano-cli
     cardano-db-tool
   ];
+
+  # Ensure sufficient log history on explorer which tends to rotate quickly due to nginx logging
+  # Maximum is 4 GB
+  # Ref: https://www.freedesktop.org/software/systemd/man/journald.conf.html
+  services.journald.extraConfig = ''
+    SystemMaxUse=4G
+    RuntimeMaxUse=4G
+  '';
+
   services.cardano-postgres.enable = true;
   services.postgresql = {
     ensureDatabases = [ "cexplorer" ];
