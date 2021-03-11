@@ -137,6 +137,7 @@ in {
       TraceLocalTxSubmissionServer      = true;
       TraceMempool                      = true;
       TraceMux                          = true;
+      TraceLocalMux                     = true;
       TraceTxInbound                    = true;
       TraceTxOutbound                   = true;
       TraceTxSubmissionProtocol         = true;
