@@ -79,9 +79,10 @@ in {
     dbConnectionString = "socket://${cfg.postgres.user}:*@${cfg.postgres.socketdir}?db=${cfg.postgres.database}";
   };
 
-  services.cardano-node.package = cardano-node;
-
-  services.cardano-node.totalMaxHeapSizeMbytes = lib.mkIf globals.withHighCapacityExplorer (14 * 1024);
+  services.cardano-node = {
+    package = cardano-node;
+    totalMaxHeapSizeMbytes = 0.4375 * config.node.memory * 1024;
+  };
 
   services.cardano-db-sync = {
     enable = true;
