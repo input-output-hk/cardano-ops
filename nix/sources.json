@@ -73,15 +73,27 @@
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
     "cardano-node": {
+        "branch": "refs/tags/1.25.1",
+        "description": null,
+        "homepage": null,
+        "owner": "input-output-hk",
+        "repo": "cardano-node",
+        "rev": "9a7331cce5e8bc0ea9c6bfa1c28773f4c5a7000f",
+        "sha256": "1scffi7igv4kj93bpjf8yibcaq0sskfikmm00f7r6q031l53y50c",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/9a7331cce5e8bc0ea9c6bfa1c28773f4c5a7000f.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "cardano-node-service": {
         "branch": "master",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "112c487a72dd3732ad382f219ea9fbc66770435a",
-        "sha256": "1siicgyy9lyzh8piislgbgppyaah1643rglvd7879if2ppx7jk0j",
+        "rev": "b769b6bc27c804f057615b5274fa52dc426afcbd",
+        "sha256": "0qn1jb7mlak5hg8xan39bjp7q5yxjpm1v7awnkxkz0v6djfji78c",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/112c487a72dd3732ad382f219ea9fbc66770435a.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/b769b6bc27c804f057615b5274fa52dc426afcbd.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rest": {
