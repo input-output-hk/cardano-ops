@@ -44,7 +44,7 @@ class RelayUpdate
   @deployment : String
   @explorerUrl : String
 
-  def initialize(@refresh : Bool, @allOpt : Bool, @edgeOpt : Bool, @relOpt : Bool, @minOpt : Int32,
+  def initialize(@refresh : Bool, @allOpt : Bool, @edgeOpt : Bool, @relOpt : Bool, @extraDeployFlagsOpt : String,  @minOpt : Int32,
     @maxNodesOpt : Int32, @minBatchesOpt : Int32, @emailOpt : String, @noSensitiveOpt : Bool, @mockOpt : Bool,
     @deployOnlyOpt : Array(Array(String)), @snapshotDbOpt : String)
 
@@ -249,6 +249,7 @@ class RelayUpdate
     IO_TEE_OUT.puts "allOpt = #{@allOpt}"
     IO_TEE_OUT.puts "edgeOpt = #{@edgeOpt}"
     IO_TEE_OUT.puts "relOpt = #{@relOpt}"
+    IO_TEE_OUT.puts "extraDeployFlagsOpt = #{@extraDeployFlagsOpt}"
     IO_TEE_OUT.puts "minOpt = #{@minOpt}"
     IO_TEE_OUT.puts "maxNodesOpt = #{@maxNodesOpt}"
     IO_TEE_OUT.puts "minBatchesOpt = #{@minBatchesOpt}"
@@ -365,7 +366,7 @@ class RelayUpdate
       updateCmd = "echo \"MOCK UPDATING SECURITY GROUPS AND IPS: #{securityGroups.join(" ")}\n #{elasticIps.join(" ")}\""
     else
       IO_TEE_STDOUT.puts "Deploying security groups and elastic ips:\n#{securityGroups.join(" ")}\n#{elasticIps.join(" ")}"
-      updateCmd = "nixops deploy --include #{elasticIps.join(" ")} #{securityGroups.join(" ")}"
+      updateCmd = "nixops deploy #{@extraDeployFlagsOpt} --include #{elasticIps.join(" ")} #{securityGroups.join(" ")}"
     end
     if !runCmd(updateCmd).success?
       updateAbort("Failed to deploy the security groups updates")
@@ -389,7 +390,7 @@ class RelayUpdate
         if @mockOpt
           updateCmd = "echo \"MOCK UPDATING TOPOLOGY to target nodes #{batchTargetNodes.join(" ")}\""
         else
-          updateCmd = "nixops deploy --include #{batchTargetNodes.join(" ")}"
+          updateCmd = "nixops deploy #{@extraDeployFlagsOpt} --include #{batchTargetNodes.join(" ")}"
         end
 
         IO_TEE_OUT.puts "Deploying new peer topology to target nodes: #{batchTargetNodes.join(" ")}"
@@ -444,7 +445,7 @@ class RelayUpdate
         updateCmd = "echo \"MOCK MONITORING UPDATE\""
       else
         IO_TEE_STDOUT.puts "Deploying monitoring"
-        updateCmd = "nixops deploy --include monitoring"
+        updateCmd = "nixops deploy #{@extraDeployFlagsOpt} --include monitoring"
       end
       if !runCmd(updateCmd).success?
         updateAbort("Failed to deploy monitoring updates")
@@ -455,7 +456,7 @@ class RelayUpdate
       updateCmd = "echo \"MOCK UPDATING DNS ENRIES: #{route53RecordSets.join(" ")}\""
     else
       IO_TEE_STDOUT.puts "Deploying route53 dns entries:\n#{route53RecordSets.join(" ")}"
-      updateCmd = "nixops deploy --include #{route53RecordSets.join(" ")}"
+      updateCmd = "nixops deploy #{@extraDeployFlagsOpt} --include #{route53RecordSets.join(" ")}"
     end
     if !runCmd(updateCmd).success?
       updateAbort("Failed to deploy route53 dns entries updates")
@@ -473,6 +474,7 @@ refresh = false
 allOpt = false
 edgeOpt = false
 relOpt = false
+extraDeployFlagsOpt = ""
 minOpt = MINIMUM_PRODUCERS
 maxNodesOpt = MAX_NODES_PER_DEPLOY
 minBatchesOpt = MIN_DEPLOY_BATCHES
@@ -489,6 +491,7 @@ OptionParser.parse do |parser|
   parser.on("-t", "--test", "Test update (don't deploy anything)") { mockOpt = true }
   parser.on("--edge", "Updates and deploys relay topology to edge nodes (e-X-Y)") { edgeOpt = true }
   parser.on("--relay", "Updates and deploys relay topology to relay nodes (rel-X-Y)") { relOpt = true }
+  parser.on("--extra-flags EXTRAFLAG", "Extra flags to pass to nixops deploy") { |extraDeployFlags| extraDeployFlagsOpt = extraDeployFlags }
   parser.on("-m POSINT", "--minProducers POSINT", "The minimum third-party producers to allow deployment (default: #{minOpt})") { |posint| minOpt = posint.to_i }
   parser.on("-n POSINT", "--maxNodes POSINT", "The maximal number of nodes that will be simultaneously deployed (default: #{maxNodesOpt})") { |posint| maxNodesOpt = posint.to_i }
   parser.on("-b POSINT", "--minBatches POSINT", "The minimal number of deployment batches (default: #{minBatchesOpt})") { |posint| minBatchesOpt = posint.to_i }
@@ -513,7 +516,7 @@ if oneByOneOpt
   deployOnlyOpt = deployOnlyOpt[0].map { |n| [n] }
 end
 
-relayUpdate = RelayUpdate.new refresh: refresh, allOpt: allOpt, edgeOpt: edgeOpt, relOpt: relOpt, minOpt: minOpt,
+relayUpdate = RelayUpdate.new refresh: refresh, allOpt: allOpt, edgeOpt: edgeOpt, relOpt: relOpt, extraDeployFlagsOpt: extraDeployFlagsOpt, minOpt: minOpt,
     maxNodesOpt: maxNodesOpt, minBatchesOpt: minBatchesOpt, emailOpt: emailOpt, noSensitiveOpt: noSensitiveOpt, mockOpt: mockOpt,
     deployOnlyOpt: deployOnlyOpt, snapshotDbOpt: snapshotDbOpt
 
