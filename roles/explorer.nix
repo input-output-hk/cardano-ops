@@ -168,11 +168,12 @@ in {
   };
 
   systemd.services.dump-registered-relays-topology = let
+    excludedPools = lib.concatStringsSep ", " (map (hash: "'${hash}'") globals.static.poolsExcludeList);
     extract_relays_sql = writeText "extract_relays.sql" ''
       select array_to_json(array_agg(row_to_json(t))) from (
         select COALESCE(ipv4, dns_name) as addr, port from (
-          select min(update_id) as update_id, ipv4, dns_name, port from pool_relay where
-            ipv4 is null or ipv4 !~ '(^0\.)|(^10\.)|(^100\.6[4-9]\.)|(^100\.[7-9]\d\.)|(^100\.1[0-1]\d\.)|(^100\.12[0-7]\.)|(^127\.)|(^169\.254\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.0\.0\.)|(^192\.0\.2\.)|(^192\.88\.99\.)|(^192\.168\.)|(^198\.1[8-9]\.)|(^198\.51\.100\.)|(^203.0\.113\.)|(^22[4-9]\.)|(^23[0-9]\.)|(^24[0-9]\.)|(^25[0-5]\.)'
+          select min(update_id) as update_id, ipv4, dns_name, port from pool_relay inner join pool_update ON pool_update.id = pool_relay.update_id inner join pool_hash ON pool_update.hash_id = pool_hash.id where pool_hash.view not in (${excludedPools}) and (
+            (ipv4 is null and dns_name NOT LIKE '% %') or ipv4 !~ '(^0\.)|(^10\.)|(^100\.6[4-9]\.)|(^100\.[7-9]\d\.)|(^100\.1[0-1]\d\.)|(^100\.12[0-7]\.)|(^127\.)|(^169\.254\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.0\.0\.)|(^192\.0\.2\.)|(^192\.88\.99\.)|(^192\.168\.)|(^198\.1[8-9]\.)|(^198\.51\.100\.)|(^203.0\.113\.)|(^22[4-9]\.)|(^23[0-9]\.)|(^24[0-9]\.)|(^25[0-5]\.)')
             group by ipv4, dns_name, port order by update_id
         ) t
       ) t;
@@ -203,16 +204,24 @@ in {
           set -e
           if [ $res -eq 0 ]; then
             >&2 echo "Successfully pinged $addr:$port"
-            geoinfo=$(curl -s https://json.geoiplookup.io/$addr)
-            continent=$(echo "$geoinfo" | jq -r '.continent_name')
-            country_code=$(echo "$geoinfo" | jq -r '.country_code')
-            if [ "$country_code" == "US" ]; then
-              state=$(echo $geoinfo | jq -r '.region')
+            set +e
+            geoinfo=$(curl -s -k --retry 6 https://json.geoiplookup.io/$addr)
+            res=$?
+            set -e
+            if [ $res -eq 0 ]; then
+              continent=$(echo "$geoinfo" | jq -r '.continent_name')
+              country_code=$(echo "$geoinfo" | jq -r '.country_code')
+              if [ "$country_code" == "US" ]; then
+                state=$(echo $geoinfo | jq -r '.region')
+              else
+                state=$country_code
+              fi
+              echo $r | jq -c --arg continent "$continent" \
+                --arg state "$state" '. + {continent: $continent, state: $state}' >> relays.json
             else
-              state=$country_code
+              >&2 echo "Failed to retrieved goip info for $addr"
+              exit $res
             fi
-            echo $r | jq -c --arg continent "$continent" \
-              --arg state "$state" '. + {continent: $continent, state: $state}' >> relays.json
           else
             >&2 echo "failed to cardano-ping $addr:$port"
           fi
@@ -232,7 +241,7 @@ in {
     };
   };
   systemd.timers.dump-registered-relays-topology = {
-    timerConfig.OnCalendar = "hourly";
+    timerConfig.OnCalendar = "daily";
     wantedBy = [ "timers.target" ];
   };
 

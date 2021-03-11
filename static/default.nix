@@ -6,6 +6,7 @@
   pagerDuty = import ./pager-duty.nix;
   additionalPeers = [];
   relaysExcludeList = [];
+  poolsExcludeList = [];
 } // (if (builtins.pathExists ./static.nix)
   then (import ./static.nix)
   else {})
