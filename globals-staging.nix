@@ -8,7 +8,6 @@ pkgs: {
 
   environmentName = "staging";
 
-  explorerAliases = [ "cardano-explorer.staging.cardano.org" ];
   withSubmitApi = true;
   withSmash = true;
   withFaucet = true;
