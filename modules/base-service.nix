@@ -114,7 +114,7 @@ in
     services.cardano-node = {
       enable = true;
       systemdSocketActivation = true;
-      # https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html
+      # FIXME: waiting for https://github.com/input-output-hk/cardano-node/pull/2124
       rtsArgs = [ "-N2" "-A16m" "-qg" "-qb" "-M${toString (cfg.totalMaxHeapSizeMbytes / cfg.instances)}M" ];
       environment = globals.environmentName;
       inherit cardanoNodePkgs hostAddr nodeId instanceProducers;
@@ -150,6 +150,8 @@ in
     };
     systemd.services.cardano-node = {
       path = [ gnutar gzip ];
+      after = lib.mkForce [ "network-online.target" "cardano-node.socket" ];
+      # https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html
       preStart = ''
         cd $STATE_DIRECTORY
         if [ -f db-restore.tar.gz ]; then
@@ -159,6 +161,9 @@ in
         fi
       '';
     };
+
+    # FIXME: https://github.com/input-output-hk/cardano-node/issues/1023
+    systemd.sockets.cardano-node.partOf = [ "cardano-node.service" ];
 
     services.dnsmasq = {
       enable = true;
