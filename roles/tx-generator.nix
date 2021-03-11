@@ -143,11 +143,11 @@ in {
       TraceTxSubmission2Protocol        = true;
 
       TurnOnLogMetrics = true;
-      # options = {
-      #   mapBackends = {
-      #     "cardano.node.metrics" = [ "KatipBK" ];
-      #   };
-      # };
+      options = {
+        mapBackends = {
+          "cardano.node.resources" = [ "KatipBK" ];
+        };
+      };
     } //
     ({
       shelley =
