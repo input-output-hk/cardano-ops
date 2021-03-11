@@ -1,14 +1,14 @@
 {
     "cardano-node": {
-         "branch": "master",
+         "branch": "",
          "description": null,
          "homepage": null,
          "owner": "input-output-hk",
          "repo": "cardano-node",
-         "rev": "b6320e0256fe2c0e963aeea2360779f6ba24cee5",
-         "sha256": "1szg1bzyxwas80yjj80ynvz8qzdyn410nzpavic5inmnph915w8r",
+         "rev": "cbfdb088a1d140d675ec5911420af8419b624f50",
+         "sha256": "00a9qlini0x5smnj0wb024di1ixkp4haigl6p194vgn8zyqx7n9r",
          "type": "tarball",
-         "url": "https://github.com/input-output-hk/cardano-node/archive/b6320e0256fe2c0e963aeea2360779f6ba24cee5.tar.gz",
+         "url": "https://github.com/input-output-hk/cardano-node/archive/cbfdb088a1d140d675ec5911420af8419b624f50.tar.gz",
          "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
      }
 }
