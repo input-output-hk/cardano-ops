@@ -158,12 +158,14 @@ in (rec {
     }) (benchmarkingTopology.coreNodes or []);
   };
 
-  ec2 = {
-    credentials = {
-      accessKeyIds = {
-        IOHK = "dev-deployer";
-        dns = "dev-deployer";
+  ec2 = with pkgs.iohk-ops-lib.physical.aws;
+    {
+      instances.core-node = c5-2xlarge;
+      credentials = {
+        accessKeyIds = {
+          IOHK = "dev-deployer";
+          dns = "dev-deployer";
+        };
       };
     };
-  };
 })
