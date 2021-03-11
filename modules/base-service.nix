@@ -52,12 +52,14 @@ let
       (producerShare (cfg.instances - i - 1) thirdParyProducers)
     ]);
 
+  cardano-node-service-def = (sourcePaths.cardano-node-service
+    or sourcePaths.cardano-node) + "/nix/nixos";
 in
 {
   imports = [
     cardano-ops.modules.common
     cardano-ops.modules.custom-metrics
-    (sourcePaths.cardano-node + "/nix/nixos")
+    cardano-node-service-def
   ];
 
   options = {
