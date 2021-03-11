@@ -224,7 +224,7 @@ def profiles:
   | map (. *
         { node:
           { expected_activation_time:
-            (600 * ((.genesis.delegators / 500000)
+            (120 * ((.genesis.delegators / 500000)
                     +
                     (.genesis.utxo       / 2000000))
                  / 2)
