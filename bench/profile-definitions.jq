@@ -79,7 +79,7 @@ def genesis_defaults($era; $compo):
 def generator_defaults($era):
 { common:
   { add_tx_size:             100
-  , init_cooldown:           60
+  , init_cooldown:           90
   , inputs_per_tx:           2
   , outputs_per_tx:          2
   , tx_fee:                  1000000
@@ -95,7 +95,7 @@ def node_defaults($era):
 } | (.common + (.[$era] // {}));
 
 def derived_genesis_params($era; $compo; $gtor; $gsis; $node):
-  (if      $compo.n_hosts > 50 then 32
+  (if      $compo.n_hosts > 50 then 20
   else if $compo.n_hosts == 3 then 3
   else 10 end end)                      as $future_offset
 |
@@ -262,10 +262,10 @@ def aux_profiles:
     , utxo:                  100
     }
   }
-, { name: "k1000-smoke"
+, { name: "k50-smoke"
   , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
-               , init_cooldown: 25, finish_patience: 4 }
+               , init_cooldown: 90, finish_patience: 4 }
   , genesis:
-    { genesis_future_offset: "32 minutes" }
+    { genesis_future_offset: "20 minutes" }
   }
 ];
