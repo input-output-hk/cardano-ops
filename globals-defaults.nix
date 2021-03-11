@@ -73,9 +73,22 @@ in {
   alertMbpsHigh = "150";
   alertMbpsCrit = "200";
 
+
+  # Minimal memory and cpu requirements for cardano-node:
+  minCpuPerInstance = 2;
+  minMemoryPerInstance = 8;
   # base line number of cardano-node instance per relay,
   # can be scaled up on a per node basis by scaling up on instance type, cf roles/relays.nix.
-  nbInstancesPerRelay = pkgs.globals.ec2.instances.relay-node.node.cpus / 2;
+  nbInstancesPerRelay = with pkgs.globals; with pkgs.globals.ec2.instances.relay-node.node;
+    let idealNbInstances = pkgs.lib.min (cpus / minCpuPerInstance) (pkgs.topology-lib.rountToInt (memory / minMemoryPerInstance));
+      actualNbInstances = pkgs.lib.max 1 idealNbInstances;
+      cpusPerInstance = cpus / actualNbInstances;
+      memoryPerInstance = memory / actualNbInstances;
+      configMessage = "~ ${toString cpusPerInstance} CPUs and ${toString memoryPerInstance}G memory per instance.";
+    in builtins.trace (if idealNbInstances != actualNbInstances
+      then "WARNING: selected AWS instance for relays is not sufficient to satisfy minimal CPUs (${toString minCpuPerInstance}) or memory (${toString minMemoryPerInstance}G) requirements. Will use ${configMessage}"
+      else "Using ${toString actualNbInstances} cardano-node instances per relay: ${configMessage}")
+      actualNbInstances;
 
   # disk allocation for system (GBytes):
   systemDiskAllocationSize = 15;
