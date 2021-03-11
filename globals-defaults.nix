@@ -96,24 +96,28 @@ in {
   # disk allocation for each cardano-node instance (GBytes):
   nodeDbDiskAllocationSize = 15;
 
-  ec2.instances = with pkgs; with iohk-ops-lib.physical.aws; {
-    inherit targetEnv;
-    core-node = t3a-large;
-    relay-node = if globals.withHighLoadRelays
-      then t3-2xlarge
-      else t3a-large;
-    test-node = m5ad-xlarge;
-    smash = t3a-xlarge;
-    faucet = t3a-large;
-    metadata = t3a-medium;
-    explorer = if globals.withHighCapacityExplorer
-      then c5-4xlarge
-      else t3a-2xlarge;
-    monitoring = if globals.withHighCapacityMonitoring
-      then t3-2xlargeMonitor
-      else t3a-xlargeMonitor;
-    dense-pool = c5-2xlarge;
-  };
+  ec2.instances = with pkgs; with iohk-ops-lib.physical.aws;
+    ## Can't run a node on anything smaller:
+    ##
+    let node-baseline = t3a-large;
+    in {
+      inherit targetEnv;
+      core-node = node-baseline;
+      relay-node = if globals.withHighLoadRelays
+                   then t3-2xlarge
+                   else node-baseline;
+      test-node = m5ad-xlarge;
+      smash = t3a-xlarge;
+      faucet = node-baseline;
+      metadata = node-baseline;
+      explorer = if globals.withHighCapacityExplorer
+                 then c5-4xlarge
+                 else t3a-xlarge;
+      monitoring = if globals.withHighCapacityMonitoring
+                   then t3-2xlargeMonitor
+                   else t3a-xlargeMonitor;
+      dense-pool = c5-2xlarge;
+    };
 
   libvirtd.instances = with pkgs; with iohk-ops-lib.physical.libvirtd; {
     inherit targetEnv;
