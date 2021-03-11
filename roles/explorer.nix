@@ -172,7 +172,7 @@ in {
     extract_relays_sql = writeText "extract_relays.sql" ''
       select array_to_json(array_agg(row_to_json(t))) from (
         select COALESCE(ipv4, dns_name) as addr, port from (
-          select min(update_id) as update_id, ipv4, dns_name, port from pool_relay inner join pool_update ON pool_update.id = pool_relay.update_id inner join pool_hash ON pool_update.hash_id = pool_hash.id where pool_hash.view not in (${excludedPools}) and (
+          select min(update_id) as update_id, ipv4, dns_name, port from pool_relay inner join pool_update ON pool_update.id = pool_relay.update_id inner join pool_hash ON pool_update.hash_id = pool_hash.id where ${lib.optionalString (globals.static.poolsExcludeList != []) "pool_hash.view not in (${excludedPools}) and "}(
             (ipv4 is null and dns_name NOT LIKE '% %') or ipv4 !~ '(^0\.)|(^10\.)|(^100\.6[4-9]\.)|(^100\.[7-9]\d\.)|(^100\.1[0-1]\d\.)|(^100\.12[0-7]\.)|(^127\.)|(^169\.254\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.0\.0\.)|(^192\.0\.2\.)|(^192\.88\.99\.)|(^192\.168\.)|(^198\.1[8-9]\.)|(^198\.51\.100\.)|(^203.0\.113\.)|(^22[4-9]\.)|(^23[0-9]\.)|(^24[0-9]\.)|(^25[0-5]\.)')
             group by ipv4, dns_name, port order by update_id
         ) t
