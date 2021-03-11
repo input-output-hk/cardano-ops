@@ -108,36 +108,46 @@ in {
       minSeverity = "Debug";
       TracingVerbosity = "NormalVerbosity";
 
+      TraceAcceptPolicy                 = false;
       TraceBlockFetchClient             = true;
       TraceBlockFetchDecisions          = false;
       TraceBlockFetchProtocol           = true;
       TraceBlockFetchProtocolSerialised = false;
       TraceBlockFetchServer             = false;
-      TraceChainDb                      = true;
-      TraceChainSyncClient              = true;
+      TraceBlockchainTime               = false;
+      TraceChainDB                      = true;
       TraceChainSyncBlockServer         = false;
+      TraceChainSyncClient              = true;
       TraceChainSyncHeaderServer        = false;
       TraceChainSyncProtocol            = false;
-      TraceDNSResolver                  = false;
-      TraceDNSSubscription              = false;
+      TraceDiffusionInitialization      = false;
+      TraceDnsResolver                  = false;
+      TraceDnsSubscription              = false;
       TraceErrorPolicy                  = true;
       TraceForge                        = false;
+      TraceForgeStateInfo               = false;
+      TraceHandshake                    = false;
       TraceIpSubscription               = false;
-      TraceLocalChainSyncProtocol       = false; ## This is horribly noisy!
-      TraceLocalTxSubmissionProtocol    = false; ## ..too!
+      TraceKeepAliveClient              = false;
+      TraceLocalChainSyncProtocol       = false;
+      TraceLocalErrorPolicy             = false;
+      TraceLocalHandshake               = false;
+      TraceLocalStateQueryProtocol      = false;
+      TraceLocalTxSubmissionProtocol    = true;
       TraceLocalTxSubmissionServer      = true;
-      TraceMempool                      = true;  ## Too!
-      TraceMux                          = false;
+      TraceMempool                      = true;
+      TraceMux                          = true;
       TraceTxInbound                    = true;
       TraceTxOutbound                   = true;
       TraceTxSubmissionProtocol         = true;
+      TraceTxSubmission2Protocol        = true;
 
       TurnOnLogMetrics = true;
-      options = {
-        mapBackends = {
-          "cardano.node-metrics" = [ "KatipBK" ];
-        };
-      };
+      # options = {
+      #   mapBackends = {
+      #     "cardano.node.metrics" = [ "KatipBK" ];
+      #   };
+      # };
     } //
     ({
       shelley =
