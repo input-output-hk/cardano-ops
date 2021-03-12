@@ -125,11 +125,15 @@ in {
           if (!std.ip(req.http.X-Real-Ip, "0.0.0.0") ~ purge) {
             return(synth(405,"Not Allowed"));
           }
-          return(purge);
+
+          # The host is included as part of the object hash
+          # We need to match the public FQDN for the purge to be successful
+          set req.http.host = "${globals.metadataHostName}";
         }
 
         # Allow POST caching
-        else if (req.method == "POST") {
+        # PURGE also needs to hash the body to obtain a correct object hash to purge
+        if (req.method == "POST" || req.method == "PURGE") {
           # Caches the body which enables POST retries if needed
           std.cache_req_body(${toString maxPostSizeCachableKb}KB);
           set req.http.X-Body-Len = bodyaccess.len_req_body();
@@ -137,6 +141,10 @@ in {
           if ((std.integer(req.http.X-Body-Len, ${toString (1024 * maxPostSizeCachableKb)}) > ${toString (1024 * maxPostSizeBodyKb)}) ||
               (req.http.X-Body-Len == "-1")) {
             return(synth(413, "Payload Too Large"));
+          }
+
+          if (req.method == "PURGE") {
+            return(purge);
           }
           return(hash);
         }

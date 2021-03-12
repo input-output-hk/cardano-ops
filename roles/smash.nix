@@ -85,9 +85,6 @@ in {
   };
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
-  # Ensure that nginx doesn't hit a file limit with handling cache files
-  systemd.services.nginx.serviceConfig.LimitNOFILE = 65535;
-
   services.varnish = {
     enable = true;
     config = ''
@@ -113,6 +110,11 @@ in {
           if (!std.ip(req.http.X-Real-Ip, "0.0.0.0") ~ purge) {
             return(synth(405,"Not Allowed"));
           }
+
+          # The host is included as part of the object hash
+          # We need to match the public FQDN for the purge to be successful
+          set req.http.host = "smash.${globals.domain}";
+
           return(purge);
         }
       }
@@ -156,6 +158,10 @@ in {
       }
     '';
   };
+
+  # Ensure that nginx doesn't hit a file limit with handling cache files
+  systemd.services.nginx.serviceConfig.LimitNOFILE = 65535;
+
   services.nginx = {
     enable = true;
     package = nginxSmash;
@@ -163,7 +169,7 @@ in {
     recommendedOptimisation = true;
     recommendedProxySettings = true;
     eventsConfig = ''
-      worker_connections 2048;
+      worker_connections 8192;
     '';
     commonHttpConfig = let
       apiKeys = import ../static/smash-keys.nix;
