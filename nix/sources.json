@@ -169,15 +169,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
-        "branch": "use-chrony",
+        "branch": "github-oauth",
         "description": "NixOps deployment configuration library for IOHK devops ",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "5202c6e2b2af6082130ff3996a831f738df2b95f",
-        "sha256": "17xvxsl6pgxx64hi1y4x3ybs97598yd1xd092ql9il6m8w45ff3s",
+        "rev": "143a9dedc562806003646a2048e12cb02e8809e1",
+        "sha256": "01r4rbx0lrfnq5zypi8q1zndkpql6i0d6x90442a0pqzmjppjyaj",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/5202c6e2b2af6082130ff3996a831f738df2b95f.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/143a9dedc562806003646a2048e12cb02e8809e1.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "smash": {
