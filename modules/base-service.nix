@@ -118,6 +118,7 @@ in
       rtsArgs = [ "-N2" "-A16m" "-qg" "-qb" "-M${toString (cfg.totalMaxHeapSizeMbytes / cfg.instances)}M" ];
       environment = globals.environmentName;
       inherit cardanoNodePkgs hostAddr nodeId instanceProducers;
+      ipv6HostAddr = mkIf (cfg.instances > 1) "::1";
       producers = mkDefault [];
       port = nodePort;
       environments = {
