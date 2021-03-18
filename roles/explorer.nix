@@ -62,6 +62,8 @@ in {
     genesisShelley = nodeCfg.nodeConfig.ShelleyGenesisFile;
     allowListPath = cardano-explorer-app-pkgs.allowList;
     cardanoNodeSocketPath = nodeCfg.socketPath;
+    cardanoNodeConfigPath = builtins.toFile "cardano-node-config.json" (builtins.toJSON nodeCfg.nodeConfig);
+    metadataServerUri = globals.environmentConfig.metadataUrl or null;
   };
 
   services.cardano-rosetta-server = {
