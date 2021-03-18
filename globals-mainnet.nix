@@ -40,7 +40,14 @@ pkgs: {
         dns = "mainnet-iohk";
       };
     };
+    instances = with pkgs.iohk-ops-lib.physical.aws; {
+      relay-node = t3-xlarge;
+      core-node = t3a-medium;
+      faucet = t3a-medium;
+    };
   };
+
+  nbInstancesPerRelay = 1;
 
   relayUpdateArgs = "-m 1500 --maxNodes 12 -s -e devops@iohk.io";
   # Trigger relay topology refresh 12 hours before next epoch

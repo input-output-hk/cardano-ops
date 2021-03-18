@@ -1,24 +1,24 @@
 pkgs: with pkgs; with lib; with topology-lib;
 let
 
-  regions = {
+regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
-      minRelays = 15;
+      minRelays = 72;
     };
     b = { name = "us-east-2";      # US East (Ohio)
-      minRelays = 9;
+      minRelays = 44;
     };
     c = { name = "ap-southeast-1"; # Asia Pacific (Singapore)
-      minRelays = 3;
+      minRelays = 20;
     };
     d = { name = "eu-west-2";      # Europe (London)
-      minRelays = 6;
+      minRelays = 29;
     };
     e = { name = "us-west-1";      # US West (N. California)
-      minRelays = 6;
+      minRelays = 28;
     };
     f = { name = "ap-northeast-1"; # Asia Pacific (Tokyo)
-      minRelays = 3;
+      minRelays = 15;
     };
   };
 
