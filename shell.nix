@@ -63,6 +63,7 @@ let
     '';
 in  mkShell rec {
   buildInputs = [
+    awscli2
     bashInteractive
     cardano-cli
     dnsutils
@@ -76,7 +77,6 @@ in  mkShell rec {
     node-update
     telnet
     test-cronjob-script
-    cardano-cli-completions
     cardano-ping
     hoursUntilNextEpoch
     relayUpdateTimer

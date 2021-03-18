@@ -28,9 +28,11 @@ in {
   '';
 
   services.cardano-node = {
-    producers = [ globals.relaysNew ];
+    allProducers = [ globals.relaysNew ];
     # FIXME Reactivate when smash update to 1.25+:
     #package = smashHaskellPackages.cardano-node.components.exes.cardano-node;
+
+    totalMaxHeapSizeMbytes = 0.5 * config.node.memory * 1024;
   };
 
   # Disallow smash to restart more than 3 times within a 30 minute window
@@ -270,11 +272,17 @@ in {
           "/metrics2/exporter" = {
             proxyPass = "http://127.0.0.1:8080/";
           };
-          "/metrics/varnish" = {
-            proxyPass = "http://127.0.0.1:9131/metrics";
-          };
         };
       };
     };
   };
+
+  services.monitoring-exporters.extraPrometheusExporters = [
+    {
+      job_name = "smash-exporter";
+      scrape_interval = "10s";
+      metrics_path = "/metrics2/exporter";
+      labels = { alias = "smash-exporter"; };
+    }
+  ];
 }

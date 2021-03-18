@@ -12,6 +12,8 @@ pkgs: {
   withSmash = true;
   withSubmitApi = true;
   faucetHostname = "faucet";
+  minCpuPerInstance = 1;
+  minMemoryPerInstance = 4;
 
   ec2 = {
     credentials = {

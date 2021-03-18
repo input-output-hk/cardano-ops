@@ -13,7 +13,6 @@ let
   inherit (cardanoDbSyncHaskellPackages.cardano-db-tool.components.exes) cardano-db-tool;
 in {
   imports = [
-    (sourcePaths.cardano-node + "/nix/nixos")
     (sourcePaths.cardano-graphql + "/nix/nixos")
     (sourcePaths.cardano-rest + "/nix/nixos")
     (sourcePaths.cardano-db-sync + "/nix/nixos")
@@ -63,11 +62,16 @@ in {
     genesisShelley = nodeCfg.nodeConfig.ShelleyGenesisFile;
     allowListPath = cardano-explorer-app-pkgs.allowList;
     cardanoNodeSocketPath = nodeCfg.socketPath;
+    cardanoNodeConfigPath = builtins.toFile "cardano-node-config.json" (builtins.toJSON nodeCfg.nodeConfig);
+    metadataServerUri = globals.environmentConfig.metadataUrl or null;
   };
 
   services.cardano-rosetta-server = {
     enable = true;
-    topologyFilePath = nodeCfg.topology;
+    topologyFilePath = iohkNix.cardanoLib.mkEdgeTopology {
+      edgeNodes = map (p: p.addr) nodeCfg.producers;
+      port = nodeCfg.port;
+    };
     cardanoCliPath = cardano-cli + /bin/cardano-cli;
     genesisPath = nodeCfg.nodeConfig.ShelleyGenesisFile;
     cardanoNodePath = cardano-node + /bin/cardano-node;
@@ -78,16 +82,9 @@ in {
   };
 
   services.cardano-node = {
-    rtsArgs = lib.mkForce
-      (if globals.withHighCapacityExplorer then
-        [ "-N2" "-A10m" "-qg" "-qb" "-M10G" ]
-      else
-        [ "-N2" "-A10m" "-qg" "-qb" "-M3G" ]);
     package = cardano-node;
+    totalMaxHeapSizeMbytes = 0.4375 * config.node.memory * 1024;
   };
-
-  systemd.services.cardano-node.serviceConfig.MemoryMax = lib.mkForce
-    (if globals.withHighCapacityExplorer then "14G" else "3.5G");
 
   services.cardano-db-sync = {
     enable = true;
@@ -103,7 +100,6 @@ in {
     postgres = {
       database = "cexplorer";
     };
-
   };
 
   systemd.services.cardano-db-sync.serviceConfig = {
@@ -413,4 +409,20 @@ in {
       };
     };
   };
+
+  services.monitoring-exporters.extraPrometheusExporters = [
+    # TODO: remove once explorer exports metrics at path `/metrics`
+    {
+      job_name = "explorer-exporter";
+      scrape_interval = "10s";
+      metrics_path = "/metrics2/exporter";
+      labels = { alias = "explorer-exporter"; };
+    }
+    {
+      job_name = "cardano-graphql-exporter";
+      scrape_interval = "10s";
+      metrics_path = "/metrics2/cardano-graphql";
+      labels = { alias = "cardano-graphql-exporter"; };
+    }
+  ];
 }

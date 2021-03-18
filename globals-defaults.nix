@@ -62,10 +62,9 @@ in {
   netdataExporterPort = 19999;
 
   extraPrometheusExportersPorts = [
-    pkgs.globals.cardanoNodePrometheusExporterPort
     pkgs.globals.cardanoExplorerPrometheusExporterPort
     pkgs.globals.netdataExporterPort
-  ];
+  ] ++ builtins.genList (i: pkgs.globals.cardanoNodePrometheusExporterPort + i) pkgs.globals.nbInstancesPerRelay;
 
   alertChainDensityLow = "99";
   alertMemPoolHigh = "190";
@@ -74,19 +73,42 @@ in {
   alertMbpsHigh = "150";
   alertMbpsCrit = "200";
 
+
+  # Minimal memory and cpu requirements for cardano-node:
+  minCpuPerInstance = 2;
+  minMemoryPerInstance = 8;
+  # base line number of cardano-node instance per relay,
+  # can be scaled up on a per node basis by scaling up on instance type, cf roles/relays.nix.
+  nbInstancesPerRelay = with pkgs.globals; with pkgs.globals.ec2.instances.relay-node.node;
+    let idealNbInstances = pkgs.lib.min (cpus / minCpuPerInstance) (pkgs.topology-lib.rountToInt (memory / minMemoryPerInstance));
+      actualNbInstances = pkgs.lib.max 1 idealNbInstances;
+      cpusPerInstance = cpus / actualNbInstances;
+      memoryPerInstance = memory / actualNbInstances;
+      configMessage = "~ ${toString cpusPerInstance} CPUs and ${toString memoryPerInstance}G memory per instance.";
+    in builtins.trace (if idealNbInstances != actualNbInstances
+      then "WARNING: selected AWS instance for relays is not sufficient to satisfy minimal CPUs (${toString minCpuPerInstance}) or memory (${toString minMemoryPerInstance}G) requirements. Will use ${configMessage}"
+      else "Using ${toString actualNbInstances} cardano-node instances per relay: ${configMessage}")
+      actualNbInstances;
+
+  # disk allocation for system (GBytes):
+  systemDiskAllocationSize = 15;
+
+  # disk allocation for each cardano-node instance (GBytes):
+  nodeDbDiskAllocationSize = 15;
+
   ec2.instances = with pkgs; with iohk-ops-lib.physical.aws; {
     inherit targetEnv;
-    core-node = t3a-medium;
+    core-node = t3a-large;
     relay-node = if globals.withHighLoadRelays
-      then t3-xlarge
-      else t3a-medium;
+      then t3-2xlarge
+      else t3a-large;
     test-node = m5ad-xlarge;
     smash = t3a-xlarge;
-    faucet = t3a-medium;
+    faucet = t3a-large;
     metadata = t3a-medium;
     explorer = if globals.withHighCapacityExplorer
       then c5-4xlarge
-      else t3a-xlarge;
+      else t3a-2xlarge;
     monitoring = if globals.withHighCapacityMonitoring
       then t3-2xlargeMonitor
       else t3a-xlargeMonitor;

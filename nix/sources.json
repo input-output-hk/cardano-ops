@@ -84,6 +84,18 @@
         "url": "https://github.com/input-output-hk/cardano-node/archive/9a7331cce5e8bc0ea9c6bfa1c28773f4c5a7000f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "cardano-node-service": {
+        "branch": "refs/tags/1.26.0",
+        "description": null,
+        "homepage": null,
+        "owner": "input-output-hk",
+        "repo": "cardano-node",
+        "rev": "1a25af8527f353fd0f2b863c27250b2990fec22a",
+        "sha256": "0yhykn7schy7z1yj2sfxi53k3lnk689y1wri6r8l5i2hmvc58mrq",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/1a25af8527f353fd0f2b863c27250b2990fec22a.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-rest": {
         "branch": "refs/tags/3.1.2",
         "description": "HTTP interfaces for interacting with the Cardano blockchain.",
@@ -114,10 +126,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "4efc38924c64c23a582c84950c8c25f72ff049cc",
-        "sha256": "0nhwyrd0xc72yj5q3jqa2wl4khp4g7n72i45cxy2rgn9nrp8wqh0",
+        "rev": "bc4216c5b0e14dbde5541763f4952f99c3c712fa",
+        "sha256": "0y5n3limj5dg1vgxyxafg0ky35qq7w97rr00gr3yl16xx5jrhs6w",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/4efc38924c64c23a582c84950c8c25f72ff049cc.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/bc4216c5b0e14dbde5541763f4952f99c3c712fa.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "metadata-server": {
@@ -133,15 +145,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
-        "branch": "nixos-20.03",
+        "branch": "nixos-20.09",
         "description": "Nix Packages collection",
-        "homepage": "",
-        "owner": "NixOS",
+        "homepage": null,
+        "owner": "input-output-hk",
         "repo": "nixpkgs",
-        "rev": "db31e48c5c8d99dcaf4e5883a96181f6ac4ad6f6",
-        "sha256": "1j5j7vbnq2i5zyl8498xrf490jca488iw6hylna3lfwji6rlcaqr",
+        "rev": "4dfd084d19a270e5f962afa1851861c09522b222",
+        "sha256": "1dlcgr4af4cqaw5gs69vg9nfvfpnb7g3sls4cyw2iyqlijv5svqr",
         "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/db31e48c5c8d99dcaf4e5883a96181f6ac4ad6f6.tar.gz",
+        "url": "https://github.com/input-output-hk/nixpkgs/archive/4dfd084d19a270e5f962afa1851861c09522b222.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs-crystal": {
@@ -162,10 +174,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "772ccb3c5f24c12b7fb8bc481b241f55f0191fdc",
-        "sha256": "1ih7m72n8a8n9anjd780njjrg0xzcd1mgz2kj411634dc7nsfmac",
+        "rev": "bb2704a1b16779e986d95ac37eb7d7910d185ce9",
+        "sha256": "1q2qi45fvscca87anzchk81jhick5107iyl77iiwbbhd4xv3r2ll",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/772ccb3c5f24c12b7fb8bc481b241f55f0191fdc.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/bb2704a1b16779e986d95ac37eb7d7910d185ce9.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "smash": {

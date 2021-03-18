@@ -28,14 +28,20 @@ in {
     80
     443
     nodePort
-    monitoringPort
   ];
 
   environment.systemPackages = with pkgs; [
     sqlite-interactive
   ];
 
-  services.monitoring-exporters.extraPrometheusExportersPorts = [ monitoringPort ];
+  services.monitoring-exporters.extraPrometheusExporters = [{
+     job_name = "cardano-node";
+     scrape_interval = "10s";
+     port = monitoringPort;
+     metrics_path = "/metrics";
+     labels = { alias = "cardano-faucet"; };
+  }];
+
   services.custom-metrics = {
     enable = true;
     statsdExporter = "node";
