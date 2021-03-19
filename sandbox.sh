@@ -3,20 +3,20 @@
 # TODO: Test commands. Remove when the test case is complete.
 
 # Check the initial funds. Needed only for debugging purposes.
-cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode
+cardano-cli query utxo --testnet-magic 42 --shelley-mode
 
 # Create a new payment address
-cardano-cli shelley address key-gen \
+cardano-cli address key-gen \
             --verification-key-file payment.vkey \
             --signing-key-file payment.skey
 
 # Create a new stake key pair
-cardano-cli shelley stake-address key-gen \
+cardano-cli stake-address key-gen \
             --verification-key-file stake.vkey \
             --signing-key-file stake.skey
 
 ## Use these keys to create a payment address:
-cardano-cli shelley address build \
+cardano-cli address build \
             --payment-verification-key-file payment.vkey \
             --stake-verification-key-file stake.vkey \
             --out-file payment.addr \
@@ -24,18 +24,18 @@ cardano-cli shelley address build \
 
 # Get the transaction hash so that we can transfer funds to a newly created
 # address.
-cardano-cli shelley genesis initial-txin \
+cardano-cli genesis initial-txin \
             --testnet-magic 42 \
             --verification-key-file utxo-keys/utxo1.vkey > initial-tx.hash
 
 # Get the initial address from which we will transfer the funds
-cardano-cli shelley genesis initial-addr \
+cardano-cli genesis initial-addr \
             --testnet-magic 42 \
             --verification-key-file utxo-keys/utxo1.vkey > initial.addr
 
 # Create the transaction, we assume the fees are 0, and set a long time to live
 # to avoid having to add logic for querying the current blockchain tip.
-cardano-cli shelley transaction build-raw \
+cardano-cli transaction build-raw \
             --tx-in $(cat initial-tx.hash) \
             --tx-out $(cat initial.addr)+3333333333333334 \
             --tx-out $(cat payment.addr)+10000000000000000 \
@@ -43,36 +43,36 @@ cardano-cli shelley transaction build-raw \
             --fee 0 \
             --out-file tx.raw
 
-cardano-cli shelley transaction sign \
+cardano-cli transaction sign \
             --tx-body-file tx.raw \
             --signing-key-file utxo-keys/utxo1.skey \
             --testnet-magic 42 \
             --out-file tx.signed
 
-cardano-cli shelley transaction submit \
+cardano-cli transaction submit \
             --tx-file tx.signed \
             --testnet-magic 42 --shelley-mode
 
 # Balance checking
-cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode \
+cardano-cli query utxo --testnet-magic 42 --shelley-mode \
             --address $(cat initial.addr)
 
-cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode\
+cardano-cli query utxo --testnet-magic 42 --shelley-mode\
             --address $(cat payment.addr)
 
 # Register the stake address on the blockchain
-cardano-cli shelley stake-address registration-certificate \
+cardano-cli stake-address registration-certificate \
             --stake-verification-key-file stake.vkey \
             --out-file stake.cert
 
 # Get the transaction input to which the funds were transferred to `payment.addr`.
-cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode\
+cardano-cli query utxo --testnet-magic 42 --shelley-mode\
             --address $(cat payment.addr) \
             --out-file tmp.json
 grep -oP '"\K[^"]+' -m 1 tmp.json | head -1 | tr -d '\n' > payment-tx-in
 
 # We assume the fees and `keyDeposit` to be 0.
-cardano-cli shelley transaction build-raw \
+cardano-cli transaction build-raw \
             --tx-in $(cat payment-tx-in) \
             --tx-out $(cat payment.addr)+10000000000000000 \
             --ttl 1000000 \
@@ -80,14 +80,14 @@ cardano-cli shelley transaction build-raw \
             --out-file tx.raw \
             --certificate-file stake.cert
 
-cardano-cli shelley transaction sign \
+cardano-cli transaction sign \
             --tx-body-file tx.raw \
             --signing-key-file payment.skey \
             --signing-key-file stake.skey \
             --testnet-magic 42 \
             --out-file tx.signed
 
-cardano-cli shelley transaction submit \
+cardano-cli transaction submit \
             --tx-file tx.signed \
             --testnet-magic 42 \
             --shelley-mode
@@ -95,18 +95,18 @@ cardano-cli shelley transaction submit \
 # Register a stakepool
 
 # Generate cold keys and a cold counter
-cardano-cli shelley node key-gen \
+cardano-cli node key-gen \
             --cold-verification-key-file cold.vkey \
             --cold-signing-key-file cold.skey \
             --operational-certificate-issue-counter-file cold.counter
 
 # Genereate a VRF key pair
-cardano-cli shelley node key-gen-VRF \
+cardano-cli node key-gen-VRF \
             --verification-key-file vrf.vkey \
             --signing-key-file vrf.skey
 
 # Generate a KES Key pair
-cardano-cli shelley node key-gen-KES \
+cardano-cli node key-gen-KES \
             --verification-key-file kes.vkey \
             --signing-key-file kes.skey
 
@@ -117,8 +117,8 @@ cardano-cli shelley node key-gen-KES \
 #
 # We also need to know the current slot number:
 SLOTS_PER_KES_PERIOD=129600
-KES_PERIOD=`cardano-cli shelley query tip --testnet-magic 42 | jq '.slotNo' | xargs -I '{}' expr '{}' / 129600`
-cardano-cli shelley node issue-op-cert \
+KES_PERIOD=`cardano-cli query tip --testnet-magic 42 | jq '.slotNo' | xargs -I '{}' expr '{}' / 129600`
+cardano-cli node issue-op-cert \
             --kes-verification-key-file kes.vkey \
             --cold-signing-key-file cold.skey \
             --operational-certificate-issue-counter cold.counter \
@@ -133,7 +133,7 @@ echo '{
 }' > pool-metadata.json
 
 # Get the hash of the file:
-METADATA_HASH=`cardano-cli shelley stake-pool metadata-hash --pool-metadata-file pool-metadata.json`
+METADATA_HASH=`cardano-cli stake-pool metadata-hash --pool-metadata-file pool-metadata.json`
 
 # Generate a stakepool registration certificate
 
@@ -144,7 +144,7 @@ COST=1000
 # Pool cost per epoch in percentage
 MARGIN=0.1
 
-cardano-cli shelley stake-pool registration-certificate \
+cardano-cli stake-pool registration-certificate \
             --cold-verification-key-file cold.vkey \
             --vrf-verification-key-file vrf.vkey \
             --pool-pledge $PLEDGE \
@@ -158,7 +158,7 @@ cardano-cli shelley stake-pool registration-certificate \
             --out-file pool-registration.cert
 
 # Generate a delegation certificate pledge
-cardano-cli shelley stake-address delegation-certificate \
+cardano-cli stake-address delegation-certificate \
             --stake-verification-key-file stake.vkey \
             --cold-verification-key-file cold.vkey \
             --out-file delegation.cert
@@ -172,12 +172,12 @@ CHANGE=`expr $BALANCE - $POOL_DEPOSIT - $FEE`
 TTL=1000000
 
 # We need the transaction in which the funds were traesfered to `payment.addr`.
-cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode\
+cardano-cli query utxo --testnet-magic 42 --shelley-mode\
             --address $(cat payment.addr) \
             --out-file /tmp/tx-info.json
 TX_IN=`grep -oP '"\K[^"]+' -m 1 /tmp/tx-info.json | head -1 | tr -d '\n'`
 
-cardano-cli shelley transaction build-raw \
+cardano-cli transaction build-raw \
             --tx-in $TX_IN \
             --tx-out $(cat payment.addr)+$CHANGE \
             --ttl $TTL \
@@ -186,7 +186,7 @@ cardano-cli shelley transaction build-raw \
             --certificate-file pool-registration.cert \
             --certificate-file delegation.cert
 
-cardano-cli shelley transaction sign \
+cardano-cli transaction sign \
             --tx-body-file tx.raw \
             --signing-key-file payment.skey \
             --signing-key-file stake.skey \
@@ -194,13 +194,13 @@ cardano-cli shelley transaction sign \
             --testnet-magic 42 \
             --out-file tx.signed
 
-cardano-cli shelley transaction submit \
+cardano-cli transaction submit \
             --tx-file tx.signed \
             --testnet-magic 42 \
             --shelley-mode
 
 # Obtain the pool id
-POOL_ID=`cardano-cli shelley stake-pool id --verification-key-file cold.vkey`
+POOL_ID=`cardano-cli stake-pool id --verification-key-file cold.vkey`
 # Verify that the registration was succesful
 echo $POOL_ID
-cardano-cli shelley query stake-distribution  --shelley-mode --testnet-magic 42
+cardano-cli query stake-distribution  --shelley-mode --testnet-magic 42

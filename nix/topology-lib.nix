@@ -211,6 +211,7 @@ pkgs: with pkgs; with lib; rec {
   */
   mkBftCoreNodeForRegions = regions: r: idx: attrs: rec {
     name = "bft-${r}-${toString idx}";
+    stakePool = false;
     region = regions.${r}.name;
     producers = # some nearby relays:
       [ (regionalRelaysProducer region 3) ];
@@ -228,6 +229,7 @@ pkgs: with pkgs; with lib; rec {
     producers =  # some nearby relays:
       [ (regionalRelaysProducer region 3) ];
     org = "IOHK";
+    stakePool = true;
   } // attrs;
 
   /* Generate relay nodes definitions,

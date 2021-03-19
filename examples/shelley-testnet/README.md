@@ -24,7 +24,7 @@ AWS, you need to perform different preparatory steps.
 The local deployment uses [libvirt]. Make sure that you have it installed and
 properly configured.
 
-To setup on NixOS first enable `libvirtd` (TODO: which file is this?):
+To setup on NixOS first enable `libvirtd`:
 
 ```nix
 { pkgs, lib, ... }:
@@ -313,7 +313,7 @@ To change the logging level per-node you have to modify the
 To obtain the entire UTxO set, run:
 
 ```sh
-cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode
+cardano-cli query utxo --testnet-magic 42 --shelley-mode
 ```
 
 Querying the UTxO for a specific address. First you need the verification key
@@ -321,7 +321,7 @@ to obtain the address. For a verification key corresponding to an initial
 address you can obtain its associated address as follows:
 
 ```sh
-cardano-cli shelley genesis initial-addr \
+cardano-cli genesis initial-addr \
                 --testnet-magic 42 \
                 --verification-key-file utxo.vkey
 ```
@@ -335,14 +335,14 @@ addr_test1vqrl9rphzv064dsfuc3dfumxwnsm8syhj4yucdkrtntxvyqcld79a
 This address can be used to query a specific UTxO:
 
 ```sh
-cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode\
+cardano-cli query utxo --testnet-magic 42 --shelley-mode\
      --address addr_test1vqrl9rphzv064dsfuc3dfumxwnsm8syhj4yucdkrtntxvyqcld79a
 ```
 
 ### Querying protocol parameters
 
 ```
-cardano-cli shelley query protocol-parameters --testnet-magic 42 --shelley-mode
+cardano-cli query protocol-parameters --testnet-magic 42 --shelley-mode
 ```
 
 You can use the `--out-file` flag to output the result to a file.
@@ -351,7 +351,7 @@ You can use the `--out-file` flag to output the result to a file.
 
 
 ```sh
-cardano-cli shelley query ledger-state --testnet-magic 42 --shelley-mode
+cardano-cli query ledger-state --testnet-magic 42 --shelley-mode
 ```
 
 ### Querying the stake distribution
@@ -360,7 +360,7 @@ Once stakepools are registered, you can check the portion of the stake they own
 by running:
 
 ```sh
-cardano-cli shelley query stake-distribution  --testnet-magic 42 --shelley-mode
+cardano-cli query stake-distribution  --testnet-magic 42 --shelley-mode
 ```
 ### Querying the blocks produced per-stakepool
 
@@ -369,7 +369,7 @@ or the `nesBCur` field to get the number of blocks produced per-stakepool in
 the previous and current epochs, respectively. For instance:
 
 ```sh
-cardano-cli shelley query ledger-state --testnet-magic 42 --shelley-mode | jq '.nesBcur'
+cardano-cli query ledger-state --testnet-magic 42 --shelley-mode | jq '.nesBcur'
 ```
 
 ### Key hashing
@@ -380,15 +380,15 @@ to use the commands that `cardano-cli` provides for hashing keys. We show some
 examples below:
 
 ```sh
-▶ cardano-cli shelley genesis key-hash \
+▶ cardano-cli genesis key-hash \
               --verification-key-file example/genesis-keys/genesis1.vkey
               f42b0eb14056134323d9756fa693dba5e421acaaf84fdaff922a4c0f
 
-▶ cardano-cli shelley genesis key-hash \
+▶ cardano-cli genesis key-hash \
               --verification-key-file example/delegate-keys/delegate1.vkey
               e446c231ace1f29eb83827f29cb4a19e4c324229d59472c8d2dbb958
 
-▶ cardano-cli shelley node key-hash-VRF \
+▶ cardano-cli node key-hash-VRF \
               --verification-key-file example/delegate-keys/delegate1.vrf.vkey
               e5b6b13eacc21968953ecb78eb900c1eaa2b4744ffead8719f9064f4863e1813
 ```

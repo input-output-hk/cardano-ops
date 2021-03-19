@@ -19,50 +19,50 @@ FEE=0
 TTL=1000000
 
 # Create a new stake key pair
-cardano-cli shelley stake-address key-gen \
+cardano-cli stake-address key-gen \
             --verification-key-file $STAKE.vkey \
             --signing-key-file $STAKE.skey
 # Use these keys to create a payment address. This key should have funds
 # associated to it if we want the stakepool to have stake delegated to it.
-cardano-cli shelley address build \
+cardano-cli address build \
             --payment-verification-key-file $UTXO.vkey \
             --stake-verification-key-file $STAKE.vkey \
             --out-file $PAYMENT_ADDR \
             --testnet-magic 42
 
 # Register the stake address on the blockchain
-cardano-cli shelley stake-address registration-certificate \
+cardano-cli stake-address registration-certificate \
             --stake-verification-key-file $STAKE.vkey \
             --out-file $STAKE.cert
 INITIAL_ADDR=initial.addr
 # Get the initial address from which we will transfer the funds
-cardano-cli shelley genesis initial-addr \
+cardano-cli genesis initial-addr \
             --testnet-magic 42 \
             --verification-key-file $UTXO.vkey > $INITIAL_ADDR
 # Check the balance on the initial address so that we can submit different
 # transactions.
 TX_INFO=/tmp/tx-info.json
-cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode \
+cardano-cli query utxo --testnet-magic 42 --shelley-mode \
             --address $(cat $INITIAL_ADDR) \
             --out-file $TX_INFO
 BALANCE=`jq '.[].amount' $TX_INFO | xargs printf '%.0f\n'`
 TX_IN=`grep -oP '"\K[^"]+' -m 1 $TX_INFO | head -1 | tr -d '\n'`
 CHANGE=`expr $BALANCE - $FEE`
 
-cardano-cli shelley transaction build-raw \
+cardano-cli transaction build-raw \
             --tx-in $TX_IN \
             --tx-out $(cat $INITIAL_ADDR)+$CHANGE \
             --ttl $TTL \
             --fee $FEE \
             --out-file tx.raw \
             --certificate-file $STAKE.cert
-cardano-cli shelley transaction sign \
+cardano-cli transaction sign \
             --tx-body-file tx.raw \
             --signing-key-file $UTXO.skey \
             --signing-key-file $STAKE.skey \
             --testnet-magic 42 \
             --out-file tx.signed
-cardano-cli shelley transaction submit \
+cardano-cli transaction submit \
             --tx-file tx.signed \
             --testnet-magic 42 \
             --shelley-mode
@@ -75,7 +75,7 @@ echo '{
   "homepage": "https://ppp"
 }' > $METADATA_FILE
 # Get the hash of the file:
-METADATA_HASH=`cardano-cli shelley stake-pool metadata-hash --pool-metadata-file pool-metadata.json`
+METADATA_HASH=`cardano-cli stake-pool metadata-hash --pool-metadata-file pool-metadata.json`
 
 # Pledge amount in Lovelace
 PLEDGE=1000000
@@ -85,7 +85,7 @@ COST=1000
 MARGIN=0.1
 POOL_REGISTRATION_CERT=pool-registration.cert
 # Create the registration certificate
-cardano-cli shelley stake-pool registration-certificate \
+cardano-cli stake-pool registration-certificate \
             --cold-verification-key-file $COLD.vkey \
             --vrf-verification-key-file $VRF.vkey \
             --pool-pledge $PLEDGE \
@@ -100,7 +100,7 @@ cardano-cli shelley stake-pool registration-certificate \
 
 # Generate a delegation certificate pledge
 DELEGATION_CERT=delegation.cert
-cardano-cli shelley stake-address delegation-certificate \
+cardano-cli stake-address delegation-certificate \
             --stake-verification-key-file $STAKE.vkey \
             --cold-verification-key-file $COLD.vkey \
             --out-file $DELEGATION_CERT
@@ -111,7 +111,7 @@ sleep 5
 # Registering a stake pool requires a deposit, which is specified in the
 # genesis file. Here we assume the deposit is 0.
 POOL_DEPOSIT=0
-cardano-cli shelley query utxo --testnet-magic 42 --shelley-mode \
+cardano-cli query utxo --testnet-magic 42 --shelley-mode \
             --address $(cat $INITIAL_ADDR) \
             --out-file $TX_INFO
 BALANCE=`jq '.[].amount' $TX_INFO | xargs printf '%.0f\n'`
@@ -119,7 +119,7 @@ TX_IN=`grep -oP '"\K[^"]+' -m 1 $TX_INFO | head -1 | tr -d '\n'`
 CHANGE=`expr $BALANCE - $POOL_DEPOSIT - $FEE`
 
 # Create, sign, and submit the transaction
-cardano-cli shelley transaction build-raw \
+cardano-cli transaction build-raw \
             --tx-in $TX_IN \
             --tx-out $(cat $PAYMENT_ADDR)+$CHANGE \
             --ttl $TTL \
@@ -127,14 +127,14 @@ cardano-cli shelley transaction build-raw \
             --out-file tx.raw \
             --certificate-file $POOL_REGISTRATION_CERT \
             --certificate-file $DELEGATION_CERT
-cardano-cli shelley transaction sign \
+cardano-cli transaction sign \
             --tx-body-file tx.raw \
             --signing-key-file $UTXO.skey \
             --signing-key-file $STAKE.skey \
             --signing-key-file $COLD.skey \
             --testnet-magic 42 \
             --out-file tx.signed
-cardano-cli shelley transaction submit \
+cardano-cli transaction submit \
             --tx-file tx.signed \
             --testnet-magic 42 \
             --shelley-mode
