@@ -1,4 +1,4 @@
-pkgs:
+pkgs: with pkgs; with lib;
 let
   requireEnv = name:
     let value = builtins.getEnv name;
@@ -11,22 +11,22 @@ in {
   static = import ./static pkgs;
 
   deploymentName = "${builtins.baseNameOf ./.}";
-  deploymentPath = "$HOME/${pkgs.globals.deploymentName}";
+  deploymentPath = "$HOME/${globals.deploymentName}";
 
   relayUpdateArgs = "-m 1";
   relayUpdatePeriod = "weekly";
 
-  environmentName = pkgs.globals.deploymentName;
+  environmentName = globals.deploymentName;
 
-  topology = import (./topologies + "/${pkgs.globals.environmentName}.nix") pkgs;
+  topology = import (./topologies + "/${globals.environmentName}.nix") pkgs;
 
-  sourcesJsonOverride = ./nix + "/sources.${pkgs.globals.environmentName}.json";
+  sourcesJsonOverride = ./nix + "/sources.${globals.environmentName}.json";
 
   dnsZone = "dev.cardano.org";
-  domain = "${pkgs.globals.deploymentName}.${pkgs.globals.dnsZone}";
-  relaysNew = pkgs.globals.environmentConfig.relaysNew or "relays-new.${pkgs.globals.domain}";
+  domain = "${globals.deploymentName}.${globals.dnsZone}";
+  relaysNew = globals.environmentConfig.relaysNew or "relays-new.${globals.domain}";
 
-  explorerHostName = "explorer.${pkgs.globals.domain}";
+  explorerHostName = "explorer.${globals.domain}";
   explorerForceSSL = false;
   explorerAliases = [];
 
@@ -39,7 +39,7 @@ in {
   withSmash = false;
 
   withMetadata = false;
-  metadataHostName = "metadata.${pkgs.globals.domain}";
+  metadataHostName = "metadata.${globals.domain}";
 
   initialPythonExplorerDBSyncDone = false;
 
@@ -47,12 +47,37 @@ in {
   withHighCapacityExplorer = false;
   withHighLoadRelays = false;
 
-  environments = pkgs.iohkNix.cardanoLib.environments;
+  environments = iohkNix.cardanoLib.environments;
 
   environmentConfig =
     __trace
-      "using environment:  ${pkgs.globals.environmentName}"
-    pkgs.globals.environments.${pkgs.globals.environmentName};
+      "using environment:  ${globals.environmentName}"
+    globals.environments.${globals.environmentName};
+
+  environmentVariables = optionalAttrs (builtins.pathExists ./globals.nix) (
+    let
+      genesisFile = globals.environmentConfig.nodeConfig.ShelleyGenesisFile;
+      genesis = builtins.fromJSON (builtins.readFile genesisFile);
+    in rec {
+      ENVIRONMENT = globals.environmentName;
+
+      CORE_NODES = toString (map (x: x.name) globals.topology.coreNodes);
+      NB_CORE_NODES = toString (builtins.length CORE_NODES);
+      BFT_NODES = toString (map (x: x.name) (filter (c: !c.stakePool) globals.topology.coreNodes));
+      NB_BFT_NODES = toString (builtins.length BFT_NODES);
+      POOL_NODES = toString (map (x: x.name) (filter (c: c.stakePool) globals.topology.coreNodes));
+      NB_POOL_NODES = toString (builtins.length POOL_NODES);
+
+      GENESIS_PATH = genesisFile;
+      # Network parameters.
+      SYSTEM_START = genesis.systemStart;
+      EPOCH_LENGTH = toString genesis.epochLength;
+      SLOT_LENGTH = toString genesis.slotLength;
+      K = toString genesis.securityParam;
+      F = toString genesis.activeSlotsCoeff;
+      MAX_SUPPLY = toString genesis.maxLovelaceSupply;
+      # End: Network parameters.
+    });
 
   deployerIp = requireEnv "DEPLOYER_IP";
   cardanoNodePort = 3001;
@@ -62,9 +87,9 @@ in {
   netdataExporterPort = 19999;
 
   extraPrometheusExportersPorts = [
-    pkgs.globals.cardanoExplorerPrometheusExporterPort
-    pkgs.globals.netdataExporterPort
-  ] ++ builtins.genList (i: pkgs.globals.cardanoNodePrometheusExporterPort + i) pkgs.globals.nbInstancesPerRelay;
+    globals.cardanoExplorerPrometheusExporterPort
+    globals.netdataExporterPort
+  ] ++ builtins.genList (i: globals.cardanoNodePrometheusExporterPort + i) globals.nbInstancesPerRelay;
 
   alertChainDensityLow = "99";
   alertMemPoolHigh = "190";
@@ -79,9 +104,9 @@ in {
   minMemoryPerInstance = 8;
   # base line number of cardano-node instance per relay,
   # can be scaled up on a per node basis by scaling up on instance type, cf roles/relays.nix.
-  nbInstancesPerRelay = with pkgs.globals; with pkgs.globals.ec2.instances.relay-node.node;
-    let idealNbInstances = pkgs.lib.min (cpus / minCpuPerInstance) (pkgs.topology-lib.roundToInt (memory / minMemoryPerInstance));
-      actualNbInstances = pkgs.lib.max 1 idealNbInstances;
+  nbInstancesPerRelay = with globals; with globals.ec2.instances.relay-node.node;
+    let idealNbInstances = min (cpus / minCpuPerInstance) (topology-lib.roundToInt (memory / minMemoryPerInstance));
+      actualNbInstances = max 1 idealNbInstances;
       cpusPerInstance = cpus / actualNbInstances;
       memoryPerInstance = memory / actualNbInstances;
       configMessage = "~ ${toString cpusPerInstance} CPUs and ${toString memoryPerInstance}G memory per instance.";
@@ -96,7 +121,7 @@ in {
   # disk allocation for each cardano-node instance (GBytes):
   nodeDbDiskAllocationSize = 15;
 
-  ec2.instances = with pkgs; with iohk-ops-lib.physical.aws; {
+  ec2.instances = with iohk-ops-lib.physical.aws; {
     inherit targetEnv;
     core-node = t3a-large;
     relay-node = if globals.withHighLoadRelays
@@ -114,7 +139,7 @@ in {
       else t3a-xlargeMonitor;
   };
 
-  libvirtd.instances = with pkgs; with iohk-ops-lib.physical.libvirtd; {
+  libvirtd.instances = with iohk-ops-lib.physical.libvirtd; {
     inherit targetEnv;
     core-node = medium;
     relay-node = if globals.withHighLoadRelays

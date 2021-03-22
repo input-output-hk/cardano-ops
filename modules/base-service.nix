@@ -90,7 +90,7 @@ in
     environment.systemPackages = [ pkgs.cardano-cli ];
     environment.variables = {
       CARDANO_NODE_SOCKET_PATH = cfg.socketPath;
-    };
+    } // globals.environmentVariables;
     services.monitoring-exporters.extraPrometheusExporters = genList (i: {
       job_name = "cardano-node";
       scrape_interval = "10s";

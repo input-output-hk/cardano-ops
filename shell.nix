@@ -52,26 +52,4 @@ in  mkShell (rec {
   passthru = {
     gen-graylog-creds = iohk-ops-lib.scripts.gen-graylog-creds { staticPath = ./static; };
   };
-} // lib.optionalAttrs (builtins.pathExists ./globals.nix) (let
-  genesisFile = globals.environmentConfig.nodeConfig.ShelleyGenesisFile;
-  genesis = builtins.fromJSON (builtins.readFile genesisFile);
-  in rec {
-  ENVIRONMENT = globals.environmentName;
-
-  CORE_NODES = map (x: x.name) globals.topology.coreNodes;
-  NB_CORE_NODES = builtins.length CORE_NODES;
-  BFT_NODES = map (x: x.name) (filter (c: !c.stakePool) globals.topology.coreNodes);
-  NB_BFT_NODES = builtins.length BFT_NODES;
-  POOL_NODES = map (x: x.name) (filter (c: c.stakePool) globals.topology.coreNodes);
-  NB_POOL_NODES = builtins.length POOL_NODES;
-
-  GENESIS_PATH = genesisFile;
-  # Network parameters.
-  SYSTEM_START = genesis.systemStart;
-  EPOCH_LENGTH = toString genesis.epochLength;
-  SLOT_LENGTH = toString genesis.slotLength;
-  K = toString genesis.securityParam;
-  F = toString genesis.activeSlotsCoeff;
-  MAX_SUPPLY = toString genesis.maxLovelaceSupply;
-  # End: Network parameters.
-}))
+} // globals.environmentVariables)
