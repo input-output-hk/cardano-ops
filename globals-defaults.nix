@@ -58,15 +58,17 @@ in {
     let
       genesisFile = globals.environmentConfig.nodeConfig.ShelleyGenesisFile;
       genesis = builtins.fromJSON (builtins.readFile genesisFile);
+      bftNodes = filter (c: !c.stakePool) globals.topology.coreNodes;
+      stkNodes = filter (c: c.stakePool) globals.topology.coreNodes;
     in rec {
       ENVIRONMENT = globals.environmentName;
 
       CORE_NODES = toString (map (x: x.name) globals.topology.coreNodes);
-      NB_CORE_NODES = toString (builtins.length CORE_NODES);
-      BFT_NODES = toString (map (x: x.name) (filter (c: !c.stakePool) globals.topology.coreNodes));
-      NB_BFT_NODES = toString (builtins.length BFT_NODES);
-      POOL_NODES = toString (map (x: x.name) (filter (c: c.stakePool) globals.topology.coreNodes));
-      NB_POOL_NODES = toString (builtins.length POOL_NODES);
+      NB_CORE_NODES = toString (builtins.length globals.topology.coreNodes);
+      BFT_NODES = toString (map (x: x.name) bftNodes);
+      NB_BFT_NODES = toString (builtins.length bftNodes);
+      POOL_NODES = toString (map (x: x.name) stkNodes);
+      NB_POOL_NODES = toString (builtins.length stkNodes);
 
       GENESIS_PATH = genesisFile;
       # Network parameters.
