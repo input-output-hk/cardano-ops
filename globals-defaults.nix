@@ -70,7 +70,7 @@ in {
       POOL_NODES = toString (map (x: x.name) stkNodes);
       NB_POOL_NODES = toString (builtins.length stkNodes);
 
-      GENESIS_PATH = genesisFile;
+      GENESIS_PATH = toString genesisFile;
       # Network parameters.
       SYSTEM_START = genesis.systemStart;
       EPOCH_LENGTH = toString genesis.epochLength;
