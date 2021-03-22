@@ -8,7 +8,7 @@ let
       value;
 in {
 
-  static = import ./static;
+  static = import ./static pkgs;
 
   deploymentName = "${builtins.baseNameOf ./.}";
   deploymentPath = "$HOME/${pkgs.globals.deploymentName}";
