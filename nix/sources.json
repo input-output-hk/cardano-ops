@@ -73,15 +73,15 @@
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
     "cardano-node": {
-        "branch": "refs/tags/1.25.1",
+        "branch": "dnadales/add-pivo-era",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "9a7331cce5e8bc0ea9c6bfa1c28773f4c5a7000f",
-        "sha256": "1scffi7igv4kj93bpjf8yibcaq0sskfikmm00f7r6q031l53y50c",
+        "rev": "64ae9657b36385115023c0af9063dbc110139b52",
+        "sha256": "1g86vdi8vsg690247zglhc4c5psqmsknlhmkcs2hfmcjqzzgspm8",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/9a7331cce5e8bc0ea9c6bfa1c28773f4c5a7000f.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/64ae9657b36385115023c0af9063dbc110139b52.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-service": {
