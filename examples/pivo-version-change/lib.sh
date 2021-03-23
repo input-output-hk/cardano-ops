@@ -79,6 +79,21 @@ submit_transaction() {
           $tx_submission_mode
 }
 
+submit_update_transaction() {
+    initial_addr=$1
+    update_file=$2
+    signing_args=$3
+
+    submit_transaction \
+        $initial_addr \
+        $initial_addr \
+        pivo-build-raw \
+        "--update-payload-file $update_file" \
+        "$signing_args" \
+        --pivo-mode
+}
+
+
 # This procedure assumes the $CLI variable is set. See 'submit_transaction'.
 register_stakepool(){
     # Path where the stake keys should be created

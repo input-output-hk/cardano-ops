@@ -34,9 +34,70 @@ fi
 BFT_NODES=($BFT_NODES)
 POOL_NODES=($POOL_NODES)
 
+# Copy the scripts to the pool nodes
 for f in ${POOL_NODES[@]}
 do
-    nixops scp $f examples/pivo-version-change/*.sh /root/ --to
+    nixops scp $f examples/pivo-version-change/lib.sh /root/ --to
+    nixops scp $f examples/pivo-version-change/run.sh /root/ --to
 done
 
-nixops ssh $POOL_NODES[1] "./run.sh register"
+# Register the stake pools
+# for f in ${POOL_NODES[@]}
+# do
+#     nixops ssh $f "./run.sh register" &
+# done
+
+wait
+
+echo "Stake pools registered"
+
+# You can query the blocks produced by each stakepool by running:
+#
+#   cardano-cli query ledger-state --testnet-magic 42 --shelley-mode | jq '.blocksCurrent'
+#
+
+################################################################################
+## Submit the SIP
+################################################################################
+echo "Submitting an SIP commit using ${POOL_NODES[0]}"
+nixops ssh ${POOL_NODES[0]} "./run.sh scommit"
+
+################################################################################
+## Reveal the SIP
+################################################################################
+# Wait till the submission is stable in the chain. This depends on the global
+# parameters of the era. More specifically:
+#
+# - activeSlotsCoeff
+# - securityParam
+# - slotLength
+#
+# Ideally the values of these parameters should be retrieved from the node. For
+# simplicity we use the values of the test genesis file, however there is no
+# sanity check that the values assumed in this script are correct.
+#
+# We assume:
+#
+# - activeSlotsCoeff = 0.1
+# - securityParam    = 10
+# - slotLength       = 0.2
+#
+# So we have:
+#
+# - stabilityWindow = (3 * securityParam) / activeSlotsCoeff = (3 * 10) / 0.1 = 300
+#
+# We assume (according to the values of the genesis file) that a slot occurs
+# every 0.2 seconds, so we need to wait for 300 * 0.2 = 60 seconds. In practice
+# we add a couple of seconds to be on the safe side. In a proper test script we
+# would ask the node when a given commit is stable on the chain.
+sleep 65
+
+echo "Submitting an SIP revelation using ${POOL_NODES[0]}"
+nixops ssh ${POOL_NODES[0]} "./run.sh sreveal"
+
+################################################################################
+## Vote on the proposal
+################################################################################
+# We wait till the revelation is stable on the chain, which means that the
+# voting period is open.
+sleep 65
