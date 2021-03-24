@@ -85,13 +85,71 @@ do_sip_reveal(){
 do_sip_vote(){
     UPDATE_FILE=update.payload
     $CLI -- governance pivo sip vote \
-         --stake-verification-key-file $VOTING_KEY1.vkey \
+         --stake-verification-key-file $VOTING_KEY.vkey \
          --proposal-text "hello world!" \
          --out-file $UPDATE_FILE
     submit_update_transaction \
-        payment1.addr \
+        $PAYMENT_ADDR \
         $UPDATE_FILE \
-        "--signing-key-file $UTXO1.skey --signing-key-file $VOTING_KEY1.skey"
+        "--signing-key-file $UTXO.skey --signing-key-file $VOTING_KEY.skey"
+    rm $UPDATE_FILE
+}
+
+do_imp_commit(){
+    UPDATE_FILE=update.payload
+    $CLI -- governance pivo imp commit \
+         --stake-verification-key-file $PROPOSING_KEY.vkey \
+         --proposal-text "hello world!" \
+         --implementation-version 77 \
+         --new-bb-size 131072 \
+         --out-file $UPDATE_FILE
+    submit_update_transaction \
+        $PAYMENT_ADDR \
+        $UPDATE_FILE \
+        "--signing-key-file $UTXO.skey --signing-key-file $PROPOSING_KEY.skey"
+    rm $UPDATE_FILE
+}
+
+do_imp_reveal(){
+    UPDATE_FILE=update.payload
+    $CLI -- governance pivo imp reveal \
+         --stake-verification-key-file $PROPOSING_KEY.vkey \
+         --proposal-text "hello world!" \
+         --implementation-version 77 \
+         --new-bb-size 131072 \
+         --out-file $UPDATE_FILE
+    submit_update_transaction \
+        $PAYMENT_ADDR \
+        $UPDATE_FILE \
+        "--signing-key-file $UTXO.skey --signing-key-file $PROPOSING_KEY.skey"
+    rm $UPDATE_FILE
+}
+
+do_imp_vote(){
+    UPDATE_FILE=update.payload
+    $CLI -- governance pivo imp vote \
+         --stake-verification-key-file $VOTING_KEY.vkey \
+         --proposal-text "hello world!" \
+         --implementation-version 77 \
+         --new-bb-size 131072 \
+         --out-file $UPDATE_FILE
+    submit_update_transaction \
+        $PAYMENT_ADDR \
+        $UPDATE_FILE \
+        "--signing-key-file $UTXO.skey --signing-key-file $VOTING_KEY.skey"
+    rm $UPDATE_FILE
+}
+
+do_endorsement(){
+    UPDATE_FILE=update.payload
+    $CLI -- governance pivo endorse \
+         --stake-verification-key-file $VOTING_KEY.vkey \
+         --implementation-version 77 \
+         --out-file $UPDATE_FILE
+    submit_update_transaction \
+        $PAYMENT_ADDR \
+        $UPDATE_FILE \
+        "--signing-key-file $UTXO.skey --signing-key-file $VOTING_KEY.skey"
     rm $UPDATE_FILE
 }
 
@@ -124,6 +182,26 @@ else
         svote )
             echo "Voting for the SIP"
             do_sip_vote
+            exit
+            ;;
+        icommit )
+            echo "Submitting the implementation commit"
+            do_imp_commit
+            exit
+            ;;
+        ireveal )
+            echo "Revealing the implementation commit"
+            do_imp_reveal
+            exit
+            ;;
+        ivote )
+            echo "Voting for the implementation"
+            do_imp_vote
+            exit
+            ;;
+        endorse )
+            echo "Endorsing the implementation"
+            do_endorsement
             exit
             ;;
         * )

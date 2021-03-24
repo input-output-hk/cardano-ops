@@ -92,7 +92,6 @@ nixops ssh ${POOL_NODES[0]} "./run.sh scommit"
 # we add a couple of seconds to be on the safe side. In a proper test script we
 # would ask the node when a given commit is stable on the chain.
 sleep 65
-
 echo "Submitting an SIP revelation using ${POOL_NODES[0]}"
 nixops ssh ${POOL_NODES[0]} "./run.sh sreveal"
 
@@ -102,3 +101,43 @@ nixops ssh ${POOL_NODES[0]} "./run.sh sreveal"
 # We wait till the revelation is stable on the chain, which means that the
 # voting period is open.
 sleep 65
+for f in ${POOL_NODES[@]}
+do
+    nixops ssh $f "./run.sh svote" &
+done
+wait
+
+################################################################################
+## Submit an implementation commit
+################################################################################
+sleep 10
+nixops ssh ${POOL_NODES[0]} "./run.sh icommit"
+
+################################################################################
+## Reveal the implementation
+################################################################################
+# Wait till the SIP vote period ends, so that votes are tallied and the SIP is
+# marked as approved.
+sleep 180
+nixops ssh ${POOL_NODES[0]} "./run.sh ireveal"
+
+################################################################################
+## Vote on the implementation
+################################################################################
+sleep 65
+for f in ${POOL_NODES[@]}
+do
+    nixops ssh $f "./run.sh ivote" &
+done
+wait
+
+################################################################################
+## Endorse the implementation
+################################################################################
+# Wait till the end of the voting period is stable
+sleep 180
+for f in ${POOL_NODES[@]}
+do
+    nixops ssh $f "./run.sh endorse" &
+done
+wait
