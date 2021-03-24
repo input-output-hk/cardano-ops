@@ -85,15 +85,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-service": {
-        "branch": "refs/tags/1.26.0",
+        "branch": "dnadales/pivo-cardano-ops-fix",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "1a25af8527f353fd0f2b863c27250b2990fec22a",
-        "sha256": "0yhykn7schy7z1yj2sfxi53k3lnk689y1wri6r8l5i2hmvc58mrq",
+        "rev": "9e7b329631f9ee5eab3b059222fe13a960fa3a08",
+        "sha256": "1gg7a34al1apxx6yl45v8dj2hkd5h0rlxpq2b4bfc6ianyqrrqdw",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/1a25af8527f353fd0f2b863c27250b2990fec22a.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/9e7b329631f9ee5eab3b059222fe13a960fa3a08.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rest": {

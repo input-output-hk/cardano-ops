@@ -42,10 +42,10 @@ do
 done
 
 # Register the stake pools
-# for f in ${POOL_NODES[@]}
-# do
-#     nixops ssh $f "./run.sh register" &
-# done
+for f in ${POOL_NODES[@]}
+do
+    nixops ssh $f "./run.sh register" &
+done
 
 wait
 
@@ -59,6 +59,7 @@ echo "Stake pools registered"
 ################################################################################
 ## Submit the SIP
 ################################################################################
+sleep 10 # Give stake pool registration transactions time to settle
 echo "Submitting an SIP commit using ${POOL_NODES[0]}"
 nixops ssh ${POOL_NODES[0]} "./run.sh scommit"
 

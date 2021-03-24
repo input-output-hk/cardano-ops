@@ -232,6 +232,7 @@ specific branch run nix-shell:
 
 ```sh
 niv update cardano-node -b <branch>
+niv update cardano-node-service -b <branch>
 ```
 
 To list all the components managed by `niv` run:
