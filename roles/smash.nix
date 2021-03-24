@@ -19,14 +19,6 @@ in {
     (sourcePaths.smash+ "/nix/nixos")
   ];
 
-  # Ensure sufficient log history on smash which tends to rotate quickly due to nginx logging
-  # Maximum is 4 GB
-  # Ref: https://www.freedesktop.org/software/systemd/man/journald.conf.html
-  services.journald.extraConfig = ''
-    SystemMaxUse=4G
-    RuntimeMaxUse=4G
-  '';
-
   services.cardano-node = {
     allProducers = [ globals.relaysNew ];
     # FIXME Reactivate when smash update to 1.25+:
@@ -161,9 +153,6 @@ in {
     '';
   };
 
-  # Ensure that nginx doesn't hit a file limit with handling cache files
-  systemd.services.nginx.serviceConfig.LimitNOFILE = 65535;
-
   services.nginx = {
     enable = true;
     package = nginxSmash;
@@ -276,6 +265,10 @@ in {
       };
     };
   };
+
+  # Avoid flooding (and rotating too quicky) default journal with nginx logs:
+  # nginx logs: journalctl --namespace nginx
+  systemd.services.nginx.serviceConfig.LogNamespace = "nginx";
 
   services.monitoring-exporters.extraPrometheusExporters = [
     {
