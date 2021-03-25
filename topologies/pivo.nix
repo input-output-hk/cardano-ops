@@ -80,7 +80,7 @@ let
     let
       # The region names determine the number of stake pools. These names
       # should belong to `attrNames regions`.
-      poolRegionNames = [ "b" ]; # "c" "d" ];
+      poolRegionNames = [ "b" "c" "d" ];
       # Stake pool specifications, which will be used to create stake pools.
       poolSpecs =
         genList
