@@ -206,9 +206,6 @@ in {
     '';
   };
 
-  # Ensure that nginx doesn't hit a file limit with handling cache files
-  systemd.services.nginx.serviceConfig.LimitNOFILE = 65535;
-
   services.nginx = {
     enable = true;
     package = nginxMetadataServer;
@@ -290,6 +287,10 @@ in {
       };
     };
   };
+
+  # Avoid flooding (and rotating too quicky) default journal with nginx logs.
+  # nginx logs: journalctl --namespace nginx
+  systemd.services.nginx.serviceConfig.LogNamespace = "nginx";
 
   services.monitoring-exporters.extraPrometheusExporters = [
     #{

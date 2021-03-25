@@ -26,14 +26,6 @@ in {
     cardano-db-tool
   ];
 
-  # Ensure sufficient log history on explorer which tends to rotate quickly due to nginx logging
-  # Maximum is 4 GB
-  # Ref: https://www.freedesktop.org/software/systemd/man/journald.conf.html
-  services.journald.extraConfig = ''
-    SystemMaxUse=4G
-    RuntimeMaxUse=4G
-  '';
-
   services.cardano-postgres.enable = true;
   services.postgresql = {
     ensureDatabases = [ "cexplorer" ];
@@ -141,10 +133,18 @@ in {
     port = 8100;
     package = cardano-rest-pkgs.cardanoRestHaskellPackages.cardano-explorer-api.components.exes.cardano-explorer-api;
   };
-  systemd.services.cardano-explorer-api.startLimitIntervalSec = 0;
-  systemd.services.cardano-explorer-api.serviceConfig.Restart = "always";
-  systemd.services.cardano-explorer-api.serviceConfig.RestartSec = "10s";
-  systemd.services.cardano-explorer-api.serviceConfig.LimitNOFILE = 4096;
+
+  systemd.services.cardano-explorer-api = {
+    startLimitIntervalSec = 0;
+    serviceConfig = {
+      Restart = "always";
+      RestartSec = "10s";
+      LimitNOFILE = 4096;
+      # Avoid flooding (and rotating too quicky) default journal with debug logs (that can't be disabled):
+      # cardano-explorer-api logs: journalctl --namespace legacy
+      LogNamespace = "legacy";
+    };
+  };
 
   services.cardano-submit-api = lib.mkIf globals.withSubmitApi {
     enable = true;
@@ -407,6 +407,10 @@ in {
       };
     };
   };
+
+  # Avoid flooding (and rotating too quicky) default journal with nginx logs:
+  # nginx logs: journalctl --namespace nginx
+  systemd.services.nginx.serviceConfig.LogNamespace = "nginx";
 
   services.monitoring-exporters.extraPrometheusExporters = [
     # TODO: remove once explorer exports metrics at path `/metrics`
