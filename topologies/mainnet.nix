@@ -116,6 +116,9 @@ regions = {
         TraceMempool = true;
       };
     } (__trace "TraceMempool activated only for ${toString unlisted}" unlisted))
+    (forNodes {
+      services.cardano-node.instances = 2;
+    } [ "rel-a-2" "rel-b-2" "rel-c-2" "rel-d-2" "rel-e-2" "rel-f-2"])
   ]) relays;
 
 in {

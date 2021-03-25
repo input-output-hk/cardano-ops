@@ -48,6 +48,11 @@ pkgs: {
   };
 
   nbInstancesPerRelay = 1;
+  # FIXME: remove this `extraPrometheusExportersPorts` (and use defaults) when all relays use same `nbInstancesPerRelay`:
+  extraPrometheusExportersPorts = [
+    pkgs.globals.cardanoExplorerPrometheusExporterPort
+    pkgs.globals.netdataExporterPort
+  ] ++ builtins.genList (i: pkgs.globals.cardanoNodePrometheusExporterPort + i) 2;
 
   relayUpdateArgs = "-m 1500 --maxNodes 12 -s -e devops@iohk.io";
   # Trigger relay topology refresh 12 hours before next epoch
