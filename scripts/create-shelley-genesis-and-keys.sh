@@ -79,8 +79,8 @@ for i in `seq 1 $NB_BFT_NODES`; do
 done
 # Link VRF keys for the staking pool nodes.
 for i in `seq $(($NB_BFT_NODES+1)) $NB_CORE_NODES`; do
-  ln -sf ../pool-keys/node$i.vrf.skey node-vrf$i.skey
-  ln -sf ../pool-keys/node$i.vrf.vkey node-vrf$i.vkey
+  ln -sf ../pool-keys/node$i-vrf.skey node-vrf$i.skey
+  ln -sf ../pool-keys/node$i-vrf.vkey node-vrf$i.vkey
 done
 
 ../../scripts/renew-kes-keys.sh 0
