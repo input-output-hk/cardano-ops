@@ -22,6 +22,17 @@ cd "$(dirname "$0")/.."
 [ -z ${K+x} ] && (echo "Environment variable K must be defined"; exit 1)
 [ -z ${F+x} ] && (echo "Environment variable F must be defined"; exit 1)
 [ -z ${MAX_SUPPLY+x} ] && (echo "Environment variable MAX_SUPPLY must be defined"; exit 1)
+[ -z ${SLOT_LENGTH+x} ]&& ( echo "Environment variable SLOT_LENGTH must be defined"; exit 1)
+
+echo "Generating new genesis and keys using following environments variables:
+
+ NB_BFT_NODES=$NB_BFT_NODES (number of bft core nodes)
+ NB_POOL_NODES=$NB_POOL_NODES (number of staking pool nodes)
+ K=$K (Security parameter)
+ F=$F (Active slots coefficient)
+ MAX_SUPPLY=$MAX_SUPPLY (Max Lovelace supply)
+ SLOT_LENGTH=$SLOT_LENGTH
+"
 
 export NB_CORE_NODES=$(($NB_BFT_NODES + $NB_POOL_NODES))
 

@@ -57,7 +57,10 @@ in {
   environmentVariables = optionalAttrs (builtins.pathExists ./globals.nix) (
     let
       genesisFile = globals.environmentConfig.nodeConfig.ShelleyGenesisFile;
-      genesis = builtins.fromJSON (builtins.readFile genesisFile);
+      genesis =  builtins.fromJSON (builtins.readFile (if (builtins.pathExists genesisFile)
+       then genesisFile
+       # Use mainnet genesis as template to set network parameters if genesis does not exist yet:
+       else iohkNix.cardanoLib.environments.mainnet.nodeConfig.ShelleyGenesisFile));
       bftNodes = filter (c: !c.stakePool) globals.topology.coreNodes;
       stkNodes = filter (c: c.stakePool) globals.topology.coreNodes;
     in rec {
@@ -72,14 +75,15 @@ in {
 
       GENESIS_PATH = toString genesisFile;
       # Network parameters.
-      SYSTEM_START = genesis.systemStart;
       EPOCH_LENGTH = toString genesis.epochLength;
       SLOT_LENGTH = toString genesis.slotLength;
       K = toString genesis.securityParam;
       F = toString genesis.activeSlotsCoeff;
       MAX_SUPPLY = toString genesis.maxLovelaceSupply;
+    } // (optionalAttrs (builtins.pathExists genesisFile) {
+      SYSTEM_START = genesis.systemStart;
       # End: Network parameters.
-    });
+    }));
 
   deployerIp = requireEnv "DEPLOYER_IP";
   cardanoNodePort = 3001;
