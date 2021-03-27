@@ -48,7 +48,8 @@ do
 done
 
 wait
-
+echo "Stake pool registration exit code: $?"
+# TODO: we should detect if any of the stake pool registration commands failed.
 echo "Stake pools registered"
 
 # You can query the blocks produced by each stakepool by running:
@@ -59,7 +60,6 @@ echo "Stake pools registered"
 ################################################################################
 ## Submit the SIP
 ################################################################################
-sleep 10 # Give stake pool registration transactions time to settle
 echo "Submitting an SIP commit using ${POOL_NODES[0]}"
 nixops ssh ${POOL_NODES[0]} "./run.sh scommit"
 
@@ -91,8 +91,8 @@ nixops ssh ${POOL_NODES[0]} "./run.sh scommit"
 # every 0.2 seconds, so we need to wait for 300 * 0.2 = 60 seconds. In practice
 # we add a couple of seconds to be on the safe side. In a proper test script we
 # would ask the node when a given commit is stable on the chain.
-sleep 65
 echo "Submitting an SIP revelation using ${POOL_NODES[0]}"
+sleep 65
 nixops ssh ${POOL_NODES[0]} "./run.sh sreveal"
 
 ################################################################################

@@ -80,7 +80,7 @@ let
     let
       # The region names determine the number of stake pools. These names
       # should belong to `attrNames regions`.
-      poolRegionNames = [ "b" "c" "d" ];
+      poolRegionNames = [ "b" ]; # "c" "d" ];
       # Stake pool specifications, which will be used to create stake pools.
       poolSpecs =
         genList
@@ -113,11 +113,11 @@ let
                 destDir = "/root/keys";
               };
               "cold.vkey" = {
-                keyFile = ../keys/node-keys + "/cold${toString x.nodeId}.vkey";
+                keyFile = ../keys/pool-keys + "/node${toString x.nodeId}-cold.vkey";
                 destDir = "/root/keys";
               };
               "cold.skey" = {
-                keyFile = ../keys/node-keys + "/cold${toString x.nodeId}.skey";
+                keyFile = ../keys/pool-keys + "/node${toString x.nodeId}-cold.skey";
                 destDir = "/root/keys";
               };
               "node-vrf.vkey" = {

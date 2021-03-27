@@ -32,6 +32,75 @@
 #
 # This script assumes that the $CLI environment variable is set to the command
 # used to communicate with the cardano node. This would typically be
+# submit_transaction() {
+#     initial_addr=$1
+#     change_addr=$2
+#     tx_building_cmd=$3
+#     tx_building_args=$4
+#     signing_args=$5
+#     tx_submission_mode=$6
+
+#     TX_INFO=/tmp/tx-info.json
+
+#     $CLI -- query utxo --testnet-magic 42 --shelley-mode \
+#          --address $(cat $initial_addr) \
+#          --out-file $TX_INFO
+#     RETRIES=0
+#     INFO=`cat $TX_INFO`
+#     while [ "$INFO" = "{}" ]; do
+#         echo "Quering the UTXO again..."
+#         sleep 2
+#         $CLI -- query utxo --testnet-magic 42 --shelley-mode \
+#              --address $(cat $initial_addr) \
+#              --out-file $TX_INFO
+#         INFO=`cat $TX_INFO`
+#         $CLI -- query utxo --testnet-magic 42 --shelley-mode
+#     done
+
+#     BALANCE=`jq '.[].value' $TX_INFO | xargs printf '%.0f\n'`
+#     TX_IN=`grep -oP '"\K[^"]+' -m 1 $TX_INFO | head -1 | tr -d '\n'`
+#     # This script assumes the fee to be 0. We might want to check the protocol
+#     # parameters to make sure that this is indeed the case.
+#     FEE=0
+#     CHANGE=`expr $BALANCE - $FEE`
+#     rm $TX_INFO
+
+#     TX_FILE=tx.raw
+#     # We use a large time-to-live to keep the script simple.
+#     TTL=1000000
+#     $CLI -- transaction $tx_building_cmd \
+#           --tx-in $TX_IN \
+#           --tx-out $(cat $change_addr)+$CHANGE \
+#           --invalid-hereafter $TTL \
+#           --fee $FEE \
+#           $tx_building_args \
+#           --out-file $TX_FILE
+
+#     SIGNED_TX_FILE=tx.signed
+#     ## Sign the transaction
+#     $CLI -- transaction sign \
+#           --tx-body-file $TX_FILE \
+#           $signing_args \
+#           --testnet-magic 42 \
+#           --out-file $SIGNED_TX_FILE
+
+#     ## Submit the signed transaction
+#     echo "Submit the signed transaction ⏳ "
+#     RETRIES=0
+#     EXIT_CODE=1
+#     while [[ $EXIT_CODE -ne 0 ]] && [[ $RETRIES -le 3 ]]; do
+#         ! $CLI -- transaction submit \
+#              --tx-file $SIGNED_TX_FILE \
+#              --testnet-magic 42 \
+#              $tx_submission_mode
+#         EXIT_CODE=${PIPESTATUS[0]}
+#         echo "⚡ Command exited with code $EXIT_CODE"
+#         RETRIES=$((RETRIES + 1))
+#         sleep 5
+#     done
+#     echo "Transaction submitted ✅"
+# }
+
 submit_transaction() {
     initial_addr=$1
     change_addr=$2
@@ -40,11 +109,54 @@ submit_transaction() {
     signing_args=$5
     tx_submission_mode=$6
 
+    ## Submit the signed transaction
+    echo "Submit the signed transaction ⏳ "
+    RETRIES=0
+    EXIT_CODE=1
+    while [[ $EXIT_CODE -ne 0 ]] && [[ $RETRIES -le 3 ]]; do
+        ! try_submit_transaction \
+            "$initial_addr" \
+            "$change_addr" \
+            "$tx_building_cmd" \
+            "$tx_building_args" \
+            "$signing_args" \
+            "$tx_submission_mode"
+
+        EXIT_CODE=${PIPESTATUS[0]}
+        echo "⚡ Command exited with code $EXIT_CODE ❌"
+        RETRIES=$((RETRIES + 1))
+        sleep 5
+    done
+    [ $EXIT_CODE -eq 0 ] || { echo "Transaction could not be submitted "; return 1; }
+    echo "Transaction submitted ✅"
+}
+
+try_submit_transaction(){
+    initial_addr=$1
+    change_addr=$2
+    tx_building_cmd=$3
+    tx_building_args=$4
+    signing_args=$5
+    tx_submission_mode=$6
+
     TX_INFO=/tmp/tx-info.json
+
     $CLI -- query utxo --testnet-magic 42 --shelley-mode \
-          --address $(cat $initial_addr) \
-          --out-file $TX_INFO
-    cat $TX_INFO
+         --address $(cat $initial_addr) \
+         --out-file $TX_INFO
+    INFO=`cat $TX_INFO`
+    # while [ "$INFO" = "{}" ] && [[ $RETRIES -le 3 ]]; do
+    #     echo "Quering the UTXO again..."
+    #     sleep 2
+    $CLI -- query utxo --testnet-magic 42 --shelley-mode \
+         --address $(cat $initial_addr) \
+         --out-file $TX_INFO
+        # INFO=`cat $TX_INFO`
+        # $CLI -- query utxo --testnet-magic 42 --shelley-mode
+    # done
+    [ "$INFO" != "{}" ] || { echo "Could not get transaction information. Returning"; return 1; }
+
+
     BALANCE=`jq '.[].value' $TX_INFO | xargs printf '%.0f\n'`
     TX_IN=`grep -oP '"\K[^"]+' -m 1 $TX_INFO | head -1 | tr -d '\n'`
     # This script assumes the fee to be 0. We might want to check the protocol
@@ -74,9 +186,9 @@ submit_transaction() {
 
     ## Submit the signed transaction
     $CLI -- transaction submit \
-          --tx-file $SIGNED_TX_FILE \
-          --testnet-magic 42 \
-          $tx_submission_mode
+             --tx-file $SIGNED_TX_FILE \
+             --testnet-magic 42 \
+             $tx_submission_mode
 }
 
 submit_update_transaction() {
@@ -98,15 +210,15 @@ submit_update_transaction() {
 register_stakepool(){
     # Path where the stake keys should be created
     stake_key=$1
-    # Path where the payment address should be stored
+    # Path where the payment address should be stored. The change will be sent
+    # back to this address.
     payment_addr=$2
     # Utxo key used to:
     #
     # - pay for the transaction fees
     # - create a payment address together with the stake key.
     utxo_key=$3
-    # Address used to pay for the transaction fees. The change will be sent
-    # back to this address.
+    # Address used to pay for the transaction fees.
     utxo_addr=$4
     # File containing the pool metadata
     metadata_file=$5
@@ -137,13 +249,14 @@ register_stakepool(){
           --stake-verification-key-file $stake_key.vkey \
           --out-file $stake_key.cert
 
+    echo "Submitting the stake registration certificate 📜"
     submit_transaction \
         $utxo_addr \
         $utxo_addr \
         build-raw \
         "--certificate-file $stake_key.cert" \
         "--signing-key-file $utxo_key.skey --signing-key-file $stake_key.skey" \
-        --shelley-mode
+        --shelley-mode || exit 1
 
     ##
     ## Stake pool registration
@@ -181,12 +294,12 @@ register_stakepool(){
             --out-file $DELEGATION_CERT
 
     # Finally submit the transaction
-    sleep 5
+    echo "Waiting to register the stakepool"
     submit_transaction \
         $utxo_addr \
         $payment_addr \
         build-raw \
         "--certificate-file $POOL_REGISTRATION_CERT --certificate-file $DELEGATION_CERT" \
         "--signing-key-file $utxo_key.skey --signing-key-file $stake_key.skey --signing-key-file $COLD.skey " \
-        --shelley-mode
+        --shelley-mode || exit 1
 }
