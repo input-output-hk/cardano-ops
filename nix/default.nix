@@ -99,7 +99,7 @@ let
       globalsSpecific = import ../globals.nix pkgs;
     in {
       globals = globalsDefault // (recursiveUpdate {
-        inherit (globalsDefault) ec2 libvirtd;
+        inherit (globalsDefault) ec2 libvirtd environmentVariables;
       } globalsSpecific);
     })]
     else builtins.trace "globals.nix missing, please add symlink" [(pkgs: _: {
