@@ -8,6 +8,13 @@
 # - BFT_NODES: names of the BFT nodes
 # - POOL_NODES: names of the stake pool nodes
 #
+# Troubleshooting:
+#
+# This script is deployed locally and in an AWS cluster. Deploying it locally
+# is relatively fast, however an AWS deployment takes several minutes. Thus,
+# the network start time has to be adjusted accordingly in
+# `create-shelley-genesis-and-keys`. Setting the network start time 10 minutes
+# in the future is usually enough for the AWS testnet to properly start.
 set -euo pipefail
 
 [ -z ${BFT_NODES+x} ] && (echo "Environment variable BFT_NODES must be defined"; exit 1)
@@ -20,7 +27,7 @@ else
     case $1 in
         redeploy )
             echo "Redeploying the testnet"
-            nixops destroy
+            nixops destroy --confirm
             ./scripts/create-shelley-genesis-and-keys.sh
             nixops deploy -k
             ;;
