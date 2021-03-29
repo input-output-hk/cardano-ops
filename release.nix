@@ -5,9 +5,12 @@ let
 
 in pkgs.lib.fix (self: {
   inherit (pkgs)
+    cardano-cli
+    cardano-ping
     kes-rotation
     nginxExplorer
     node-update
+    oauth2_proxy
     prometheus-varnish-exporter
     varnish
     varnish-modules;
@@ -18,9 +21,12 @@ in pkgs.lib.fix (self: {
     name = "required";
     constituents = with self; [
       forceNewEval
+      cardano-cli
+      cardano-ping
       kes-rotation
       nginxExplorer
       node-update
+      oauth2_proxy
       prometheus-varnish-exporter
       varnish
       varnish-modules

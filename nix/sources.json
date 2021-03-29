@@ -138,22 +138,22 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "nixpkgs",
-        "rev": "49fbe8b1fd816a49ff363fea3f7761c6881ae996",
-        "sha256": "0gl2id7nwrxq8db7x0qwp46gh5ry0nw42rrwd6y3d493dml9ycp4",
+        "rev": "283e1ad26d0daeac2c8e67a86b2e2b7d9d2b511c",
+        "sha256": "17r56qil23ndy9j914b14qwdlmv5j5ay8k9xd2q3xd89427kr9j1",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/nixpkgs/archive/49fbe8b1fd816a49ff363fea3f7761c6881ae996.tar.gz",
+        "url": "https://github.com/input-output-hk/nixpkgs/archive/283e1ad26d0daeac2c8e67a86b2e2b7d9d2b511c.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "nixpkgs-crystal": {
-        "branch": "nixpkgs-unstable",
-        "description": "A read-only mirror of NixOS/nixpkgs tracking the released channels. Send issues and PRs to",
-        "homepage": "https://github.com/NixOS/nixpkgs",
+    "nixpkgs-unstable": {
+        "branch": "nixos-unstable",
+        "description": "Nix Packages collection",
+        "homepage": "",
         "owner": "NixOS",
-        "repo": "nixpkgs-channels",
-        "rev": "39b92f6e45534658b49e79c78154df6333af8472",
-        "sha256": "1g95hqvc8hpjijwc2nrxvgnvasfjn2hrjd8g4x9cklphcz2mz0v8",
+        "repo": "nixpkgs",
+        "rev": "d3f7e969b9860fb80750147aeb56dab1c730e756",
+        "sha256": "13z5lsgfgpw2wisglicy7krjrhypcc2y7krzxn54ybcninyiwhsn",
         "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs-channels/archive/39b92f6e45534658b49e79c78154df6333af8472.tar.gz",
+        "url": "https://github.com/NixOS/nixpkgs/archive/d3f7e969b9860fb80750147aeb56dab1c730e756.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
@@ -162,10 +162,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "bb2704a1b16779e986d95ac37eb7d7910d185ce9",
-        "sha256": "1q2qi45fvscca87anzchk81jhick5107iyl77iiwbbhd4xv3r2ll",
+        "rev": "08925acd122d9cabab8587c503cf6b9a826f072f",
+        "sha256": "0q3vf2bw7czs461iks00vcyfl22cn51mwfvwf7lpw1yzd34vm98y",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/bb2704a1b16779e986d95ac37eb7d7910d185ce9.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/08925acd122d9cabab8587c503cf6b9a826f072f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "smash": {
