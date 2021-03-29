@@ -39,11 +39,13 @@ in {
     ];
     identMap = ''
       explorer-users root cexplorer
+      admin-users root postgres
       explorer-users cexplorer cexplorer
       explorer-users postgres postgres
     '';
     authentication = ''
       local all all ident map=explorer-users
+      local all all ident map=admin-users
     '';
   };
 
