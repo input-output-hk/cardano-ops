@@ -61,6 +61,28 @@ let
         nodeId = def.nodeId or 99;
       };
     } def;
+  }) // (lib.optionalAttrs globals.withExplorerIog {
+    explorer-iog = let def = (topology.explorer-iog or {}); in mkNode {
+      _file = ./cardano.nix;
+      deployment.ec2 = {
+        region = def.region or "eu-central-1";
+        ebsInitialRootDiskSize = if globals.withHighCapacityExplorer then 1000 else 100;
+      };
+      imports = [
+        (def.instance or instances.explorer)
+        cardano-ops.roles.explorer-iog
+      ];
+
+      services.cardano-node.allProducers = if (relayNodes != [])
+        then [ pkgs.globals.relaysNew ]
+        else (map (n: n.name) coreNodes);
+
+      node = {
+        roles.isExplorer = true;
+        org = def.org or "IOHK";
+        nodeId = def.nodeId or 99;
+      };
+    } def;
   }) // (lib.optionalAttrs globals.withFaucet {
     "${globals.faucetHostname}" = let def = (topology.${globals.faucetHostname} or {}); in mkNode {
       deployment.ec2 = {

@@ -32,6 +32,7 @@ in {
 
   withMonitoring = true;
   withExplorer = true;
+  withExplorerIog = false;
   withCardanoDBExtended = true;
   withSubmitApi = false;
   withFaucet = false;
