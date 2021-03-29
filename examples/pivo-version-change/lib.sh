@@ -39,6 +39,7 @@ submit_transaction() {
     tx_building_args=$4
     signing_args=$5
     tx_submission_mode=$6
+    transfer_amount=${7:-0}
 
     ## Submit the signed transaction
     echo "⏳ Submit the signed transaction"
@@ -51,7 +52,8 @@ submit_transaction() {
             "$tx_building_cmd" \
             "$tx_building_args" \
             "$signing_args" \
-            "$tx_submission_mode"
+            "$tx_submission_mode" \
+            "$transfer_amount"
 
         EXIT_CODE=${PIPESTATUS[0]}
         echo "⚡ Command exited with code $EXIT_CODE"
@@ -69,6 +71,7 @@ try_submit_transaction(){
     tx_building_args=$4
     signing_args=$5
     tx_submission_mode=$6
+    transfer_amount=$7
 
     TX_INFO=/tmp/tx-info.json
 
@@ -81,12 +84,12 @@ try_submit_transaction(){
          --out-file $TX_INFO
     [ "$INFO" != "{}" ] || { echo "Could not get transaction information. Returning"; return 1; }
 
-    BALANCE=`jq '.[].value' $TX_INFO | xargs printf '%.0f\n'`
+    BALANCE=`sed -n 's/\s*"value": \([[:digit:]]*\),/\1/p' $TX_INFO`
     TX_IN=`grep -oP '"\K[^"]+' -m 1 $TX_INFO | head -1 | tr -d '\n'`
     # This script assumes the fee to be 0. We might want to check the protocol
     # parameters to make sure that this is indeed the case.
     FEE=0
-    CHANGE=`expr $BALANCE - $FEE`
+    CHANGE=`expr $BALANCE - $FEE - $transfer_amount`
     rm $TX_INFO
 
     TX_FILE=tx.raw
