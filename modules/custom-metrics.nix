@@ -174,15 +174,7 @@ in with pkgs; {
         }
 
         protocol_params() {
-          BASE_CMD="cardano-cli query protocol-parameters $MAGIC"
-          for era in shelley allegra mary; do
-            OUTPUT=$($BASE_CMD --$era-era 2>/dev/null)
-            if [ $? -eq 0 ]; then
-              echo $OUTPUT
-              return 0
-            fi
-          done
-          return 1
+          cardano-cli query protocol-parameters $MAGIC
         }
 
         # main
