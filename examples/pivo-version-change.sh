@@ -73,9 +73,12 @@ nixops ssh ${POOL_NODES[0]} "./run.sh scommit"
 # - securityParam
 # - slotLength
 #
-# Ideally the values of these parameters should be retrieved from the node. For
-# simplicity we use the values of the test genesis file, however there is no
-# sanity check that the values assumed in this script are correct.
+# TODO: ideally the values of these parameters should be retrieved from the
+# node (or at least from the environment variables provided by the nix
+# infrastructure, although it is better not to rely on this since the ultimate
+# source of truth should be the node). For simplicity we use the values of the
+# test genesis file, however there is no sanity check that the values assumed
+# in this script are correct.
 #
 # We assume:
 #
@@ -141,3 +144,11 @@ do
     nixops ssh $f "./run.sh endorse" &
 done
 wait
+
+# To query the ledger state use:
+#
+# cardano-cli query ledger-state --testnet-magic 42 --pivo-era --pivo-mode | jq '.stateBefore.esLState.utxoState.ppups '
+
+# To query the protocol parameters use:
+#
+# cardano-cli query protocol-parameters --testnet-magic 42 --shelley-era --shelley-mode | jq .maxBlockBodySize

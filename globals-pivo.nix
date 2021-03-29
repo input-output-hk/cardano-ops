@@ -23,6 +23,13 @@ pkgs: with pkgs.iohkNix.cardanoLib; rec {
     explorerConfig = mkExplorerConfig environmentName nodeConfig;
   };
 
+  environmentVariables = {
+    F = "0.1";
+    K = "10";
+    SLOT_LENGTH = "0.2";
+    EPOCH_LENGTH= "1000";
+  };
+
   topology = import (./topologies + "/${environmentName}.nix") pkgs;
 
   ec2 = {
