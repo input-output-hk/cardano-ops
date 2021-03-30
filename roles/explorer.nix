@@ -276,7 +276,7 @@ in {
     virtualHosts = {
       "${globals.explorerHostName}" = {
         serverAliases = globals.explorerAliases;
-        enableACME = false;
+        enableACME = true;
         forceSSL = globals.explorerForceSSL;
         locations = (if maintenanceMode then {
           "/" = let
