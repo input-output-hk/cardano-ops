@@ -230,3 +230,25 @@ register_stakepool(){
         "--signing-key-file $utxo_key.skey --signing-key-file $stake_key.skey --signing-key-file $COLD.skey " \
         --shelley-mode || exit 1
 }
+
+pretty_sleep(){
+    duration=$1
+    message=$2
+
+    echo -ne "⏳ $message: "
+    tput sc
+    while [[ 0 -lt $duration ]]; do
+        tput rc
+        echo -ne "$duration       \r"
+        sleep 1
+        duration=$((duration - 1))
+    done
+    echo
+}
+
+query_update_state(){
+    comp=$1
+    $CLI query ledger-state --testnet-magic 42 \
+     --pivo-era --pivo-mode \
+    | jq ".stateBefore.esLState.utxoState.ppups.$comp"
+}

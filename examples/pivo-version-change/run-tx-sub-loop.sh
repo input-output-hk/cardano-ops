@@ -33,6 +33,11 @@ while true; do
     # transfer amount should be a percentage of these initial funds.
     transfer_amount=$(( RANDOM % 100 + 1))
 
+    echo
+    echo "💸 Transferring $transfer_amount Lovelace to $(cat payment.addr)"
+    echo
+    sleep 2
+
     submit_transaction \
         $INITIAL_ADDR \
         $INITIAL_ADDR \
@@ -42,6 +47,8 @@ while true; do
         --shelley-mode \
         $transfer_amount || exit 1
 
+    # Allow some time for the user to view the result of the command
+    sleep 2
     # We query the utxo set to show that we added a new entry.
     $CLI query utxo --testnet-magic 42 --shelley-mode
     sleep 2

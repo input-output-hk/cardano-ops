@@ -20,6 +20,10 @@ set -euo pipefail
 [ -z ${BFT_NODES+x} ] && (echo "Environment variable BFT_NODES must be defined"; exit 1)
 [ -z ${POOL_NODES+x} ] && (echo "Environment variable POOL_NODES must be defined"; exit 1)
 
+CLI=cardano-cli
+
+. $(dirname $0)/pivo-version-change/lib.sh
+
 if [ -z ${1+x} ];
 then
     echo "'redeploy' command was not specified, so the test will run on an existing testnet";
@@ -49,13 +53,12 @@ do
 done
 
 # Register the stake pools
+echo "Registering stake pools"
 for f in ${POOL_NODES[@]}
 do
     nixops ssh $f "./run.sh register" &
 done
-
 wait
-echo "Stake pool registration exit code: $?"
 # TODO: we should detect if any of the stake pool registration commands failed.
 echo "Stake pools registered"
 
@@ -63,7 +66,6 @@ echo "Stake pools registered"
 #
 #   cardano-cli query ledger-state --testnet-magic 42 --shelley-mode | jq '.blocksCurrent'
 #
-
 ################################################################################
 ## Submit the SIP
 ################################################################################
@@ -101,8 +103,9 @@ nixops ssh ${POOL_NODES[0]} "./run.sh scommit"
 # every 0.2 seconds, so we need to wait for 300 * 0.2 = 60 seconds. In practice
 # we add a couple of seconds to be on the safe side. In a proper test script we
 # would ask the node when a given commit is stable on the chain.
+pretty_sleep 65 "Waiting for SIP submission to be stable"
+
 echo "Submitting an SIP revelation using ${POOL_NODES[0]}"
-sleep 65
 nixops ssh ${POOL_NODES[0]} "./run.sh sreveal"
 
 ################################################################################
@@ -110,7 +113,9 @@ nixops ssh ${POOL_NODES[0]} "./run.sh sreveal"
 ################################################################################
 # We wait till the revelation is stable on the chain, which means that the
 # voting period is open.
-sleep 65
+pretty_sleep 65 "Waiting for SIP revelation to be stable"
+
+echo "Voting on the SIP"
 for f in ${POOL_NODES[@]}
 do
     nixops ssh $f "./run.sh svote" &
@@ -120,7 +125,7 @@ wait
 ################################################################################
 ## Submit an implementation commit
 ################################################################################
-sleep 10
+echo "Submitting an implementation commit using ${POOL_NODES[0]}"
 nixops ssh ${POOL_NODES[0]} "./run.sh icommit"
 
 ################################################################################
@@ -128,13 +133,16 @@ nixops ssh ${POOL_NODES[0]} "./run.sh icommit"
 ################################################################################
 # Wait till the SIP vote period ends, so that votes are tallied and the SIP is
 # marked as approved.
-sleep 180
+pretty_sleep 180 "Waiting for the SIP voting period to end"
+
+echo "Submitting an implementation revelation using ${POOL_NODES[0]}"
 nixops ssh ${POOL_NODES[0]} "./run.sh ireveal"
 
 ################################################################################
 ## Vote on the implementation
 ################################################################################
-sleep 65
+pretty_sleep 65 "Waiting till the implementation revelation is stable"
+echo "Voting on the implementation"
 for f in ${POOL_NODES[@]}
 do
     nixops ssh $f "./run.sh ivote" &
@@ -145,12 +153,16 @@ wait
 ## Endorse the implementation
 ################################################################################
 # Wait till the end of the voting period is stable
-sleep 180
+pretty_sleep 180 "Waiting till the end of the voting period is stable"
+
+echo "Endorsing the proposed version"
 for f in ${POOL_NODES[@]}
 do
     nixops ssh $f "./run.sh endorse" &
 done
 wait
+
+echo "Activation state: "
 
 # To query the ledger state use:
 #

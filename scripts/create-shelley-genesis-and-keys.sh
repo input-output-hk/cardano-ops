@@ -44,7 +44,7 @@ cardano-cli genesis create \
             --supply $MAX_SUPPLY \
             --gen-genesis-keys $NB_BFT_NODES \
             --gen-utxo-keys $NB_CORE_NODES \
-            --start-time `date -u -d "today + 1 minutes" +'%Y-%m-%dT%H:%M:%SZ'` \
+            --start-time `date -u -d "today + 3 minutes" +'%Y-%m-%dT%H:%M:%SZ'` \
             --testnet-magic 42
 
 # Customize the genesis file

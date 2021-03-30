@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euox pipefail
+set -euo pipefail
 
 . lib.sh
 
@@ -202,6 +202,11 @@ else
         endorse )
             echo "Endorsing the implementation"
             do_endorsement
+            exit
+            ;;
+        ustquery )
+            # TODO: we do not check that arguments have been provided.
+            query_update_state $2
             exit
             ;;
         * )
