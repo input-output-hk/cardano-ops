@@ -1,7 +1,11 @@
 pkgs: with pkgs.iohkNix.cardanoLib; rec {
 
   withMonitoring = false;
+
   withExplorer = false;
+  explorerForceSSL = false;
+  domain = "foo.bar";
+  explorerHostName = "explorer.foo";
 
   # This should match the name of the topology file.
   environmentName = "pivo";
