@@ -18,6 +18,14 @@ let
     b = { name = "us-east-2";      /* US East (Ohio)           */ };
     c = { name = "ap-southeast-1"; /* Asia Pacific (Singapore) */ };
     d = { name = "eu-west-2";      /* Europe (London)          */ };
+    # TODO: we should find a way to avoid this repetition of regions. At the
+    # moment is needed to prevent the deployment from not finding the right
+    # keys.
+    e = { name = "eu-central-1";   /* Europe (Frankfurt)       */ };
+    f = { name = "us-east-2";      /* US East (Ohio)           */ };
+    g = { name = "ap-southeast-1"; /* Asia Pacific (Singapore) */ };
+    h = { name = "eu-west-2";      /* Europe (London)          */ };
+    i = { name = "eu-central-1";   /* Europe (Frankfurt)       */ };
   };
 
   bftCoreNodes =
@@ -81,6 +89,8 @@ let
       # The region names determine the number of stake pools. These names
       # should belong to `attrNames regions`.
       poolRegionNames = [ "b" ]; # "c" "d" ];
+      # poolRegionNames = [ "b" "c" "d" "e" "f" "g" "h" "i" ];
+
       # Stake pool specifications, which will be used to create stake pools.
       poolSpecs =
         genList
