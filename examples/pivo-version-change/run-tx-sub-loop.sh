@@ -50,6 +50,9 @@ while true; do
     # Allow some time for the user to view the result of the command
     sleep 2
     # We query the utxo set to show that we added a new entry.
-    $CLI query utxo --testnet-magic 42 --shelley-mode
+    $CLI query utxo --testnet-magic 42 --shelley-mode \
+         --address $(cat payment.addr) \
+         --out-file /tmp/utxo.json
+    cat /tmp/utxo.json | jq
     sleep 2
 done

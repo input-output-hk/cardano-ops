@@ -252,3 +252,13 @@ query_update_state(){
      --pivo-era --pivo-mode \
     | jq ".stateBefore.esLState.utxoState.ppups.$comp"
 }
+
+try_till_success(){
+    local exit_code=1
+    while [[ $exit_code -ne 0 ]];
+    do
+        ! $1 2> /dev/null
+        exit_code=${PIPESTATUS[0]}
+        sleep 5
+    done
+}

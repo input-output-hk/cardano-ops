@@ -17,10 +17,11 @@ while [ "$pst" = "[]" ]; do
               | jq ".stateBefore.esLState.utxoState.ppups.ideationSt.proposalsState")
     tput rc
     clear
-    echo "Slot: $($CLI query tip --testnet-magic 42 | jq .slot)"
-    $CLI query ledger-state --testnet-magic 42 \
-               --pivo-era --pivo-mode \
-              | jq ".stateBefore.esLState.utxoState.ppups.ideationSt"
+    echo "🕐 Slot: $($CLI query tip --testnet-magic 42 | jq .slot)"
+    echo
+    echo "💡 Ideation state:"
+    echo
+    echo "Waiting on a proposal ..."
     sleep 5
 done
 
@@ -31,10 +32,16 @@ while [ "$pst" != '"Approved"' ]; do
               | jq '.stateBefore.esLState.utxoState.ppups.ideationSt.proposalsState[0][1].decisionInfo.decisionWas')
     tput rc
     clear
-    echo "Slot: $($CLI query tip --testnet-magic 42 | jq .slot)"
+    echo "🕐 Slot: $($CLI query tip --testnet-magic 42 | jq .slot)"
+    echo
+    echo "💡 Ideation state:"
+    echo
+    echo "Ballot: "
     $CLI query ledger-state --testnet-magic 42 \
          --pivo-era --pivo-mode \
-        | jq ".stateBefore.esLState.utxoState.ppups.ideationSt"
+        | jq ".stateBefore.esLState.utxoState.ppups.ideationSt.proposalState[0][1].ballot"
+    echo
+    echo "Decision: $pst"
     sleep 5
 done
 
@@ -45,10 +52,19 @@ while [ "$pst" = '[]' ]; do
               | jq '.stateBefore.esLState.utxoState.ppups.approvalSt.movedAway')
     tput rc
     clear
-    echo "Slot: $($CLI query tip --testnet-magic 42 | jq .slot)"
+    echo "🕐 Slot: $($CLI query tip --testnet-magic 42 | jq .slot)"
+    echo
+    echo "🤝 Approval state"
+    echo
+    echo "Ballot: "
     $CLI query ledger-state --testnet-magic 42 \
          --pivo-era --pivo-mode \
-        | jq ".stateBefore.esLState.utxoState.ppups.approvalSt"
+        | jq ".stateBefore.esLState.utxoState.ppups.approvalSt.proposalState[0][1].ballot"
+    echo
+    echo -ne "Decision: "
+    ($CLI query ledger-state --testnet-magic 42 \
+               --pivo-era --pivo-mode \
+        | jq '.stateBefore.esLState.utxoState.ppups.approvalSt.proposalsState[0][1].decisionInfo.decisionWas' 2> /dev/null) || echo -ne "N/A"
     sleep 5
 done
 
@@ -59,9 +75,28 @@ while [ $ver -ne 77 ]; do
               | jq '.stateBefore.esLState.utxoState.ppups.activationSt.currentProtocol.implProtocolVersion')
     tput rc
     clear
-    echo "Slot: $($CLI query tip --testnet-magic 42 | jq .slot)"
+    echo "🕐 Slot: $($CLI query tip --testnet-magic 42 | jq .slot)"
+    echo
+    echo "🗲 Activation state"
+    echo
+    echo -ne "Current version: "
     $CLI query ledger-state --testnet-magic 42 \
          --pivo-era --pivo-mode \
-        | jq ".stateBefore.esLState.utxoState.ppups.activationSt"
+        | jq ".stateBefore.esLState.utxoState.ppups.activationSt.currentProtocol.implProtocolVersion"
+    echo
+    echo -ne "Endorsed proposal: "
+    $CLI query ledger-state --testnet-magic 42 \
+         --pivo-era --pivo-mode \
+        | jq ".stateBefore.esLState.utxoState.ppups.activationSt.endorsedProposal.tag"
+    echo
+    echo -ne "Endorsed proposal version: "
+    $CLI query ledger-state --testnet-magic 42 \
+         --pivo-era --pivo-mode \
+        | jq ".stateBefore.esLState.utxoState.ppups.activationSt.endorsedProposal.cProtocol"
+    echo
+    echo -ne "Maximum block body size: "
+    $CLI query protocol-parameters --testnet-magic 42 \
+         --shelley-era --shelley-mode | jq .maxBlockBodySize
+    echo
     sleep 5
 done
