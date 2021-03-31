@@ -46,17 +46,17 @@ submit_transaction() {
     RETRIES=0
     EXIT_CODE=1
     while [[ $EXIT_CODE -ne 0 ]] && [[ $RETRIES -le 30 ]]; do
-        ! try_submit_transaction \
+        ! (try_submit_transaction \
             "$initial_addr" \
             "$change_addr" \
             "$tx_building_cmd" \
             "$tx_building_args" \
             "$signing_args" \
             "$tx_submission_mode" \
-            "$transfer_amount"
+            "$transfer_amount" 2> /dev/null)
 
         EXIT_CODE=${PIPESTATUS[0]}
-        echo "⚡ Command exited with code $EXIT_CODE"
+        # echo "⚡ Command exited with code $EXIT_CODE"
         RETRIES=$((RETRIES + 1))
         [ $EXIT_CODE -eq 0 ] || sleep 5;
     done

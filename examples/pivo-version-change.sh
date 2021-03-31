@@ -52,15 +52,21 @@ do
     nixops scp $f examples/pivo-version-change/run.sh /root/ --to
 done
 
+clear
+
 # Register the stake pools
+echo
 echo "Registering stake pools"
+echo
 for f in ${POOL_NODES[@]}
 do
     nixops ssh $f "./run.sh register" &
 done
 wait
 # TODO: we should detect if any of the stake pool registration commands failed.
+echo
 echo "Stake pools registered"
+echo
 
 # You can query the blocks produced by each stakepool by running:
 #
@@ -69,7 +75,9 @@ echo "Stake pools registered"
 ################################################################################
 ## Submit the SIP
 ################################################################################
+echo
 echo "Submitting an SIP commit using ${POOL_NODES[0]}"
+echo
 nixops ssh ${POOL_NODES[0]} "./run.sh scommit"
 
 ################################################################################
@@ -105,7 +113,9 @@ nixops ssh ${POOL_NODES[0]} "./run.sh scommit"
 # would ask the node when a given commit is stable on the chain.
 pretty_sleep 65 "Waiting for SIP submission to be stable"
 
+echo
 echo "Submitting an SIP revelation using ${POOL_NODES[0]}"
+echo
 nixops ssh ${POOL_NODES[0]} "./run.sh sreveal"
 
 ################################################################################
@@ -115,7 +125,9 @@ nixops ssh ${POOL_NODES[0]} "./run.sh sreveal"
 # voting period is open.
 pretty_sleep 65 "Waiting for SIP revelation to be stable"
 
+echo
 echo "Voting on the SIP"
+echo
 for f in ${POOL_NODES[@]}
 do
     nixops ssh $f "./run.sh svote" &
@@ -125,7 +137,9 @@ wait
 ################################################################################
 ## Submit an implementation commit
 ################################################################################
+echo
 echo "Submitting an implementation commit using ${POOL_NODES[0]}"
+echo
 nixops ssh ${POOL_NODES[0]} "./run.sh icommit"
 
 ################################################################################
@@ -135,14 +149,18 @@ nixops ssh ${POOL_NODES[0]} "./run.sh icommit"
 # marked as approved.
 pretty_sleep 180 "Waiting for the SIP voting period to end"
 
+echo
 echo "Submitting an implementation revelation using ${POOL_NODES[0]}"
+echo
 nixops ssh ${POOL_NODES[0]} "./run.sh ireveal"
 
 ################################################################################
 ## Vote on the implementation
 ################################################################################
 pretty_sleep 65 "Waiting till the implementation revelation is stable"
+echo
 echo "Voting on the implementation"
+echo
 for f in ${POOL_NODES[@]}
 do
     nixops ssh $f "./run.sh ivote" &
@@ -155,14 +173,14 @@ wait
 # Wait till the end of the voting period is stable
 pretty_sleep 180 "Waiting till the end of the voting period is stable"
 
+echo
 echo "Endorsing the proposed version"
+echo
 for f in ${POOL_NODES[@]}
 do
     nixops ssh $f "./run.sh endorse" &
 done
 wait
-
-echo "Activation state: "
 
 # To query the ledger state use:
 #

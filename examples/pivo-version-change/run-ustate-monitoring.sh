@@ -37,9 +37,9 @@ while [ "$pst" != '"Approved"' ]; do
     echo "💡 Ideation state:"
     echo
     echo "Ballot: "
-    $CLI query ledger-state --testnet-magic 42 \
+    ($CLI query ledger-state --testnet-magic 42 \
          --pivo-era --pivo-mode \
-        | jq ".stateBefore.esLState.utxoState.ppups.ideationSt.proposalState[0][1].ballot"
+        | jq ".stateBefore.esLState.utxoState.ppups.ideationSt.proposalsState[0][1].ballot" 2> /dev/null ) || true
     echo
     echo "Decision: $pst"
     sleep 5
@@ -57,14 +57,14 @@ while [ "$pst" = '[]' ]; do
     echo "🤝 Approval state"
     echo
     echo "Ballot: "
-    $CLI query ledger-state --testnet-magic 42 \
+    ($CLI query ledger-state --testnet-magic 42 \
          --pivo-era --pivo-mode \
-        | jq ".stateBefore.esLState.utxoState.ppups.approvalSt.proposalState[0][1].ballot"
+        | jq ".stateBefore.esLState.utxoState.ppups.approvalSt.proposalsState | .[] | .ballot" 2> /dev/null) || true
     echo
     echo -ne "Decision: "
     ($CLI query ledger-state --testnet-magic 42 \
                --pivo-era --pivo-mode \
-        | jq '.stateBefore.esLState.utxoState.ppups.approvalSt.proposalsState[0][1].decisionInfo.decisionWas' 2> /dev/null) || echo -ne "N/A"
+        | jq '.stateBefore.esLState.utxoState.ppups.approvalSt.proposalsState | .[] | .decisionInfo.decisionWas' 2> /dev/null) || echo -ne "N/A"
     sleep 5
 done
 
@@ -90,9 +90,9 @@ while [ $ver -ne 77 ]; do
         | jq ".stateBefore.esLState.utxoState.ppups.activationSt.endorsedProposal.tag"
     echo
     echo -ne "Endorsed proposal version: "
-    $CLI query ledger-state --testnet-magic 42 \
+    ($CLI query ledger-state --testnet-magic 42 \
          --pivo-era --pivo-mode \
-        | jq ".stateBefore.esLState.utxoState.ppups.activationSt.endorsedProposal.cProtocol"
+        | jq ".stateBefore.esLState.utxoState.ppups.activationSt.endorsedProposal.cProtocol.implProtocolVersion" 2> /dev/null) || echo -ne "No candidate"
     echo
     echo -ne "Maximum block body size: "
     $CLI query protocol-parameters --testnet-magic 42 \
