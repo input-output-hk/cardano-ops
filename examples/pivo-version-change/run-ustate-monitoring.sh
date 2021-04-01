@@ -97,7 +97,7 @@ while [ $ver -ne 77 ]; do
     echo -ne "Endorsements: "
     $CLI query ledger-state --testnet-magic 42 \
          --pivo-era --pivo-mode \
-        | jq ".stateBefore.esLState.utxoState.ppups.activationSt.endorsedProposal.cEndorsements.thisEpochEndorsements"
+        | jq ".stateBefore.esLState.utxoState.ppups.activationSt.endorsedProposal.cEndorsements.thisEpochEndorsements | .[][]"
     echo
     echo -ne "Maximum block body size: "
     $CLI query protocol-parameters --testnet-magic 42 \
