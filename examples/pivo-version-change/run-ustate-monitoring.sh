@@ -94,10 +94,10 @@ while [ $ver -ne 77 ]; do
          --pivo-era --pivo-mode \
         | jq ".stateBefore.esLState.utxoState.ppups.activationSt.endorsedProposal.cProtocol.implProtocolVersion" 2> /dev/null) || echo -ne "No candidate"
     echo
-    echo -ne "Endorsements: "
-    $CLI query ledger-state --testnet-magic 42 \
+    echo "Endorsements: "
+    ($CLI query ledger-state --testnet-magic 42 \
          --pivo-era --pivo-mode \
-        | jq ".stateBefore.esLState.utxoState.ppups.activationSt.endorsedProposal.cEndorsements.thisEpochEndorsements | .[][]"
+        | jq ".stateBefore.esLState.utxoState.ppups.activationSt.endorsedProposal.cEndorsements.thisEpochEndorsements | .[][]" 2> /dev/null) || true
     echo
     echo -ne "Maximum block body size: "
     $CLI query protocol-parameters --testnet-magic 42 \
