@@ -156,6 +156,8 @@ def profile_name($compo; $gsis; $gtor; $node):
     ]
   + may_attr("tps";
              $gtor; generator_defaults($era); 1; "tps")
+  + may_attr("epoch_length";
+             $gsis; genesis_defaults($era; $compo); 1; "esec")
   + may_attr("max_block_size";
              $gsis; genesis_defaults($era; $compo); 1000; "kb")
   + may_attr("add_tx_size";
@@ -194,6 +196,8 @@ def utxo_delegators_density_profiles:
   , { genesis: { utxo: 3000000, delegators:  500000 } }
   , { genesis: { utxo: 4000000, delegators:  500000 } }
   , { genesis: { utxo: 4000000, delegators: 1000000 } }
+  , { genesis: { utxo: 2000000, delegators:  500000, epoch_length: 4400 } }
+  , { genesis: { utxo: 2000000, delegators:  500000, epoch_length: 6600 } }
   , { genesis: { utxo: 2000000, delegators:  500000, dense_pool_density: 10 } }
   , { genesis: { utxo: 2000000, delegators:  500000, dense_pool_density: 20 } }
   , { genesis: { utxo: 2000000, delegators:  500000 }
