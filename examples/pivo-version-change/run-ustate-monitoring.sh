@@ -39,7 +39,7 @@ while [ "$pst" != '"Approved"' ]; do
     echo "Ballot: "
     ($CLI query ledger-state --testnet-magic 42 \
          --pivo-era --pivo-mode \
-        | jq ".stateBefore.esLState.utxoState.ppups.ideationSt.proposalsState[0][1].ballot" 2> /dev/null ) || true
+        | jq ".stateBefore.esLState.utxoState.ppups.ideationSt.proposalsState[0][1].ballot | .[][0][]" 2> /dev/null ) || true
     echo
     echo "Decision: $pst"
     sleep 5
@@ -59,7 +59,7 @@ while [ "$pst" = '[]' ]; do
     echo "Ballot: "
     ($CLI query ledger-state --testnet-magic 42 \
          --pivo-era --pivo-mode \
-        | jq ".stateBefore.esLState.utxoState.ppups.approvalSt.proposalsState | .[] | .ballot" 2> /dev/null) || true
+        | jq ".stateBefore.esLState.utxoState.ppups.approvalSt.proposalsState | .[] | .ballot | .[][0][]" 2> /dev/null) || true
     echo
     echo -ne "Decision: "
     ($CLI query ledger-state --testnet-magic 42 \
@@ -93,6 +93,11 @@ while [ $ver -ne 77 ]; do
     ($CLI query ledger-state --testnet-magic 42 \
          --pivo-era --pivo-mode \
         | jq ".stateBefore.esLState.utxoState.ppups.activationSt.endorsedProposal.cProtocol.implProtocolVersion" 2> /dev/null) || echo -ne "No candidate"
+    echo
+    echo -ne "Endorsements: "
+    $CLI query ledger-state --testnet-magic 42 \
+         --pivo-era --pivo-mode \
+        | jq ".stateBefore.esLState.utxoState.ppups.activationSt.endorsedProposal.cEndorsements.thisEpochEndorsements"
     echo
     echo -ne "Maximum block body size: "
     $CLI query protocol-parameters --testnet-magic 42 \

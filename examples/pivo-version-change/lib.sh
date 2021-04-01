@@ -60,7 +60,7 @@ submit_transaction() {
         RETRIES=$((RETRIES + 1))
         [ $EXIT_CODE -eq 0 ] || sleep 5;
     done
-    [ $EXIT_CODE -eq 0 ] || { echo "Transaction could not be submitted "; return 1; }
+    [ $EXIT_CODE -eq 0 ] || { return 1; }
     echo "✅ Transaction submitted"
 }
 
@@ -82,7 +82,7 @@ try_submit_transaction(){
     $CLI -- query utxo --testnet-magic 42 --shelley-mode \
          --address $(cat $initial_addr) \
          --out-file $TX_INFO
-    [ "$INFO" != "{}" ] || { echo "Could not get transaction information. Returning"; return 1; }
+    [ "$INFO" != "{}" ] || { return 1; }
 
     BALANCE=`sed -n 's/\s*"value": \([[:digit:]]*\),/\1/p' $TX_INFO`
     TX_IN=`grep -oP '"\K[^"]+' -m 1 $TX_INFO | head -1 | tr -d '\n'`
