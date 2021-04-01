@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# To keep things simple this script assumes it is run from a tmux session.
+
+nix-shell
+
 nixops destroy --confirm
 ./scripts/create-shelley-genesis-and-keys.sh
 nixops deploy -k
