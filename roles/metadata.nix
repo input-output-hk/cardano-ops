@@ -206,6 +206,9 @@ in {
     '';
   };
 
+  # Ensure the worker processes don't hit TCP file descriptor limits
+  systemd.services.nginx.serviceConfig.LimitNOFILE = 65535;
+
   services.nginx = {
     enable = true;
     package = nginxMetadataServer;
@@ -213,7 +216,7 @@ in {
     recommendedOptimisation = true;
     recommendedProxySettings = true;
     eventsConfig = ''
-      worker_connections 2048;
+      worker_connections 8192;
     '';
     commonHttpConfig = ''
       log_format x-fwd '$remote_addr - $remote_user $sent_http_x_cache [$time_local] '

@@ -153,6 +153,9 @@ in {
     '';
   };
 
+  # Ensure the worker processes don't hit TCP file descriptor limits
+  systemd.services.nginx.serviceConfig.LimitNOFILE = 65535;
+
   services.nginx = {
     enable = true;
     package = nginxSmash;
