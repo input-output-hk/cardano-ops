@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
 # To keep things simple this script assumes it is run from a tmux session.
-nixops destroy --confirm
-./scripts/create-shelley-genesis-and-keys.sh
-nixops deploy -k
+
+set -euo pipefail
+
+nix-shell --run "./examples/pivo-version-change/redeploy.sh"
 
 tmux split-window -d -t 0 -v
 tmux split-window -d -t 0 -v
