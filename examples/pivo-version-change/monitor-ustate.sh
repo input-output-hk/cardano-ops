@@ -3,8 +3,6 @@ set -euo pipefail
 
 . $(dirname $0)/lib.sh
 
-nix-shell
-
 # Run the transaction submission loop in one of the nodes
 try_till_success \
   "nixops scp ${BFT_NODES[0]} examples/pivo-version-change/lib.sh /root/ --to"
