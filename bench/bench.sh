@@ -116,7 +116,6 @@ no_analysis=
 no_wait=
 predeploy=
 force_deploy=
-reuse_genesis=
 watch_deploy=
 
 self=$(realpath "$0")
@@ -134,8 +133,6 @@ main() {
            --no-analysis | --skip-analysis ) no_analysis=t;;
            --deploy )             force_deploy=t;;
            --pre-deploy | --predeploy ) predeploy=t;;
-           --reuse-genesis | --keep-genesis )
-                                  reuse_genesis=t;;
            --watch | --watch-deploy )
                                   watch_deploy=t;;
            --select )             jq_select="jq 'select ($2)'"; shift;;
