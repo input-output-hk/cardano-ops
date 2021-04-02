@@ -107,7 +107,7 @@ in {
     faucet = t3a-large;
     metadata = t3a-medium;
     explorer = if globals.withHighCapacityExplorer
-      then c5-4xlarge
+      then c5-9xlarge
       else t3a-2xlarge;
     monitoring = if globals.withHighCapacityMonitoring
       then t3-2xlargeMonitor
