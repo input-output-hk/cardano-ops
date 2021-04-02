@@ -169,15 +169,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
-        "branch": "master",
+        "branch": "blackbox",
         "description": "NixOps deployment configuration library for IOHK devops ",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "2cc7a7655680fa7b1006dbd135680b6535845106",
-        "sha256": "00cfly4wdl8ji6hpshfzy0anhmzyhwdynys6krkl7pgrqz6vdhn5",
+        "rev": "29cd01ea10f9ce89f035732bbd4aa5b3f32c2496",
+        "sha256": "0hyy4pf1s3cmknir0zx20b9d6bx06wd10vffndwd136vs8v4bjas",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/2cc7a7655680fa7b1006dbd135680b6535845106.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/29cd01ea10f9ce89f035732bbd4aa5b3f32c2496.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ouroboros-network": {
