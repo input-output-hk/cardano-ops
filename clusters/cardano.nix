@@ -52,7 +52,7 @@ let
         };
       in [
         (mkBlackboxConfig "blackbox_explorer_graphql" [ "https_explorer_post_2xx" ] [ "https://${globals.explorerHostName}/graphql" ])
-        (mkBlackboxConfig "blackbox_explorer_api" [ "https_2xx" ] [ "https://${globals.explorerHostName}/api/blocks/pages" ])
+        (mkBlackboxConfig "blackbox_explorer_api" [ "https_2xx" ] [ "https://${globals.explorerHostName}/api/genesis/summary" ])
         (mkBlackboxConfig "blackbox_explorer_frontend" [ "https_2xx" ] [ "https://${globals.explorerHostName}" ])
       ]));
     } def;
