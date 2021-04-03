@@ -174,10 +174,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "29cd01ea10f9ce89f035732bbd4aa5b3f32c2496",
-        "sha256": "0hyy4pf1s3cmknir0zx20b9d6bx06wd10vffndwd136vs8v4bjas",
+        "rev": "35b3d133a9769e5a4c7515d7d2fc959bdfdb356e",
+        "sha256": "14mkm6ml9ams7dn76hmxqc7sxchxld8afy6wz80fiiwpax02xlqv",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/29cd01ea10f9ce89f035732bbd4aa5b3f32c2496.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/35b3d133a9769e5a4c7515d7d2fc959bdfdb356e.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ouroboros-network": {
