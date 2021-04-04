@@ -73,27 +73,15 @@
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
     "cardano-node": {
-        "branch": "refs/tags/1.25.1",
+        "branch": "refs/tags/1.26.1",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "9a7331cce5e8bc0ea9c6bfa1c28773f4c5a7000f",
-        "sha256": "1scffi7igv4kj93bpjf8yibcaq0sskfikmm00f7r6q031l53y50c",
+        "rev": "62f38470098fc65e7de5a4b91e21e36ac30799f3",
+        "sha256": "0ws2lgpl88p6bbrim43dczm19an9nba97sr483abq32b1xh4m3qh",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/9a7331cce5e8bc0ea9c6bfa1c28773f4c5a7000f.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "cardano-node-service": {
-        "branch": "refs/tags/1.26.0",
-        "description": null,
-        "homepage": null,
-        "owner": "input-output-hk",
-        "repo": "cardano-node",
-        "rev": "1a25af8527f353fd0f2b863c27250b2990fec22a",
-        "sha256": "0yhykn7schy7z1yj2sfxi53k3lnk689y1wri6r8l5i2hmvc58mrq",
-        "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/1a25af8527f353fd0f2b863c27250b2990fec22a.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/62f38470098fc65e7de5a4b91e21e36ac30799f3.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rest": {
@@ -178,18 +166,6 @@
         "sha256": "1q2qi45fvscca87anzchk81jhick5107iyl77iiwbbhd4xv3r2ll",
         "type": "tarball",
         "url": "https://github.com/input-output-hk/ops-lib/archive/bb2704a1b16779e986d95ac37eb7d7910d185ce9.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "ouroboros-network": {
-        "branch": "master",
-        "description": "An implementation of the Ouroboros family of consensus algorithms, with its networking support",
-        "homepage": "",
-        "owner": "input-output-hk",
-        "repo": "ouroboros-network",
-        "rev": "7f90c8c59ffc7d61a4e161e886d8962a9c26787a",
-        "sha256": "0hnw6hvbyny3wniaqw8d37l4ysgp8xrq5d84fapxfm525a4hfs0x",
-        "type": "tarball",
-        "url": "https://github.com/input-output-hk/ouroboros-network/archive/7f90c8c59ffc7d61a4e161e886d8962a9c26787a.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "smash": {
