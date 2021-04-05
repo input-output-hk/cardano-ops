@@ -61,7 +61,7 @@ let
   benchmarkingLogConfig = name: {
     defaultScribes = [
       [ "StdoutSK" "stdout" ]
-      [ "FileSK"   "/var/lib/cardano-node/logs/${name}.json" ]
+      [ "FileSK"   "logs/${name}.json" ]
     ];
     setupScribes = [
       {
@@ -70,7 +70,7 @@ let
         scFormat   = "ScJson"; }
       {
         scKind     = "FileSK";
-        scName     = "/var/lib/cardano-node/logs/${name}.json";
+        scName     = "logs/${name}.json";
         scFormat   = "ScJson";
         scRotation = {
           rpLogLimitBytes = 300000000;
