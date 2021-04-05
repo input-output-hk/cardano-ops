@@ -238,7 +238,7 @@ def profiles:
 def era_tolerances($era; $genesis):
 { common:
   { cluster_startup_overhead_s:     60
-  , start_log_spread_s:             120
+  , start_log_spread_s:             300
   , last_log_spread_s:              120
   , silence_since_last_block_s:     120
   , tx_loss_ratio:                  0.02
