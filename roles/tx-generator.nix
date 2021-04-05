@@ -72,11 +72,11 @@ in {
 
       defaultScribes = [
         [ "StdoutSK" "stdout" ]
-        [ "FileSK"   "/var/lib/cardano-node/logs/generator.json" ]
+        [ "FileSK"   "logs/generator.json" ]
       ];
       setupScribes = [
         { scKind = "StdoutSK"; scName = "stdout"; scFormat = "ScJson"; }
-        { scKind = "FileSK"; scName = "/var/lib/cardano-node/logs/generator.json"; scFormat = "ScJson";
+        { scKind = "FileSK"; scName = "logs/generator.json"; scFormat = "ScJson";
           scRotation = {
             rpLogLimitBytes = 300000000;
             rpMaxAgeHours   = 24;
@@ -94,11 +94,11 @@ in {
     nodeConfig = lib.mkForce (globals.environmentConfig.nodeConfig // {
       defaultScribes = [
         [ "StdoutSK" "stdout" ]
-        [ "FileSK"   "/var/lib/cardano-node/logs/node.json" ]
+        [ "FileSK"   "logs/node.json" ]
       ];
       setupScribes = [
         { scKind = "StdoutSK"; scName = "stdout"; scFormat = "ScJson"; }
-        { scKind = "FileSK"; scName = "/var/lib/cardano-node/logs/node.json"; scFormat = "ScJson";
+        { scKind = "FileSK"; scName = "logs/node.json"; scFormat = "ScJson";
           scRotation = {
             rpLogLimitBytes = 300000000;
             rpMaxAgeHours   = 24;
