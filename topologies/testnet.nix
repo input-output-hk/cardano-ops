@@ -59,7 +59,7 @@ let
 
   stakingPoolNodes = let
     mkStakingPool = mkStakingPoolForRegions regions;
-  in regionalConnectGroupWith bftCoreNodes (fullyConnectNodes [
+  in fullyConnectNodes [
     (mkStakingPool "a" 1 "" { nodeId = 8; })
     (mkStakingPool "b" 1 "" { nodeId = 9; })
     (mkStakingPool "c" 1 "" { nodeId = 10; })
@@ -67,9 +67,9 @@ let
     (mkStakingPool "e" 1 "" { nodeId = 12; })
     (mkStakingPool "f" 1 "" { nodeId = 13; })
     (mkStakingPool "a" 2 "" { nodeId = 14; })
-  ]);
+  ];
 
-  coreNodes = map (withAutoRestartEvery 6) (bftCoreNodes ++ stakingPoolNodes);
+  coreNodes = map (withAutoRestartEvery 6) stakingPoolNodes;
 
   relayNodes = map (withAutoRestartEvery 6) (mkRelayTopology {
     inherit regions coreNodes;
