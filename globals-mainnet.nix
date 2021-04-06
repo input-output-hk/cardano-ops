@@ -42,8 +42,6 @@ pkgs: {
     };
     instances = with pkgs.iohk-ops-lib.physical.aws; {
       relay-node = t3-xlarge;
-      core-node = t3a-medium;
-      faucet = t3a-medium;
     };
   };
 
