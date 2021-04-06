@@ -47,7 +47,7 @@ pkgs: {
     };
   };
 
-  nbInstancesPerRelay = 1;
+  #nbInstancesPerRelay = 1;
   # FIXME: remove this `extraPrometheusExportersPorts` (and use defaults) when all relays use same `nbInstancesPerRelay`:
   extraPrometheusExportersPorts = [
     pkgs.globals.cardanoExplorerPrometheusExporterPort
