@@ -28,6 +28,11 @@ let
         roles.isMonitor = true;
         org = def.org or "IOHK";
       };
+      services.prometheus.scrapeConfigs = lib.optionals globals.withExplorer [
+        (mkBlackboxScrapeConfig "blackbox_explorer_graphql" [ "https_explorer_post_2xx" ] [ "https://${globals.explorerHostName}/graphql" ])
+        (mkBlackboxScrapeConfig "blackbox_explorer_api" [ "https_2xx" ] [ "https://${globals.explorerHostName}/api/genesis/summary" ])
+        (mkBlackboxScrapeConfig "blackbox_explorer_frontend" [ "https_2xx" ] [ "https://${globals.explorerHostName}" ])
+      ];
     } def;
   }) // (lib.optionalAttrs globals.withExplorer {
     explorer = let def = (topology.explorer or {}); in mkNode {

@@ -12,6 +12,18 @@ in {
   services.monitoring-services.applicationDashboards = ./grafana/cardano;
   services.monitoring-services.applicationRules = [
     {
+      alert = "blackbox_probe_down";
+      expr = "probe_success == 0";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.job}}: Blackbox probe is down for {{$labels.instance}}.";
+        description = "{{$labels.job}}: Blackbox probe has been down for at least 5 minutes for {{$labels.instance}}.";
+      };
+    }
+    {
       alert = "chain_quality_degraded";
       expr = "(cardano_node_metrics_density_real / on(alias) cardano_node_genesis_activeSlotsCoeff * 100) < ${chainDensityLow}";
       for = "5m";

@@ -66,6 +66,21 @@ in {
     pkgs.globals.netdataExporterPort
   ] ++ builtins.genList (i: pkgs.globals.cardanoNodePrometheusExporterPort + i) pkgs.globals.nbInstancesPerRelay;
 
+  extraPrometheusBlackboxExporterModules = {
+    https_explorer_post_2xx = {
+      prober = "http";
+      timeout = "10s";
+      http = {
+        fail_if_not_ssl = true;
+        method = "POST";
+        headers = {
+          Content-Type = "application/json";
+        };
+        body = ''{"query": "{\n  ada {\n    supply {\n      total\n    }\n  }\n}\n"}'';
+      };
+    };
+  };
+
   alertChainDensityLow = "99";
   alertMemPoolHigh = "190";
   alertTcpHigh = "120";
@@ -107,7 +122,7 @@ in {
     faucet = t3a-large;
     metadata = t3a-medium;
     explorer = if globals.withHighCapacityExplorer
-      then c5-4xlarge
+      then c5-9xlarge
       else t3a-2xlarge;
     monitoring = if globals.withHighCapacityMonitoring
       then t3-2xlargeMonitor
