@@ -34,6 +34,4 @@ pkgs: {
   relayUpdateHoursBeforeNextEpoch = 12;
 
   alertChainDensityLow = "60";
-  alertTcpHigh = "220";
-  alertTcpCrit = "250";
 }

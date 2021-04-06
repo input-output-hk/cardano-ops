@@ -83,10 +83,10 @@ in {
 
   alertChainDensityLow = "99";
   alertMemPoolHigh = "190";
-  alertTcpHigh = "120";
-  alertTcpCrit = "150";
-  alertMbpsHigh = "150";
-  alertMbpsCrit = "200";
+  alertTcpHigh = 220 * pkgs.globals.nbInstancesPerRelay;
+  alertTcpCrit = 250 * pkgs.globals.nbInstancesPerRelay;
+  alertMbpsHigh = 150 * pkgs.globals.nbInstancesPerRelay;
+  alertMbpsCrit = 200 * pkgs.globals.nbInstancesPerRelay;
 
 
   # Minimal memory and cpu requirements for cardano-node:

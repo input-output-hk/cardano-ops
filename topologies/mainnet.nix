@@ -116,15 +116,6 @@ regions = {
         TraceMempool = true;
       };
     } (__trace "TraceMempool activated only for ${toString unlisted}" unlisted))
-    (forNodes {
-      services.cardano-node.instances = 2;
-    } (genList (i: "rel-a-${toString (i + 1)}") 33
-      ++ genList (i: "rel-b-${toString (i + 1)}") 23
-      ++ genList (i: "rel-c-${toString (i + 1)}") 7
-      ++ genList (i: "rel-d-${toString (i + 1)}") 11
-      ++ genList (i: "rel-e-${toString (i + 1)}") 13
-      ++ genList (i: "rel-f-${toString (i + 1)}") 5
-    ))
   ]) relays;
 
 in {

@@ -4,10 +4,10 @@ let
 
   chainDensityLow = globals.alertChainDensityLow;
   memPoolHigh = globals.alertMemPoolHigh;
-  tcpHigh = globals.alertTcpHigh;
-  tcpCrit = globals.alertTcpCrit;
-  MbpsHigh = globals.alertMbpsHigh;
-  MbpsCrit = globals.alertMbpsCrit;
+  tcpHigh = toString globals.alertTcpHigh;
+  tcpCrit = toString globals.alertTcpCrit;
+  MbpsHigh = toString globals.alertMbpsHigh;
+  MbpsCrit = toString globals.alertMbpsCrit;
 in {
   services.monitoring-services.applicationDashboards = ./grafana/cardano;
   services.monitoring-services.applicationRules = [
