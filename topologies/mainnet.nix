@@ -119,11 +119,11 @@ regions = {
     (forNodes {
       services.cardano-node.instances = 2;
     } (getList (i: "rel-a-${toString (i + 1)}") 33
-      ++ getList (i: "rel-b-${toString (i + 1)}") 23
-      ++ getList (i: "rel-c-${toString (i + 1)}") 7
-      ++ getList (i: "rel-d-${toString (i + 1)}") 11
-      ++ getList (i: "rel-e-${toString (i + 1)}") 13
-      ++ getList (i: "rel-f-${toString (i + 1)}") 5
+      ++ genList (i: "rel-b-${toString (i + 1)}") 23
+      ++ genList (i: "rel-c-${toString (i + 1)}") 7
+      ++ genList (i: "rel-d-${toString (i + 1)}") 11
+      ++ genList (i: "rel-e-${toString (i + 1)}") 13
+      ++ genList (i: "rel-f-${toString (i + 1)}") 5
     ))
   ]) relays;
 
