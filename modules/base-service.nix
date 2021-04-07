@@ -158,6 +158,9 @@ in
           rm db-restore.tar.gz
         fi
       '';
+      serviceConfig = {
+        TimeoutStartSec = "5min";
+      };
     };
 
     services.dnsmasq = {
