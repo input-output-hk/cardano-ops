@@ -3,22 +3,22 @@ let
 
 regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
-      minRelays = 72;
+      minRelays = 35;
     };
     b = { name = "us-east-2";      # US East (Ohio)
-      minRelays = 44;
+      minRelays = 25;
     };
     c = { name = "ap-southeast-1"; # Asia Pacific (Singapore)
-      minRelays = 20;
+      minRelays = 10;
     };
     d = { name = "eu-west-2";      # Europe (London)
-      minRelays = 29;
+      minRelays = 15;
     };
     e = { name = "us-west-1";      # US West (N. California)
-      minRelays = 28;
+      minRelays = 15;
     };
     f = { name = "ap-northeast-1"; # Asia Pacific (Tokyo)
-      minRelays = 15;
+      minRelays = 10;
     };
   };
 
@@ -101,22 +101,19 @@ regions = {
   coreNodes = map (withAutoRestartEvery 6)
     (bftCoreNodes ++ stakingPoolNodes);
 
-  relayNodes = let
-    relays = mkRelayTopology {
-      inherit regions coreNodes;
-      autoscaling = false;
-      maxProducersPerNode = 20;
-      maxInRegionPeers = 5;
-    };
-    unlisted = map (n: n.name) (drop 200 relays);
-  in map (composeAll [
+  relayNodes = map (composeAll [
     (withAutoRestartEvery 6)
     (forNodes {
       services.cardano-node.extraNodeConfig = {
         TraceMempool = true;
       };
-    } (__trace "TraceMempool activated only for ${toString unlisted}" unlisted))
-  ]) relays;
+    } [ "rel-a-1" "rel-b-1" "rel-c-1" "rel-d-1" "rel-e-1" "rel-f-1" ])
+  ]) (mkRelayTopology {
+      inherit regions coreNodes;
+      autoscaling = false;
+      maxProducersPerNode = 20;
+      maxInRegionPeers = 5;
+    });
 
 in {
 
