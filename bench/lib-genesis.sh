@@ -358,5 +358,5 @@ profile_genesis_hash_byron() {
 profile_genesis_hash_shelley() {
         local genesis_dir="${1:-./keys}"
 
-        cardano-cli shelley genesis hash --genesis ${genesis_dir}/genesis.json | tr -d '"'
+        cardano-cli genesis hash --genesis ${genesis_dir}/genesis.json | tr -d '"'
 }

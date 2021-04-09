@@ -206,8 +206,8 @@ in {
 
     virtualHosts = {
       "smash.${globals.domain}" = {
-        enableACME = true;
-        forceSSL = globals.explorerForceSSL;
+        enableACME = config.deployment.targetEnv != "libvirtd";
+        forceSSL = globals.explorerForceSSL && (config.deployment.targetEnv != "libvirtd");
         locations =
           let
           apiKeyConfig = ''

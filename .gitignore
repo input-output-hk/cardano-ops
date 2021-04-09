@@ -21,3 +21,5 @@ static
 /*.split
 /*.tar.xz
 .nix-gc-roots
+
+*.md.temp

@@ -242,8 +242,8 @@ in {
 
     virtualHosts = {
       "${globals.metadataHostName}" = {
-        enableACME = true;
-        forceSSL = globals.explorerForceSSL;
+        enableACME = config.deployment.targetEnv != "libvirtd";
+        forceSSL = globals.explorerForceSSL && (config.deployment.targetEnv != "libvirtd");
         locations =
           let
           corsConfig = ''
