@@ -96,29 +96,45 @@ in (rec {
 
   sourcesJsonOverride = ./nix/sources.bench.json;
 
-  environmentConfig = rec {
-    relays = "relays.${pkgs.globals.domain}";
-    edgePort = pkgs.globals.cardanoNodePort;
-    private = true;
-    networkConfig = envConfigBase.networkConfig // {
-      Protocol = "Cardano";
-      inherit ShelleyGenesisFile ShelleyGenesisHash;
-      inherit   ByronGenesisFile   ByronGenesisHash;
-    };
-    nodeConfig = envConfigBase.nodeConfig // {
-      Protocol = "Cardano";
-      inherit ShelleyGenesisFile ShelleyGenesisHash;
-      inherit   ByronGenesisFile   ByronGenesisHash;
-    };
-    txSubmitConfig = {
-      inherit (networkConfig) RequiresNetworkMagic;
-      inherit ShelleyGenesisFile ByronGenesisFile;
-    } // pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig;
+  environmentConfig =
+    recursiveUpdate
+      (rec {
+        relays = "relays.${pkgs.globals.domain}";
+        edgePort = pkgs.globals.cardanoNodePort;
+        private = true;
+        networkConfig = envConfigBase.networkConfig // {
+          Protocol = "Cardano";
+          inherit ShelleyGenesisFile ShelleyGenesisHash;
+          inherit   ByronGenesisFile   ByronGenesisHash;
+        };
+        nodeConfig = envConfigBase.nodeConfig // {
+          Protocol = "Cardano";
+          inherit ShelleyGenesisFile ShelleyGenesisHash;
+          inherit   ByronGenesisFile   ByronGenesisHash;
+        };
+        txSubmitConfig = {
+          inherit (networkConfig) RequiresNetworkMagic;
+          inherit ShelleyGenesisFile ByronGenesisFile;
+        } // pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig;
 
-    ## This is overlaid atop the defaults in the tx-generator service,
-    ## as specified in the 'cardano-benchmarking' repository.
-    generatorConfig = benchmarkingProfile.generator;
-  };
+        ## This is overlaid atop the defaults in the tx-generator service,
+        ## as specified in the 'cardano-benchmarking' repository.
+        generatorConfig = benchmarkingProfile.generator;
+      })
+      ({
+        shelley =
+          { TestShelleyHardForkAtEpoch = 0;
+          };
+        allegra =
+          { TestShelleyHardForkAtEpoch = 0;
+            TestAllegraHardForkAtEpoch = 0;
+          };
+        mary =
+          { TestShelleyHardForkAtEpoch = 0;
+            TestAllegraHardForkAtEpoch = 0;
+            TestMaryHardForkAtEpoch    = 0;
+          };
+      }.${pkgs.globals.environmentConfig.generatorConfig.era});
 
   topology = benchmarkingTopology // {
     explorer = {
