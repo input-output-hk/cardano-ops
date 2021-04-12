@@ -103,24 +103,24 @@ let
 
   nodes = cardanoNodes // otherNodes;
 
-  mkCoreNode =  def:
-    let poolsVal  = def.pools or 0;
-        poolsValN = if poolsVal == null then 0 else poolsVal;
-        isDensePool = poolsValN > 1;
-    in {
+  mkCoreNode =  def: let
+    isCardanoDensePool = def.pools or null != null && def.pools > 1;
+  in {
     inherit (def) name;
     value = mkNode {
       _file = ./cardano.nix;
       node = {
-        roles.isCardanoCore = true;
-        roles.isCardanoDensePool = isDensePool;
         inherit (def) org nodeId;
+        roles = {
+          isCardanoCore = true;
+          inherit isCardanoDensePool;
+        };
       };
       deployment.ec2.region = def.region;
       imports = [
-        (if ! isDensePool
-         then def.instance or instances.core-node
-         else instances.dense-pool)
+        (def.instance or (if isCardanoDensePool
+          then instances.dense-pool
+          else instances.core-node))
         (cardano-ops.roles.core def.nodeId)
       ];
       services.cardano-node.allProducers = def.producers;

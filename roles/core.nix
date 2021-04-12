@@ -42,31 +42,40 @@ let
         _file = ./core.nix;
 
         services.cardano-node =
-          if (! config.node.roles.isCardanoDensePool)
+          if config.node.roles.isCardanoDensePool
           then {
+            extraArgs = [ "--bulk-credentials-file" "/var/lib/keys/cardano-node-bulk-credentials" ];
+          }
+          else {
             kesKey = "/var/lib/keys/cardano-node-kes-signing";
             vrfKey = "/var/lib/keys/cardano-node-vrf-signing";
             operationalCertificate = "/var/lib/keys/cardano-node-operational-cert";
-            extraArgs = [ "+RTS" "-l-agu" "-t" "--machine-readable" "-RTS"];
-          } else {
-            extraArgs = [ "+RTS" "-l-agu" "-t" "--machine-readable" "-RTS" "--bulk-credentials-file" "/var/lib/keys/cardano-node-bulk-credentials"];
           };
 
         systemd.services."cardano-node" =
-          if (! config.node.roles.isCardanoDensePool)
+          if config.node.roles.isCardanoDensePool
           then {
-            after = [ "cardano-node-vrf-signing-key.service" "cardano-node-kes-signing-key.service" "cardano-node-operational-cert-key.service" ];
-            wants = [ "cardano-node-vrf-signing-key.service" "cardano-node-kes-signing-key.service" "cardano-node-operational-cert-key.service" ];
-            partOf = [ "cardano-node-vrf-signing-key.service" "cardano-node-kes-signing-key.service" "cardano-node-operational-cert-key.service" ];
-          } else {
             after  = [ "cardano-node-bulk-credentials-key.service" ];
             wants  = [ "cardano-node-bulk-credentials-key.service" ];
             partOf = [ "cardano-node-bulk-credentials-key.service" ];
+          }
+          else {
+            after = [ "cardano-node-vrf-signing-key.service" "cardano-node-kes-signing-key.service" "cardano-node-operational-cert-key.service" ];
+            wants = [ "cardano-node-vrf-signing-key.service" "cardano-node-kes-signing-key.service" "cardano-node-operational-cert-key.service" ];
+            partOf = [ "cardano-node-vrf-signing-key.service" "cardano-node-kes-signing-key.service" "cardano-node-operational-cert-key.service" ];
           };
 
         deployment.keys =
-          if (! config.node.roles.isCardanoDensePool)
+          if config.node.roles.isCardanoDensePool
           then {
+            "cardano-node-bulk-credentials" = builtins.trace ("${name}: using " + (toString bulkCredentials)) {
+              keyFile = bulkCredentials;
+              user = "cardano-node";
+              group = "cardano-node";
+              destDir = "/var/lib/keys";
+            };
+          }
+          else {
             "cardano-node-vrf-signing" = builtins.trace ("${name}: using " + (toString vrfKey)) {
               keyFile = vrfKey;
               user = "cardano-node";
@@ -85,13 +94,6 @@ let
               group = "cardano-node";
               destDir = "/var/lib/keys";
             };
-          } else {
-            "cardano-node-bulk-credentials" = builtins.trace ("${name}: using " + (toString bulkCredentials)) {
-              keyFile = bulkCredentials;
-              user = "cardano-node";
-              group = "cardano-node";
-              destDir = "/var/lib/keys";
-            };
           };
       };
     Cardano =
@@ -99,30 +101,12 @@ let
       else if !(builtins.pathExists vrfKey) then RealPBFT
       else lib.recursiveUpdate TPraos RealPBFT;
   };
-  eraSkipConfig = era: {
-    services.cardano-node.nodeConfig =
-      ({
-        shelley =
-          { TestShelleyHardForkAtEpoch = 0;
-          };
-        allegra =
-          { TestShelleyHardForkAtEpoch = 0;
-            TestAllegraHardForkAtEpoch = 0;
-          };
-        mary =
-          { TestShelleyHardForkAtEpoch = 0;
-            TestAllegraHardForkAtEpoch = 0;
-            TestMaryHardForkAtEpoch = 0;
-          };
-      }).${era};
-  };
 
 in {
 
   imports = [
     cardano-ops.modules.base-service
     keysConfig.${globals.environmentConfig.nodeConfig.Protocol}
-    (eraSkipConfig globals.environmentConfig.generatorConfig.era)
   ];
 
   users.users.cardano-node.extraGroups = [ "keys" ];
