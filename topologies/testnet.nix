@@ -22,51 +22,16 @@ let
     };
   };
 
-  bftCoreNodes = let
-    mkBftCoreNode = mkBftCoreNodeForRegions regions;
-  in regionalConnectGroupWith (reverseList stakingPoolNodes)
-  (fullyConnectNodes [
-    # OBFT centralized nodes recovery nodes
-    (mkBftCoreNode "a" 1 {
-      org = "IOHK";
-      nodeId = 1;
-    })
-    (mkBftCoreNode "b" 1 {
-      org = "IOHK";
-      nodeId = 2;
-    })
-    (mkBftCoreNode "c" 1 {
-      org = "IOHK";
-      nodeId = 3;
-    })
-    (mkBftCoreNode "d" 1 {
-      org = "IOHK";
-      nodeId = 4;
-    })
-    (mkBftCoreNode "e" 1 {
-      org = "IOHK";
-      nodeId = 5;
-    })
-    (mkBftCoreNode "f" 1 {
-      org = "IOHK";
-      nodeId = 6;
-    })
-    (mkBftCoreNode "a" 2 {
-      org = "IOHK";
-      nodeId = 7;
-    })
-  ]);
-
   stakingPoolNodes = let
     mkStakingPool = mkStakingPoolForRegions regions;
   in fullyConnectNodes [
-    (mkStakingPool "a" 1 "" { nodeId = 8; })
-    (mkStakingPool "b" 1 "" { nodeId = 9; })
-    (mkStakingPool "c" 1 "" { nodeId = 10; })
-    (mkStakingPool "d" 1 "" { nodeId = 11; })
-    (mkStakingPool "e" 1 "" { nodeId = 12; })
-    (mkStakingPool "f" 1 "" { nodeId = 13; })
-    (mkStakingPool "a" 2 "" { nodeId = 14; })
+    (mkStakingPool "a" 1 "" { nodeId = 1; })
+    (mkStakingPool "b" 1 "" { nodeId = 2; })
+    (mkStakingPool "c" 1 "" { nodeId = 3; })
+    (mkStakingPool "d" 1 "" { nodeId = 4; })
+    (mkStakingPool "e" 1 "" { nodeId = 5; })
+    (mkStakingPool "f" 1 "" { nodeId = 6; })
+    (mkStakingPool "a" 2 "" { nodeId = 7; })
   ];
 
   coreNodes = map (withAutoRestartEvery 6) stakingPoolNodes;
