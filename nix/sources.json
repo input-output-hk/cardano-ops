@@ -35,6 +35,18 @@
         "url": "https://github.com/input-output-hk/cardano-db-sync/archive/0b054e18aec3b1e387a1c7b713c562ade37417a3.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "cardano-db-sync-old": {
+        "branch": "refs/tags/8.0.0",
+        "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "cardano-db-sync",
+        "rev": "1c7dbdac93e4d75118f1592dbb411f4f6a617128",
+        "sha256": "0wiqijrvahdn4w4mzdps22l85h9fb7dgmqq8p1alrmj4jb1hy3bb",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/1c7dbdac93e4d75118f1592dbb411f4f6a617128.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-explorer-app": {
         "branch": "refs/tags/1.5.0",
         "description": "Cardano Explorer App",
