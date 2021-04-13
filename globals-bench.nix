@@ -156,6 +156,7 @@ in (rec {
       systemd.services.nginx.enable = mkForce false;
     };
     coreNodes = map (recursiveUpdate {
+      stakePool = true;
       services.cardano-node.nodeConfig =
         recursiveUpdate
           pkgs.globals.environmentConfig.nodeConfig
