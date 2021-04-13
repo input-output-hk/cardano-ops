@@ -251,19 +251,30 @@ def era_tolerances($era; $genesis):
 } | (.common + .[$era]);
 
 def aux_profiles:
-[ { name: "short"
+[ { name: "10000"
   , generator: { tx_count: 10000, inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100 }
+  , genesis:
+    { genesis_future_offset: "3 minutes"
+    , utxo:                  1000
+    , dense_pool_density:    10
+    }
   }
-, { name: "small"
+, { name: "1000"
   , generator: { tx_count: 1000,  inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
                , init_cooldown: 25, finish_patience: 4 }
+  , genesis:
+    { genesis_future_offset: "3 minutes"
+    , utxo:                  1000
+    , dense_pool_density:    10
+    }
   }
-, { name: "smoke"
+, { name: "100"
   , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
                , init_cooldown: 25, finish_patience: 4 }
   , genesis:
     { genesis_future_offset: "3 minutes"
-    , utxo:                  100
+    , utxo:                  1000
+    , dense_pool_density:    10
     }
   }
 , { name: "k50-smoke"

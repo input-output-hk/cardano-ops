@@ -257,7 +257,7 @@ EOF
                                       op_bench "$@";;
                 profiles-jq | pjq )   local batch=$1 query=$2; shift 2
                                       op_bench "$batch" "jq($query)" "$@";;
-                smoke-test | smoke )  op_bench 'smoke' 'smoke';;
+                smoke-test | smoke )  op_bench 'smoke' '100';;
 
                 list-runs | runs | ls )
                                       ls -1 runs/*/meta.json | cut -d/ -f2;;

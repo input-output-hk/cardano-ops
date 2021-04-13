@@ -6,7 +6,6 @@
       org = "IOHK";
       region = "eu-central-1";
       producers = ["node-1" "node-2"];
-      pools = 100;
     }
     {
       name = "node-1";
@@ -22,6 +21,7 @@
       org = "IOHK";
       region = "us-east-1";
       producers = ["node-0" "node-1"];
+      pools = 10;
     }
   ];
 
