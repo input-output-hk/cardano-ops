@@ -6,30 +6,24 @@
       org = "IOHK";
       region = "eu-central-1";
       producers = ["node-1" "node-2"];
-      stakePool = true;
     }
     {
       name = "node-1";
       nodeId = 1;
       org = "IOHK";
-      region = "eu-central-1";
+      region = "ap-southeast-2";
       producers = ["node-2" "node-0"];
-      stakePool = true;
+      pools = 1;
     }
     {
       name = "node-2";
       nodeId = 2;
       org = "IOHK";
-      region = "eu-central-1";
+      region = "us-east-1";
       producers = ["node-0" "node-1"];
+      pools = 10;
     }
   ];
 
   relayNodes = [];
-
-  legacyCoreNodes = [];
-
-  legacyRelayNodes = [];
-
-  byronProxies = [];
 }

@@ -1,19 +1,31 @@
 #!/usr/bin/env bash
 
+msg() {
+        echo "$*" >&2
+}
+
+msg_ne() {
+        echo -ne "$*" >&2
+}
+
 fail() {
-	fprint "$*"
+	msg "$*"
 	exit 1
 }
 
 failusage() {
-        echo "USAGE:  $(basename "$0") $*" >&2
+        msg "USAGE:  $(basename "$0") $*"
         exit 1
 }
 
 oprint() {
-        echo "--( $*" >&2
+        msg "--( $*"
 }
 export -f oprint
+oprint_ne() {
+        msg_ne "--( $*"
+}
+
 oprint_top() {
         ## This only prints if ran from the top-level shell process.
         if test -z "${lib_recursing}"; then oprint "$@"; fi
@@ -21,7 +33,7 @@ oprint_top() {
 export -f oprint_top
 
 vprint() {
-        if test -n "${verbose}${debug}"; then echo "-- $*" >&2; fi
+        if test -n "${verbose}${debug}"; then msg "-- $*"; fi
 }
 export -f vprint
 vprint_top() {
@@ -32,16 +44,16 @@ vprint_top() {
 export -f vprint_top
 
 dprint() {
-        if test -n "${debug}"; then echo "-- $*" >&2; fi
+        if test -n "${debug}"; then msg "-- $*"; fi
 }
 export -f dprint
 
 errprint() {
-        echo -e "***\n*** ERROR:  $*\n***" >&2
+        msg_ne "***\n*** ERROR:  $*\n***\n"
 }
 
 fprint() {
-        echo "-- FATAL:  $*" >&2
+        msg "-- FATAL:  $*"
 }
 export -f fprint
 
@@ -86,7 +98,7 @@ json_file_append() {
 
         test -f "$f" || echo "{}" > "$f"
         jq ' $origf[0] as $orig
-           | $orig + ('"$extra"')
+           | $orig * ('"$extra"')
            ' --slurpfile origf "$f" "$@" > "$tmp"
         mv "$tmp"  "$f"
 }
@@ -97,7 +109,7 @@ json_file_prepend() {
 
         test -f "$f" || echo "{}" > "$f"
         jq ' $origf[0] as $orig
-           | ('"$extra"') + $orig
+           | ('"$extra"') * $orig
            ' --slurpfile origf "$f" "$@" > "$tmp"
         mv "$tmp"  "$f"
 }
@@ -128,4 +140,12 @@ maybe_local_repo_branch() {
         git -C "$local_repo_path" describe --all "$rev" |
                 sed 's_^\(.*/\|\)\([^/]*\)$_\2_'
         ## This needs a shallow clone to be practical.
+}
+
+min() {
+        if test "$1" -gt "$2"; then echo -n "$2"; else echo -n "$1"; fi
+}
+
+max() {
+        if test "$1" -lt "$2"; then echo -n "$2"; else echo -n "$1"; fi
 }
