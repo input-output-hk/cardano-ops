@@ -14,4 +14,7 @@ in rec {
   inherit (cardano-rosetta-pkgs) cardano-rosetta-server;
 
   cardano-node-eventlogged = cardanoNodePkgs.cardanoNodeEventlogHaskellPackages.cardano-node.components.exes.cardano-node;
+  
+  cardano-node-services-def = (self.sourcePaths.cardano-node-service
+    or self.sourcePaths.cardano-node) + "/nix/nixos";
 }

@@ -14,7 +14,7 @@ let
 in {
   imports = [
     (sourcePaths.cardano-graphql + "/nix/nixos")
-    (sourcePaths.cardano-rest + "/nix/nixos")
+    (sourcePaths.cardano-rest + "/nix/nixos/cardano-explorer-api-service.nix")
     (sourcePaths.cardano-db-sync + "/nix/nixos")
     (sourcePaths.cardano-rosetta + "/nix/nixos")
     cardano-ops.modules.base-service
@@ -153,7 +153,7 @@ in {
     port = 8101;
     environment = pkgs.globals.environmentConfig;
     socketPath = config.services.cardano-node.socketPath;
-    package = cardano-rest-pkgs.cardanoRestHaskellPackages.cardano-submit-api.components.exes.cardano-submit-api;
+    inherit cardanoNodePkgs;
   };
 
   networking.firewall.allowedTCPPorts = [ 80 443 ];
