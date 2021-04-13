@@ -7,20 +7,25 @@ let
   nodeCfg = config.services.cardano-node;
   nodeId = config.node.nodeId;
   hostAddr = getListenIp nodes.${name};
-  inherit (cardanoDbSyncHaskellPackages.cardano-db-sync.components.exes) cardano-db-sync;
-  inherit (cardanoDbSyncHaskellPackages.cardano-db-sync-extended.components.exes) cardano-db-sync-extended;
-  inherit (cardanoDbSyncHaskellPackages.cardano-node.components.exes) cardano-node;
-  inherit (cardanoDbSyncHaskellPackages.cardano-db-tool.components.exes) cardano-db-tool;
+  inherit (cardanoDbSyncHaskellPackagesOld.cardano-db-sync.components.exes) cardano-db-sync;
+  inherit (cardanoDbSyncHaskellPackagesOld.cardano-db-sync-extended.components.exes) cardano-db-sync-extended;
+  inherit (cardanoDbSyncHaskellPackagesOld.cardano-node.components.exes) cardano-node;
+  inherit (cardanoDbSyncHaskellPackagesOld.cardano-db-tool.components.exes) cardano-db-tool;
+  cardanoGraphQlPackages = import sourcePaths.cardano-graphql;
+  hasura-cli-ext = cardanoGraphQlPackages.hasura-cli-ext;
+  hasura-cli = cardanoGraphQlPackages.hasura-cli;
   explorer-app-extended = builtins.fetchGit {
     url = "git@github.com:input-output-hk/explorer-app-extended";
-    rev = "582ea6761988ca41bd4571cb4b086d19d06cabd3";
+    rev = "8281d0778c7321163ad135b6b874d8c9bbe1eaaa";
+    ref = "fix-nix-build";
   };
 in {
+  nixpkgs.overlays = [ (self: super: {
+    hasura-cli = hasura-cli;
+  }) ];
   imports = [
     (sourcePaths.cardano-graphql + "/nix/nixos")
-    (sourcePaths.cardano-rest + "/nix/nixos")
-    (sourcePaths.cardano-db-sync + "/nix/nixos")
-    (sourcePaths.cardano-rosetta + "/nix/nixos")
+    (sourcePaths.cardano-db-sync-old + "/nix/nixos")
     cardano-ops.modules.base-service
     cardano-ops.modules.cardano-postgres
     "${explorer-app-extended}/nix/api-server.nix"
@@ -32,19 +37,30 @@ in {
   ];
 
   services.cardano-postgres.enable = true;
+  services.castalia = {
+    enable = true;
+    network = "testnet";
+    inherit (import ../static/castalia.nix) gaTrackingId gtmTrackingId;
+    apiHost = globals.explorerIogHostName;
+    cardanoLib = iohkNix.cardanoLib;
+  };
+  systemd.services.castalia-api-server.environment = (import ../static/castalia.nix).api-server;
+  systemd.services.castalia-data-collector.environment = (import ../static/castalia.nix).data-collector;
+  # TODO: use an env file and nixops secrets
+
   services.postgresql = {
-    ensureDatabases = [ "cexplorer" ];
+    ensureDatabases = [ "explorer_backend" ];
     ensureUsers = [
       {
-        name = "cexplorer";
+        name = "explorer_backend";
         ensurePermissions = {
-          "DATABASE cexplorer" = "ALL PRIVILEGES";
+          "DATABASE explorer_backend" = "ALL PRIVILEGES";
         };
       }
     ];
     identMap = ''
-      explorer-users root cexplorer
-      explorer-users cexplorer cexplorer
+      explorer-users root explorer_backend
+      explorer-users explorer_backend explorer_backend
       explorer-users postgres postgres
     '';
     authentication = ''
@@ -52,30 +68,22 @@ in {
     '';
   };
 
-  services.graphql-engine.enable = true;
-  services.cardano-graphql = {
+  services.graphql-engine = {
     enable = true;
+    dbUser = "explorer_backend";
+    db = "explorer_backend";
+  };
+  # TODO DELETE ME ONCE WORKING
+  services.cardano-graphql = {
+    dbUser = "explorer_backend";
+    db = "explorer_backend";
+    enable = false;
     genesisByron = nodeCfg.nodeConfig.ByronGenesisFile;
     genesisShelley = nodeCfg.nodeConfig.ShelleyGenesisFile;
     allowListPath = cardano-explorer-app-pkgs.allowList;
     cardanoNodeSocketPath = nodeCfg.socketPath;
     cardanoNodeConfigPath = builtins.toFile "cardano-node-config.json" (builtins.toJSON nodeCfg.nodeConfig);
     metadataServerUri = globals.environmentConfig.metadataUrl or null;
-  };
-
-  services.cardano-rosetta-server = {
-    enable = true;
-    topologyFilePath = iohkNix.cardanoLib.mkEdgeTopology {
-      edgeNodes = map (p: p.addr) nodeCfg.producers;
-      port = nodeCfg.port;
-    };
-    cardanoCliPath = cardano-cli + /bin/cardano-cli;
-    genesisPath = nodeCfg.nodeConfig.ShelleyGenesisFile;
-    cardanoNodePath = cardano-node + /bin/cardano-node;
-    cardanoNodeSocketPath = nodeCfg.socketPath;
-    bindAddress = "127.0.0.1";
-    port = 8082;
-    dbConnectionString = "socket://${cfg.postgres.user}:*@${cfg.postgres.socketdir}?db=${cfg.postgres.database}";
   };
 
   services.cardano-node = {
@@ -89,13 +97,13 @@ in {
     environment = globals.environmentConfig;
     socketPath = nodeCfg.socketPath;
     logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { hasPrometheus = [ hostAddr 12698 ]; };
-    user = "cexplorer";
+    user = "explorer_backend";
     extended = globals.withCardanoDBExtended;
     package = if globals.withCardanoDBExtended
       then cardano-db-sync-extended
       else cardano-db-sync;
     postgres = {
-      database = "cexplorer";
+      database = "explorer_backend";
     };
   };
 
@@ -107,58 +115,10 @@ in {
     RestartSec = "30s";
   };
 
-  systemd.services.cardano-rosetta-server.serviceConfig = {
-    User = "cexplorer";
-    SupplementaryGroups = "cardano-node";
-  };
-
-  systemd.services.cardano-graphql = {
-    environment = {
-      HOME = "/run/${config.systemd.services.cardano-graphql.serviceConfig.RuntimeDirectory}";
-    };
-    serviceConfig = {
-      User = "cexplorer";
-      RuntimeDirectory = "cardano-graphql";
-      # Put cardano-graphql in "cardano-node" group so that it can write socket file:
-      SupplementaryGroups = "cardano-node";
-    };
-  };
-
   systemd.services.graphql-engine = {
     environment = {
       HASURA_GRAPHQL_LOG_LEVEL = "warn";
     };
-  };
-
-  systemd.services.cardano-submit-api.serviceConfig = lib.mkIf globals.withSubmitApi {
-    # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
-    SupplementaryGroups = "cardano-node";
-  };
-
-  services.cardano-explorer-api = {
-    enable = true;
-    port = 8100;
-    package = cardano-rest-pkgs.cardanoRestHaskellPackages.cardano-explorer-api.components.exes.cardano-explorer-api;
-  };
-
-  systemd.services.cardano-explorer-api = {
-    startLimitIntervalSec = 0;
-    serviceConfig = {
-      Restart = "always";
-      RestartSec = "10s";
-      LimitNOFILE = 4096;
-      # Avoid flooding (and rotating too quicky) default journal with debug logs (that can't be disabled):
-      # cardano-explorer-api logs: journalctl --namespace legacy
-      LogNamespace = "legacy";
-    };
-  };
-
-  services.cardano-submit-api = lib.mkIf globals.withSubmitApi {
-    enable = true;
-    port = 8101;
-    environment = pkgs.globals.environmentConfig;
-    socketPath = config.services.cardano-node.socketPath;
-    package = cardano-rest-pkgs.cardanoRestHaskellPackages.cardano-submit-api.components.exes.cardano-submit-api;
   };
 
   networking.firewall.allowedTCPPorts = [ 80 443 ];
@@ -166,84 +126,6 @@ in {
   security.acme = lib.mkIf (config.deployment.targetEnv != "libvirtd") {
     email = "devops@iohk.io";
     acceptTerms = true; # https://letsencrypt.org/repository/
-  };
-
-  systemd.services.dump-registered-relays-topology = let
-    excludedPools = lib.concatStringsSep ", " (map (hash: "'${hash}'") globals.static.poolsExcludeList);
-    extract_relays_sql = writeText "extract_relays.sql" ''
-      select array_to_json(array_agg(row_to_json(t))) from (
-        select COALESCE(ipv4, dns_name) as addr, port from (
-          select min(update_id) as update_id, ipv4, dns_name, port from pool_relay inner join pool_update ON pool_update.id = pool_relay.update_id inner join pool_hash ON pool_update.hash_id = pool_hash.id where ${lib.optionalString (globals.static.poolsExcludeList != []) "pool_hash.view not in (${excludedPools}) and "}(
-            (ipv4 is null and dns_name NOT LIKE '% %') or ipv4 !~ '(^0\.)|(^10\.)|(^100\.6[4-9]\.)|(^100\.[7-9]\d\.)|(^100\.1[0-1]\d\.)|(^100\.12[0-7]\.)|(^127\.)|(^169\.254\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.0\.0\.)|(^192\.0\.2\.)|(^192\.88\.99\.)|(^192\.168\.)|(^198\.1[8-9]\.)|(^198\.51\.100\.)|(^203.0\.113\.)|(^22[4-9]\.)|(^23[0-9]\.)|(^24[0-9]\.)|(^25[0-5]\.)')
-            group by ipv4, dns_name, port order by update_id
-        ) t
-      ) t;
-    '';
-    relays_exclude_file = builtins.toFile "relays-exclude.txt" (lib.concatStringsSep "\n" globals.static.relaysExcludeList);
-    networkMagic = (builtins.fromJSON (builtins.readFile globals.environmentConfig.nodeConfig.ShelleyGenesisFile)).networkMagic;
-  in {
-    path = [ config.services.postgresql.package jq netcat curl dnsutils ];
-    script = ''
-      set -uo pipefail
-      excludeList="$(sort ${relays_exclude_file})"
-      cd $STATE_DIRECTORY
-      rm -f relays.json
-      for r in $(psql -t < ${extract_relays_sql} | jq -c '.[]'); do
-        addr=$(echo "$r" | jq -r '.addr')
-        port=$(echo "$r" | jq -r '.port')
-        allAddresses="$addr\n$(dig +short $addr)"
-        excludedAddresses=$(comm -12 <(echo "$allAddresses" | sort) <(echo "$excludeList"))
-        nbExcludedAddresses=$(echo $excludedAddresses | wc -w)
-        if [[ $nbExcludedAddresses == 0 ]]; then
-          set +e
-          PING="$(timeout 2s ${cardano-ping}/bin/cardano-ping -h $addr -p $port -m ${toString networkMagic} -c 1 -q --json)"
-          res=$?
-          if [ $res -eq 0 ]; then
-            echo $PING | ${jq}/bin/jq -c > /dev/null 2>&1
-            res=$?
-          fi
-          set -e
-          if [ $res -eq 0 ]; then
-            >&2 echo "Successfully pinged $addr:$port"
-            set +e
-            geoinfo=$(curl -s -k --retry 6 https://json.geoiplookup.io/$addr)
-            res=$?
-            set -e
-            if [ $res -eq 0 ]; then
-              continent=$(echo "$geoinfo" | jq -r '.continent_name')
-              country_code=$(echo "$geoinfo" | jq -r '.country_code')
-              if [ "$country_code" == "US" ]; then
-                state=$(echo $geoinfo | jq -r '.region')
-              else
-                state=$country_code
-              fi
-              echo $r | jq -c --arg continent "$continent" \
-                --arg state "$state" '. + {continent: $continent, state: $state}' >> relays.json
-            else
-              >&2 echo "Failed to retrieved goip info for $addr"
-              exit $res
-            fi
-          else
-            >&2 echo "failed to cardano-ping $addr:$port"
-          fi
-        else
-          >&2 echo "$addr excluded due to dns name or IPs being in exclude list:\n$excludedAddresses"
-        fi
-      done
-      if [ -f relays.json ]; then
-        cat relays.json | jq -n '. + [inputs]' | jq '{ Producers : . }' > topology.json
-        mkdir -p relays
-        mv topology.json relays/topology.json
-      fi
-    '';
-    serviceConfig = {
-      User = cfg.user;
-      StateDirectory = "registered-relays-dump";
-    };
-  };
-  systemd.timers.dump-registered-relays-topology = {
-    timerConfig.OnCalendar = "daily";
-    wantedBy = [ "timers.target" ];
   };
 
   services.nginx = {
@@ -281,7 +163,7 @@ in {
       }
     '';
     virtualHosts = {
-      "${globals.explorerHostName}" = {
+      "${globals.explorerIogHostName}" = {
         serverAliases = globals.explorerAliases;
         enableACME = true;
         forceSSL = globals.explorerForceSSL;
@@ -350,15 +232,24 @@ in {
                 end
               }
             '';
+            oauthProxyConfig = ''
+              #auth_request /oauth2/auth;
+              error_page 401 = /oauth2/sign_in;
+
+              # pass information via X-User and X-Email headers to backend,
+              # requires running with --set-xauthrequest flag
+              auth_request_set $user   $upstream_http_x_auth_request_user;
+              auth_request_set $email  $upstream_http_x_auth_request_email;
+              proxy_set_header X-User  $user;
+              proxy_set_header X-Email $email;
+
+              # if you enabled --cookie-refresh, this is needed for it to work with auth_request
+              auth_request_set $auth_cookie $upstream_http_set_cookie;
+              add_header Set-Cookie $auth_cookie;
+            '';
         in {
           "/" = {
-            root = (cardano-explorer-app-pkgs.overrideScope'(self: super: {
-              static = super.static.override {
-                graphqlApiHost = globals.explorerHostName;
-                cardanoNetwork = globals.environmentName;
-                gaTrackingId = globals.static.gaTrackingId or null;
-              };
-            })).static;
+            root = "${config.services.castalia.package}/web-app";
             tryFiles = "$uri $uri/index.html /index.html";
             extraConfig = ''
               rewrite /tx/([0-9a-f]+) /$lang/transaction.html?id=$1 redirect;
@@ -366,41 +257,13 @@ in {
               rewrite /block/([0-9a-zA-Z]+) /$lang/block.html?id=$1 redirect;
               rewrite /epoch/([0-9]+) /$lang/epoch.html?number=$1 redirect;
               rewrite ^([^.]*[^/])$ $1.html redirect;
-            '';
-          };
-          # To avoid 502 alerts when withSubmitApi is false
-          "/api/submit/tx" = lib.mkIf globals.withSubmitApi {
-            proxyPass = "http://127.0.0.1:8101/api/submit/tx";
-          };
-          "/api" = {
-            proxyPass = "http://127.0.0.1:8100/api";
-            extraConfig = ''
-              limit_req zone=apiPerIP;
+              ${oauthProxyConfig}
             '';
           };
           "/graphql" = {
             proxyPass = "http://127.0.0.1:3100/";
           };
-          "/rosetta/" = {
-            proxyPass = "http://127.0.0.1:8082/";
-          };
-          "/supply/total" = {
-            proxyPass = "http://127.0.0.1:3100/";
-            extraConfig = graphqlRewriter
-              "{ ada { supply { total } } }"
-              "obj.data.ada.supply.total / 1000000";
-          };
-          "/supply/circulating" = {
-            proxyPass = "http://127.0.0.1:3100/";
-            extraConfig = graphqlRewriter
-              "{ ada { supply { circulating } } }"
-              "obj.data.ada.supply.circulating / 1000000";
-          };
-        }) // {
-          "/relays" = {
-            root = "/var/lib/registered-relays-dump";
-          };
-        };
+        });
       };
       "explorer-ip" = {
         locations = {
@@ -413,6 +276,14 @@ in {
         };
       };
     };
+  };
+  services.oauth2_proxy = {
+    enable = true;
+    inherit (globals.static.oauth) clientID clientSecret cookie;
+    provider = "google";
+    email.domains = [ "iohk.io" ];
+    nginx.virtualHosts = [ globals.explorerIogHostName ];
+    setXauthrequest = true;
   };
 
   # Avoid flooding (and rotating too quicky) default journal with nginx logs:

@@ -26,7 +26,8 @@ in {
   domain = "${globals.deploymentName}.${globals.dnsZone}";
   relaysNew = globals.environmentConfig.relaysNew or "relays-new.${globals.domain}";
 
-  explorerHostName = "explorer.${globals.domain}";
+  explorerHostName = "explorer.${pkgs.globals.domain}";
+  explorerIogHostName = "explorer-iog.${pkgs.globals.domain}";
   explorerForceSSL = true;
   explorerAliases = [];
 
