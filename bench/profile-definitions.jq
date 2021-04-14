@@ -198,6 +198,8 @@ def utxo_delegators_density_profiles:
   , { genesis: { utxo: 4000000, delegators: 1000000 } }
   , { genesis: { utxo: 2000000, delegators:  500000, epoch_length: 4400 } }
   , { genesis: { utxo: 2000000, delegators:  500000, epoch_length: 6600 } }
+  , { genesis: { utxo: 2000000, delegators:  500000, dense_pool_density: 2 } }
+  , { genesis: { utxo: 2000000, delegators:  500000, dense_pool_density: 5 } }
   , { genesis: { utxo: 2000000, delegators:  500000, dense_pool_density: 10 } }
   , { genesis: { utxo: 2000000, delegators:  500000, dense_pool_density: 20 } }
   , { genesis: { utxo: 2000000, delegators:  500000 }
