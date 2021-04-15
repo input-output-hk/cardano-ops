@@ -2,7 +2,6 @@ pkgs: with pkgs; { nodes, name, config, ... }:
 let
   cfg = config.services.metadata-server;
   hostAddr = getListenIp nodes.${name};
-  inherit (import (sourcePaths.metadata-server + "/nix") {}) metadataServerHaskellPackages;
   metadataServerPort = 8080;
   metadataWebhookPort = 8081;
   webhookKeys = import ../static/metadata-webhook-secrets.nix;
@@ -21,7 +20,7 @@ in {
   imports = [
     cardano-ops.modules.common
     cardano-ops.modules.cardano-postgres
-    (sourcePaths.metadata-server + "/nix/nixos")
+    (sourcePaths.offchain-metadata-tools + "/nix/nixos")
   ];
 
   # Disallow metadata-server to restart more than 3 times within a 30 minute window

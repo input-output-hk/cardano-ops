@@ -120,18 +120,6 @@
         "url": "https://github.com/input-output-hk/iohk-nix/archive/bc4216c5b0e14dbde5541763f4952f99c3c712fa.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "metadata-server": {
-        "branch": "master",
-        "description": null,
-        "homepage": null,
-        "owner": "input-output-hk",
-        "repo": "metadata-server",
-        "rev": "fd298bacfe2015fa7c4c2da061baea89b2eba797",
-        "sha256": "1ij3qhz2psay3hac4c3fd2jx9zxi8nkv6890ppy2nhgsawc10rfc",
-        "type": "tarball",
-        "url": "https://github.com/input-output-hk/metadata-server/archive/fd298bacfe2015fa7c4c2da061baea89b2eba797.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "nixpkgs": {
         "branch": "nixos-20.09",
         "description": "Nix Packages collection",
@@ -154,6 +142,18 @@
         "sha256": "1g95hqvc8hpjijwc2nrxvgnvasfjn2hrjd8g4x9cklphcz2mz0v8",
         "type": "tarball",
         "url": "https://github.com/NixOS/nixpkgs-channels/archive/39b92f6e45534658b49e79c78154df6333af8472.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "offchain-metadata-tools": {
+        "branch": "master",
+        "description": "Tools for creating, submitting, and managing off-chain metadata such as multi-asset token metadata",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "offchain-metadata-tools",
+        "rev": "040cfa44f58eea6ca8c8bb4576ba352d17689be5",
+        "sha256": "0ryvz08k1fp1s8bli87zdjzq0nn416s5c47h70v6f8qd9kvr40qk",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/offchain-metadata-tools/archive/040cfa44f58eea6ca8c8bb4576ba352d17689be5.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
