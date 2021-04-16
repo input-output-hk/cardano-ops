@@ -22,45 +22,9 @@ regions = {
     };
   };
 
-  bftCoreNodes = let
-    mkBftCoreNode = mkBftCoreNodeForRegions regions;
-  in regionalConnectGroupWith (reverseList stakingPoolNodes)
-  (fullyConnectNodes [
-    # OBFT centralized nodes recovery nodes
-    (mkBftCoreNode "a" 1 {
-      org = "IOHK";
-      nodeId = 1;
-    })
-    (mkBftCoreNode "b" 1 {
-      org = "IOHK";
-      nodeId = 2;
-    })
-    (mkBftCoreNode "c" 1 {
-      org = "Emurgo";
-      nodeId = 3;
-    })
-    (mkBftCoreNode "d" 1 {
-      org = "Emurgo";
-      nodeId = 4;
-    })
-    (mkBftCoreNode "e" 1 {
-      org = "CF";
-      nodeId = 5;
-    })
-    (mkBftCoreNode "f" 1 {
-      org = "CF";
-      nodeId = 6;
-    })
-    (mkBftCoreNode "a" 2 {
-      org = "IOHK";
-      nodeId = 7;
-    })
-  ]);
-
   stakingPoolNodes = let
     mkStakingPool = mkStakingPoolForRegions regions;
-  in regionalConnectGroupWith bftCoreNodes
-  (twoHopsConnectNodes [
+  in twoHopsConnectNodes [
     (mkStakingPool "a" 1 "IOG1" { nodeId = 8; })
 
     (mkStakingPool "b" 1 "IOGP2" { nodeId = 28; })
@@ -96,10 +60,9 @@ regions = {
     (mkStakingPool "b" 6 "IOGP32" { nodeId = 58; })
     (mkStakingPool "c" 6 "IOGP33" { nodeId = 59; })
     (mkStakingPool "d" 6 "LEO1"   { nodeId = 60; })
-  ]);
+  ];
 
-  coreNodes = map (withAutoRestartEvery 6)
-    (bftCoreNodes ++ stakingPoolNodes);
+  coreNodes = map (withAutoRestartEvery 6) stakingPoolNodes;
 
   relayNodes = map (composeAll [
     (withAutoRestartEvery 6)
