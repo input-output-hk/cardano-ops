@@ -72,7 +72,7 @@ def genesis_defaults($era; $compo):
   }
 
 , mary:
-  { decentralisation_param:  0.5
+  { decentralisation_param:  0
   }
 } | (.common + .[$era]);
 
