@@ -73,15 +73,15 @@
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
     "cardano-node": {
-        "branch": "refs/tags/1.26.1",
+        "branch": "refs/tags/1.26.2",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "62f38470098fc65e7de5a4b91e21e36ac30799f3",
-        "sha256": "0ws2lgpl88p6bbrim43dczm19an9nba97sr483abq32b1xh4m3qh",
+        "rev": "3531289c9f79eab7ac5d3272ce6e6821504fec4c",
+        "sha256": "17zr2lhnrly6gqb1hxf3cjwfw1iz8s85hhhdiivb5ax7fkrrp8pp",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/62f38470098fc65e7de5a4b91e21e36ac30799f3.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/3531289c9f79eab7ac5d3272ce6e6821504fec4c.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rest": {
