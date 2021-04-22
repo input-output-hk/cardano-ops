@@ -150,11 +150,12 @@
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "offchain-metadata-tools",
-        "rev": "040cfa44f58eea6ca8c8bb4576ba352d17689be5",
-        "sha256": "0ryvz08k1fp1s8bli87zdjzq0nn416s5c47h70v6f8qd9kvr40qk",
+        "rev": "80e5bfaea91d78fc455ff210c06789d7652e9c50",
+        "sha256": "13wj3k2hpcaf6i1sy8agk7azqr6kmc9p1dfq3m92qv6gizinp8xk",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/offchain-metadata-tools/archive/040cfa44f58eea6ca8c8bb4576ba352d17689be5.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+        "url": "https://github.com/input-output-hk/offchain-metadata-tools/archive/80e5bfaea91d78fc455ff210c06789d7652e9c50.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
+        "version": "0.1.0.0"
     },
     "ops-lib": {
         "branch": "master",
