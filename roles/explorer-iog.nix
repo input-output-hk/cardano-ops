@@ -16,7 +16,7 @@ let
   hasura-cli = cardanoGraphQlPackages.hasura-cli;
   explorer-app-extended = builtins.fetchGit {
     url = "git@github.com:input-output-hk/explorer-app-extended";
-    rev = "8281d0778c7321163ad135b6b874d8c9bbe1eaaa";
+    rev = "55bbd1d403a3704c2c87045578fb1abd1f314b90";
     ref = "fix-nix-build";
   };
 in {
@@ -37,12 +37,22 @@ in {
   ];
 
   services.cardano-postgres.enable = true;
-  services.castalia = {
+  services.castalia =
+  let
+    s = import ../static/castalia.nix;
+  in {
     enable = true;
-    network = "testnet";
-    inherit (import ../static/castalia.nix) gaTrackingId gtmTrackingId;
+    network = globals.environmentName;
+    inherit (s) gaTrackingId gtmTrackingId;
     apiHost = globals.explorerIogHostName;
     cardanoLib = iohkNix.cardanoLib;
+    firebaseApikey = s.web-app.FIREBASE_APIKEY;
+    firebaseAuthDomain = s.web-app.FIREBASE_AUTH_DOMAIN;
+    firebaseDatabaseUrl = s.web-app.FIREBASE_DATABASE_URL;
+    firebaseProjectid = s.web-app.FIREBASE_PROJECTID;
+    firebaseBucket = s.web-app.FIREBASE_BUCKET;
+    firebaseMessagingSender = s.web-app.FIREBASE_MESSAGING_SENDER;
+    firebaseAppid = s.web-app.FIREBASE_APPID;
   };
   systemd.services.castalia-api-server.environment = (import ../static/castalia.nix).api-server;
   systemd.services.castalia-data-collector.environment = (import ../static/castalia.nix).data-collector;
@@ -164,7 +174,8 @@ in {
     '';
     virtualHosts = {
       "${globals.explorerIogHostName}" = {
-        serverAliases = globals.explorerAliases;
+        serverAliases = globals.explorerIogAliases;
+        basicAuth = lib.listToAttrs (map (email: { name = email; value = (import ../static/castalia.nix).basic_auth.password; }) (lib.splitString "\n" (builtins.readFile ../static/castalia-beta.txt)));
         enableACME = true;
         forceSSL = globals.explorerForceSSL;
         locations = (if maintenanceMode then {
@@ -257,7 +268,7 @@ in {
               rewrite /block/([0-9a-zA-Z]+) /$lang/block.html?id=$1 redirect;
               rewrite /epoch/([0-9]+) /$lang/epoch.html?number=$1 redirect;
               rewrite ^([^.]*[^/])$ $1.html redirect;
-              ${oauthProxyConfig}
+              #{oauthProxyConfig}
             '';
           };
           "/graphql" = {
@@ -278,11 +289,11 @@ in {
     };
   };
   services.oauth2_proxy = {
-    enable = true;
+    enable = false;
     inherit (globals.static.oauth) clientID clientSecret cookie;
     provider = "google";
     email.domains = [ "iohk.io" ];
-    nginx.virtualHosts = [ globals.explorerIogHostName ];
+    #nginx.virtualHosts = [ globals.explorerIogHostName ];
     setXauthrequest = true;
   };
 

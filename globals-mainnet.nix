@@ -9,12 +9,14 @@ pkgs: {
   explorerHostName = "explorer.cardano.org";
   explorerForceSSL = true;
   explorerAliases = [ "explorer.mainnet.cardano.org" "explorer.${pkgs.globals.domain}" ];
+  explorerIogAliases = [ "beta.explorer.iohk.io" ];
 
   withCardanoDBExtended = true;
   withHighCapacityMonitoring = true;
   withHighCapacityExplorer = true;
   withHighLoadRelays = true;
   withSmash = true;
+  withExplorerIog = true;
 
   withMetadata = true;
   metadataHostName = "tokens.cardano.org";
