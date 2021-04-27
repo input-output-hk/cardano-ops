@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
 # To keep things simple this script assumes it is run from a tmux session.
-
+#
+# To run on a AWS cluster make sure to apply the patch provided in the
+# 'pivo-version-change' directory.
+#
 set -euo pipefail
 
 nix-shell --run "./examples/pivo-version-change/redeploy.sh"

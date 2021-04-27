@@ -1,0 +1,28 @@
+diff --git a/scripts/create-shelley-genesis-and-keys.sh b/scripts/create-shelley-genesis-and-keys.sh
+index c7ef3b8..6d003b2 100755
+--- a/scripts/create-shelley-genesis-and-keys.sh
++++ b/scripts/create-shelley-genesis-and-keys.sh
+@@ -44,7 +44,7 @@ cardano-cli genesis create \
+             --supply $MAX_SUPPLY \
+             --gen-genesis-keys $NB_BFT_NODES \
+             --gen-utxo-keys $NB_CORE_NODES \
+-            --start-time `date -u -d "today + 3 minutes" +'%Y-%m-%dT%H:%M:%SZ'` \
++            --start-time `date -u -d "today + 10 minutes" +'%Y-%m-%dT%H:%M:%SZ'` \
+             --testnet-magic 42
+ 
+ # Customize the genesis file
+diff --git a/topologies/pivo.nix b/topologies/pivo.nix
+index 50f3349..8488fdc 100644
+--- a/topologies/pivo.nix
++++ b/topologies/pivo.nix
+@@ -88,8 +88,8 @@ let
+     let
+       # The region names determine the number of stake pools. These names
+       # should belong to `attrNames regions`.
+-      poolRegionNames = [ "b" ]; # "c" "d" ];
+-      # poolRegionNames = [ "b" "c" "d" "e" "f" "g" "h" "i" ];
++      # poolRegionNames = [ "b" ]; # "c" "d" ];
++      poolRegionNames = [ "b" "c" "d" "e" "f" "g" "h" "i" ];
+ 
+       # Stake pool specifications, which will be used to create stake pools.
+       poolSpecs =
