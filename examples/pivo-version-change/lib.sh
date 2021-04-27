@@ -154,36 +154,11 @@ register_stakepool(){
     #
     cold_key=$7
 
-    ##
-    ## Stake address registration
-    ##
-    # Create the stake key files
-    $CLI -- stake-address key-gen \
-          --verification-key-file $stake_key.vkey \
-          --signing-key-file $stake_key.skey
-
-    # Use these keys to create a payment address. This key should have funds
-    # associated to it if we want the stakepool to have stake delegated to it.
-    $CLI -- address build \
-          --payment-verification-key-file $utxo_key.vkey \
-          --stake-verification-key-file $stake_key.vkey \
-          --out-file $payment_addr \
-          --testnet-magic 42
-
-    # Create an address registration certificate, which will be submitted to
-    # the blockchain.
-    $CLI -- stake-address registration-certificate \
-          --stake-verification-key-file $stake_key.vkey \
-          --out-file $stake_key.cert
-
-    echo "📜 Submitting the stake registration certificate"
-    submit_transaction \
-        $utxo_addr \
-        $utxo_addr \
-        build-raw \
-        "--certificate-file $stake_key.cert" \
-        "--signing-key-file $utxo_key.skey --signing-key-file $stake_key.skey" \
-        --shelley-mode || exit 1
+    register_stake_key \
+        $stake_key \
+        $payment_addr \
+        $utxo_key \
+        $utxo_addr
 
     ##
     ## Stake pool registration
@@ -223,12 +198,59 @@ register_stakepool(){
     # Finally submit the transaction
     echo "Waiting to register the stakepool"
     submit_transaction \
-        $utxo_addr \
+        $payment_addr \
         $payment_addr \
         build-raw \
         "--certificate-file $POOL_REGISTRATION_CERT --certificate-file $DELEGATION_CERT" \
         "--signing-key-file $utxo_key.skey --signing-key-file $stake_key.skey --signing-key-file $COLD.skey " \
         --shelley-mode || exit 1
+}
+
+register_stake_key(){
+    # Path where the stake keys should be created
+    stake_key=$1
+    # Path where the payment address should be stored. The change will be sent
+    # back to this address.
+    payment_addr=$2
+    # Utxo key used to:
+    #
+    # - pay for the transaction fees
+    # - create a payment address together with the stake key.
+    utxo_key=$3
+    # Address used to pay for the transaction fees.
+    utxo_addr=$4
+
+    ##
+    ## Stake address registration
+    ##
+    # Create the stake key files
+    $CLI -- stake-address key-gen \
+          --verification-key-file $stake_key.vkey \
+          --signing-key-file $stake_key.skey
+
+    # Use these keys to create a payment address. This key should have funds
+    # associated to it if we want the stakepool to have stake delegated to it.
+    $CLI -- address build \
+          --payment-verification-key-file $utxo_key.vkey \
+          --stake-verification-key-file $stake_key.vkey \
+          --out-file $payment_addr \
+          --testnet-magic 42
+
+    # Create an address registration certificate, which will be submitted to
+    # the blockchain.
+    $CLI -- stake-address registration-certificate \
+          --stake-verification-key-file $stake_key.vkey \
+          --out-file $stake_key.cert
+
+    echo "📜 Submitting the stake registration certificate"
+    submit_transaction \
+        $utxo_addr \
+        $payment_addr \
+        build-raw \
+        "--certificate-file $stake_key.cert" \
+        "--signing-key-file $utxo_key.skey --signing-key-file $stake_key.skey" \
+        --shelley-mode || exit 1
+
 }
 
 pretty_sleep(){
