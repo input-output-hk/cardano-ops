@@ -54,6 +54,39 @@ do_stake_pool_registration(){
       $COLD
 }
 
+do_stake_key_registration(){
+    # Location of the initial address file used to get the funds from.
+    INITIAL_ADDR=initial.addr
+    $CLI -- genesis initial-addr \
+          --testnet-magic 42 \
+          --verification-key-file $UTXO.vkey > $INITIAL_ADDR
+
+    register_stake_key \
+        $PROPOSING_KEY \
+        $PAYMENT_ADDR \
+        $UTXO \
+        $INITIAL_ADDR
+
+    # TODO: explain why do we need to delegate the stake
+    DELEGATION_CERT=delegation.cert
+    $CLI -- stake-address delegation-certificate \
+            --stake-verification-key-file $PROPOSING_KEY.vkey \
+            --cold-verification-key-file $COLD.vkey \
+            --out-file $DELEGATION_CERT
+
+    # TODO: we need to get this right still
+    #
+    # The key we are delegating to needs to be registered as a stake pool.
+    submit_transaction \
+        $PAYMENT_ADDR \
+        $PAYMENT_ADDR \
+        build-raw \
+        "--certificate-file $DELEGATION_CERT" \
+        "--signing-key-file $UTXO.skey --signing-key-file $PROPOSING_KEY.skey --signing-key-file $COLD.skey " \
+        --shelley-mode || exit 1
+
+}
+
 do_sip_commit(){
     UPDATE_FILE=update.payload
     $CLI -- governance pivo sip new \
@@ -167,6 +200,11 @@ else
         register )
             echo "Registering a stakepool"
             do_stake_pool_registration
+            exit
+            ;;
+        regkey )
+            echo "Registering a stake key"
+            do_stake_key_registration
             exit
             ;;
         scommit )

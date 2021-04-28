@@ -202,7 +202,7 @@ register_stakepool(){
         $payment_addr \
         build-raw \
         "--certificate-file $POOL_REGISTRATION_CERT --certificate-file $DELEGATION_CERT" \
-        "--signing-key-file $utxo_key.skey --signing-key-file $stake_key.skey --signing-key-file $COLD.skey " \
+        "--signing-key-file $utxo_key.skey --signing-key-file $stake_key.skey --signing-key-file $cold_key.skey " \
         --shelley-mode || exit 1
 }
 
