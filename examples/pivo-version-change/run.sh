@@ -159,37 +159,63 @@ do_endorsement(){
 
 # Create spending and stake keys.
 create_keys(){
+    local nr_keys=$1
+
     mkdir -p stake-keys
 
-    # Create a spending key
-    $CLI -- address key-gen \
-         --verification-key-file keys/spending-key0.vkey \
-         --signing-key-file keys/spending-key0.skey
+    for i in $(seq 1 $nr_keys); do
+        # Create a spending key
+        $CLI -- address key-gen \
+             --verification-key-file keys/spending-key$i.vkey \
+             --signing-key-file keys/spending-key$i.skey
 
-    # Create a stake key
-    $CLI -- stake-address key-gen \
-         --verification-key-file keys/stake-key0.vkey \
-         --signing-key-file keys/stake-key0.skey
+        # Create a stake key
+        $CLI -- stake-address key-gen \
+             --verification-key-file keys/stake-key$i.vkey \
+             --signing-key-file keys/stake-key$i.skey
+    done
 
 }
 
 transfer_funds(){
+    # For simplicity we use a fix amount of Lovelace to transfer to the keys in
+    # the 'keys' directory. We assume $PAYMENT_ADDR has enough fnds to cover
+    # these transactions.
+    local amount=2500000
 
-    $CLI --  address build \
-         --payment-verification-key-file keys/spending-key0.vkey \
-         --stake-verification-key-file keys/stake-key0.vkey \
-         --out-file keys/payment0.addr \
-         --testnet-magic 42
+    # We transfer funds per each spending key
+    local nr_keys=$(ls -l keys/spending-key*.vkey | wc -l)
 
-    AMOUNT=2500000000000000
+    for i in $(seq 1 $nr_keys); do
+        # TODO: can we do this in parallel?
+        $CLI --  address build \
+             --payment-verification-key-file keys/spending-key$i.vkey \
+             --stake-verification-key-file keys/stake-key$i.vkey \
+             --out-file keys/payment$i.addr \
+             --testnet-magic 42
+    done
+
+    # TODO: including a large amount of transaction outputs in a transaction
+    # seems to hang something in the client or the node.
+    #
+    # so it seems we might need to divide this in batches 😩
+
+    # We will use only one transaction to send funds from 'PAYMENT_ADDR' to
+    # multiple addresses. We need to build the tx-out arguments.
+    txouts=""
+    for i in $(seq 1 $nr_keys); do
+        txouts=$txouts"--tx-out $(cat keys/payment$i.addr)+$amount "
+    done
+
+    local total=$(($amount*$nr_keys))
     submit_transaction \
         $PAYMENT_ADDR \
         $PAYMENT_ADDR \
         build-raw \
-        "--tx-out $(cat keys/payment0.addr)+$AMOUNT" \
+        "$txouts" \
         "--signing-key-file $UTXO.skey" \
         --shelley-mode \
-        $AMOUNT
+        $total
 }
 
 do_stake_key_registration(){
@@ -275,7 +301,7 @@ else
             exit
             ;;
         ckeys )
-            create_keys
+            create_keys $2
             exit
             ;;
         tfunds )
