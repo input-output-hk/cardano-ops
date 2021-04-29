@@ -54,39 +54,6 @@ do_stake_pool_registration(){
       $COLD
 }
 
-do_stake_key_registration(){
-    # Location of the initial address file used to get the funds from.
-    INITIAL_ADDR=initial.addr
-    $CLI -- genesis initial-addr \
-          --testnet-magic 42 \
-          --verification-key-file $UTXO.vkey > $INITIAL_ADDR
-
-    register_stake_key \
-        $PROPOSING_KEY \
-        $PAYMENT_ADDR \
-        $UTXO \
-        $INITIAL_ADDR
-
-    # TODO: explain why do we need to delegate the stake
-    DELEGATION_CERT=delegation.cert
-    $CLI -- stake-address delegation-certificate \
-            --stake-verification-key-file $PROPOSING_KEY.vkey \
-            --cold-verification-key-file $COLD.vkey \
-            --out-file $DELEGATION_CERT
-
-    # TODO: we need to get this right still
-    #
-    # The key we are delegating to needs to be registered as a stake pool.
-    submit_transaction \
-        $PAYMENT_ADDR \
-        $PAYMENT_ADDR \
-        build-raw \
-        "--certificate-file $DELEGATION_CERT" \
-        "--signing-key-file $UTXO.skey --signing-key-file $PROPOSING_KEY.skey --signing-key-file $COLD.skey " \
-        --shelley-mode || exit 1
-
-}
-
 do_sip_commit(){
     UPDATE_FILE=update.payload
     $CLI -- governance pivo sip new \
@@ -186,6 +153,71 @@ do_endorsement(){
     rm $UPDATE_FILE
 }
 
+##
+## Commands used in the benchmarking script
+##
+
+# Create spending and stake keys.
+create_keys(){
+    mkdir -p stake-keys
+
+    # Create a spending key
+    $CLI -- address key-gen \
+         --verification-key-file keys/spending-key0.vkey \
+         --signing-key-file keys/spending-key0.skey
+
+    # Create a stake key
+    $CLI -- stake-address key-gen \
+         --verification-key-file keys/stake-key0.vkey \
+         --signing-key-file keys/stake-key0.skey
+
+}
+
+transfer_funds(){
+
+    $CLI --  address build \
+         --payment-verification-key-file keys/spending-key0.vkey \
+         --stake-verification-key-file keys/stake-key0.vkey \
+         --out-file keys/payment0.addr \
+         --testnet-magic 42
+
+    AMOUNT=2500000000000000
+    submit_transaction \
+        $PAYMENT_ADDR \
+        $PAYMENT_ADDR \
+        build-raw \
+        "--tx-out $(cat keys/payment0.addr)+$AMOUNT" \
+        "--signing-key-file $UTXO.skey" \
+        --shelley-mode \
+        $AMOUNT
+}
+
+do_stake_key_registration(){
+    register_stake_key \
+        keys/stake-key0 \
+        $PAYMENT_ADDR \
+        keys/spending-key0 \
+        $PAYMENT_ADDR
+
+    # TODO: explain why do we need to delegate the stake
+    DELEGATION_CERT=delegation.cert
+    $CLI -- stake-address delegation-certificate \
+            --stake-verification-key-file keys/stake-key0.vkey \
+            --cold-verification-key-file $COLD.vkey \
+            --out-file $DELEGATION_CERT
+
+    # TODO: we need to get this right still
+    #
+    # The key we are delegating to needs to be registered as a stake pool.
+    submit_transaction \
+        $PAYMENT_ADDR \
+        $PAYMENT_ADDR \
+        build-raw \
+        "--certificate-file $DELEGATION_CERT" \
+        "--signing-key-file keys/spending-key0.skey --signing-key-file keys/stake-key0.skey" \
+        --shelley-mode || exit 1
+}
+
 ################################################################################
 ## Script
 ################################################################################
@@ -200,11 +232,6 @@ else
         register )
             echo "Registering a stakepool"
             do_stake_pool_registration
-            exit
-            ;;
-        regkey )
-            echo "Registering a stake key"
-            do_stake_key_registration
             exit
             ;;
         scommit )
@@ -245,6 +272,18 @@ else
         ustquery )
             # TODO: we do not check that arguments have been provided.
             query_update_state $2
+            exit
+            ;;
+        ckeys )
+            create_keys
+            exit
+            ;;
+        tfunds )
+            transfer_funds
+            exit
+            ;;
+        regkey )
+            do_stake_key_registration
             exit
             ;;
         * )

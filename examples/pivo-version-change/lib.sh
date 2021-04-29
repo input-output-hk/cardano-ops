@@ -53,7 +53,8 @@ submit_transaction() {
             "$tx_building_args" \
             "$signing_args" \
             "$tx_submission_mode" \
-            "$transfer_amount" 2> /dev/null)
+            "$transfer_amount")
+            # "$transfer_amount" 2> /dev/null)
 
         EXIT_CODE=${PIPESTATUS[0]}
         # echo "⚡ Command exited with code $EXIT_CODE"
@@ -154,6 +155,12 @@ register_stakepool(){
     #
     cold_key=$7
 
+
+    # Create the stake key files
+    $CLI -- stake-address key-gen \
+          --verification-key-file $stake_key.vkey \
+          --signing-key-file $stake_key.skey
+
     register_stake_key \
         $stake_key \
         $payment_addr \
@@ -223,10 +230,6 @@ register_stake_key(){
     ##
     ## Stake address registration
     ##
-    # Create the stake key files
-    $CLI -- stake-address key-gen \
-          --verification-key-file $stake_key.vkey \
-          --signing-key-file $stake_key.skey
 
     # Use these keys to create a payment address. This key should have funds
     # associated to it if we want the stakepool to have stake delegated to it.
@@ -279,7 +282,8 @@ try_till_success(){
     local exit_code=1
     while [[ $exit_code -ne 0 ]];
     do
-        ! $1 2> /dev/null
+        ! $1
+        # ! $1 2> /dev/null
         exit_code=${PIPESTATUS[0]}
         sleep 5
     done
