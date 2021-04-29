@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -euox pipefail
 
 . lib.sh
 
@@ -28,7 +28,7 @@ do_stake_pool_registration(){
     # TODO: we obtain the ticker name base on the hostname. We require a
     # certain name format, which depends on the nix setup. We should find a
     # more robust way to do this.
-    tickr=`hostname | sed 's/stk-.-\(.\)-IOHK\(.\)/\1\2/'`
+    local tickr=`hostname | sed 's/stk-.-\(.\)-IOHK\(.\)/\1\2/'`
     # Create the pool's metadata file
     echo "{
       \"name\": \"PriviPool ${tickr}\",
@@ -55,7 +55,8 @@ do_stake_pool_registration(){
 }
 
 do_sip_commit(){
-    UPDATE_FILE=update.payload
+    local tmp_dir=$(mktemp -d)
+    local UPDATE_FILE=$tmp_dir/update.payload
     $CLI -- governance pivo sip new \
          --stake-verification-key-file $PROPOSING_KEY.vkey \
          --proposal-text "hello world!" \
@@ -65,11 +66,12 @@ do_sip_commit(){
         $PAYMENT_ADDR \
         $UPDATE_FILE \
         "--signing-key-file $UTXO.skey --signing-key-file $PROPOSING_KEY.skey"
-    rm $UPDATE_FILE
+    rm -fr $tmp_dir
 }
 
 do_sip_reveal(){
-    UPDATE_FILE=update.payload
+    local tmp_dir=$(mktemp -d)
+    local UPDATE_FILE=$tmp_dir/update.payload
     $CLI -- governance pivo sip reveal \
          --stake-verification-key-file $PROPOSING_KEY.vkey \
          --proposal-text "hello world!" \
@@ -79,11 +81,12 @@ do_sip_reveal(){
         $UPDATE_FILE \
         "--signing-key-file $UTXO.skey" # Note that we do not need to sign with the
                                          # staking key
-    rm $UPDATE_FILE
+    rm -fr $tmp_dir
 }
 
 do_sip_vote(){
-    UPDATE_FILE=update.payload
+    local tmp_dir=$(mktemp -d)
+    local UPDATE_FILE=$tmp_dir/update.payload
     $CLI -- governance pivo sip vote \
          --stake-verification-key-file $VOTING_KEY.vkey \
          --proposal-text "hello world!" \
@@ -92,11 +95,12 @@ do_sip_vote(){
         $PAYMENT_ADDR \
         $UPDATE_FILE \
         "--signing-key-file $UTXO.skey --signing-key-file $VOTING_KEY.skey"
-    rm $UPDATE_FILE
+    rm -fr $tmp_dir
 }
 
 do_imp_commit(){
-    UPDATE_FILE=update.payload
+    local tmp_dir=$(mktemp -d)
+    local UPDATE_FILE=$tmp_dir/update.payload
     $CLI -- governance pivo imp commit \
          --stake-verification-key-file $PROPOSING_KEY.vkey \
          --proposal-text "hello world!" \
@@ -107,11 +111,12 @@ do_imp_commit(){
         $PAYMENT_ADDR \
         $UPDATE_FILE \
         "--signing-key-file $UTXO.skey --signing-key-file $PROPOSING_KEY.skey"
-    rm $UPDATE_FILE
+    rm -fr $tmp_dir
 }
 
 do_imp_reveal(){
-    UPDATE_FILE=update.payload
+    local tmp_dir=$(mktemp -d)
+    local UPDATE_FILE=$tmp_dir/update.payload
     $CLI -- governance pivo imp reveal \
          --stake-verification-key-file $PROPOSING_KEY.vkey \
          --proposal-text "hello world!" \
@@ -122,11 +127,12 @@ do_imp_reveal(){
         $PAYMENT_ADDR \
         $UPDATE_FILE \
         "--signing-key-file $UTXO.skey --signing-key-file $PROPOSING_KEY.skey"
-    rm $UPDATE_FILE
+    rm -fr $tmp_dir
 }
 
 do_imp_vote(){
-    UPDATE_FILE=update.payload
+    local tmp_dir=$(mktemp -d)
+    local UPDATE_FILE=$tmp_dir/update.payload
     $CLI -- governance pivo imp vote \
          --stake-verification-key-file $VOTING_KEY.vkey \
          --proposal-text "hello world!" \
@@ -137,11 +143,12 @@ do_imp_vote(){
         $PAYMENT_ADDR \
         $UPDATE_FILE \
         "--signing-key-file $UTXO.skey --signing-key-file $VOTING_KEY.skey"
-    rm $UPDATE_FILE
+    rm -fr $tmp_dir
 }
 
 do_endorsement(){
-    UPDATE_FILE=update.payload
+    local tmp_dir=$(mktemp -d)
+    local UPDATE_FILE=$tmp_dir/update.payload
     $CLI -- governance pivo endorse \
          --stake-verification-key-file $VOTING_KEY.vkey \
          --implementation-version 77 \
@@ -150,7 +157,7 @@ do_endorsement(){
         $PAYMENT_ADDR \
         $UPDATE_FILE \
         "--signing-key-file $UTXO.skey --signing-key-file $VOTING_KEY.skey"
-    rm $UPDATE_FILE
+    rm -fr $tmp_dir
 }
 
 ##
@@ -224,28 +231,43 @@ transfer_funds(){
 }
 
 do_stake_key_registration(){
+    local nr_keys=$(ls -l keys/spending-key*.vkey | wc -l)
+    for i in $(seq 1 $nr_keys); do
+        register_key $i
+    done
+    wait
+}
+
+register_key(){
+    echo "********************************************************************************"
+    echo "Registering and delegating key $1"
+    echo "********************************************************************************"
+
+    local key_addr=keys/payment$1.addr
+
+    echo "Registering the stake key"
     register_stake_key \
-        keys/stake-key0 \
-        $PAYMENT_ADDR \
-        keys/spending-key0 \
-        $PAYMENT_ADDR
+        keys/stake-key$1 \
+        $key_addr \
+        keys/spending-key$1 \
+        $key_addr
 
-    # TODO: explain why do we need to delegate the stake
-    DELEGATION_CERT=delegation.cert
+    echo "Delegating the stake key"
+    # We need to delegate our stake because only active stake is added to
+    # the stake distribution snapshot.
+    local DELEGATION_CERT=delegation$1.cert
     $CLI -- stake-address delegation-certificate \
-            --stake-verification-key-file keys/stake-key0.vkey \
-            --cold-verification-key-file $COLD.vkey \
-            --out-file $DELEGATION_CERT
+         --stake-verification-key-file keys/stake-key$1.vkey \
+         --cold-verification-key-file $COLD.vkey \
+         --out-file $DELEGATION_CERT
 
-    # TODO: we need to get this right still
-    #
     # The key we are delegating to needs to be registered as a stake pool.
     submit_transaction \
-        $PAYMENT_ADDR \
-        $PAYMENT_ADDR \
+        $key_addr \
+        $key_addr \
         build-raw \
         "--certificate-file $DELEGATION_CERT" \
-        "--signing-key-file keys/spending-key0.skey --signing-key-file keys/stake-key0.skey" \
+        "--signing-key-file keys/spending-key$1.skey --signing-key-file keys/stake-key$1.skey" \
         --shelley-mode || exit 1
 }
 

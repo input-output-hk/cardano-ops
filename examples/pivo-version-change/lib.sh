@@ -33,18 +33,18 @@
 # This script assumes that the $CLI environment variable is set to the command
 # used to communicate with the cardano node. This would typically be
 submit_transaction() {
-    initial_addr=$1
-    change_addr=$2
-    tx_building_cmd=$3
-    tx_building_args=$4
-    signing_args=$5
-    tx_submission_mode=$6
-    transfer_amount=${7:-0}
+    local initial_addr=$1
+    local change_addr=$2
+    local tx_building_cmd=$3
+    local tx_building_args=$4
+    local signing_args=$5
+    local tx_submission_mode=$6
+    local transfer_amount=${7:-0}
 
     ## Submit the signed transaction
     echo "⏳ Submit the signed transaction"
-    RETRIES=0
-    EXIT_CODE=1
+    local RETRIES=0
+    local EXIT_CODE=1
     while [[ $EXIT_CODE -ne 0 ]] && [[ $RETRIES -le 30 ]]; do
         ! (try_submit_transaction \
             "$initial_addr" \
@@ -66,36 +66,36 @@ submit_transaction() {
 }
 
 try_submit_transaction(){
-    initial_addr=$1
-    change_addr=$2
-    tx_building_cmd=$3
-    tx_building_args=$4
-    signing_args=$5
-    tx_submission_mode=$6
-    transfer_amount=$7
+    local initial_addr=$1
+    local change_addr=$2
+    local tx_building_cmd=$3
+    local tx_building_args=$4
+    local signing_args=$5
+    local tx_submission_mode=$6
+    local transfer_amount=$7
 
-    TX_INFO=/tmp/tx-info.json
+    local tmp_dir=$(mktemp -d)
+    local TX_INFO=$tmp_dir/tx-info.json
 
     $CLI -- query utxo --testnet-magic 42 --shelley-mode \
          --address $(cat $initial_addr) \
          --out-file $TX_INFO
-    INFO=`cat $TX_INFO`
+    local INFO=`cat $TX_INFO`
     $CLI -- query utxo --testnet-magic 42 --shelley-mode \
          --address $(cat $initial_addr) \
          --out-file $TX_INFO
     [ "$INFO" != "{}" ] || { return 1; }
 
-    BALANCE=`sed -n 's/\s*"value": \([[:digit:]]*\),/\1/p' $TX_INFO`
-    TX_IN=`grep -oP '"\K[^"]+' -m 1 $TX_INFO | head -1 | tr -d '\n'`
+    local BALANCE=`sed -n 's/\s*"value": \([[:digit:]]*\),/\1/p' $TX_INFO`
+    local TX_IN=`grep -oP '"\K[^"]+' -m 1 $TX_INFO | head -1 | tr -d '\n'`
     # This script assumes the fee to be 0. We might want to check the protocol
     # parameters to make sure that this is indeed the case.
-    FEE=0
-    CHANGE=`expr $BALANCE - $FEE - $transfer_amount`
-    rm $TX_INFO
+    local FEE=0
+    local CHANGE=`expr $BALANCE - $FEE - $transfer_amount`
 
-    TX_FILE=tx.raw
+    local TX_FILE=$tmp_dir/tx.raw
     # We use a large time-to-live to keep the script simple.
-    TTL=1000000
+    local TTL=1000000
     $CLI -- transaction $tx_building_cmd \
           --tx-in $TX_IN \
           --tx-out $(cat $change_addr)+$CHANGE \
@@ -104,7 +104,7 @@ try_submit_transaction(){
           $tx_building_args \
           --out-file $TX_FILE
 
-    SIGNED_TX_FILE=tx.signed
+    local SIGNED_TX_FILE=$tmp_dir/tx.signed
     ## Sign the transaction
     $CLI -- transaction sign \
           --tx-body-file $TX_FILE \
@@ -117,12 +117,15 @@ try_submit_transaction(){
              --tx-file $SIGNED_TX_FILE \
              --testnet-magic 42 \
              $tx_submission_mode
+    local tx_sub_exit_code=$?
+    rm -fr $tmp_dir
+    return $tx_sub_exit_code
 }
 
 submit_update_transaction() {
-    initial_addr=$1
-    update_file=$2
-    signing_args=$3
+    local initial_addr=$1
+    local update_file=$2
+    local signing_args=$3
 
     submit_transaction \
         $initial_addr \
@@ -137,23 +140,23 @@ submit_update_transaction() {
 # This procedure assumes the $CLI variable is set. See 'submit_transaction'.
 register_stakepool(){
     # Path where the stake keys should be created
-    stake_key=$1
+    local stake_key=$1
     # Path where the payment address should be stored. The change will be sent
     # back to this address.
-    payment_addr=$2
+    local payment_addr=$2
     # Utxo key used to:
     #
     # - pay for the transaction fees
     # - create a payment address together with the stake key.
-    utxo_key=$3
+    local utxo_key=$3
     # Address used to pay for the transaction fees.
-    utxo_addr=$4
+    local utxo_addr=$4
     # File containing the pool metadata
-    metadata_file=$5
+    local metadata_file=$5
     #
-    vrf_key=$6
+    local vrf_key=$6
     #
-    cold_key=$7
+    local cold_key=$7
 
 
     # Create the stake key files
@@ -171,16 +174,16 @@ register_stakepool(){
     ## Stake pool registration
     ##
     # Get the hash of the file:
-    METADATA_HASH=`$CLI -- stake-pool metadata-hash --pool-metadata-file $metadata_file`
+    local METADATA_HASH=`$CLI -- stake-pool metadata-hash --pool-metadata-file $metadata_file`
 
     # Create a pool registration certificate
     # Pledge amount in Lovelace
-    PLEDGE=1000000
+    local PLEDGE=1000000
     # Pool cost per-epoch in Lovelace
-    COST=1000
+    local COST=1000
     # Pool cost per epoch in percentage
-    MARGIN=0.1
-    POOL_REGISTRATION_CERT=pool-registration.cert
+    local MARGIN=0.1
+    local POOL_REGISTRATION_CERT=pool-registration.cert
     # Create the registration certificate
     $CLI -- stake-pool registration-certificate \
             --cold-verification-key-file $cold_key.vkey \
@@ -196,7 +199,8 @@ register_stakepool(){
             --out-file $POOL_REGISTRATION_CERT
 
     # Create a delegation certificate between the stake key and the cold key
-    DELEGATION_CERT=delegation.cert
+    local tmp_dir=$(mktemp -d)
+    local DELEGATION_CERT=$tmp_dir/delegation.cert
     $CLI -- stake-address delegation-certificate \
             --stake-verification-key-file $stake_key.vkey \
             --cold-verification-key-file $cold_key.vkey \
@@ -210,22 +214,23 @@ register_stakepool(){
         build-raw \
         "--certificate-file $POOL_REGISTRATION_CERT --certificate-file $DELEGATION_CERT" \
         "--signing-key-file $utxo_key.skey --signing-key-file $stake_key.skey --signing-key-file $cold_key.skey " \
-        --shelley-mode || exit 1
+        --shelley-mode || (rm -fr $tmp_dir; exit 1)
+    rm -fr $tmp_dir
 }
 
 register_stake_key(){
     # Path where the stake keys should be created
-    stake_key=$1
+    local stake_key=$1
     # Path where the payment address should be stored. The change will be sent
     # back to this address.
-    payment_addr=$2
+    local payment_addr=$2
     # Utxo key used to:
     #
     # - pay for the transaction fees
     # - create a payment address together with the stake key.
-    utxo_key=$3
+    local utxo_key=$3
     # Address used to pay for the transaction fees.
-    utxo_addr=$4
+    local utxo_addr=$4
 
     ##
     ## Stake address registration
@@ -257,8 +262,8 @@ register_stake_key(){
 }
 
 pretty_sleep(){
-    duration=$1
-    message=$2
+    local duration=$1
+    local message=$2
 
     echo -ne "⏳ $message: "
     tput sc
@@ -272,7 +277,7 @@ pretty_sleep(){
 }
 
 query_update_state(){
-    comp=$1
+    local comp=$1
     $CLI query ledger-state --testnet-magic 42 \
      --pivo-era --pivo-mode \
     | jq ".stateBefore.esLState.utxoState.ppups.$comp"
