@@ -187,35 +187,40 @@ transfer_funds(){
     local nr_keys=$(ls -l keys/spending-key*.vkey | wc -l)
 
     for i in $(seq 1 $nr_keys); do
-        # TODO: can we do this in parallel?
-        $CLI --  address build \
+        $CLI -- address build \
              --payment-verification-key-file keys/spending-key$i.vkey \
              --stake-verification-key-file keys/stake-key$i.vkey \
              --out-file keys/payment$i.addr \
              --testnet-magic 42
     done
 
-    # TODO: including a large amount of transaction outputs in a transaction
-    # seems to hang something in the client or the node.
-    #
-    # so it seems we might need to divide this in batches 😩
-
-    # We will use only one transaction to send funds from 'PAYMENT_ADDR' to
-    # multiple addresses. We need to build the tx-out arguments.
-    txouts=""
-    for i in $(seq 1 $nr_keys); do
-        txouts=$txouts"--tx-out $(cat keys/payment$i.addr)+$amount "
+    # There is a limit in the number of output addresses we can fit in a given
+    # transaction, since we are limited by the transaction size and by the
+    # block size. Therefore we submit the transactions in batches.
+    local batch_size=200
+    local batch=1
+    local i=1
+    while [[ $i -le $nr_keys ]]; do
+        local n=0
+        local txouts=""
+        while [[ $i -le $(($batch_size * $batch)) ]] && [[ $i -le $nr_keys ]]; do
+            # We will use only one transaction to send funds from 'PAYMENT_ADDR' to
+            # multiple addresses. We need to build the tx-out arguments.
+            txouts=$txouts"--tx-out $(cat keys/payment$i.addr)+$amount "
+            n=$((n + 1))
+            i=$((i + 1))
+        done
+        local total=$(($amount*$n))
+        submit_transaction \
+            $PAYMENT_ADDR \
+            $PAYMENT_ADDR \
+            build-raw \
+            "$txouts" \
+            "--signing-key-file $UTXO.skey" \
+            --shelley-mode \
+            $total
+        batch=$((batch + 1))
     done
-
-    local total=$(($amount*$nr_keys))
-    submit_transaction \
-        $PAYMENT_ADDR \
-        $PAYMENT_ADDR \
-        build-raw \
-        "$txouts" \
-        "--signing-key-file $UTXO.skey" \
-        --shelley-mode \
-        $total
 }
 
 do_stake_key_registration(){
