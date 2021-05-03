@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euox pipefail
+set -euo pipefail
 
 . lib.sh
 
@@ -233,7 +233,7 @@ transfer_funds(){
 do_stake_key_registration(){
     local nr_keys=$(ls -l keys/spending-key*.vkey | wc -l)
     for i in $(seq 1 $nr_keys); do
-        register_key $i
+        register_key $i &
     done
     wait
 }
@@ -269,6 +269,32 @@ register_key(){
         "--certificate-file $DELEGATION_CERT" \
         "--signing-key-file keys/spending-key$1.skey --signing-key-file keys/stake-key$1.skey" \
         --shelley-mode || exit 1
+}
+
+# Vote on an SIP with the stake keys.
+do_sip_skeys_vote(){
+    local nr_keys=$(ls -l keys/spending-key*.vkey | wc -l)
+    for i in $(seq 1 $nr_keys); do
+        skey_vote $i
+    done
+    wait
+}
+
+skey_vote(){
+    local tmp_dir=$(mktemp -d)
+    local update_file=$tmp_dir/update.payload
+    local key_addr=keys/payment$1.addr
+    local voting_key=keys/stake-key$1
+    $CLI -- governance pivo sip vote \
+         --stake-verification-key-file $voting_key.vkey \
+         --proposal-text "hello world!" \
+         --out-file $update_file
+    submit_update_transaction \
+        $key_addr \
+        $update_file \
+        "--signing-key-file keys/spending-key$1.skey --signing-key-file $voting_key.skey"
+    rm -fr $tmp_dir
+
 }
 
 ################################################################################
@@ -337,6 +363,10 @@ else
             ;;
         regkey )
             do_stake_key_registration
+            exit
+            ;;
+        sip_skvote )
+            do_sip_skeys_vote
             exit
             ;;
         * )

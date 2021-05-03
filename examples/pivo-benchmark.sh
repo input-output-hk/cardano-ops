@@ -61,7 +61,7 @@ echo "Creating payment and staking keys"
 echo
 for f in ${POOL_NODES[@]}
 do
-    nixops ssh $f "./run.sh ckeys 10" &
+    nixops ssh $f "./run.sh ckeys 10000" &
 done
 wait
 echo
@@ -98,7 +98,32 @@ echo
 # > cardano-cli query ledger-state --testnet-magic 42 --pivo-era --pivo-mode | jq '.stateBefore.esSnapshots'
 
 # Commit the SIP
+echo
+echo "Submitting an SIP commit using ${POOL_NODES[0]}"
+echo
+nixops ssh ${POOL_NODES[0]} "./run.sh scommit"
 
 # Reveal the SIP
+pretty_sleep 65 "Waiting for SIP submission to be stable"
+
+echo
+echo "Submitting an SIP revelation using ${POOL_NODES[0]}"
+echo
+nixops ssh ${POOL_NODES[0]} "./run.sh sreveal"
 
 # Vote on the SIP with all the stake keys created above
+pretty_sleep 65 "Waiting for SIP revelation to be stable"
+
+echo
+echo "Voting on the SIP"
+echo
+# for f in ${POOL_NODES[@]}
+# do
+#     nixops ssh $f "./run.sh svote" &
+# done
+# wait
+for f in ${POOL_NODES[@]}
+do
+    nixops ssh $f "./run.sh sip_skvote" &
+done
+wait
