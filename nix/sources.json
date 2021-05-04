@@ -84,6 +84,18 @@
         "url": "https://github.com/input-output-hk/cardano-node/archive/3531289c9f79eab7ac5d3272ce6e6821504fec4c.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "cardano-node-service": {
+        "branch": "master",
+        "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
+        "homepage": "https://cardano.org",
+        "owner": "input-output-hk",
+        "repo": "cardano-node",
+        "rev": "e730ea84310e19e036eca382855acc4e35af717c",
+        "sha256": "0fga83x99yw4jwany8fp6z622lydfy5blmsyflbic2cb176l1s41",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/e730ea84310e19e036eca382855acc4e35af717c.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-rest": {
         "branch": "refs/tags/3.1.2",
         "description": "HTTP interfaces for interacting with the Cardano blockchain.",
