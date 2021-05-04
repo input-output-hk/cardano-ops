@@ -60,6 +60,9 @@ let
   };
 
   benchmarkingLogConfig = name: {
+    StubComputeDuration = 0;
+    StubComputePrecision = 0.01;
+
     defaultScribes = [
       [ "StdoutSK" "stdout" ]
       [ "FileSK"   "logs/${name}.json" ]
