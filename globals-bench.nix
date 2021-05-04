@@ -60,8 +60,8 @@ let
   };
 
   benchmarkingLogConfig = name: {
-    StubComputeDuration = 0;
-    StubComputePrecision = 0.01;
+    StubComputeDuration = 0.05;
+    StubComputePrecision = 0.005;
 
     defaultScribes = [
       [ "StdoutSK" "stdout" ]
