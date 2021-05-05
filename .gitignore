@@ -23,3 +23,5 @@ static
 .nix-gc-roots
 
 *.md.temp
+
+out.txt
