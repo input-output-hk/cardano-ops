@@ -14,7 +14,6 @@ let
 in {
   imports = [
     (sourcePaths.cardano-graphql + "/nix/nixos")
-    (sourcePaths.cardano-rest + "/nix/nixos/cardano-explorer-api-service.nix")
     (sourcePaths.cardano-db-sync + "/nix/nixos")
     (sourcePaths.cardano-rosetta + "/nix/nixos")
     cardano-ops.modules.base-service
@@ -128,24 +127,6 @@ in {
   systemd.services.cardano-submit-api.serviceConfig = lib.mkIf globals.withSubmitApi {
     # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
     SupplementaryGroups = "cardano-node";
-  };
-
-  services.cardano-explorer-api = {
-    enable = true;
-    port = 8100;
-    package = cardano-rest-pkgs.cardanoRestHaskellPackages.cardano-explorer-api.components.exes.cardano-explorer-api;
-  };
-
-  systemd.services.cardano-explorer-api = {
-    startLimitIntervalSec = 0;
-    serviceConfig = {
-      Restart = "always";
-      RestartSec = "10s";
-      LimitNOFILE = 4096;
-      # Avoid flooding (and rotating too quicky) default journal with debug logs (that can't be disabled):
-      # cardano-explorer-api logs: journalctl --namespace legacy
-      LogNamespace = "legacy";
-    };
   };
 
   services.cardano-submit-api = lib.mkIf globals.withSubmitApi {
@@ -366,12 +347,6 @@ in {
           # To avoid 502 alerts when withSubmitApi is false
           "/api/submit/tx" = lib.mkIf globals.withSubmitApi {
             proxyPass = "http://127.0.0.1:8101/api/submit/tx";
-          };
-          "/api" = {
-            proxyPass = "http://127.0.0.1:8100/api";
-            extraConfig = ''
-              limit_req zone=apiPerIP;
-            '';
           };
           "/graphql" = {
             proxyPass = "http://127.0.0.1:3100/";

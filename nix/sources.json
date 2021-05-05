@@ -96,18 +96,6 @@
         "url": "https://github.com/input-output-hk/cardano-node/archive/e730ea84310e19e036eca382855acc4e35af717c.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-rest": {
-        "branch": "refs/tags/3.1.2",
-        "description": "HTTP interfaces for interacting with the Cardano blockchain.",
-        "homepage": null,
-        "owner": "input-output-hk",
-        "repo": "cardano-rest",
-        "rev": "fa66fbd5305a1e6e2718024c480098cc9ad4f313",
-        "sha256": "0vgdi4pz2svv6kafbizspwjpanznzzykhswyyi5h5l2i0pbc556s",
-        "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rest/archive/fa66fbd5305a1e6e2718024c480098cc9ad4f313.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "cardano-rosetta": {
         "branch": "refs/tags/1.1.0",
         "description": "https://www.rosetta-api.org implementation for Cardano Node",
