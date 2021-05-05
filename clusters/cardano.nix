@@ -25,7 +25,10 @@ let
         (cardano-ops.modules.monitoring-cardano pkgs)
       ];
       node = {
-        roles.isMonitor = true;
+        roles = {
+          isMonitor = true;
+          class = "monitoring";
+        };
         org = def.org or "IOHK";
       };
       services.prometheus.scrapeConfigs = lib.optionals globals.withExplorer [
@@ -51,7 +54,10 @@ let
         else (map (n: n.name) coreNodes);
 
       node = {
-        roles.isExplorer = true;
+        roles = {
+          isExplorer = true;
+          class = "explorer";
+        };
         org = def.org or "IOHK";
         nodeId = def.nodeId or 99;
       };
@@ -66,7 +72,10 @@ let
         cardano-ops.roles.faucet
       ];
       node = {
-        roles.isFaucet = true;
+        roles = {
+          isFaucet = true;
+          class = "faucet";
+        };
         org = "IOHK";
       };
     } def;
@@ -80,7 +89,10 @@ let
         cardano-ops.roles.smash
       ];
       node = {
-        roles.isSmash = true;
+        roles = {
+          isSmash = true;
+          class = "smash";
+        };
         nodeId = def.nodeId or 100;
         org = "IOHK";
       };
@@ -95,7 +107,10 @@ let
         cardano-ops.roles.metadata
       ];
       node = {
-        roles.isMetadata = true;
+        roles = {
+          isMetadata = true;
+          class = "metadata";
+        };
         org = def.org or "IOHK";
       };
     } def;
@@ -113,6 +128,7 @@ let
         inherit (def) org nodeId;
         roles = {
           isCardanoCore = true;
+          class = if isCardanoDensePool then "dense-pool" else "pool";
           inherit isCardanoDensePool;
         };
       };
@@ -127,18 +143,23 @@ let
     } def;
   };
 
-  mkRelayNode = def: {
+  mkRelayNode = def: let
+    highLoad = def.withHighLoadRelays or globals.withHighLoadRelays;
+  in {
     inherit (def) name;
     value = mkNode {
       _file = ./cardano.nix;
       node = {
-        roles.isCardanoRelay = true;
+        roles = {
+          isCardanoRelay = true;
+          class = if highLoad then "high-load-relay" else "relay";
+        };
         inherit (def) org nodeId;
       };
       services.cardano-node.allProducers = def.producers;
       deployment.ec2.region = def.region;
       imports = [(def.instance or instances.relay-node)] ++ (
-        if (def.withHighLoadRelays or globals.withHighLoadRelays)
+        if highLoad
         then [cardano-ops.roles.relay-high-load]
         else [cardano-ops.roles.relay]
       );
@@ -151,6 +172,7 @@ let
     value = mkNode {
       node = {
         inherit (def) org;
+        roles.class = "test";
       };
       deployment.ec2.region = def.region;
       imports = [

@@ -8,6 +8,7 @@ let
   tcpCrit = toString globals.alertTcpCrit;
   MbpsHigh = toString globals.alertMbpsHigh;
   MbpsCrit = toString globals.alertMbpsCrit;
+  slotLength = globals.environmentVariables.SLOT_LENGTH;
 in {
   services.monitoring-services.applicationDashboards = ./grafana/cardano;
   services.monitoring-services.applicationRules = [
@@ -81,6 +82,18 @@ in {
       annotations = {
         summary = "{{$labels.alias}}: cardano-node failed to adopt forged block";
         description = "{{$labels.alias}}: restart of node is needed to resolve this alert";
+      };
+    }
+    {
+      alert = "too many slot leadership checks missed";
+      expr = "rate(cardano_node_metrics_slotsMissedNum_int[5m]) * ${slotLength} > 0.5";
+      for = "2m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: block producing node is failing to check for slot leadership for more than half of the slots.";
+        description = "{{$labels.alias}}: block producing node is failing to check for slot leadership for more than half of the slots for more than 2 min.";
       };
     }
     {
