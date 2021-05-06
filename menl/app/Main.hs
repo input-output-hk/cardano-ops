@@ -14,23 +14,34 @@ import Text.Pretty.Simple (pPrint)
 
 main :: IO ()
 main = do
-  ts <- fold parseLog Fold.list
+  -- Fetch the block timestamps and transaction id's contained in them.
+  bs <- fold parseNodeLog Fold.list
+  pPrint bs
+  -- Fetch the submitted utxo transactions and their timestamps
+  ts <- fold parseTxSubmissionLog Fold.list
   pPrint ts
+  -- Fetch the start and end of the voting period
+  [s, e] <- fold parseVotingTimeLog Fold.list
+  print (s, e)
+  -- TODO: NEXT: now that we've parsed the information from the logs process it!
   where
     -- Parse the log file and extract the timestamp at which blocks were
     -- produced together with the transactions they contain
-    parseLog :: Shell (UTCTime, [Text])
-    parseLog = fmap ((extractTimestamp &&& extractTxIds) . lineToText)
-             $ grep (has "TraceAdoptedBlock")
-             $ input "out.txt"
+    parseNodeLog :: Shell (UTCTime, [Text])
+    parseNodeLog = fmap ((extractTimestamp &&& extractTxIds) . lineToText)
+                 $ grep (has "TraceAdoptedBlock")
+                 $ input "../bft-node.log"
       where
         extractTxIds :: Text -> [Text]
         extractTxIds = match (has txid)
 
         extractTimestamp :: Text -> UTCTime
-        extractTimestamp x =
-          parseTimeOrError True defaultTimeLocale timeFormat (repr textTimestamp)
-          where
-            timeFormat    = "\"%b %d %H:%M:%S\""
-            textTimestamp = head $ match (begins headTimestamp) x
-            -- we use head since the first element contains the longest match.
+        extractTimestamp = head . match headTimestamp
+                           -- we use head since the first element contains the longest match.
+    parseTxSubmissionLog :: Shell (UTCTime, Text)
+    parseTxSubmissionLog =
+      fmap (head . match txSubLine . lineToText) $ input "../bft-nodes-tx-submission.log"
+
+    parseVotingTimeLog :: Shell UTCTime
+    parseVotingTimeLog =
+      fmap (head . match txVotingLine . lineToText) $ input "../voting-timing.log"

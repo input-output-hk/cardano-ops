@@ -275,7 +275,7 @@ register_key(){
 do_sip_skeys_vote(){
     local nr_keys=$(ls -l keys/spending-key*.vkey | wc -l)
     for i in $(seq 1 $nr_keys); do
-        skey_vote $i
+        skey_vote $i &
     done
     wait
 }

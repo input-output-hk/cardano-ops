@@ -118,6 +118,10 @@ try_submit_transaction(){
              --testnet-magic 42 \
              $tx_submission_mode
     local tx_sub_exit_code=$?
+    if [[ $tx_sub_exit_code -eq 0 ]]
+    then
+       echo "$(mdate), $(cardano-cli transaction txid --tx-file $SIGNED_TX_FILE)" >> tx-submission.log
+    fi
     rm -fr $tmp_dir
     return $tx_sub_exit_code
 }
@@ -274,6 +278,11 @@ pretty_sleep(){
         duration=$((duration - 1))
     done
     echo
+}
+
+# Print the current date as reported by the node logs.
+mdate(){
+    date -u +"%b %d %H:%M:%S"
 }
 
 query_update_state(){

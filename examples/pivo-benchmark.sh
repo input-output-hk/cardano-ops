@@ -27,103 +27,36 @@ else
     esac
 fi
 
-POOL_NODES=($POOL_NODES)
+# Run the transaction submission loop in one of the nodes
+try_till_success \
+    "nixops scp ${BFT_NODES[0]} examples/pivo-version-change/lib.sh /root/ --to"
+nixops scp ${BFT_NODES[0]} examples/pivo-version-change/run-tx-sub-loop.sh /root/ --to
 
-# Copy the scripts to the pool nodes
-for f in ${POOL_NODES[@]}
-do
-    nixops scp $f examples/pivo-version-change/lib.sh /root/ --to
-    nixops scp $f examples/pivo-version-change/run.sh /root/ --to
-done
+nixops ssh ${BFT_NODES[0]} "./run-tx-sub-loop.sh" &
+pid=$!
 
-clear
+./examples/pivo-version-change/run-voting-process.sh && kill $pid &
 
-# Register the stake pool.
-#
-# We need a registered stake pool so that we can delegate stake to it.
-# Otherwise the stake keys do not count as active stake.
-# Register the stake pools
-echo
-echo "Registering stake pools"
-echo
-for f in ${POOL_NODES[@]}
-do
-    nixops ssh $f "./run.sh register" &
-done
 wait
-echo
-echo "Stake pools registered"
-echo
 
-# Create one payment key and one stake key per-participant
-echo
-echo "Creating payment and staking keys"
-echo
-for f in ${POOL_NODES[@]}
+killall ssh  # For some reason killing the tx loop does not stop the transaction submission loop.
+
+echo "Voting process completed"
+
+echo "Fetching transaction logs"
+for f in ${BFT_NODES[@]}
 do
-    nixops ssh $f "./run.sh ckeys 10000" &
+    nixops scp $f /root/tx-submission.log $f-tx-submission.log --from
 done
-wait
-echo
-echo "Payment and staking keys created"
-echo
 
-# Transfer the funds the node controls to each of the keys created above
-echo
-echo "Transfering funds"
-echo
-for f in ${POOL_NODES[@]}
+rm -f bft-nodes-tx-submission.log
+for f in ${BFT_NODES[@]}
 do
-    nixops ssh $f "./run.sh tfunds" &
+    cat $f-tx-submission.log >> bft-nodes-tx-submission.log
+    rm $f-tx-submission.log
 done
-wait
-echo
-echo "Funds transfered"
-echo
 
-# Register a stake key for each of the spending keys created above.
-echo
-echo "Registering stake keys"
-echo
-for f in ${POOL_NODES[@]}
-do
-    nixops ssh $f "./run.sh regkey" &
-done
-wait
-echo
-echo "Stake keys registered"
-echo
+echo "Fetchihg a node log"
+nixops ssh ${BFT_NODES[0]} "journalctl -u cardano-node -b" > bft-node.log
 
-# Query the stake distribution snapshots
-# > cardano-cli query ledger-state --testnet-magic 42 --pivo-era --pivo-mode | jq '.stateBefore.esSnapshots'
-
-# Commit the SIP
-echo
-echo "Submitting an SIP commit using ${POOL_NODES[0]}"
-echo
-nixops ssh ${POOL_NODES[0]} "./run.sh scommit"
-
-# Reveal the SIP
-pretty_sleep 65 "Waiting for SIP submission to be stable"
-
-echo
-echo "Submitting an SIP revelation using ${POOL_NODES[0]}"
-echo
-nixops ssh ${POOL_NODES[0]} "./run.sh sreveal"
-
-# Vote on the SIP with all the stake keys created above
-pretty_sleep 65 "Waiting for SIP revelation to be stable"
-
-echo
-echo "Voting on the SIP"
-echo
-# for f in ${POOL_NODES[@]}
-# do
-#     nixops ssh $f "./run.sh svote" &
-# done
-# wait
-for f in ${POOL_NODES[@]}
-do
-    nixops ssh $f "./run.sh sip_skvote" &
-done
 wait

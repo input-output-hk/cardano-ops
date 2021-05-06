@@ -25,3 +25,5 @@ static
 *.md.temp
 
 out.txt
+*.log
+*.disabled
