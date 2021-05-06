@@ -78,7 +78,10 @@ let
         else (map (n: n.name) coreNodes);
 
       node = {
-        roles.isExplorer = true;
+        roles = {
+          isExplorer = true;
+          class = "explorer";
+        };
         org = def.org or "IOHK";
         nodeId = def.nodeId or 99;
       };
