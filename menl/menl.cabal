@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 34660d63bc77e5a64e81fec64bc68012856513095bc49395be16cb02226e040f
+-- hash: 7ae190a3269038ea7daa373dc1c87cd796a79efffae326cc46e9a7b7a1ba6569
 
 name:           menl
 version:        0.1.0.0
@@ -34,6 +34,7 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , containers
     , foldl
     , pretty-simple
     , text
@@ -50,6 +51,7 @@ executable menl-exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , containers
     , foldl
     , menl
     , pretty-simple
@@ -68,6 +70,7 @@ test-suite menl-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , containers
     , foldl
     , menl
     , pretty-simple

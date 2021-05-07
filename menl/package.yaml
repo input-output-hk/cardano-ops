@@ -26,6 +26,7 @@ dependencies:
 - time
 - foldl
 - pretty-simple
+- containers
 
 library:
   source-dirs: src
