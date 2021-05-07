@@ -24,13 +24,23 @@ main = do
                         $ fmap swap ts
       txsSubmissionTimeBefore = Map.filter (<s) txsSubmissionTime
       txsSubmissionTimeDuring = Map.filter (\t -> s <= t && t <= e) txsSubmissionTime
-  -- pPrint txsSubmissionTime
+      -- Get the time of the first transaction submission
+      firstUtxoTxTime = minimum $ Map.elems txsSubmissionTimeBefore
+      beforeVotingDuration = s `diffUTCTime` firstUtxoTxTime
+      votingDuration       = e `diffUTCTime` s
+  pPrint $ "Pre-voting period duration: " <> show beforeVotingDuration
+  pPrint $ "Voting period duration: " <> show votingDuration
   pPrint $ "Total submitted UTxO transactions: "
          <> show (Map.size txsSubmissionTime)
   pPrint $ "Submitted UTxO transactions before the voting period: "
          <> show (Map.size txsSubmissionTimeBefore)
   pPrint $ "Submitted UTxO transactions during the voting period: "
          <> show (Map.size txsSubmissionTimeDuring)
+  pPrint $ "UTxO transactions per second before the voting period: "
+         <> show (fromIntegral (Map.size txsSubmissionTimeBefore) /  beforeVotingDuration)
+  pPrint $ "UTxO transactions per second during the voting period: "
+         <> show (fromIntegral (Map.size txsSubmissionTimeDuring) /  votingDuration)
+
   -- Fetch the block timestamps and transaction id's contained in them.
   bs <- fold parseNodeLog Fold.list
   -- Convert @bs ::[(UTCTime, [Text])]@ into a list of type @[(Text, UTCTime)]@
@@ -51,6 +61,10 @@ main = do
          <> show (Map.size utxoTxsInclusionTimeBefore)
   pPrint $ "Transaction count during the voting period: "
          <> show (Map.size utxoTxsInclusionTimeDuring)
+  -- TODO: calculate the transactions per second. For this we need to know how
+  -- many seconds elapsed from the first submitted transaction to the start of
+  -- the voting period.
+
   -- Calculate the transaction latency
   let utxoLatenciesBefore =
         Map.intersectionWith diffUTCTime utxoTxsInclusionTimeBefore txsSubmissionTimeBefore
