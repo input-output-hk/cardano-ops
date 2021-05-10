@@ -70,6 +70,8 @@ main = do
         Map.intersectionWith diffUTCTime utxoTxsInclusionTimeBefore txsSubmissionTimeBefore
       utxoLatenciesDuring =
         Map.intersectionWith diffUTCTime utxoTxsInclusionTimeDuring txsSubmissionTimeDuring
+  pPrint $ "Maximum latency time: " <> show (maximum $ Map.elems utxoLatenciesBefore)
+  pPrint $ "Maximum latency time: " <> show (minimum $ Map.elems utxoLatenciesBefore)
   pPrint $ "Average transaction latency time before the voting period: "
          <> show (Fold.fold Fold.mean (Map.elems utxoLatenciesBefore))
   pPrint $ "Average transaction latency time during the voting period: "

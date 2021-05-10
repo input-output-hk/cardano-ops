@@ -113,6 +113,7 @@ try_submit_transaction(){
           --out-file $SIGNED_TX_FILE
 
     ## Submit the signed transaction
+    sub_date=$(mdate)
     $CLI -- transaction submit \
              --tx-file $SIGNED_TX_FILE \
              --testnet-magic 42 \
@@ -120,7 +121,7 @@ try_submit_transaction(){
     local tx_sub_exit_code=$?
     if [[ $tx_sub_exit_code -eq 0 ]]
     then
-       echo "$(mdate), $(cardano-cli transaction txid --tx-file $SIGNED_TX_FILE)" >> tx-submission.log
+       echo "$sub_date, $(cardano-cli transaction txid --tx-file $SIGNED_TX_FILE)" >> tx-submission.log
     fi
     rm -fr $tmp_dir
     return $tx_sub_exit_code
