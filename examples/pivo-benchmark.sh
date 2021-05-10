@@ -30,9 +30,9 @@ fi
 # Run the transaction submission loop in one of the nodes
 try_till_success \
     "nixops scp ${BFT_NODES[0]} examples/pivo-version-change/lib.sh /root/ --to"
-nixops scp ${BFT_NODES[0]} examples/pivo-version-change/run-tx-sub-loop.sh /root/ --to
+nixops scp ${BFT_NODES[0]} examples/pivo-version-change/run-parallel-tx-sub-loop.sh /root/ --to
 
-nixops ssh ${BFT_NODES[0]} "./run-tx-sub-loop.sh" &
+nixops ssh ${BFT_NODES[0]} "./run-parallel-tx-sub-loop.sh" &
 pid=$!
 
 ./examples/pivo-version-change/run-voting-process.sh && kill $pid &

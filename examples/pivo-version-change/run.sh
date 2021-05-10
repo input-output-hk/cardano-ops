@@ -168,6 +168,7 @@ do_endorsement(){
 create_keys(){
     local nr_keys=$1
 
+    # TODO: confirm that this is actually 'keys'
     mkdir -p stake-keys
 
     for i in $(seq 1 $nr_keys); do
