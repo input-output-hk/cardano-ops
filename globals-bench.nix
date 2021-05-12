@@ -154,6 +154,8 @@ in (rec {
       services.cardano-node.package = mkForce pkgs.cardano-node-eventlogged;
       systemd.services.dump-registered-relays-topology.enable = mkForce false;
       systemd.services.nginx.enable = mkForce false;
+      services.cardano-node.extraArgs =
+        [ "+RTS" "-N6" "-RTS" ];
     };
     coreNodes = map (recursiveUpdate {
       stakePool = true;
