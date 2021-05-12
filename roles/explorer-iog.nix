@@ -16,7 +16,7 @@ let
   hasura-cli = cardanoGraphQlPackages.hasura-cli;
   explorer-app-extended = builtins.fetchGit {
     url = "git@github.com:input-output-hk/explorer-app-extended";
-    rev = "55bbd1d403a3704c2c87045578fb1abd1f314b90";
+    rev = "de75b0f03db301712444d9bc1b159b730c7da707";
     ref = "fix-nix-build";
   };
 in {
@@ -44,7 +44,6 @@ in {
     enable = true;
     network = globals.environmentName;
     inherit (s) gaTrackingId gtmTrackingId;
-    apiHost = globals.explorerIogHostName;
     cardanoLib = iohkNix.cardanoLib;
     firebaseApikey = s.web-app.FIREBASE_APIKEY;
     firebaseAuthDomain = s.web-app.FIREBASE_AUTH_DOMAIN;
@@ -53,8 +52,11 @@ in {
     firebaseBucket = s.web-app.FIREBASE_BUCKET;
     firebaseMessagingSender = s.web-app.FIREBASE_MESSAGING_SENDER;
     firebaseAppid = s.web-app.FIREBASE_APPID;
+    mailchimpApiKey = s.api-server-secrets.mailchimpApiKey;
   };
-  systemd.services.castalia-api-server.environment = (import ../static/castalia.nix).api-server;
+  systemd.services.castalia-api-server.environment = (import ../static/castalia.nix).api-server // {
+    SUPPORT_LINK = "https://iohk.zendesk.com/hc/en-us/requests/new";
+  };
   systemd.services.castalia-data-collector.environment = (import ../static/castalia.nix).data-collector;
   # TODO: use an env file and nixops secrets
 
