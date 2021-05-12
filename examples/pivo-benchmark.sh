@@ -34,14 +34,12 @@ nixops scp ${BFT_NODES[0]} examples/pivo-version-change/create-and-fund-spending
 nixops scp ${BFT_NODES[0]} examples/pivo-version-change/run-parallel-tx-sub-loop.sh /root/ --to
 
 nixops ssh ${BFT_NODES[0]} "./create-and-fund-spending-keys.sh"
-nixops ssh ${BFT_NODES[0]} "./run-parallel-tx-sub-loop.sh" &
+nixops ssh ${BFT_NODES[0]} "./run-parallel-tx-sub-loop.sh" > tx-submission.log &
 pid=$!
 
-./examples/pivo-version-change/run-voting-process.sh && kill $pid &
+./examples/pivo-version-change/run-voting-process.sh > voting-process.log && kill $pid &
 
 wait
-
-killall ssh  # For some reason killing the tx loop does not stop the transaction submission loop.
 
 echo "Voting process completed"
 
