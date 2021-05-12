@@ -53,6 +53,7 @@ in {
     firebaseMessagingSender = s.web-app.FIREBASE_MESSAGING_SENDER;
     firebaseAppid = s.web-app.FIREBASE_APPID;
     mailchimpApiKey = s.api-server-secrets.mailchimpApiKey;
+    frontendUrl = "https://beta.explorer.iohk.io/";
   };
   systemd.services.castalia-api-server.environment = (import ../static/castalia.nix).api-server // {
     SUPPORT_LINK = "https://iohk.zendesk.com/hc/en-us/requests/new";
