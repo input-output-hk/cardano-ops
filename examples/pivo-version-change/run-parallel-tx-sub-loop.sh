@@ -8,6 +8,9 @@ set -euo pipefail
 CLI=cardano-cli
 UTXO=keys/utxo
 
+# We want to start logging the transactions in this process only.
+rm -f tx-submission.log
+
 # FIXME: this is brittle. It relies on amount having the same value. Use a common constant (function).
 amount=37
 

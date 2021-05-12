@@ -16,7 +16,7 @@ echo
 echo "Creating spending keys"
 echo
 
-threads=10000
+threads=200
 for i in $(seq 1 $threads); do
     # Create a spending key
     $CLI -- address key-gen \
@@ -77,3 +77,10 @@ done
 echo
 echo "Funds transferred from initial address: $INITIAL_ADDR"
 echo
+
+
+# Another ugly hack: we clear the transaction logs
+echo
+echo "Clearing the logs"
+echo
+rm tx-submission.log
