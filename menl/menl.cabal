@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7ae190a3269038ea7daa373dc1c87cd796a79efffae326cc46e9a7b7a1ba6569
+-- hash: 44597e09305dc2665a6eac196111aab35ef0f80fe43be8b4bcab3dec023a6f95
 
 name:           menl
 version:        0.1.0.0
@@ -37,9 +37,11 @@ library
     , containers
     , foldl
     , pretty-simple
+    , statistics
     , text
     , time
     , turtle
+    , vector
   default-language: Haskell2010
 
 executable menl-exe
@@ -55,9 +57,11 @@ executable menl-exe
     , foldl
     , menl
     , pretty-simple
+    , statistics
     , text
     , time
     , turtle
+    , vector
   default-language: Haskell2010
 
 test-suite menl-test
@@ -74,7 +78,9 @@ test-suite menl-test
     , foldl
     , menl
     , pretty-simple
+    , statistics
     , text
     , time
     , turtle
+    , vector
   default-language: Haskell2010

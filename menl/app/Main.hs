@@ -13,6 +13,9 @@ import qualified Control.Foldl as Fold
 import Text.Pretty.Simple (pPrint)
 import qualified Data.Map.Strict as Map
 import Data.Tuple (swap)
+import qualified Statistics.Quantile as Q
+import qualified Data.Vector as V
+import qualified Data.List as L
 
 main :: IO ()
 main = do
@@ -61,21 +64,24 @@ main = do
          <> show (Map.size utxoTxsInclusionTimeBefore)
   pPrint $ "Transaction count during the voting period: "
          <> show (Map.size utxoTxsInclusionTimeDuring)
-  -- TODO: calculate the transactions per second. For this we need to know how
-  -- many seconds elapsed from the first submitted transaction to the start of
-  -- the voting period.
 
   -- Calculate the transaction latency
-  let utxoLatenciesBefore =
-        Map.intersectionWith diffUTCTime utxoTxsInclusionTimeBefore txsSubmissionTimeBefore
-      utxoLatenciesDuring =
-        Map.intersectionWith diffUTCTime utxoTxsInclusionTimeDuring txsSubmissionTimeDuring
-  pPrint $ "Maximum latency time: " <> show (maximum $ Map.elems utxoLatenciesBefore)
-  pPrint $ "Maximum latency time: " <> show (minimum $ Map.elems utxoLatenciesBefore)
+  let utxoLatenciesBefore
+        = Map.elems
+        $ fmap realToFrac
+        $ Map.intersectionWith diffUTCTime utxoTxsInclusionTimeBefore txsSubmissionTimeBefore
+      utxoLatenciesDuring
+        = Map.elems
+        $ fmap realToFrac
+        $ Map.intersectionWith diffUTCTime utxoTxsInclusionTimeDuring txsSubmissionTimeDuring
+  pPrint $ "Maximum latency time: " <> show (maximum utxoLatenciesBefore)
+  pPrint $ "Maximum latency time: " <> show (minimum utxoLatenciesBefore)
+  printQuantiles utxoLatenciesBefore
+  printQuantiles utxoLatenciesDuring
   pPrint $ "Average transaction latency time before the voting period: "
-         <> show (Fold.fold Fold.mean (Map.elems utxoLatenciesBefore))
+         <> show (Fold.fold Fold.mean utxoLatenciesBefore)
   pPrint $ "Average transaction latency time during the voting period: "
-         <> show (Fold.fold Fold.mean (Map.elems utxoLatenciesDuring))
+         <> show (Fold.fold Fold.mean utxoLatenciesDuring)
   where
     -- Parse the log file and extract the timestamp at which blocks were
     -- produced together with the transactions they contain
@@ -97,3 +103,11 @@ main = do
     parseVotingTimeLog :: Shell UTCTime
     parseVotingTimeLog =
       fmap (head . match txVotingLine . lineToText) $ input "../voting-timing.log"
+
+    printQuantiles xs = do
+        let quantiles = Q.quantiles Q.cadpw [0 .. 10] 10 (V.fromList xs)   -- TODO: convert the latencies to a vector
+            histish   = mkHist (L.nub quantiles)
+              where
+                mkHist [x] = [filter (x<=) xs]
+                mkHist (x : y : ys) = filter (\e -> x <= e && e < y) xs : mkHist(y : ys)
+        print $ zip (L.nub quantiles) (fmap length histish)

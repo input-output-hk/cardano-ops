@@ -27,6 +27,8 @@ dependencies:
 - foldl
 - pretty-simple
 - containers
+- statistics
+- vector
 
 library:
   source-dirs: src
