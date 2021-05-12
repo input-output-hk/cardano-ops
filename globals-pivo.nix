@@ -26,6 +26,20 @@ pkgs: with pkgs.iohkNix.cardanoLib; rec {
         Protocol = "Pivo";
         TraceForge = true;
         TraceTxInbound = true;
+        TracingVerbosity= "MaximalVerbosity";
+        defaultScribes = [
+          [ "StdoutSK" "stdout" ]
+          [ "FileSK"   "/var/lib/cardano-node/node.json" ]
+        ];
+        setupScribes = [
+        { scKind = "StdoutSK"; scName = "stdout"; scFormat = "ScJson"; }
+        { scKind = "FileSK"; scName = "/var/lib/cardano-node/node.json"; scFormat = "ScJson";
+          scRotation = {
+            rpLogLimitBytes = 300000000;
+            rpMaxAgeHours   = 24;
+            rpKeepFilesNum  = 20;
+          }; }
+        ];
       };
     explorerConfig = mkExplorerConfig environmentName nodeConfig;
   };
