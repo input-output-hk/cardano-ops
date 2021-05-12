@@ -244,7 +244,7 @@ def era_tolerances($era; $genesis):
   , last_log_spread_s:              120
   , silence_since_last_block_s:     120
   , tx_loss_ratio:                  0.02
-  , finish_patience:                21
+  , finish_patience:                31
   , minimum_chain_density:          ($genesis.active_slots_coeff * 0.5)
   }
 , shelley:
