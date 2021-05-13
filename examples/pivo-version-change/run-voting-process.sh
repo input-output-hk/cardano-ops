@@ -36,7 +36,7 @@ echo "Creating payment and staking keys"
 echo
 for f in ${POOL_NODES[@]}
 do
-    nixops ssh $f "./run.sh ckeys 1000" &
+    nixops ssh $f "./run.sh ckeys 10" &
 done
 wait
 echo
@@ -107,6 +107,9 @@ echo "End waiting on $(date)"
 echo
 wait
 echo "Voting process ended on: $(mdate)" >> voting-timing.log
+
+pretty_sleep 30 "Waiting to query the ballots"
+nixops ssh ${POOL_NODES[0]} "./run.sh qsipballot"
 
 echo
 echo "Done voting on the SIP"

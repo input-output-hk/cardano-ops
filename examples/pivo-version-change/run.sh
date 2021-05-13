@@ -354,6 +354,14 @@ else
             query_update_state $2
             exit
             ;;
+        qsipballot )
+            echo "Number of votes: "
+            $CLI query ledger-state --testnet-magic 42 \
+                 --pivo-era --pivo-mode \
+                | jq ".stateBefore.esLState.utxoState.ppups.ideationSt.proposalsState[0][1].ballot | .[][0][]" \
+                | wc -l
+            exit
+            ;;
         ckeys )
             create_keys $2
             exit
