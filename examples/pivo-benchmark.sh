@@ -27,30 +27,40 @@ else
     esac
 fi
 
-# Run the transaction submission loop in one of the nodes
-try_till_success \
-    "nixops scp ${BFT_NODES[0]} examples/pivo-version-change/lib.sh /root/ --to"
-nixops scp ${BFT_NODES[0]} examples/pivo-version-change/create-and-fund-spending-keys.sh /root/ --to
-nixops scp ${BFT_NODES[0]} examples/pivo-version-change/run-parallel-tx-sub-loop.sh /root/ --to
+# Run the transaction submission loop in the pool nodes
+pids=()
+for p in ${POOL_NODES[@]}
+do
+    try_till_success \
+        "nixops scp $p examples/pivo-version-change/lib.sh /root/ --to"
+    nixops scp $p examples/pivo-version-change/create-and-fund-spending-keys.sh /root/ --to
+    nixops scp $p examples/pivo-version-change/run-parallel-tx-sub-loop.sh /root/ --to
 
-nixops ssh ${BFT_NODES[0]} "./create-and-fund-spending-keys.sh"
-nixops ssh ${BFT_NODES[0]} "./run-parallel-tx-sub-loop.sh" > tx-submission.log &
+    nixops ssh $p "./create-and-fund-spending-keys.sh"
+    nixops ssh $p "./run-parallel-tx-sub-loop.sh" > tx-submission.log &
+    pids+=( $! )
+done
+
+./examples/pivo-version-change/run-voting-process.sh > voting-process.log &
 pid=$!
 
-./examples/pivo-version-change/run-voting-process.sh > voting-process.log && kill $pid &
+wait $pid
 
-wait
+for t in ${pids[@]}; do
+    kill $t
+done
 
 echo "Voting process completed"
 
+# TODO: we are trying to submit the transactions from the pool nodes
 echo "Fetching transaction logs"
-for f in ${BFT_NODES[@]}
+for f in ${POOL_NODES[@]}
 do
     nixops scp $f /root/tx-submission.log $f-tx-submission.log --from
 done
 
 rm -f bft-nodes-tx-submission.log
-for f in ${BFT_NODES[@]}
+for f in ${POOL_NODES[@]}
 do
     cat $f-tx-submission.log >> bft-nodes-tx-submission.log
     rm $f-tx-submission.log

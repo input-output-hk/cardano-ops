@@ -6,7 +6,6 @@ set -euo pipefail
 
 # This script assumes a running testnet. See 'pivo-version-change.sh'.
 CLI=cardano-cli
-UTXO=keys/utxo
 
 # We want to start logging the transactions in this process only.
 rm -f tx-submission.log
@@ -25,25 +24,25 @@ create_new_key_and_pay_to_it(){
          --testnet-magic 42
 
     echo
-    echo "💸 Transferring $amount Lovelace to $(cat keys/payment$1.addr)"
+    echo "💸 Transferring $amount Lovelace to $(cat utxo-keys/payment$1.addr)"
     echo
 
-    # Note that we transfer the total balance in 'keys/payment$1.addr' to the
+    # Note that we transfer the total balance in 'utxo-keys/payment$1.addr' to the
     # new address.
     submit_transaction \
-        keys/payment$1.addr \
+        utxo-keys/payment$1.addr \
         new-keys/payment$1.addr \
         build-raw \
         "" \
-        "--signing-key-file keys/spending-key$1.skey" \
+        "--signing-key-file utxo-keys/spending-key$1.skey" \
         --shelley-mode || exit 1
 
 }
 
 # Transaction submission loop.
-nr_keys=$(ls -l keys/spending-key*.vkey | wc -l)
+nr_keys=$(ls -l utxo-keys/spending-key*.vkey | wc -l)
 # At each iteration, each process 'i' will create a new key and trasfer funds
-# from 'keys/spending-keyi' to 'new-keys/spending-keyi'. At the end of each
+# from 'utxo-keys/spending-keyi' to 'new-keys/spending-keyi'. At the end of each
 # iteration we move the spending keys in 'new-keys' over to 'keys'.
 mkdir -p new-keys
 while true; do
@@ -60,9 +59,9 @@ while true; do
     echo "Parallel transactions submitted"
     echo
 
-    rm keys/spending-key*
-    mv new-keys/spending-key* keys/
+    rm utxo-keys/spending-key*
+    mv new-keys/spending-key* utxo-keys/
 
-    rm keys/payment*
-    mv new-keys/payment* keys/
+    rm utxo-keys/payment*
+    mv new-keys/payment* utxo-keys/
 done

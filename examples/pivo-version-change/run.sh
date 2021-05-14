@@ -57,7 +57,7 @@ do_stake_pool_registration(){
 do_sip_commit(){
     local tmp_dir=$(mktemp -d)
     local UPDATE_FILE=$tmp_dir/update.payload
-    if [ -z $1 ]; then
+    if [ -z "$1" ]; then
         $CLI -- governance pivo sip new \
              --stake-verification-key-file $PROPOSING_KEY.vkey \
              --proposal-text "hello world!" \
@@ -81,7 +81,7 @@ do_sip_commit(){
 do_sip_reveal(){
     local tmp_dir=$(mktemp -d)
     local UPDATE_FILE=$tmp_dir/update.payload
-    if [ -z $1 ]; then
+    if [ -z "$1" ]; then
         $CLI -- governance pivo sip reveal \
              --stake-verification-key-file $PROPOSING_KEY.vkey \
              --proposal-text "hello world!" \
@@ -104,7 +104,7 @@ do_sip_reveal(){
 do_sip_vote(){
     local tmp_dir=$(mktemp -d)
     local UPDATE_FILE=$tmp_dir/update.payload
-    if [ -z $1 ]; then
+    if [ -z "$1" ]; then
         $CLI -- governance pivo sip vote \
              --stake-verification-key-file $VOTING_KEY.vkey \
              --proposal-text "hello world!" \

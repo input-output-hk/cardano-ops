@@ -16,15 +16,18 @@ echo
 echo "Creating spending keys"
 echo
 
+rm -fr utxo-keys/
+mkdir utxo-keys/
+
 threads=200
 for i in $(seq 1 $threads); do
     # Create a spending key
     $CLI -- address key-gen \
-         --verification-key-file keys/spending-key$i.vkey \
-         --signing-key-file keys/spending-key$i.skey
+         --verification-key-file utxo-keys/spending-key$i.vkey \
+         --signing-key-file utxo-keys/spending-key$i.skey
     $CLI address build \
-         --payment-verification-key-file keys/spending-key$i.vkey \
-         --out-file keys/payment$i.addr \
+         --payment-verification-key-file utxo-keys/spending-key$i.vkey \
+         --out-file utxo-keys/payment$i.addr \
          --testnet-magic 42
 done
 
@@ -48,7 +51,7 @@ echo
 # evolved further it'd might make sense to factor out common functionality.
 amount=37
 
-nr_keys=$(ls -l keys/spending-key*.vkey | wc -l)
+nr_keys=$(ls -l utxo-keys/spending-key*.vkey | wc -l)
 batch_size=200
 batch=1
 i=1
@@ -58,7 +61,7 @@ while [[ $i -le $nr_keys ]]; do
     while [[ $i -le $(($batch_size * $batch)) ]] && [[ $i -le $nr_keys ]]; do
         # We will use only one transaction to send funds from 'PAYMENT_ADDR' to
         # multiple addresses. We need to build the tx-out arguments.
-        txouts=$txouts"--tx-out $(cat keys/payment$i.addr)+$amount "
+        txouts=$txouts"--tx-out $(cat utxo-keys/payment$i.addr)+$amount "
         n=$((n + 1))
         i=$((i + 1))
     done
