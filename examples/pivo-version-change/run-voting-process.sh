@@ -36,7 +36,7 @@ echo "Creating payment and staking keys"
 echo
 for f in ${POOL_NODES[@]}
 do
-    nixops ssh $f "./run.sh ckeys 10" &
+    nixops ssh $f "./run.sh ckeys 10000" &
 done
 wait
 echo
@@ -76,7 +76,7 @@ echo
 echo
 echo "Submitting an SIP commit using ${POOL_NODES[0]}"
 echo
-nixops ssh ${POOL_NODES[0]} "./run.sh scommit \"--voting-period-duration 3000\""
+nixops ssh ${POOL_NODES[0]} "./run.sh scommit \"--voting-period-duration 9000\""
 
 # Reveal the SIP
 pretty_sleep 65 "Waiting for SIP submission to be stable"
@@ -84,7 +84,7 @@ pretty_sleep 65 "Waiting for SIP submission to be stable"
 echo
 echo "Submitting an SIP revelation using ${POOL_NODES[0]}"
 echo
-nixops ssh ${POOL_NODES[0]} "./run.sh sreveal  \"--voting-period-duration 3000\""
+nixops ssh ${POOL_NODES[0]} "./run.sh sreveal  \"--voting-period-duration 9000\""
 
 # Vote on the SIP with all the stake keys created above
 pretty_sleep 65 "Waiting for SIP revelation to be stable"
@@ -95,13 +95,13 @@ echo
 echo "Voting process started on: $(mdate)" > voting-timing.log
 for f in ${POOL_NODES[@]}
 do
-    nixops ssh $f "./run.sh sip_skvote  \"--voting-period-duration 3000\"" &
+    nixops ssh $f "./run.sh sip_skvote  \"--voting-period-duration 9000\"" &
 done
 # We wait till the end of the voting period
 echo
 echo "Start waiting on $(date)"
 echo
-pretty_sleep 600 "Waiting till the voting period ends"
+pretty_sleep 1800 "Waiting till the voting period ends"
 echo
 echo "End waiting on $(date)"
 echo
