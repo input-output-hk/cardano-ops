@@ -57,10 +57,19 @@ do_stake_pool_registration(){
 do_sip_commit(){
     local tmp_dir=$(mktemp -d)
     local UPDATE_FILE=$tmp_dir/update.payload
-    $CLI -- governance pivo sip new \
-         --stake-verification-key-file $PROPOSING_KEY.vkey \
-         --proposal-text "hello world!" \
-         --out-file $UPDATE_FILE
+    if [ -z $1 ]; then
+        $CLI -- governance pivo sip new \
+             --stake-verification-key-file $PROPOSING_KEY.vkey \
+             --proposal-text "hello world!" \
+             --out-file $UPDATE_FILE
+    else
+        $CLI -- governance pivo sip new \
+             --stake-verification-key-file $PROPOSING_KEY.vkey \
+             --proposal-text "hello world!" \
+             $1 \
+             --out-file $UPDATE_FILE
+    fi
+
     # Note that PROPOSING_KEY has to be associated with PAYMENT_ADDR
     submit_update_transaction \
         $PAYMENT_ADDR \
@@ -72,10 +81,18 @@ do_sip_commit(){
 do_sip_reveal(){
     local tmp_dir=$(mktemp -d)
     local UPDATE_FILE=$tmp_dir/update.payload
-    $CLI -- governance pivo sip reveal \
-         --stake-verification-key-file $PROPOSING_KEY.vkey \
-         --proposal-text "hello world!" \
-         --out-file $UPDATE_FILE
+    if [ -z $1 ]; then
+        $CLI -- governance pivo sip reveal \
+             --stake-verification-key-file $PROPOSING_KEY.vkey \
+             --proposal-text "hello world!" \
+             --out-file $UPDATE_FILE
+    else
+        $CLI -- governance pivo sip reveal \
+             --stake-verification-key-file $PROPOSING_KEY.vkey \
+             --proposal-text "hello world!" \
+             $1 \
+             --out-file $UPDATE_FILE
+    fi
     submit_update_transaction \
         $PAYMENT_ADDR \
         $UPDATE_FILE \
@@ -87,10 +104,18 @@ do_sip_reveal(){
 do_sip_vote(){
     local tmp_dir=$(mktemp -d)
     local UPDATE_FILE=$tmp_dir/update.payload
-    $CLI -- governance pivo sip vote \
-         --stake-verification-key-file $VOTING_KEY.vkey \
-         --proposal-text "hello world!" \
-         --out-file $UPDATE_FILE
+    if [ -z $1 ]; then
+        $CLI -- governance pivo sip vote \
+             --stake-verification-key-file $VOTING_KEY.vkey \
+             --proposal-text "hello world!" \
+             --out-file $UPDATE_FILE
+    else
+        $CLI -- governance pivo sip vote \
+             --stake-verification-key-file $VOTING_KEY.vkey \
+             --proposal-text "hello world!" \
+             $1 \
+             --out-file $UPDATE_FILE
+    fi
     submit_update_transaction \
         $PAYMENT_ADDR \
         $UPDATE_FILE \
@@ -276,7 +301,7 @@ register_key(){
 do_sip_skeys_vote(){
     local nr_keys=$(ls -l keys/spending-key*.vkey | wc -l)
     for i in $(seq 1 $nr_keys); do
-        skey_vote $i &
+        skey_vote $i "$1" &
     done
     wait
 }
@@ -289,6 +314,7 @@ skey_vote(){
     $CLI -- governance pivo sip vote \
          --stake-verification-key-file $voting_key.vkey \
          --proposal-text "hello world!" \
+         $2 \
          --out-file $update_file
     submit_update_transaction \
         $key_addr \
@@ -316,17 +342,17 @@ else
             ;;
         scommit )
             echo "Submitting the SIP commit"
-            do_sip_commit
+            do_sip_commit "${2:-""}"
             exit
             ;;
         sreveal )
             echo "Revealing the SIP commit"
-            do_sip_reveal
+            do_sip_reveal "${2:-""}"
             exit
             ;;
         svote )
             echo "Voting for the SIP"
-            do_sip_vote
+            do_sip_vote "${2:-""}"
             exit
             ;;
         icommit )
@@ -375,7 +401,7 @@ else
             exit
             ;;
         sip_skvote )
-            do_sip_skeys_vote
+            do_sip_skeys_vote "${2:-""}"
             exit
             ;;
         * )
