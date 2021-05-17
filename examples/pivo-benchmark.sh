@@ -36,9 +36,12 @@ do
     nixops scp $p examples/pivo-version-change/create-and-fund-spending-keys.sh /root/ --to
     nixops scp $p examples/pivo-version-change/run-parallel-tx-sub-loop.sh /root/ --to
 
+    echo "Tranfering funds in pool $p"
     nixops ssh $p "./create-and-fund-spending-keys.sh"
+    echo "Running parallel submission process on pool $p"
     nixops ssh $p "./run-parallel-tx-sub-loop.sh" > tx-submission.log &
     pids+=( $! )
+    echo "Tx sub loop forked on pool $p"
 done
 
 ./examples/pivo-version-change/run-voting-process.sh > voting-process.log &

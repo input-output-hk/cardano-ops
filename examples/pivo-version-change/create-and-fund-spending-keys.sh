@@ -58,6 +58,7 @@ i=1
 while [[ $i -le $nr_keys ]]; do
     n=0
     txouts=""
+    echo "Processing batch $batch"
     while [[ $i -le $(($batch_size * $batch)) ]] && [[ $i -le $nr_keys ]]; do
         # We will use only one transaction to send funds from 'PAYMENT_ADDR' to
         # multiple addresses. We need to build the tx-out arguments.
@@ -74,6 +75,7 @@ while [[ $i -le $nr_keys ]]; do
         "--signing-key-file $UTXO.skey" \
         --shelley-mode \
         $total
+    echo "Done processing batch $batch"
     batch=$((batch + 1))
 done
 
