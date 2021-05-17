@@ -16,7 +16,7 @@ let
   hasura-cli = cardanoGraphQlPackages.hasura-cli;
   explorer-app-extended = builtins.fetchGit {
     url = "git@github.com:input-output-hk/explorer-app-extended";
-    rev = "de75b0f03db301712444d9bc1b159b730c7da707";
+    rev = "0c09bf60a555cfab51bfa339c2f32d991f26d675";
     ref = "fix-nix-build";
   };
 in {
@@ -276,6 +276,9 @@ in {
           };
           "/graphql" = {
             proxyPass = "http://127.0.0.1:3100/";
+          };
+          "/graphql-public" = {
+            proxyPass = "http://127.0.0.1:3101/graphql";
           };
         });
       };
