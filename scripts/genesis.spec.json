@@ -7,7 +7,7 @@
           "minor": 0,
           "major": 0
       },
-      "decentralisationParam": 0.5,
+      "decentralisationParam": 1,
       "maxTxSize": 16384,
       "minFeeA": 44,
       "maxBlockBodySize": 65536,
