@@ -84,6 +84,18 @@
         "url": "https://github.com/input-output-hk/cardano-node/archive/8fe46140a52810b6ca456be01d652ca08fe730bf.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "cardano-node-service": {
+        "branch": "p2p-master",
+        "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
+        "homepage": "https://cardano.org",
+        "owner": "input-output-hk",
+        "repo": "cardano-node",
+        "rev": "1a2034f7139038d4083a8f09539e5c52e62a812b",
+        "sha256": "0mwb64knxhk5bqwn3ax1m79yl2b0k29n0lnh435wcfni0jdk9rqf",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/1a2034f7139038d4083a8f09539e5c52e62a812b.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-rosetta": {
         "branch": "refs/tags/1.1.0",
         "description": "https://www.rosetta-api.org implementation for Cardano Node",
@@ -102,10 +114,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "bc4216c5b0e14dbde5541763f4952f99c3c712fa",
-        "sha256": "0y5n3limj5dg1vgxyxafg0ky35qq7w97rr00gr3yl16xx5jrhs6w",
+        "rev": "7e8ac58b347a6620a3a8a4d596820a4b323b11f4",
+        "sha256": "02h6p56vpgqcq00bm233grchzppqhwgas0xk3b6x93f6aq07259l",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/bc4216c5b0e14dbde5541763f4952f99c3c712fa.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/7e8ac58b347a6620a3a8a4d596820a4b323b11f4.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
@@ -150,10 +162,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "65aa6890699aba9055b8b410216b73d80317839e",
-        "sha256": "0w1yc0lxyzk3qgksiv6lyank3nybh5jvq03is9ixj431q7dak2dx",
+        "rev": "a249abf99bddc11ebd5617fa6243068bc968d238",
+        "sha256": "0nf7xlxbyhbl1mk0w7afmhnnk9jdjdfibcycmn5wgr6bmvavbmdz",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/65aa6890699aba9055b8b410216b73d80317839e.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/a249abf99bddc11ebd5617fa6243068bc968d238.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "smash": {

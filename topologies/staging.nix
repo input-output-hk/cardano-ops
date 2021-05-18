@@ -1,7 +1,4 @@
-pkgs: with pkgs; with lib; with topology-lib;
-let
-
-  regions = {
+pkgs: with pkgs; with lib; with topology-lib {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
       minRelays = 3;
     };
@@ -21,10 +18,9 @@ let
       minRelays = 1;
     };
   };
+let
 
-  bftCoreNodes = let
-    mkBftCoreNode = mkBftCoreNodeForRegions regions;
-  in regionalConnectGroupWith (reverseList stakingPoolNodes) (fullyConnectNodes [
+  bftCoreNodes = regionalConnectGroupWith (reverseList stakingPoolNodes) (fullyConnectNodes [
     # OBFT centralized nodes recovery nodes
     (mkBftCoreNode "a" 1 {
       org = "IOHK";
@@ -56,9 +52,7 @@ let
     })
   ]);
 
-  stakingPoolNodes = let
-    mkStakingPool = mkStakingPoolForRegions regions;
-  in regionalConnectGroupWith bftCoreNodes
+  stakingPoolNodes = regionalConnectGroupWith bftCoreNodes
   (fullyConnectNodes [
     (mkStakingPool "a" 1 "IOGS1" { nodeId = 8; })
     (mkStakingPool "b" 1 "IOGS2" { nodeId = 9; })

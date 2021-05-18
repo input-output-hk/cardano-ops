@@ -1,4 +1,6 @@
-pkgs: with pkgs; with lib; rec {
+pkgs: regions: with pkgs; with lib; rec {
+
+  inherit regions;
 
   /* function composition */
   compose = f: g: x: f (g x);
@@ -215,7 +217,7 @@ pkgs: with pkgs; with lib; rec {
      with name, region and relays as producers, from the region letter, an index (relative to region)
      and given additional attributes.
   */
-  mkBftCoreNodeForRegions = regions: r: idx: attrs: rec {
+  mkBftCoreNode = r: idx: attrs: rec {
     name = "bft-${r}-${toString idx}";
     stakePool = false;
     region = regions.${r}.name;
@@ -228,7 +230,7 @@ pkgs: with pkgs; with lib; rec {
      with name, region and relays as producers, from the region letter, an index (relative to region)
      a ticker id and given additional attributes.
   */
-  mkStakingPoolForRegions = regions: r: idx: ticker: attrs:
+  mkStakingPool = r: idx: ticker: attrs:
     let suffix = optionalString (ticker != "") "-${ticker}"; in rec {
     name = "stk-${r}-${toString idx}${suffix}";
     region = regions.${r}.name;
@@ -236,17 +238,53 @@ pkgs: with pkgs; with lib; rec {
       [ (regionalRelaysProducer region 3) ];
     org = "IOHK";
     stakePool = true;
-  } // attrs;
+  } // (optionalAttrs (ticker != "") {
+    inherit ticker;
+  }) // attrs;
+
+  /* Make a 3 nodes : 1 block producer, 2 relay, independent staking pool setup.
+  */
+  mkStakingPoolNodes = r1: id: r2: ticker: def: let
+    stkNode = {
+      name = "stk-${r1}-${toString id}-${ticker}";
+      region = regions.${r1}.name;
+      stakePool = true;
+      inherit ticker;
+      producers = [ relay1.name relay2.name ];
+    } // def;
+    relay1 = rec {
+      name = "rel-${r1}-${toString id}";
+      region = regions.${r1}.name;
+      producers = [
+        stkNode.name
+        relay2.name
+        globals.environmentConfig.relaysNew
+      ];
+    } // def;
+    relay2 = rec {
+      name = "rel-${r2}-${toString id}";
+      region = regions.${r2}.name;
+      producers = [
+        stkNode.name
+        relay1.name
+        globals.environmentConfig.relaysNew
+      ];
+    } // def;
+  in [
+    stkNode
+    relay1
+    relay2
+  ];
 
   /* Generate relay nodes definitions,
      potentially with auto-scaling so that relay nodes can support all third-party block producers.
      Third-party producers are allocated to relays in the nearest provided region (using https://github.com/turnkeylinux/aws-datacenters).
   */
-  mkRelayTopology = {
+  mkRelayTopology = let regions' = regions; in {
     # Regions were relays will be deployed (at least one if minRelays not defined), eg.:
     # { a = { name = "eu-central-1"; minRelays = 3; };
     #   b = { name = "us-east-2"; minRelays = 2; }; }
-    regions
+    regions ? regions'
    # core nodes to be included in producers arrays of relays
    # each core node appears exactly once accross relays of each region:
   , coreNodes

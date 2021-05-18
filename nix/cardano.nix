@@ -4,7 +4,9 @@ let
   cardano-explorer-app-pkgs = import self.sourcePaths.cardano-explorer-app;
   cardano-rosetta-pkgs = import (self.sourcePaths.cardano-rosetta + "/nix") {};
   cardanoNodePkgs = import (self.sourcePaths.cardano-node + "/nix") { gitrev = self.sourcePaths.cardano-node.rev; };
+  cardanoNodeServicePkgs = import (self.sourcePaths.cardano-node-service + "/nix") { gitrev = self.sourcePaths.cardano-node-service.rev; };
 in rec {
+  inherit cardanoNodeServicePkgs;
   inherit (cardano-db-sync-pkgs) cardanoDbSyncHaskellPackages;
   inherit cardano-explorer-app-pkgs cardanoNodePkgs;
   inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.cardano-cli.components.exes) cardano-cli;

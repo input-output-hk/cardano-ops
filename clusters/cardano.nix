@@ -201,6 +201,7 @@ let
         "stakePool"
         "instance"
         "pools"
+        "ticker"
       ]);
 
 in {

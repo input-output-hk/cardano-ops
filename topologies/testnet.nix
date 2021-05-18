@@ -1,7 +1,4 @@
-pkgs: with pkgs; with lib; with topology-lib;
-let
-
-  regions = {
+pkgs: with pkgs; with lib; with topology-lib {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
       minRelays = 3;
     };
@@ -21,10 +18,9 @@ let
       minRelays = 1;
     };
   };
+let
 
-  stakingPoolNodes = let
-    mkStakingPool = mkStakingPoolForRegions regions;
-  in fullyConnectNodes [
+  stakingPoolNodes = fullyConnectNodes [
     (mkStakingPool "a" 1 "" { nodeId = 1; })
     (mkStakingPool "b" 1 "" { nodeId = 2; })
     (mkStakingPool "c" 1 "" { nodeId = 3; })

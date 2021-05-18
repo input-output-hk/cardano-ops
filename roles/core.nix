@@ -3,8 +3,8 @@ pkgs: nodeId: {config, name, ...}:
 with pkgs;
 let
 
-  signingKey = ../keys/delegate-keys + ".${leftPad nodeId 3}.key";
-  delegationCertificate = ../keys/delegation-cert + ".${leftPad nodeId 3}.json";
+  signingKey = ../keys/byron/delegate-keys + ".${leftPad (nodeId - 1) 3}.key";
+  delegationCertificate = ../keys/byron/delegation-cert + ".${leftPad (nodeId - 1) 3}.json";
 
   vrfKey = ../keys/node-keys/node-vrf + "${toString nodeId}.skey";
   kesKey = ../keys/node-keys/node-kes + "${toString nodeId}.skey";

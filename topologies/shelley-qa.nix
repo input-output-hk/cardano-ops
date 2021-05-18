@@ -1,16 +1,12 @@
-pkgs: with pkgs; with lib; with topology-lib;
-let
-
-  regions = {
+pkgs: with pkgs; with lib; with topology-lib {
     a = { name = "eu-central-1";   /* Europe (Frankfurt)       */ };
     b = { name = "us-east-2";      /* US East (Ohio)           */ };
     c = { name = "ap-southeast-1"; /* Asia Pacific (Singapore) */ };
     d = { name = "eu-west-2";      /* Europe (London)          */ };
   };
+let
 
-  stakingPoolNodes = let
-    mkStakingPool = mkStakingPoolForRegions regions;
-  in fullyConnectNodes [
+  stakingPoolNodes = fullyConnectNodes [
     (mkStakingPool "a" 1 "IOHK1" { nodeId = 1; })
     (mkStakingPool "b" 1 "IOHK2" { nodeId = 2; })
     (mkStakingPool "c" 1 "IOHK3" { nodeId = 3; })

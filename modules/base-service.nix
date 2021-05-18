@@ -26,10 +26,13 @@ let
     ip = staticRouteIp nodeName;
   }) deployedProducers;
 
-  toNormalizedProducer = n: {
-    addr = let a = n.addr or n; in if (nodes ? ${a}) then hostName a else a;
-    port = n.port or nodePort;
-    valency = n.valency or 1;
+  toNormalizedProducerGroup = producers: {
+    addrs = map (n: {
+      addr = let a = n.addr or n; in if (nodes ? ${a}) then hostName a else a;
+      port = n.port or nodePort;
+      valency = n.valency or 1;
+    }) producers;
+    valency = length producers;
   };
 
   producerShare = i: producers: let
@@ -37,11 +40,11 @@ let
       filtered = filter ({idx, ...}: mod idx cfg.instances == i) indexed;
     in catAttrs "node" filtered;
 
-  intraInstancesTopologies = topology-lib.connectNodesWithin
+  intraInstancesTopologies = (topology-lib {}).connectNodesWithin
     cfg.maxIntraInstancesPeers
     (genList (i: {name = i;}) cfg.instances);
 
-  instanceProducers = i: map toNormalizedProducer (concatLists [
+  instanceProducers = i: map toNormalizedProducerGroup (filter (g: length g != 0) [
       (concatMap (i: map (p: {
         addr = cfg.ipv6HostAddr;
         port = cfg.port + p;
@@ -49,8 +52,11 @@ let
       (producerShare i sameRegionRelays)
       (producerShare (cfg.instances - i - 1) otherRegionRelays)
       (producerShare i coreNodeProducers)
-      (producerShare (cfg.instances - i - 1) thirdParyProducers)
     ]);
+
+  instancePublicProducers = i: map toNormalizedProducerGroup (filter (g: length g != 0) [
+    (producerShare (cfg.instances - i - 1) thirdParyProducers)
+  ]);
 
 in
 {
@@ -115,9 +121,11 @@ in
       # https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html
       rtsArgs = [ "-N2" "-A16m" "-qg" "-qb" "-M${toString (cfg.totalMaxHeapSizeMbytes / cfg.instances)}M" ];
       environment = globals.environmentName;
-      inherit cardanoNodePkgs hostAddr nodeId instanceProducers;
+      inherit cardanoNodePkgs hostAddr nodeId instanceProducers instancePublicProducers;
       ipv6HostAddr = mkIf (cfg.instances > 1) "::1";
       producers = mkDefault [];
+      publicProducers = mkDefault [];
+      useNewTopology = mkDefault false;
       port = nodePort;
       environments = {
         "${globals.environmentName}" = globals.environmentConfig;

@@ -11,15 +11,13 @@
 #
 # > nix eval '(with import ./nix {}; with lib;  map (x: x.name) globals.topology.coreNodes)'
 #
-pkgs: with pkgs; with lib; with topology-lib;
-let
-  regions = {
+pkgs: with pkgs; with lib; with topology-lib {
     a = { name = "eu-central-1";   /* Europe (Frankfurt)       */ };
     b = { name = "us-east-2";      /* US East (Ohio)           */ };
     c = { name = "ap-southeast-1"; /* Asia Pacific (Singapore) */ };
     d = { name = "eu-west-2";      /* Europe (London)          */ };
   };
-
+let
   bftCoreNodes =
     let
       # The region names will determine the number of BFT nodes. These names
@@ -34,7 +32,6 @@ let
             }
         )
         (length bftNodeRegionNames);
-      mkBftCoreNode = mkBftCoreNodeForRegions regions;
       bftNodes =
         map defineKeys
             (fullyConnectNodes
@@ -90,7 +87,6 @@ let
             }
         )
         (length poolRegionNames);
-      mkStakingPool = mkStakingPoolForRegions regions;
       pools =
         map defineKeys
             (fullyConnectNodes
