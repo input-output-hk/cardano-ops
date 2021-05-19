@@ -17,7 +17,7 @@ else
     case $1 in
         redeploy )
             echo "Redeploying the testnet"
-            nixops destroy --confirm
+            nixops ssh-for-each -- "systemctl stop cardano-node; rm -rf /var/lib/cardano-node; rm -fr /root/keys" || true
             ./scripts/create-shelley-genesis-and-keys.sh
             nixops deploy -k
             ;;
@@ -37,9 +37,9 @@ do
     nixops scp $p examples/pivo-version-change/run-parallel-tx-sub-loop.sh /root/ --to
 
     echo "Tranfering funds in pool $p"
-    nixops ssh $p "./create-and-fund-spending-keys.sh"
+    nixops ssh $p "./create-and-fund-spending-keys.sh" > funding-$p.log
     echo "Running parallel submission process on pool $p"
-    nixops ssh $p "./run-parallel-tx-sub-loop.sh" > tx-submission.log &
+    nixops ssh $p "./run-parallel-tx-sub-loop.sh" > tx-submission.log 2> tx-submission-$p-errors.log &
     pids+=( $! )
     echo "Tx sub loop forked on pool $p"
 done
