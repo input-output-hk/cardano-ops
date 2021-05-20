@@ -1101,7 +1101,9 @@
         }
       ],
       "thresholds": [],
+      "timeFrom": null,
       "timeRegions": [],
+      "timeShift": null,
       "title": "Missed slots rate (slots/s)",
       "tooltip": {
         "shared": true,
@@ -3257,8 +3259,8 @@
     "list": []
   },
   "time": {
-    "from": "2021-04-20T01:39:38.018Z",
-    "to": "2021-04-20T05:47:43.250Z"
+    "from": "now-12h",
+    "to": "now"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -3285,7 +3287,7 @@
       "30d"
     ]
   },
-  "timezone": "",
+  "timezone": "utc",
   "title": "Cardano: Application metrics v2",
   "uid": "Oe0reiHef",
   "version": 1
