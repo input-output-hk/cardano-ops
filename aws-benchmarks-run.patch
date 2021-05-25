@@ -1,0 +1,273 @@
+diff --git a/examples/pivo-benchmark.sh b/examples/pivo-benchmark.sh
+index 49ecd79..d90d774 100755
+--- a/examples/pivo-benchmark.sh
++++ b/examples/pivo-benchmark.sh
+@@ -10,6 +10,8 @@ CLI=cardano-cli
+ 
+ . $(dirname $0)/pivo-version-change/lib.sh
+ 
++rm -fr *.log
++
+ if [ -z ${1+x} ];
+ then
+     echo "'redeploy' command was not specified, so the test will run on an existing testnet";
+@@ -17,7 +19,8 @@ else
+     case $1 in
+         redeploy )
+             echo "Redeploying the testnet"
+-            nixops destroy --confirm
++	    nixops ssh-for-each -p -- "for f in /tmp/tmp.*; do echo \"\$f\"; rm -fr \"\$f\"; done" || true
++            nixops ssh-for-each -p -- "systemctl stop cardano-node; rm -rf /var/lib/cardano-node; rm -fr /root/keys; " || true
+             ./scripts/create-shelley-genesis-and-keys.sh
+             nixops deploy -k
+             ;;
+@@ -37,16 +40,20 @@ do
+     nixops scp $p examples/pivo-version-change/run-parallel-tx-sub-loop.sh /root/ --to
+ 
+     echo "Tranfering funds in pool $p"
+-    nixops ssh $p "./create-and-fund-spending-keys.sh"
++    nixops ssh $p "./create-and-fund-spending-keys.sh" > funding-$p.log
+     echo "Running parallel submission process on pool $p"
+-    nixops ssh $p "./run-parallel-tx-sub-loop.sh" > tx-submission.log &
++    nixops ssh $p "./run-parallel-tx-sub-loop.sh" > tx-submission.log 2> tx-submission-$p-errors.log &
+     pids+=( $! )
+     echo "Tx sub loop forked on pool $p"
+ done
+ 
+-./examples/pivo-version-change/run-voting-process.sh > voting-process.log &
++echo "Starting the voting process"
++
++./examples/pivo-version-change/run-voting-process.sh > voting-process.log 2> voting-process-errors.log &
+ pid=$!
+ 
++echo "Waiting for the voting process to finish"
++
+ wait $pid
+ 
+ for t in ${pids[@]}; do
+@@ -55,6 +62,9 @@ done
+ 
+ echo "Voting process completed"
+ 
++# Stop all the nodes so that they stop producing logs.
++nixops ssh-for-each -- "systemctl stop cardano-node" || true
++
+ # TODO: we are trying to submit the transactions from the pool nodes
+ echo "Fetching transaction logs"
+ for f in ${POOL_NODES[@]}
+diff --git a/examples/pivo-version-change/create-and-fund-spending-keys.sh b/examples/pivo-version-change/create-and-fund-spending-keys.sh
+index b6b6e3b..22fbd7f 100755
+--- a/examples/pivo-version-change/create-and-fund-spending-keys.sh
++++ b/examples/pivo-version-change/create-and-fund-spending-keys.sh
+@@ -17,9 +17,10 @@ echo "Creating spending keys"
+ echo
+ 
+ rm -fr utxo-keys/
++rm -fr new-keys/
+ mkdir utxo-keys/
+ 
+-threads=200
++threads=50
+ for i in $(seq 1 $threads); do
+     # Create a spending key
+     $CLI -- address key-gen \
+@@ -44,7 +45,7 @@ $CLI -- genesis initial-addr \
+      --verification-key-file $UTXO.vkey > $INITIAL_ADDR
+ 
+ echo
+-echo "Transferring funds from initial address: $INITIAL_ADDR"
++echo "Transferring funds from initial address: $INITIAL_ADDR on $(date)"
+ echo
+ 
+ # This snippet is taken from 'run.sh::transfer_funds' if these scripts are
+@@ -80,7 +81,7 @@ while [[ $i -le $nr_keys ]]; do
+ done
+ 
+ echo
+-echo "Funds transferred from initial address: $INITIAL_ADDR"
++echo "Funds transferred from initial address: $INITIAL_ADDR on $(date)"
+ echo
+ 
+ 
+diff --git a/examples/pivo-version-change/run-parallel-tx-sub-loop.sh b/examples/pivo-version-change/run-parallel-tx-sub-loop.sh
+index 74d770c..0dd05b8 100755
+--- a/examples/pivo-version-change/run-parallel-tx-sub-loop.sh
++++ b/examples/pivo-version-change/run-parallel-tx-sub-loop.sh
+@@ -24,7 +24,7 @@ create_new_key_and_pay_to_it(){
+          --testnet-magic 42
+ 
+     echo
+-    echo "💸 Transferring $amount Lovelace to $(cat utxo-keys/payment$1.addr)"
++    echo "💸 Process $1 is transferring $amount Lovelace to $(cat utxo-keys/payment$1.addr)"
+     echo
+ 
+     # Note that we transfer the total balance in 'utxo-keys/payment$1.addr' to the
+@@ -47,7 +47,7 @@ nr_keys=$(ls -l utxo-keys/spending-key*.vkey | wc -l)
+ mkdir -p new-keys
+ while true; do
+     echo
+-    echo "Submitting transactions in parallel"
++    echo "Submitting transactions in parallel on $(date)"
+     echo
+ 
+     for i in $(seq 1 $nr_keys); do
+@@ -56,7 +56,7 @@ while true; do
+     wait
+ 
+     echo
+-    echo "Parallel transactions submitted"
++    echo "Parallel transactions submitted on $(date)"
+     echo
+ 
+     rm utxo-keys/spending-key*
+diff --git a/examples/pivo-version-change/run-voting-process.sh b/examples/pivo-version-change/run-voting-process.sh
+index a9114dd..98088b1 100755
+--- a/examples/pivo-version-change/run-voting-process.sh
++++ b/examples/pivo-version-change/run-voting-process.sh
+@@ -72,22 +72,25 @@ echo
+ # Query the stake distribution snapshots
+ # > cardano-cli query ledger-state --testnet-magic 42 --pivo-era --pivo-mode | jq '.stateBefore.esSnapshots'
+ 
++# Voting period duration
++VPD=1800
++
+ # Commit the SIP
+ echo
+ echo "Submitting an SIP commit using ${POOL_NODES[0]}"
+ echo
+-nixops ssh ${POOL_NODES[0]} "./run.sh scommit \"--voting-period-duration 9000\""
++nixops ssh ${POOL_NODES[0]} "./run.sh scommit \"--voting-period-duration $VPD\""
+ 
+ # Reveal the SIP
+-pretty_sleep 65 "Waiting for SIP submission to be stable"
++pretty_sleep 2160 "Waiting for SIP submission to be stable"
+ 
+ echo
+ echo "Submitting an SIP revelation using ${POOL_NODES[0]}"
+ echo
+-nixops ssh ${POOL_NODES[0]} "./run.sh sreveal  \"--voting-period-duration 9000\""
++nixops ssh ${POOL_NODES[0]} "./run.sh sreveal  \"--voting-period-duration $VPD\""
+ 
+ # Vote on the SIP with all the stake keys created above
+-pretty_sleep 65 "Waiting for SIP revelation to be stable"
++pretty_sleep 2160 "Waiting for SIP revelation to be stable"
+ 
+ echo
+ echo "Voting on the SIP"
+@@ -95,13 +98,13 @@ echo
+ echo "Voting process started on: $(mdate)" > voting-timing.log
+ for f in ${POOL_NODES[@]}
+ do
+-    nixops ssh $f "./run.sh sip_skvote  \"--voting-period-duration 9000\"" &
++    nixops ssh $f "./run.sh sip_skvote  \"--voting-period-duration $VPD\"" &
+ done
+ # We wait till the end of the voting period
+ echo
+ echo "Start waiting on $(date)"
+ echo
+-pretty_sleep 1800 "Waiting till the voting period ends"
++pretty_sleep $VPD "Waiting till the voting period ends"
+ echo
+ echo "End waiting on $(date)"
+ echo
+diff --git a/globals-pivo.nix b/globals-pivo.nix
+index 9792de4..eb29eb6 100644
+--- a/globals-pivo.nix
++++ b/globals-pivo.nix
+@@ -1,13 +1,13 @@
+ pkgs: with pkgs.iohkNix.cardanoLib; rec {
+ 
+   withMonitoring = false;
++  domain = "pivo.dev.cardano.org";
+ 
+   withExplorer = false;
+   explorerForceSSL = false;
+   ## To deploy the explorer on AWS use the following configuration.
+   # withExplorer = true;
+   # explorerForceSSL = true;
+-  # domain = "pivo.dev.cardano.org";
+   # explorerHostName = "explorer.pivo.dev.cardano.org";
+ 
+   # This should match the name of the topology file.
+@@ -45,9 +45,12 @@ pkgs: with pkgs.iohkNix.cardanoLib; rec {
+   };
+ 
+   environmentVariables = {
+-    F = "0.1";
+-    K = "10";
+-    SLOT_LENGTH = "0.2";
++    # F = "0.1";
++    # K = "10";
++    # SLOT_LENGTH = "0.2";
++    F = "0.05";
++    K = "36";
++    SLOT_LENGTH = "1";
+     EPOCH_LENGTH= "1000";
+   };
+ 
+diff --git a/scripts/create-shelley-genesis-and-keys.sh b/scripts/create-shelley-genesis-and-keys.sh
+index c7ef3b8..ef9d115 100755
+--- a/scripts/create-shelley-genesis-and-keys.sh
++++ b/scripts/create-shelley-genesis-and-keys.sh
+@@ -44,7 +44,7 @@ cardano-cli genesis create \
+             --supply $MAX_SUPPLY \
+             --gen-genesis-keys $NB_BFT_NODES \
+             --gen-utxo-keys $NB_CORE_NODES \
+-            --start-time `date -u -d "today + 3 minutes" +'%Y-%m-%dT%H:%M:%SZ'` \
++            --start-time `date -u -d "today + 5 minutes" +'%Y-%m-%dT%H:%M:%SZ'` \
+             --testnet-magic 42
+ 
+ # Customize the genesis file
+diff --git a/topologies/pivo.nix b/topologies/pivo.nix
+index 9b34f46..10dd5d9 100644
+--- a/topologies/pivo.nix
++++ b/topologies/pivo.nix
+@@ -14,15 +14,28 @@
+ pkgs: with pkgs; with lib; with topology-lib;
+ let
+   regions = {
+-    a = { name = "eu-central-1";   /* Europe (Frankfurt)       */ };
+-    b = { name = "us-east-2";      /* US East (Ohio)           */ };
+-    c = { name = "ap-southeast-1"; /* Asia Pacific (Singapore) */ };
+-    d = { name = "eu-west-2";      /* Europe (London)          */ };
+-    e = { name = "eu-central-1";   /* Europe (Frankfurt)       */ };
+-    f = { name = "us-east-2";      /* US East (Ohio)           */ };
+-    g = { name = "ap-southeast-1"; /* Asia Pacific (Singapore) */ };
+-    h = { name = "eu-west-2";      /* Europe (London)          */ };
+-    i = { name = "eu-central-1";   /* Europe (Frankfurt)       */ };
++    a = { name = "eu-central-1"; /* Europe (Frankfurt)       */ };
++    b = { name = "eu-central-1"; };
++    c = { name = "eu-central-1"; };
++    d = { name = "eu-central-1"; };
++    e = { name = "eu-central-1"; };
++    f = { name = "eu-central-1"; };
++    g = { name = "eu-central-1"; };
++    h = { name = "eu-central-1"; };
++    i = { name = "eu-central-1"; };
++    j = { name = "eu-central-1"; };
++    k = { name = "eu-central-1"; };
++    
++    # b = { name = "us-east-2";      /* US East (Ohio)           */ };
++    # c = { name = "ap-southeast-1"; /* Asia Pacific (Singapore) */ };
++    # d = { name = "eu-west-2";      /* Europe (London)          */ };
++    # e = { name = "eu-central-1";   /* Europe (Frankfurt)       */ };
++    # f = { name = "us-east-2";      /* US East (Ohio)           */ };
++    # g = { name = "ap-southeast-1"; /* Asia Pacific (Singapore) */ };
++    # h = { name = "eu-west-2";      /* Europe (London)          */ };
++    # i = { name = "ap-southeast-1"; /* Asia Pacific (Singapore) */ };
++    # j = { name = "eu-west-2";      /* Europe (London)          */ };
++    # k = { name = "eu-central-1";   /* Europe (Frankfurt)       */ };
+   };
+ 
+   bftCoreNodes =
+@@ -85,8 +98,8 @@ let
+     let
+       # The region names determine the number of stake pools. These names
+       # should belong to `attrNames regions`.
+-      poolRegionNames = [ "b" ]; # "c" "d" ];
+-      # poolRegionNames = [ "b" "c" "d" "e" "f" "g" "h" "i" ];
++      # poolRegionNames = [ "b" ]; # "c" "d" ];
++      poolRegionNames = [ "b" "c" "d" "e" "f" "g" "h" "i" "j" "k"];
+ 
+       # Stake pool specifications, which will be used to create stake pools.
+       poolSpecs =
