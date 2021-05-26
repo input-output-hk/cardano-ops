@@ -52,7 +52,7 @@ analysis_log_inventory()
            }' --slurpfile logs "$dir"/analysis/log-inventory.json <<<0
 }
 
-analysis_list+=(analysis_timetoblock)
+# analysis_list+=(analysis_timetoblock)
 analysis_timetoblock() {
         local dir=${1:-.}
         dir=$(realpath "$dir")
@@ -73,7 +73,7 @@ analysis_timetoblock() {
            }' --slurpfile txstats "$dir"/analysis/tx-stats.json <<<0
 }
 
-analysis_list+=(analysis_submission_threads)
+# analysis_list+=(analysis_submission_threads)
 analysis_submission_threads() {
         local dir=${1:-.} sub_tids tnum
 
@@ -89,7 +89,7 @@ analysis_submission_threads() {
         done
 }
 
-analysis_list+=(analysis_from_benchmarking)
+# analysis_list+=(analysis_from_benchmarking)
 analysis_from_benchmarking() {
         local dir=${1:-.}
         local analysis aname files
@@ -133,7 +133,7 @@ analysis_from_benchmarking() {
                   > "$dir"/analysis/generator."$aname".csv; done; fi
 }
 
-analysis_list+=(analysis_TraceForgeInvalidBlock)
+# analysis_list+=(analysis_TraceForgeInvalidBlock)
 analysis_TraceForgeInvalidBlock() {
         local dir=${1:-.} msg
 
@@ -171,7 +171,7 @@ to_node_list() {
         else echo ${machines[*]}; fi
 }
 
-analysis_list+=(analysis_locli_timeline)
+# analysis_list+=(analysis_locli_timeline)
 analysis_locli_timeline() {
         local dir=${1:-.} machines; shift
         local keyfile locli_timeline_args prof
@@ -206,7 +206,7 @@ analysis_locli_timeline() {
         rm -f "$keyfile"
 }
 
-analysis_list+=(analysis_derived)
+# analysis_list+=(analysis_derived)
 analysis_derived() {
         local dir=${1:-.}
         local f="$dir"/analysis/node.TraceMempoolRejectedTx.json
