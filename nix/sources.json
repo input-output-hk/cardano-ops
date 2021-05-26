@@ -73,15 +73,15 @@
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
     "cardano-node": {
-        "branch": "refs/tags/1.27.0",
+        "branch": "jordan/update-tx-submission-alonzo",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "8fe46140a52810b6ca456be01d652ca08fe730bf",
-        "sha256": "1c9zc899wlgicrs49i33l0bwb554acsavzh1vcyhnxmpm0dmy8vj",
+        "rev": "c0b9d83a72b5ab58c725a954c63a2129b091b331",
+        "sha256": "1dcdngrjfx9r1i10wwk2qyr163gdydqfs7mgzd67ymfx6ix2a7z4",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/8fe46140a52810b6ca456be01d652ca08fe730bf.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/c0b9d83a72b5ab58c725a954c63a2129b091b331.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-service": {
@@ -114,10 +114,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "7e8ac58b347a6620a3a8a4d596820a4b323b11f4",
-        "sha256": "02h6p56vpgqcq00bm233grchzppqhwgas0xk3b6x93f6aq07259l",
+        "rev": "6f47abe6d395cdd2bf43b2c03f5832b53f24760c",
+        "sha256": "09f8wqwrq84nnrsgq0riyvhal5fvvgcbkdzadmn8fmh6l86z6cj4",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/7e8ac58b347a6620a3a8a4d596820a4b323b11f4.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/6f47abe6d395cdd2bf43b2c03f5832b53f24760c.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {

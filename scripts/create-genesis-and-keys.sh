@@ -63,14 +63,21 @@ SYSTEM_START=`date -u -d "today + $DELAY minutes" +'%Y-%m-%dT%H:%M:%SZ'`
 # so we set the epoch length to exactly the value of the left hand side of the
 # inequality.
 EPOCH_LENGTH=`perl -E "say ((10 * $K) / $F)"`
+
+if [ $NB_BFT_NODES -lt 1 ]; then
+  GENKEYS=1
+else
+  GENKEYS=$NB_BFT_NODES
+fi
+
+
 # jq will convert the big nunbers to scientific notation, and old versions of
 # nix cannot handle this. Hence we need to use sed.
-sed -Ei "s/^([[:blank:]]*\"updateQuorum\":)([[:blank:]]*[^,]*,)$/\1 $NB_BFT_NODES,/" genesis.spec.json
+sed -Ei "s/^([[:blank:]]*\"updateQuorum\":)([[:blank:]]*[^,]*,)$/\1 $GENKEYS,/" genesis.spec.json
 sed -Ei "s/^([[:blank:]]*\"epochLength\":)([[:blank:]]*[^,]*,)$/\1 $EPOCH_LENGTH,/" genesis.spec.json
 sed -Ei "s/^([[:blank:]]*\"slotLength\":)([[:blank:]]*[^,]*,)$/\1 $SLOT_LENGTH,/" genesis.spec.json
 sed -Ei "s/^([[:blank:]]*\"securityParam\":)([[:blank:]]*[^,]*)$/\1 $K/" genesis.spec.json
 sed -Ei "s/^([[:blank:]]*\"activeSlotsCoeff\":)([[:blank:]]*[^,]*,)$/\1 $F,/" genesis.spec.json
-sed -Ei "s/^([[:blank:]]*\"maxLovelaceSupply\":)([[:blank:]]*[^,]*,)$/\1 $MAX_SUPPLY,/" genesis.spec.json
 sed -Ei "s/^([[:blank:]]*\"networkMagic\":)([[:blank:]]*[^,]*,)$/\1 $NETWORK_MAGIC,/" genesis.spec.json
 sed -Ei "s/^([[:blank:]]*\"decentralisationParam\":)([[:blank:]]*[^,]*)$/\1 $DPARAM/" genesis.spec.json
 
@@ -85,7 +92,10 @@ cardano-cli genesis create-staked \
             --start-time $SYSTEM_START \
             --testnet-magic $NETWORK_MAGIC
 
+sed -Ei "s/^([[:blank:]]*\"maxLovelaceSupply\":)([[:blank:]]*[^,]*,)$/\1 $MAX_SUPPLY,/" genesis.json
+
 cardano-cli genesis hash --genesis genesis.json > GENHASH
+cardano-cli genesis hash --genesis genesis.alonzo.json > ALONZOGENHASH
 
 
 for i in `seq 1 $NB_POOL_NODES`; do
@@ -186,7 +196,7 @@ if [ -f $BYRON_GENESIS_PATH ]; then
       --testnet-magic $NETWORK_MAGIC \
       --secret byron/genesis-keys.00$((${N} - 1)).key > byron/genesis-address-00$((${N} - 1))
 
-    rm tx$N.tx
+    rm -f tx$N.tx
 
     cardano-cli byron transaction issue-genesis-utxo-expenditure \
       --genesis-json byron/genesis.json \
@@ -198,6 +208,8 @@ if [ -f $BYRON_GENESIS_PATH ]; then
   done
 
 cardano-cli transaction build-raw \
+  --shelley-era \
+  --ttl 10000000000 \
   --fee 0 \
   $(for i in `seq 1 $NB_BFT_NODES`; do
     echo " --tx-in $(cardano-cli byron transaction txid --tx tx$i.tx)#0"
