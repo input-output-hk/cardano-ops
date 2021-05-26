@@ -139,7 +139,7 @@ in (rec {
         pkgs.cardano-ops.roles.tx-generator
         ({ config, ...}: {
           services.cardano-db-sync.enable = mkForce false;
-          services.cardano-explorer-api.enable = mkForce false;
+          # services.cardano-explorer-api.enable = mkForce false;
           services.cardano-submit-api.enable = mkForce false;
           systemd.services.cardano-explorer-api.enable = mkForce false;
         })
