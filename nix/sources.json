@@ -133,17 +133,16 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "offchain-metadata-tools": {
-        "branch": "master",
+        "branch": "v0.2.0.0",
         "description": "Tools for creating, submitting, and managing off-chain metadata such as multi-asset token metadata",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "offchain-metadata-tools",
-        "rev": "80e5bfaea91d78fc455ff210c06789d7652e9c50",
-        "sha256": "13wj3k2hpcaf6i1sy8agk7azqr6kmc9p1dfq3m92qv6gizinp8xk",
+        "rev": "dd052829f0f070f91edd67cffe073db1622ea55d",
+        "sha256": "0s3bmgjcgn4lx8mx4iwb3i88nvj03cmyfl1ik85xd7y9rcl1sf0q",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/offchain-metadata-tools/archive/80e5bfaea91d78fc455ff210c06789d7652e9c50.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
-        "version": "0.1.0.0"
+        "url": "https://github.com/input-output-hk/offchain-metadata-tools/archive/dd052829f0f070f91edd67cffe073db1622ea55d.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
         "branch": "master",

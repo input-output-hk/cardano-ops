@@ -5,6 +5,7 @@ let
   metadataServerPort = 8080;
   metadataWebhookPort = 8081;
   webhookKeys = import ../static/metadata-webhook-secrets.nix;
+  metadataSyncInfo = import ../static/metadata-sync-info.nix;
 
   # The maximum POST size allowed for a metadata/query body payload
   maxPostSizeBodyKb = 64;
@@ -66,6 +67,17 @@ in {
       numConnections = config.services.metadata-server.postgres.numConnections;
     };
   };
+  services.metadata-sync = {
+    enable = true;
+    postgres = {
+      inherit (config.services.metadata-server.postgres) socketdir port database table user numConnections;
+    };
+
+    git = {
+      repositoryUrl = metadataSyncInfo.gitUrl;
+      metadataFolder = metadataSyncInfo.gitMetadataFolder;
+    };
+  };
   services.cardano-postgres = {
     enable = true;
     withHighCapacityPostgres = false;
@@ -84,6 +96,7 @@ in {
       metadata-users root ${cfg.postgres.user}
       metadata-users ${cfg.user} ${cfg.postgres.user}
       metadata-users ${config.services.metadata-webhook.user} ${cfg.postgres.user}
+      metadata-users ${config.services.metadata-sync.user} ${cfg.postgres.user}
       metadata-users postgres postgres
     '';
     authentication = ''
