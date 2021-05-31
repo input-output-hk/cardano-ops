@@ -85,7 +85,7 @@ self: super: with self; {
         Unit = {};
         Service = {
            ExecStart = "${runNodeUpdate}";
-           Environment = "PATH=${lib.makeBinPath [ nix coreutils ]}";
+           Environment = "PATH=${lib.makeBinPath [ nix coreutils git ]}";
         };
       };
 
