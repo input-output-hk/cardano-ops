@@ -27,6 +27,9 @@ pkgs: with pkgs.iohkNix.cardanoLib; with pkgs.globals; {
     explorerConfig = mkExplorerConfig environmentName nodeConfig;
   };
 
+  # Every 5 hours:
+  relayUpdatePeriod = "0/5:00:00";
+
   ec2 = {
     credentials = {
       accessKeyIds = {
