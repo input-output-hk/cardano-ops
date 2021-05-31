@@ -2,6 +2,33 @@ pkgs: with pkgs; with lib; rec {
 
   inherit (globals.topology) regions;
 
+
+  /* Used when connecting to thrid-party relays by regions affinitiy,
+    since we don't have relays in every regions,
+    we define a substitute region for each region we don't deploy to; */
+  regionsSubstitutes = {
+    eu-north-1 = "eu-central-1";
+    ap-northeast-3 = "ap-northeast-1";
+    ap-northeast-2 = "ap-northeast-1";
+    cn-north-1 = "ap-northeast-1";
+    cn-northwest-1 = "ap-northeast-1";
+    ap-east-1 = "ap-southeast-1";
+    ap-south-1 = "ap-southeast-1";
+    ap-southeast-2 = "ap-southeast-1";
+    me-south-1 = "ap-southeast-1";
+    us-east-1 = "us-east-2";
+    sa-east-1 = "us-east-2";
+    ca-central-1 = "us-east-2";
+    us-west-2 = "us-west-1";
+    af-south-1 = "eu-west-2";
+    eu-west-1 = "eu-west-2";
+    eu-west-3 = "eu-west-2";
+    # For when we use only 3 regions:
+    eu-west-2 = "eu-central-1";
+    us-west-1 = "us-east-2";
+    ap-northeast-1 = "ap-southeast-1";
+  } // (globals.topology.regionsSubstitutes or {});
+
   /* function composition */
   compose = f: g: x: f (g x);
 
@@ -258,8 +285,9 @@ pkgs: with pkgs; with lib; rec {
       producers = [
         stkNode.name
         relay2.name
+      ] ++ (optional (globals.relaysNew != globals.environmentConfig.relaysNew)
         globals.environmentConfig.relaysNew
-      ];
+      );
     } // def;
     relay2 = rec {
       name = "rel-${r2}-${toString id}";
@@ -267,14 +295,55 @@ pkgs: with pkgs; with lib; rec {
       producers = [
         stkNode.name
         relay1.name
+      ] ++ (optional (globals.relaysNew != globals.environmentConfig.relaysNew)
         globals.environmentConfig.relaysNew
-      ];
+      );
     } // def;
   in [
     stkNode
     relay1
     relay2
   ];
+
+  thirdPartyRelaysByRegions = let regions' = mapAttrsToList (_: r: r.name) regions; in {
+    # Regions were relays will be deployed (at least one if minRelays not defined), eg.:
+    # ["eu-central-1" "us-east-2"];
+    regions ? regions'
+  }: let
+
+    defaultRegion = head regions;
+
+    stateAwsAffinityIndex = builtins.fromJSON (builtins.readFile (pkgs.aws-affinity-indexes + "/state-index.json"));
+
+    allocateRegion = bestRegion: if (builtins.elem bestRegion regions) then bestRegion else allocateRegion (regionsSubstitutes.${bestRegion} or
+          (builtins.trace "WARNING: relay affected to unknown 'region': ${bestRegion} (to be added in 'regionsSubstitutes'). Using ${defaultRegion})" defaultRegion));
+
+    thirdPartyRelaysByRegions = groupBy (r: r.region) (map
+      (relay:
+        let bestRegion = stateAwsAffinityIndex.${relay.state} or
+          (builtins.trace "WARNING: relay has unknow 'state': ${relay.state}. Using ${defaultRegion})" defaultRegion);
+        in relay // {
+          region = converge allocateRegion bestRegion;
+        }
+      ) thirdPartyRelays);
+
+  in mapAttrs (_: (imap0 (index: mergeAttrs {inherit index;}))) thirdPartyRelaysByRegions;
+
+  connectWithThirdPartyRelays = relays:
+  let
+    byRegion = groupBy (n: n.region) relays;
+    regions = attrNames byRegion;
+    indexedThirdPartyRelays = thirdPartyRelaysByRegions { inherit regions; };
+  in
+    concatMap (region:
+      let
+        indexed = imap0 (idx: node: { inherit idx node;}) byRegion.${region};
+        nbRelays = length indexed;
+      in map (n: n.node // {
+        producers = (n.node.producers or []) ++
+          (filter (p: mod p.index nbRelays == n.idx) (indexedThirdPartyRelays.${region} or []));
+      }) indexed
+    ) regions;
 
   /* Generate relay nodes definitions,
      potentially with auto-scaling so that relay nodes can support all third-party block producers.
@@ -299,31 +368,6 @@ pkgs: with pkgs; with lib; rec {
   # if true (default) the number of relays in each will computed so that it can handle all third party relays while
   # staying below 'maxProducersPerNode' constraint (but in all case above "minRelays" defined for region).
   , autoscaling ? true
-    # Since we don't have relays in every regions,
-    # we define a substitute region for each region we don't deploy to;
-  , regionsSubstitutesExtra ? {}
-  , regionsSubstitutes ? {
-      eu-north-1 = "eu-central-1";
-      ap-northeast-3 = "ap-northeast-1";
-      ap-northeast-2 = "ap-northeast-1";
-      cn-north-1 = "ap-northeast-1";
-      cn-northwest-1 = "ap-northeast-1";
-      ap-east-1 = "ap-southeast-1";
-      ap-south-1 = "ap-southeast-1";
-      ap-southeast-2 = "ap-southeast-1";
-      me-south-1 = "ap-southeast-1";
-      us-east-1 = "us-east-2";
-      sa-east-1 = "us-east-2";
-      ca-central-1 = "us-east-2";
-      us-west-2 = "us-west-1";
-      af-south-1 = "eu-west-2";
-      eu-west-1 = "eu-west-2";
-      eu-west-3 = "eu-west-2";
-      # For when we use only 3 regions:
-      eu-west-2 = "eu-central-1";
-      us-west-1 = "us-east-2";
-      ap-northeast-1 = "ap-southeast-1";
-    } // regionsSubstitutesExtra
   }:
     let
 
@@ -336,21 +380,7 @@ pkgs: with pkgs; with lib; rec {
           region = regions.${rLetter}.name; }
       ) regionLetters;
 
-      stateAwsAffinityIndex = builtins.fromJSON (builtins.readFile (pkgs.aws-affinity-indexes + "/state-index.json"));
-
-      allocateRegion = bestRegion: if (builtins.elem bestRegion inUseRegions) then bestRegion else allocateRegion (regionsSubstitutes.${bestRegion} or
-            (builtins.trace "WARNING: relay affected to unknown 'region': ${bestRegion} (to be added in 'regionsSubstitutes'). Using ${regions.a.name})" regions.a.name));
-
-      thirdPartyRelaysByRegions = groupBy (r: r.region) (map
-        (relay:
-          let bestRegion = stateAwsAffinityIndex.${relay.state} or
-            (builtins.trace "WARNING: relay has unknow 'state': ${relay.state}. Using ${regions.a.name})" regions.a.name);
-          in relay // {
-            region = converge allocateRegion bestRegion;
-          }
-        ) thirdPartyRelays);
-
-      indexedThirdPartyRelays = mapAttrs (_: (imap0 (index: mergeAttrs {inherit index;}))) thirdPartyRelaysByRegions;
+      indexedThirdPartyRelays = thirdPartyRelaysByRegions { regions = inUseRegions; };
 
       nbRelaysPerRegions = mapAttrs (_: {minRelays ? 1, name, ...}:
         # we scale so that relays have less than `maxRelaysPerNode` producer relays per node, with a given minimum of relays:

@@ -28,8 +28,11 @@ let
     (mkStakingPoolNodes "c" 3 "f" "IOGA3" { org = "IOHK"; nodeId = 4; })
   ] ++ bftNodes);
 
-  relayNodes = regionalConnectGroupWith bftNodes (fullyConnectNodes
-    (filter (n: !(n ? stakePool)) nodes));
+  relayNodes = composeAll [
+    connectWithThirdPartyRelays
+    (regionalConnectGroupWith bftNodes)
+    fullyConnectNodes
+  ] (filter (n: !(n ? stakePool)) nodes);
 
   coreNodes = filter (n: n ? stakePool) nodes;
 
