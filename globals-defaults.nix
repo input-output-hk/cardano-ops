@@ -13,6 +13,7 @@ in {
   deploymentName = "${builtins.baseNameOf ./.}";
   deploymentPath = "$HOME/${globals.deploymentName}";
 
+  registeredRelaysDumpPeriod = "hourly";
   relayUpdateArgs = "-m 1";
   relayUpdatePeriod = "weekly";
 

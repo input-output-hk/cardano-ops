@@ -218,7 +218,7 @@ in {
     };
   };
   systemd.timers.dump-registered-relays-topology = {
-    timerConfig.OnCalendar = "daily";
+    timerConfig.OnCalendar = globals.registeredRelaysDumpPeriod;
     wantedBy = [ "timers.target" ];
   };
 
