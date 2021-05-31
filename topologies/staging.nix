@@ -1,4 +1,7 @@
-pkgs: with pkgs; with lib; with topology-lib {
+pkgs: with pkgs; with lib; with topology-lib;
+let
+
+  regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
       minRelays = 3;
     };
@@ -18,7 +21,6 @@ pkgs: with pkgs; with lib; with topology-lib {
       minRelays = 1;
     };
   };
-let
 
   bftCoreNodes = regionalConnectGroupWith (reverseList stakingPoolNodes) (fullyConnectNodes [
     # OBFT centralized nodes recovery nodes
@@ -75,7 +77,7 @@ let
 
 in {
 
-  inherit coreNodes relayNodes;
+  inherit coreNodes relayNodes regions;
 
   "${globals.faucetHostname}" = {
     services.cardano-faucet = {

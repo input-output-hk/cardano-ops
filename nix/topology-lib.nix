@@ -1,6 +1,6 @@
-pkgs: regions: with pkgs; with lib; rec {
+pkgs: with pkgs; with lib; rec {
 
-  inherit regions;
+  inherit (globals.topology) regions;
 
   /* function composition */
   compose = f: g: x: f (g x);

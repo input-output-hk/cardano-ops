@@ -38,7 +38,7 @@ let
 
 in {
 
-  inherit coreNodes relayNodes;
+  inherit coreNodes relayNodes regions;
 
   monitoring = {
     services.monitoring-services.publicGrafana = false;

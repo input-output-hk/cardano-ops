@@ -133,7 +133,7 @@ in {
   # base line number of cardano-node instance per relay,
   # can be scaled up on a per node basis by scaling up on instance type, cf roles/relays.nix.
   nbInstancesPerRelay = with globals; with globals.ec2.instances.relay-node.node;
-    let idealNbInstances = min (cpus / minCpuPerInstance) ((topology-lib {}).roundToInt (memory / minMemoryPerInstance));
+    let idealNbInstances = min (cpus / minCpuPerInstance) (topology-lib.roundToInt (memory / minMemoryPerInstance));
       actualNbInstances = max 1 idealNbInstances;
       cpusPerInstance = cpus / actualNbInstances;
       memoryPerInstance = memory / actualNbInstances;

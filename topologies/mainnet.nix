@@ -1,4 +1,7 @@
-pkgs: with pkgs; with lib; with topology-lib {
+pkgs: with pkgs; with lib; with topology-lib ;
+let
+
+  regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
       minRelays = 35;
     };
@@ -18,7 +21,6 @@ pkgs: with pkgs; with lib; with topology-lib {
       minRelays = 10;
     };
   };
-let
 
   bftCoreNodes = regionalConnectGroupWith (reverseList stakingPoolNodes)
   (fullyConnectNodes [
@@ -111,7 +113,7 @@ let
 
 in {
 
-  inherit coreNodes relayNodes;
+  inherit coreNodes relayNodes regions;
 
   monitoring = {
     services.monitoring-services.publicGrafana = false;

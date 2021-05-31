@@ -40,7 +40,7 @@ let
       filtered = filter ({idx, ...}: mod idx cfg.instances == i) indexed;
     in catAttrs "node" filtered;
 
-  intraInstancesTopologies = (topology-lib {}).connectNodesWithin
+  intraInstancesTopologies = topology-lib.connectNodesWithin
     cfg.maxIntraInstancesPeers
     (genList (i: {name = i;}) cfg.instances);
 

@@ -1,4 +1,7 @@
-pkgs: with pkgs; with lib; with topology-lib {
+pkgs: with pkgs; with lib; with topology-lib;
+let
+
+  regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
       minRelays = 3;
     };
@@ -18,7 +21,6 @@ pkgs: with pkgs; with lib; with topology-lib {
       minRelays = 1;
     };
   };
-let
 
   stakingPoolNodes = fullyConnectNodes [
     (mkStakingPool "a" 1 "" { nodeId = 1; })
@@ -40,7 +42,7 @@ let
   });
 
 in {
-  inherit coreNodes relayNodes;
+  inherit coreNodes relayNodes regions;
 
   services.monitoring-services.publicGrafana = true;
 

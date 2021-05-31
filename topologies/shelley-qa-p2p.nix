@@ -1,4 +1,7 @@
-pkgs: with pkgs; with lib; with topology-lib {
+pkgs: with pkgs; with lib; with topology-lib;
+let
+
+  regions =  {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
     };
     b = { name = "us-east-2";      # US East (Ohio)
@@ -12,7 +15,6 @@ pkgs: with pkgs; with lib; with topology-lib {
     f = { name = "ap-northeast-1"; # Asia Pacific (Tokyo)
     };
   };
-let
 
   nodes = with regions; map (composeAll [
     (withAutoRestartEvery 6)
@@ -35,7 +37,7 @@ let
 
 in {
 
-  inherit coreNodes relayNodes;
+  inherit coreNodes relayNodes regions;
 
   monitoring = {
     services.monitoring-services.publicGrafana = false;
