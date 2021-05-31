@@ -168,6 +168,18 @@
         "url": "https://github.com/input-output-hk/ops-lib/archive/a249abf99bddc11ebd5617fa6243068bc968d238.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "ouroboros-network": {
+        "branch": "karknu/cardano-ping-v7",
+        "description": "An implementation of the Ouroboros family of consensus algorithms, with its networking support",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "ouroboros-network",
+        "rev": "1249f6f667ef8642582ce05ca5e905abbe5049a8",
+        "sha256": "08s14wz8xrb4cyxb63z7p7flvyn3pscij278s4j45jd4kwdwh9qz",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/ouroboros-network/archive/1249f6f667ef8642582ce05ca5e905abbe5049a8.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "smash": {
         "branch": "refs/tags/v1.4.0",
         "description": "Stakepool Metadata Aggregation Server",

@@ -5,6 +5,7 @@ let
   cardano-rosetta-pkgs = import (self.sourcePaths.cardano-rosetta + "/nix") {};
   cardanoNodePkgs = import (self.sourcePaths.cardano-node + "/nix") { gitrev = self.sourcePaths.cardano-node.rev; };
   cardanoNodeServicePkgs = import (self.sourcePaths.cardano-node-service + "/nix") { gitrev = self.sourcePaths.cardano-node-service.rev; };
+  ouroboros-network-pkgs = import (self.sourcePaths.ouroboros-network + "/nix") {};
 in rec {
   inherit cardanoNodeServicePkgs;
   inherit (cardano-db-sync-pkgs) cardanoDbSyncHaskellPackages;
@@ -12,7 +13,9 @@ in rec {
   inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.cardano-cli.components.exes) cardano-cli;
   inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.cardano-submit-api.components.exes) cardano-submit-api;
   inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.cardano-node.components.exes) cardano-node;
-  inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.network-mux.components.exes) cardano-ping;
+  inherit ((if (self.sourcePaths ? ouroboros-network)
+    then ouroboros-network-pkgs.ouroborosNetworkHaskellPackages
+    else cardanoNodePkgs.cardanoNodeHaskellPackages).network-mux.components.exes) cardano-ping;
   inherit (cardano-rosetta-pkgs) cardano-rosetta-server;
 
   cardano-node-eventlogged = cardanoNodePkgs.cardanoNodeEventlogHaskellPackages.cardano-node.components.exes.cardano-node;
