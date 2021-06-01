@@ -73,15 +73,15 @@
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
     "cardano-node": {
-        "branch": "jordan/update-tx-submission-alonzo",
+        "branch": "refs/tags/alonzo-blue1.0",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "c0b9d83a72b5ab58c725a954c63a2129b091b331",
-        "sha256": "1dcdngrjfx9r1i10wwk2qyr163gdydqfs7mgzd67ymfx6ix2a7z4",
+        "rev": "d8eee10f7b680cdea06c562e054feee237eb1d09",
+        "sha256": "0lw3wbci40mwl7brk6xniy3vb5ch93ha4sh50kc9dd08yfs706ak",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/c0b9d83a72b5ab58c725a954c63a2129b091b331.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/d8eee10f7b680cdea06c562e054feee237eb1d09.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-service": {
