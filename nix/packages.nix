@@ -50,6 +50,9 @@ self: super: with self; {
         in v == "regular" && (substring (l - 4) l n) == ".nix")
         (builtins.readDir dir));
 
+  inherit (callPackage ../pkgs/kes-rotation {}) kes-rotation;
+  inherit (callPackage ../pkgs/node-update {}) node-update;
+
   aws-affinity-indexes = runCommand "aws-affinity-indexes" {
     nativeBuildInputs = with self; [ csvkit jq ];
   } ''
