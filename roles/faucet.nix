@@ -86,6 +86,7 @@ in {
 
   # NOTE: Cardano Faucet maintains its own cardano-node niv pin which is used here
   users.users.cardano-node.extraGroups = [ "keys" ];
+  users.users.cardano-node.isSystemUser = true;
   services.cardano-node.nodeConfig = globals.environmentConfig.nodeConfig // {
     hasPrometheus = [ hostAddr monitoringPort ];
   };

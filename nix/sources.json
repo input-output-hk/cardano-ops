@@ -90,10 +90,10 @@
         "homepage": "https://cardano.org",
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "2715e45eb7f2914e8010129c67d1bf0081123110",
-        "sha256": "1za0pnfn976xpx6l6g1xj4fnr87xq3xfi7cay43shr6s04fqan2n",
+        "rev": "f827e5289a7390764907627a189420612c0c1ed8",
+        "sha256": "18f8gxv7f0dmm7x4vwnxmn13w1s8ylf7xn3qwmn6szy8s6x0fjqw",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/2715e45eb7f2914e8010129c67d1bf0081123110.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/f827e5289a7390764907627a189420612c0c1ed8.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rosetta": {
