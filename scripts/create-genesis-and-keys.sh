@@ -83,8 +83,8 @@ sed -Ei "s/^([[:blank:]]*\"decentralisationParam\":)([[:blank:]]*[^,]*)$/\1 $DPA
 
 cardano-cli genesis create-staked \
             --genesis-dir . \
-            --supply $(($UTXO_KEYS * (2 * $MAX_SUPPLY) / (3 * ($NB_POOL_NODES + $UTXO_KEYS)))) \
-            --supply-delegated $(($NB_POOL_NODES * (2 * $MAX_SUPPLY) / (3 * ($NB_POOL_NODES + $UTXO_KEYS)))) \
+            --supply $(((2 * $MAX_SUPPLY) / 3 - ($NB_POOL_NODES * $MAX_SUPPLY / 500))) \
+            --supply-delegated $(($NB_POOL_NODES * $MAX_SUPPLY / 500)) \
             --gen-genesis-keys $NB_BFT_NODES \
             --gen-pools $NB_POOL_NODES \
             --gen-stake-delegs $NB_POOL_NODES \
@@ -129,8 +129,8 @@ for i in `seq 1 $NB_POOL_NODES`; do
   # stake pool registration cert
   cardano-cli stake-pool registration-certificate \
     --testnet-magic $NETWORK_MAGIC \
-    --pool-pledge $(((2 * $MAX_SUPPLY) / (3 * ($NB_CORE_NODES + $UTXO_KEYS)))) \
-    --pool-cost $(( 1000000000 - ($i * 100000000))) --pool-margin 0.0$i \
+    --pool-pledge $(($MAX_SUPPLY / 500)) \
+    --pool-cost $(( 1000000000 - ($i * 500000000 / $NB_POOL_NODES))) --pool-margin 0.0$i \
     --cold-verification-key-file             pools/cold$i.vkey \
     --vrf-verification-key-file              pools/vrf$i.vkey \
     --reward-account-verification-key-file   pools/staking-reward$i.vkey \
@@ -218,7 +218,7 @@ cardano-cli transaction build-raw \
     echo " --tx-out $(cat utxo-keys/utxo$i.addr)+$(((2 * $MAX_SUPPLY) / (3 * ($NB_POOL_NODES + $UTXO_KEYS))))"
   done) \
   $(for i in `seq 1 $NB_POOL_NODES`; do
-    echo " --tx-out $(cat stake-delegator-keys/staking$i.addr)+$(((2 * $MAX_SUPPLY) / (3 * ($NB_CORE_NODES + $UTXO_KEYS))))"
+    echo " --tx-out $(cat stake-delegator-keys/staking$i.addr)+$(($MAX_SUPPLY / 500))"
     echo " --certificate-file pools/staking-reward$i.reg.cert"
     echo " --certificate-file pools/pool$i.reg.cert"
     echo " --certificate-file stake-delegator-keys/staking$i.reg.cert"
