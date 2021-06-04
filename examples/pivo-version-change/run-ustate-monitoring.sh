@@ -29,7 +29,7 @@ pst=""
 while [ "$pst" != '"Approved"' ]; do
     pst=$($CLI query ledger-state --testnet-magic 42 \
                --pivo-era --pivo-mode \
-              | jq '.stateBefore.esLState.utxoState.ppups.ideationSt.proposalsState[0][1].decisionInfo.decisionWas')
+              | jq '.stateBefore.esLState.utxoState.ppups.ideationSt.proposalsState | .[] | .decisionInfo.decisionWas')
     tput rc
     clear
     echo "🕐 Slot: $($CLI query tip --testnet-magic 42 | jq .slot)"
@@ -39,7 +39,7 @@ while [ "$pst" != '"Approved"' ]; do
     echo "Ballot: "
     ($CLI query ledger-state --testnet-magic 42 \
          --pivo-era --pivo-mode \
-        | jq ".stateBefore.esLState.utxoState.ppups.ideationSt.proposalsState[0][1].ballot | .[][0][]" 2> /dev/null ) || true
+        | jq ".stateBefore.esLState.utxoState.ppups.ideationSt.proposalsState | .[] | .ballot | .[][0][]" 2> /dev/null ) || true
     echo
     echo "Decision: $pst"
     sleep 5
