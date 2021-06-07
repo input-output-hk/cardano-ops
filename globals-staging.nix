@@ -1,6 +1,7 @@
 pkgs: {
 
   deploymentName = "rc-staging";
+  deploymentPath = "$HOME/staging";
 
   dnsZone = "${pkgs.globals.domain}";
 

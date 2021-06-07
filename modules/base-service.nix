@@ -161,6 +161,8 @@ in
       };
     };
 
+    users.users.cardano-node.isSystemUser = true;
+
     services.dnsmasq.enable = true;
 
     networking.extraHosts = ''

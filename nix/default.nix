@@ -4,8 +4,6 @@
 }:
 let
   defaultSourcePaths = import ./sources.nix { inherit pkgs; };
-  crystalPkgs = import defaultSourcePaths.nixpkgs-crystal {};
-  crystal = crystalPkgs.crystal_0_34;
 
   # use our own nixpkgs if it exists in our sources,
   # otherwise use iohkNix default nixpkgs.
@@ -25,7 +23,7 @@ let
   nixpkgs = if (sourcesOverride ? nixpkgs) then sourcesOverride.nixpkgs else defaultNixpkgs;
 
   # overlays from ops-lib (include ops-lib sourcePaths):
-  ops-lib-overlays = (import sourcePaths.ops-lib {}).overlays;
+  ops-lib-overlays = (import sourcePaths.ops-lib { withRustOverlays = false; }).overlays;
   nginx-overlay = self: super: let
     acceptLanguage = {
       src = self.fetchFromGitHub {
@@ -106,22 +104,6 @@ let
       globals = import ../globals-defaults.nix pkgs;
     })];
 
-  crystalEnv = self: super: {
-    inherit (crystalPkgs) crystal2nix shards pkg-config openssl;
-    inherit crystal;
-    kes-rotation = (crystalPkgs.callPackage ../pkgs/kes-rotation {}).kes-rotation;
-    node-update = (crystalPkgs.callPackage ../pkgs/node-update {}).node-update;
-  };
-
-  # If needed for isolated crystal binary without rust pkg overlay interference.
-  # As of now, openssl and pkg-config are also included in nix-shell from
-  # crystalEnv to be able to run crystal scripts with network and shard deps.
-  #
-  crystalEnvIsolated = self: super: {
-    kes-rotation = (self.extend crystalEnv).kes-rotation;
-    node-update = (self.extend crystalEnv).node-update;
-  };
-
   # merge upstream sources with our own:
   upstream-overlay = self: super: {
       inherit iohkNix;
@@ -141,7 +123,6 @@ let
       upstream-overlay
       nginx-overlay
       varnish-overlay
-      crystalEnvIsolated
     ];
 
     pkgs = import nixpkgs {

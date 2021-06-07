@@ -50,6 +50,9 @@ self: super: with self; {
         in v == "regular" && (substring (l - 4) l n) == ".nix")
         (builtins.readDir dir));
 
+  inherit (callPackage ../pkgs/kes-rotation {}) kes-rotation;
+  inherit (callPackage ../pkgs/node-update {}) node-update;
+
   aws-affinity-indexes = runCommand "aws-affinity-indexes" {
     nativeBuildInputs = with self; [ csvkit jq ];
   } ''
@@ -76,7 +79,7 @@ self: super: with self; {
         cd ${globals.deploymentPath}
         mkdir -p relay-update-logs
         ${if globals ? relayUpdateHoursBeforeNextEpoch
-          then ''nix-shell --run 'if [ $(hoursUntilNextEpoch) -le ${toString globals.relayUpdateHoursBeforeNextEpoch} ]; then [ -f refresh-done ] || node-update --refresh --relay ${globals.relayUpdateArgs} &> relay-update-logs/relay-update-$(date -u +"%F_%H-%M-%S").log && touch refresh-done; else rm -f refresh-done; fi' ''
+          then ''nix-shell --run 'if [ $(./scripts/hours-until-next-epoch.sh) -le ${toString globals.relayUpdateHoursBeforeNextEpoch} ]; then [ -f refresh-done ] || node-update --refresh --relay ${globals.relayUpdateArgs} &> relay-update-logs/relay-update-$(date -u +"%F_%H-%M-%S").log && touch refresh-done; else rm -f refresh-done; fi' ''
           else ''nix-shell --run 'node-update --refresh --relay ${globals.relayUpdateArgs}' &> relay-update-logs/relay-update-$(date -u +"%F_%H-%M-%S").log''
         }
       '';
@@ -85,7 +88,7 @@ self: super: with self; {
         Unit = {};
         Service = {
            ExecStart = "${runNodeUpdate}";
-           Environment = "PATH=${lib.makeBinPath [ nix coreutils ]}";
+           Environment = "PATH=${lib.makeBinPath [ nix coreutils git gnutar ]}";
         };
       };
 

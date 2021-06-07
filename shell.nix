@@ -17,12 +17,12 @@ let
   '';
 
 in  mkShell (rec {
-  buildInputs = [
+  nativeBuildInputs = [
     awscli2
     bashInteractive
     cardano-cli
     dnsutils
-    iohkNix.niv
+    niv
     locli.components.exes.locli
     nivOverrides
     nix
@@ -33,20 +33,16 @@ in  mkShell (rec {
     pstree
     telnet
     cardano-ping
+    git
+    direnv
+    nix-direnv
+    lorri
     relayUpdateTimer
   ] ++ (lib.optionals pkgs.stdenv.hostPlatform.isLinux ([
     # Those fail to compile under macOS:
     node-update
     # script NOT for use on mainnet:
   ] ++ lib.optional (globals.environmentName != "mainnet") kes-rotation));
-  # If any build input has bash completions, add it to the search
-  # path for shell completions.
-  XDG_DATA_DIRS = lib.concatStringsSep ":" (
-    [(builtins.getEnv "XDG_DATA_DIRS")] ++
-    (lib.filter
-      (share: builtins.pathExists (share + "/bash-completion"))
-      (map (p: p + "/share") buildInputs))
-  );
 
   NIX_PATH = "nixpkgs=${path}";
   NIXOPS_DEPLOYMENT = "${globals.deploymentName}";

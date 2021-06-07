@@ -99,6 +99,8 @@ in {
     };
   };
 
+  users.users.cexplorer.isSystemUser = true;
+
   systemd.services.cardano-db-sync.serviceConfig = {
     # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
     SupplementaryGroups = "cardano-node";
