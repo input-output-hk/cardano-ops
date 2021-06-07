@@ -285,9 +285,8 @@ pkgs: with pkgs; with lib; rec {
       producers = [
         stkNode.name
         relay2.name
-      ] ++ (optional (globals.relaysNew != globals.environmentConfig.relaysNew)
-        globals.environmentConfig.relaysNew
-      );
+        (regionalRelaysProducer region 1)
+      ];
     } // def;
     relay2 = rec {
       name = "rel-${r2}-${toString id}";
@@ -295,9 +294,8 @@ pkgs: with pkgs; with lib; rec {
       producers = [
         stkNode.name
         relay1.name
-      ] ++ (optional (globals.relaysNew != globals.environmentConfig.relaysNew)
-        globals.environmentConfig.relaysNew
-      );
+        (regionalRelaysProducer region 1)
+      ];
     } // def;
   in [
     stkNode
