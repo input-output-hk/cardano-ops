@@ -24,27 +24,27 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync": {
-        "branch": "refs/tags/9.0.0",
+        "branch": "master",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "0b054e18aec3b1e387a1c7b713c562ade37417a3",
-        "sha256": "0x7s9xa3srsfvws9l2s7qih9g25a8xwrw1d10ikyf6mxmzhff4a1",
+        "rev": "f300c630a89c08ed70a746676043e8f466cf5c5c",
+        "sha256": "1iqk4r21jrr47s4z1yqnam1g091smmzdvbfih8pz6ka8ql4b24w8",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/0b054e18aec3b1e387a1c7b713c562ade37417a3.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/f300c630a89c08ed70a746676043e8f466cf5c5c.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer-app": {
-        "branch": "refs/tags/1.5.0",
+        "branch": "chore/cardano-graphql-5.0.0-compat",
         "description": "Cardano Explorer App",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-explorer-app",
-        "rev": "6233695d96a4f566d7033f246c9b3c9f06a83884",
-        "sha256": "0py4i76kigrp2mkpbl4wbqgvrk7ki69zdy969vyb64x4n3lwmbw3",
+        "rev": "351acc63df0b67be3762a189f7e344dcb729ca36",
+        "sha256": "04z68rrishc8xr6nwrml00lhq6b8w227c0x18chgikc5gl6idb0y",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/6233695d96a4f566d7033f246c9b3c9f06a83884.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/351acc63df0b67be3762a189f7e344dcb729ca36.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
@@ -60,15 +60,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql": {
-        "branch": "refs/tags/4.0.0",
+        "branch": "chore/cardano-db-sync-10-compat",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "058873f7cfa6d5d287f859a58bf511b128da6494",
-        "sha256": "1n1wj8n5k3xws0iyslyihl53a9ha7b6y7yzfb343za88ssh2mr9g",
+        "rev": "efa008c3ea0a2c98bee2aa40afeaeba2b5b3e3f3",
+        "sha256": "10dd4zsbz2nhv4s2x5yf1zkfw1kskvr8nswikdlb5lc9r73igs5f",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/058873f7cfa6d5d287f859a58bf511b128da6494.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/efa008c3ea0a2c98bee2aa40afeaeba2b5b3e3f3.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
