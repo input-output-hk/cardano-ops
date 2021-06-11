@@ -90,10 +90,10 @@
         "homepage": "https://cardano.org",
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "f827e5289a7390764907627a189420612c0c1ed8",
-        "sha256": "18f8gxv7f0dmm7x4vwnxmn13w1s8ylf7xn3qwmn6szy8s6x0fjqw",
+        "rev": "480edc281a9fd19b941994b2b3910c58dff27bcb",
+        "sha256": "0ygqh4ag524gkx7m7gmh7nv2fnkcnl3g40vfk1w0gvzp7mbwr7k3",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/f827e5289a7390764907627a189420612c0c1ed8.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/480edc281a9fd19b941994b2b3910c58dff27bcb.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rosetta": {
@@ -150,10 +150,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "a249abf99bddc11ebd5617fa6243068bc968d238",
-        "sha256": "0nf7xlxbyhbl1mk0w7afmhnnk9jdjdfibcycmn5wgr6bmvavbmdz",
+        "rev": "16b9ed15068d6d95b32241b441ac60028ecfb053",
+        "sha256": "0y6zvm6wghfj26m19snbxfj434nj6zdp8agi1cng7kps0z3l86yp",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/a249abf99bddc11ebd5617fa6243068bc968d238.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/16b9ed15068d6d95b32241b441ac60028ecfb053.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ouroboros-network": {
