@@ -25,7 +25,6 @@ let
     (withModule {
       services.cardano-node = {
         asserts = true;
-        package = cardanoNodeServicePkgs.cardanoNodeHaskellPackages.cardano-node.components.exes.cardano-node;
         useNewTopology = true;
         systemdSocketActivation = mkForce false;
       };
