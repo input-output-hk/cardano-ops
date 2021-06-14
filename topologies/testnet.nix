@@ -63,9 +63,8 @@ in {
       faucetFrontendUrl = "https://developers.cardano.org/en/testnets/cardano/tools/faucet/";
     };
   };
-  explorer = {
-    services.nginx.virtualHosts.${globals.explorerHostName}.locations."/p" = lib.mkIf (__pathExists ../static/pool-metadata) {
+} // (mapAttrs' (b: _: nameValuePair "explorer-${b}" {
+    services.nginx.virtualHosts.explorer.locations."/p" = lib.mkIf (__pathExists ../static/pool-metadata) {
       root = ../static/pool-metadata;
     };
-  };
-}
+  }) globals.explorerBackends)

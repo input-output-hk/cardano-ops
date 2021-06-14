@@ -51,12 +51,20 @@ in {
 
 
   explorer = {
-    services.nginx.virtualHosts.${globals.explorerHostName}.locations."/p" = lib.mkIf (__pathExists ../static/pool-metadata) {
-      root = ../static/pool-metadata;
-    };
-    services.cardano-graphql = {
-      allowListPath = mkForce null;
-      allowIntrospection = true;
-    };
+    containers = mapAttrs (b: _: {
+      config = {
+        services.nginx.virtualHosts.explorer.locations."/p" = lib.mkIf (__pathExists ../static/pool-metadata) {
+          root = ../static/pool-metadata;
+        };
+        services.cardano-graphql = {
+          allowListPath = mkForce null;
+          allowIntrospection = true;
+        };
+        services.cardano-db-sync = lib.mkIf (b == "a") {
+          #takeSnapshot = true;
+          #restoreSnapshot = "db-sync-snapshot-schema-10-block-1254641-x86_64.tgz";
+        };
+      };
+    }) globals.explorerBackends;
   };
 }

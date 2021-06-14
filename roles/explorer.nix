@@ -1,4 +1,4 @@
-pkgs: { config, options, name, nodes, ... }:
+pkgs: variant: { name, config, ... }:
 with pkgs;
 
 let
@@ -6,16 +6,21 @@ let
   cfg = config.services.cardano-db-sync;
   nodeCfg = config.services.cardano-node;
   nodeId = config.node.nodeId;
-  hostAddr = getListenIp nodes.${name};
+  getSrc = name: variant.${name} or sourcePaths.${name};
+
+  dbSyncPkgs = let s = getSrc "cardano-db-sync"; in import (s + "/nix") { gitrev = s.rev; };
+  inherit (dbSyncPkgs) cardanoDbSyncHaskellPackages;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-sync.components.exes) cardano-db-sync;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-sync-extended.components.exes) cardano-db-sync-extended;
   inherit (cardanoDbSyncHaskellPackages.cardano-node.components.exes) cardano-node;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-tool.components.exes) cardano-db-tool;
+
+  cardano-explorer-app-pkgs = import (getSrc "cardano-explorer-app");
 in {
   imports = [
-    (sourcePaths.cardano-graphql + "/nix/nixos")
-    (sourcePaths.cardano-db-sync + "/nix/nixos")
-    (sourcePaths.cardano-rosetta + "/nix/nixos")
+    ((getSrc "cardano-graphql") + "/nix/nixos")
+    ((sourcePaths.cardano-db-sync-service or (getSrc "cardano-db-sync")) + "/nix/nixos")
+    ((getSrc "cardano-rosetta") + "/nix/nixos")
     cardano-ops.modules.base-service
     cardano-ops.modules.cardano-postgres
   ];
@@ -74,6 +79,9 @@ in {
 
   services.cardano-node = {
     package = cardano-node;
+    allProducers = if (globals.topology.relayNodes != [])
+        then [ globals.relaysNew ]
+        else (map (n: n.name) globals.topology.coreNodes);
     totalMaxHeapSizeMbytes = 0.4375 * config.node.memory * 1024;
   };
 
@@ -82,12 +90,10 @@ in {
     cluster = globals.environmentName;
     environment = globals.environmentConfig;
     socketPath = nodeCfg.socketPath;
-    logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { hasPrometheus = [ hostAddr 12698 ]; };
+    logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { hasPrometheus = [ "0.0.0.0" 12698 ]; };
     user = "cexplorer";
     extended = globals.withCardanoDBExtended;
-    package = if globals.withCardanoDBExtended
-      then cardano-db-sync-extended
-      else cardano-db-sync;
+    inherit dbSyncPkgs;
     postgres = {
       database = "cexplorer";
     };
@@ -137,12 +143,7 @@ in {
     inherit cardanoNodePkgs;
   };
 
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
-
-  security.acme = lib.mkIf (config.deployment.targetEnv != "libvirtd") {
-    email = "devops@iohk.io";
-    acceptTerms = true; # https://letsencrypt.org/repository/
-  };
+  networking.firewall.allowedTCPPorts = [ 80 ];
 
   systemd.services.dump-registered-relays-topology = let
     excludedPools = lib.concatStringsSep ", " (map (hash: "'${hash}'") globals.static.poolsExcludeList);
@@ -257,10 +258,8 @@ in {
       }
     '';
     virtualHosts = {
-      "${globals.explorerHostName}" = {
-        serverAliases = globals.explorerAliases;
-        enableACME = config.deployment.targetEnv != "libvirtd";
-        forceSSL = globals.explorerForceSSL && (config.deployment.targetEnv != "libvirtd");
+      explorer = {
+        default = true;
         locations = (if maintenanceMode then {
           "/" = let
             maintenanceFile = __toFile "maintenance.html" ''
@@ -337,11 +336,11 @@ in {
             })).static;
             tryFiles = "$uri $uri/index.html /index.html";
             extraConfig = ''
-              rewrite /tx/([0-9a-f]+) /$lang/transaction.html?id=$1 redirect;
-              rewrite /address/([0-9a-zA-Z]+) /$lang/address.html?address=$1 redirect;
-              rewrite /block/([0-9a-zA-Z]+) /$lang/block.html?id=$1 redirect;
-              rewrite /epoch/([0-9]+) /$lang/epoch.html?number=$1 redirect;
-              rewrite ^([^.]*[^/])$ $1.html redirect;
+              rewrite /tx/([0-9a-f]+) $http_x_forwarded_proto://$host/$lang/transaction.html?id=$1 redirect;
+              rewrite /address/([0-9a-zA-Z]+) $http_x_forwarded_proto://$host/$lang/address.html?address=$1 redirect;
+              rewrite /block/([0-9a-zA-Z]+) $http_x_forwarded_proto://$host/$lang/block.html?id=$1 redirect;
+              rewrite /epoch/([0-9]+) $http_x_forwarded_proto://$host/$lang/epoch.html?number=$1 redirect;
+              rewrite ^([^.]*[^/])$ $http_x_forwarded_proto://$host$1.html redirect;
             '';
           };
           # To avoid 502 alerts when withSubmitApi is false
@@ -370,10 +369,6 @@ in {
           "/relays" = {
             root = "/var/lib/registered-relays-dump";
           };
-        };
-      };
-      "explorer-ip" = {
-        locations = {
           "/metrics2/exporter" = {
             proxyPass = "http://127.0.0.1:8080/";
           };

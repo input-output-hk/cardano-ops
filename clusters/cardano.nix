@@ -36,33 +36,58 @@ let
         (mkBlackboxScrapeConfig "blackbox_explorer_graphql" [ "https_explorer_post_2xx" ] [ "https://${globals.explorerHostName}/graphql" ])
         (mkBlackboxScrapeConfig "blackbox_explorer_frontend" [ "https_2xx" ] [ "https://${globals.explorerHostName}" ])
       ];
+      # TODO: activate for 21.05
+      #services.grafana.declarativePlugins = with pkgs.grafanaPlugins; [ grafana-piechart-panel ];
     } def;
   }) // (lib.optionalAttrs globals.withExplorer {
     explorer = let def = (topology.explorer or {}); in mkNode {
       _file = ./cardano.nix;
       deployment.ec2 = {
         region = def.region or "eu-central-1";
-        ebsInitialRootDiskSize = if globals.withHighCapacityExplorer then 1000 else 100;
+        ebsInitialRootDiskSize = lib.mkIf globals.explorerBackendsInContainers
+          (if globals.withHighCapacityExplorer then 1000 else 100);
       };
       imports = [
-        (def.instance or instances.explorer)
-        cardano-ops.roles.explorer
+        (def.instance or (if globals.explorerBackendsInContainers
+          then instances.explorer
+          else instances.explorer-gw))
+        cardano-ops.roles.explorer-gateway
       ];
-
-      services.cardano-node.allProducers = if (relayNodes != [])
-        then [ pkgs.globals.relaysNew ]
-        else (map (n: n.name) coreNodes);
 
       node = {
         roles = {
           isExplorer = true;
-          class = "explorer";
+          class = if globals.explorerBackendsInContainers then "explorer" else "explorer-gw";
         };
         org = def.org or "IOHK";
         nodeId = def.nodeId or 99;
       };
     } def;
-  }) // (lib.optionalAttrs globals.withFaucet {
+  }) // (lib.optionalAttrs (!globals.explorerBackendsInContainers)
+    (lib.mapAttrs' (z: variant: lib.nameValuePair "explorer-${z}"
+      (let def = (topology."explorer-${z}" or {}); in mkNode {
+        _file = ./cardano.nix;
+        deployment.ec2 = rec {
+          region = def.region or "eu-central-1";
+          zone = "${region}${z}";
+          ebsInitialRootDiskSize = (if globals.withHighCapacityExplorer then 1000 else 100);
+        };
+        imports = [
+          (def.instance or instances.explorer)
+          (cardano-ops.roles.explorer variant)
+        ];
+
+        node = {
+          roles = {
+            isExplorer = true;
+            class = "explorer";
+          };
+          org = def.org or "IOHK";
+          nodeId = def.nodeId or 99;
+        };
+      } def)
+    ) globals.explorerBackends)
+  ) // (lib.optionalAttrs globals.withFaucet {
     "${globals.faucetHostname}" = let def = (topology.${globals.faucetHostname} or {}); in mkNode {
       deployment.ec2 = {
         region = "eu-central-1";

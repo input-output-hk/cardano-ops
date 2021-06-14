@@ -123,7 +123,7 @@ in
         "${globals.environmentName}" = globals.environmentConfig;
       };
       nodeConfig = recursiveUpdate globals.environmentConfig.nodeConfig (recursiveUpdate {
-        hasPrometheus = [ hostAddr globals.cardanoNodePrometheusExporterPort ];
+        hasPrometheus = [ cfg.hostAddr globals.cardanoNodePrometheusExporterPort ];
         # Use Journald output:
         setupScribes = [{
           scKind = "JournalSK";
@@ -161,10 +161,7 @@ in
       };
     };
 
-    services.dnsmasq = {
-      enable = true;
-      servers = [ "127.0.0.1" ];
-    };
+    services.dnsmasq.enable = true;
 
     networking.extraHosts = ''
         ${concatStringsSep "\n" (map (host: "${host.ip} ${host.name}") cardanoHostList)}
