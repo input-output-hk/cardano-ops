@@ -9,6 +9,7 @@ let
 in {
 
   static = import ./static pkgs;
+  overlay = (_:_: {});
 
   deploymentName = "${builtins.baseNameOf ./.}";
   deploymentPath = "$HOME/${globals.deploymentName}";

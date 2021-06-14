@@ -6,6 +6,13 @@ pkgs: with pkgs.iohkNix.cardanoLib; with pkgs.globals; {
   withFaucet = true;
   withSmash = true;
 
+  overlay = self: super: {
+    sourcePaths = super.sourcePaths // {
+      # Use p2p branch everywhere:
+      cardano-node = super.sourcePaths.cardano-node-service;
+    };
+  };
+
   ec2 = {
     credentials = {
       accessKeyIds = {
