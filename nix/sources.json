@@ -73,15 +73,15 @@
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
     "cardano-node": {
-        "branch": "refs/tags/alonzo-blue1.0",
+        "branch": "refs/tags/alonzo-blue2.0",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "d8eee10f7b680cdea06c562e054feee237eb1d09",
-        "sha256": "0lw3wbci40mwl7brk6xniy3vb5ch93ha4sh50kc9dd08yfs706ak",
+        "rev": "4783593c35b8c4dcc5a538ce8c836d0fdafd8369",
+        "sha256": "0v9irm06lqdpbdl5s78d1p0jb7bvm9arjvpm36nrrbzfwmhg9dq6",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/d8eee10f7b680cdea06c562e054feee237eb1d09.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/4783593c35b8c4dcc5a538ce8c836d0fdafd8369.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-service": {
