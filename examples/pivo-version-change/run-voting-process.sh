@@ -36,7 +36,7 @@ echo "Creating payment and staking keys"
 echo
 for f in ${POOL_NODES[@]}
 do
-    nixops ssh $f "./run.sh ckeys 10000" &
+    nixops ssh $f "./run.sh ckeys 10" &
 done
 wait
 echo

@@ -8,10 +8,6 @@ set -euo pipefail
 CLI=cardano-cli
 UTXO=keys/utxo
 
-mkdir -p keys
-rm -f keys/spending*
-rm -f keys/payment*
-
 echo
 echo "Creating spending keys"
 echo
