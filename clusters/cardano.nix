@@ -31,6 +31,7 @@ let
         };
         org = def.org or "IOHK";
       };
+      services.monitoring-services.logging = false;
       services.prometheus.scrapeConfigs = lib.optionals globals.withExplorer [
         (mkBlackboxScrapeConfig "blackbox_explorer_graphql" [ "https_explorer_post_2xx" ] [ "https://${globals.explorerHostName}/graphql" ])
         (mkBlackboxScrapeConfig "blackbox_explorer_frontend" [ "https_2xx" ] [ "https://${globals.explorerHostName}" ])

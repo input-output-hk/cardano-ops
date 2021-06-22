@@ -10,6 +10,10 @@ in {
     iohk-ops-lib.modules.common
   ];
 
+  config = {
+    services.monitoring-exporters.logging = false;
+  };
+
   options = {
     node = {
       coreIndex = lib.mkOption {
