@@ -45,7 +45,7 @@ submit_transaction() {
     echo "⏳ Submit the signed transaction"
     local RETRIES=0
     local EXIT_CODE=1
-    while [[ $EXIT_CODE -ne 0 ]] && [[ $RETRIES -le 30 ]]; do
+    while [[ $EXIT_CODE -ne 0 ]] && [[ $RETRIES -le 600 ]]; do
         ! (try_submit_transaction \
             "$initial_addr" \
             "$change_addr" \

@@ -1,13 +1,13 @@
 pkgs: with pkgs.iohkNix.cardanoLib; rec {
 
   withMonitoring = false;
+  domain = "pivo.dev.cardano.org";
 
   withExplorer = false;
   explorerForceSSL = false;
   ## To deploy the explorer on AWS use the following configuration.
   # withExplorer = true;
   # explorerForceSSL = true;
-  # domain = "pivo.dev.cardano.org";
   # explorerHostName = "explorer.pivo.dev.cardano.org";
 
   # This should match the name of the topology file.

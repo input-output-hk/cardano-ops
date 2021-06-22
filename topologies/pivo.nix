@@ -22,7 +22,9 @@ let
     f = { name = "us-east-2";      /* US East (Ohio)           */ };
     g = { name = "ap-southeast-1"; /* Asia Pacific (Singapore) */ };
     h = { name = "eu-west-2";      /* Europe (London)          */ };
-    i = { name = "eu-central-1";   /* Europe (Frankfurt)       */ };
+    i = { name = "ap-southeast-1"; /* Asia Pacific (Singapore) */ };
+    j = { name = "eu-west-2";      /* Europe (London)          */ };
+    k = { name = "eu-central-1";   /* Europe (Frankfurt)       */ };
   };
 
   bftCoreNodes =
@@ -85,8 +87,8 @@ let
     let
       # The region names determine the number of stake pools. These names
       # should belong to `attrNames regions`.
-      poolRegionNames = [ "b" ]; # "c" "d" ];
-      # poolRegionNames = [ "b" "c" "d" "e" "f" "g" "h" "i" ];
+      poolRegionNames = [ "b" ];
+      # poolRegionNames = [ "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" ];
 
       # Stake pool specifications, which will be used to create stake pools.
       poolSpecs =

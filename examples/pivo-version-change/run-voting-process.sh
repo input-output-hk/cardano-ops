@@ -36,7 +36,7 @@ echo "Creating payment and staking keys"
 echo
 for f in ${POOL_NODES[@]}
 do
-    nixops ssh $f "./run.sh ckeys 10" &
+    nixops ssh $f "./run.sh ckeys 1000" &
 done
 wait
 echo
@@ -72,22 +72,25 @@ echo
 # Query the stake distribution snapshots
 # > cardano-cli query ledger-state --testnet-magic 42 --pivo-era --pivo-mode | jq '.stateBefore.esSnapshots'
 
+# Voting period duration
+VPD=1800
+
 # Commit the SIP
 echo
 echo "Submitting an SIP commit using ${POOL_NODES[0]}"
 echo
-nixops ssh ${POOL_NODES[0]} "./run.sh scommit \"--voting-period-duration 9000\""
+nixops ssh ${POOL_NODES[0]} "./run.sh scommit \"--voting-period-duration $VPD\""
 
 # Reveal the SIP
-pretty_sleep 65 "Waiting for SIP submission to be stable"
+pretty_sleep 2160 "Waiting for SIP submission to be stable"
 
 echo
 echo "Submitting an SIP revelation using ${POOL_NODES[0]}"
 echo
-nixops ssh ${POOL_NODES[0]} "./run.sh sreveal  \"--voting-period-duration 9000\""
+nixops ssh ${POOL_NODES[0]} "./run.sh sreveal  \"--voting-period-duration $VPD\""
 
 # Vote on the SIP with all the stake keys created above
-pretty_sleep 65 "Waiting for SIP revelation to be stable"
+pretty_sleep 2160 "Waiting for SIP revelation to be stable"
 
 echo
 echo "Voting on the SIP"
@@ -95,13 +98,13 @@ echo
 echo "Voting process started on: $(mdate)" > voting-timing.log
 for f in ${POOL_NODES[@]}
 do
-    nixops ssh $f "./run.sh sip_skvote  \"--voting-period-duration 9000\"" &
+    nixops ssh $f "./run.sh sip_skvote  \"--voting-period-duration $VPD\"" &
 done
 # We wait till the end of the voting period
 echo
 echo "Start waiting on $(date)"
 echo
-pretty_sleep 1800 "Waiting till the voting period ends"
+pretty_sleep $VPD "Waiting till the voting period ends"
 echo
 echo "End waiting on $(date)"
 echo

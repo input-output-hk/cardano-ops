@@ -10,6 +10,8 @@ CLI=cardano-cli
 
 . $(dirname $0)/pivo-version-change/lib.sh
 
+rm -fr *.log
+
 if [ -z ${1+x} ];
 then
     echo "'redeploy' command was not specified, so the test will run on an existing testnet";
@@ -17,7 +19,8 @@ else
     case $1 in
         redeploy )
             echo "Redeploying the testnet"
-            nixops ssh-for-each -- "systemctl stop cardano-node; rm -rf /var/lib/cardano-node; rm -fr /root/keys" || true
+	        nixops ssh-for-each -p -- "for f in /tmp/tmp.*; do echo \"\$f\"; rm -fr \"\$f\"; done" || true
+            nixops ssh-for-each -p -- "systemctl stop cardano-node; rm -rf /var/lib/cardano-node; rm -fr /root/keys; " || true
             ./scripts/create-shelley-genesis-and-keys.sh
             nixops deploy -k
             ;;
@@ -44,9 +47,11 @@ do
     echo "Tx sub loop forked on pool $p"
 done
 
-./examples/pivo-version-change/run-voting-process.sh > voting-process.log &
+echo "Starting the voting process"
+./examples/pivo-version-change/run-voting-process.sh > voting-process.log 2> voting-process-errors.log &
 pid=$!
 
+echo "Waiting for the voting process to finish"
 wait $pid
 
 for t in ${pids[@]}; do
@@ -54,6 +59,9 @@ for t in ${pids[@]}; do
 done
 
 echo "Voting process completed"
+
+# Stop all the nodes so that they stop producing logs.
+nixops ssh-for-each -- "systemctl stop cardano-node" || true
 
 # TODO: we are trying to submit the transactions from the pool nodes
 echo "Fetching transaction logs"

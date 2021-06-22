@@ -13,9 +13,10 @@ echo "Creating spending keys"
 echo
 
 rm -fr utxo-keys/
+rm -fr new-keys/
 mkdir utxo-keys/
 
-threads=200
+threads=50
 for i in $(seq 1 $threads); do
     # Create a spending key
     $CLI -- address key-gen \
@@ -40,7 +41,7 @@ $CLI -- genesis initial-addr \
      --verification-key-file $UTXO.vkey > $INITIAL_ADDR
 
 echo
-echo "Transferring funds from initial address: $INITIAL_ADDR"
+echo "Transferring funds from initial address: $INITIAL_ADDR on $(date)"
 echo
 
 # This snippet is taken from 'run.sh::transfer_funds' if these scripts are
@@ -76,7 +77,7 @@ while [[ $i -le $nr_keys ]]; do
 done
 
 echo
-echo "Funds transferred from initial address: $INITIAL_ADDR"
+echo "Funds transferred from initial address: $INITIAL_ADDR on $(date)"
 echo
 
 

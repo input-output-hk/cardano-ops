@@ -24,7 +24,7 @@ create_new_key_and_pay_to_it(){
          --testnet-magic 42
 
     echo
-    echo "💸 Transferring $amount Lovelace to $(cat utxo-keys/payment$1.addr)"
+    echo "💸 Process $1 is transferring $amount Lovelace to $(cat utxo-keys/payment$1.addr)"
     echo
 
     # Note that we transfer the total balance in 'utxo-keys/payment$1.addr' to the
@@ -47,7 +47,7 @@ nr_keys=$(ls -l utxo-keys/spending-key*.vkey | wc -l)
 mkdir -p new-keys
 while true; do
     echo
-    echo "Submitting transactions in parallel"
+    echo "Submitting transactions in parallel on $(date)"
     echo
 
     for i in $(seq 1 $nr_keys); do
@@ -56,7 +56,7 @@ while true; do
     wait
 
     echo
-    echo "Parallel transactions submitted"
+    echo "Parallel transactions submitted on $(date)"
     echo
 
     rm utxo-keys/spending-key*
