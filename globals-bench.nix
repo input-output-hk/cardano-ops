@@ -82,6 +82,7 @@ let
     options = {
       mapBackends = {
         "cardano.node.resources" = [ "KatipBK" ];
+        "cardano.node.metrics"   = [ "EKGViewBK" ];
       };
     };
   };
