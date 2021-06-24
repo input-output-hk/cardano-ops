@@ -19,6 +19,7 @@ let
         (import benchmarkingTopologyFile)
         benchmarkingProfile)
     else abort "Benchmarking topology file implied by configured node count ${toString (__length benchmarkingParams.meta.node_names)} does not exist: ${benchmarkingTopologyFile}";
+  AlonzoGenesisFile  = ./keys/alonzo-genesis.json;
   ShelleyGenesisFile = ./keys/genesis.json;
   ShelleyGenesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/GENHASH);
   ByronGenesisFile = ./keys/byron/genesis.json;
@@ -100,13 +101,15 @@ in (rec {
     relays = "relays.${pkgs.globals.domain}";
     edgePort = pkgs.globals.cardanoNodePort;
     private = true;
-    networkConfig = envConfigBase.networkConfig // {
+    networkConfig = (removeAttrs envConfigBase.networkConfig ["AlonzoGenesisHash"]) // {
       Protocol = "Cardano";
+      inherit  AlonzoGenesisFile;
       inherit ShelleyGenesisFile ShelleyGenesisHash;
       inherit   ByronGenesisFile   ByronGenesisHash;
     };
-    nodeConfig = envConfigBase.nodeConfig // {
+    nodeConfig = (removeAttrs envConfigBase.nodeConfig ["AlonzoGenesisHash"]) // {
       Protocol = "Cardano";
+      inherit  AlonzoGenesisFile;
       inherit ShelleyGenesisFile ShelleyGenesisHash;
       inherit   ByronGenesisFile   ByronGenesisHash;
     } // {
@@ -125,7 +128,7 @@ in (rec {
     }.${pkgs.globals.environmentConfig.generatorConfig.era};
     txSubmitConfig = {
       inherit (networkConfig) RequiresNetworkMagic;
-      inherit ShelleyGenesisFile ByronGenesisFile;
+      inherit AlonzoGenesisFile ShelleyGenesisFile ByronGenesisFile;
     } // pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig;
 
     ## This is overlaid atop the defaults in the tx-generator service,
@@ -159,7 +162,7 @@ in (rec {
       stakePool = true;
       services.cardano-node.nodeConfig =
         recursiveUpdate
-          pkgs.globals.environmentConfig.nodeConfig
+          (removeAttrs pkgs.globals.environmentConfig.nodeConfig ["AlonzoGenesisHash"])
           (recursiveUpdate
             (benchmarkingLogConfig "node")
             ({
