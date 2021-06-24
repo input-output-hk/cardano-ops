@@ -528,6 +528,9 @@ EOF
           })
    | from_entries' "${dir}"/meta/cluster.raw.json)
 }" --null-input
+
+        oprint "recording the network latency matrix.."
+        ./bench/latency-map.sh "$metafile" > "$dir"/network-latency-matrix.json
 }
 
 op_wait_for_nonempty_block() {

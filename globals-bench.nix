@@ -158,6 +158,7 @@ in (rec {
       services.cardano-node.package = mkForce pkgs.cardano-node-eventlogged;
       systemd.services.dump-registered-relays-topology.enable = mkForce false;
       systemd.services.nginx.enable = mkForce false;
+      networking.firewall.allowPing = mkForce true;
     };
     coreNodes = map (recursiveUpdate {
       stakePool = true;
@@ -175,6 +176,7 @@ in (rec {
                TraceTxInbound   = true;
              }));
       services.custom-metrics.enable = mkForce false;
+      networking.firewall.allowPing = mkForce true;
     }) (benchmarkingTopology.coreNodes or []);
   };
 
