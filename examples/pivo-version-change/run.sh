@@ -384,7 +384,7 @@ else
             echo "Number of votes: "
             $CLI query ledger-state --testnet-magic 42 \
                  --pivo-era --pivo-mode \
-                | jq ".stateBefore.esLState.utxoState.ppups.ideationSt.proposalsState[0][1].ballot | .[][0][]" \
+                | jq ".stateBefore.esLState.utxoState.ppups.ideationSt.proposalsState | .[] | .ballot | .[][0][]" \
                 | wc -l
             exit
             ;;
