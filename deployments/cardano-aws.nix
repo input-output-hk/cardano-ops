@@ -65,7 +65,7 @@ let
     }
     {
       inherit nodes;
-      groups = [ allow-deployer-ssh ]
+      groups = [ allow-deployer-ssh allow-all ]
                ++ optional doMonitoring
                allow-monitoring-collection;
     }
