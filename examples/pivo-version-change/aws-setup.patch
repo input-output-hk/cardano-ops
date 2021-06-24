@@ -12,17 +12,17 @@ index c7ef3b8..6d003b2 100755
  
  # Customize the genesis file
 diff --git a/topologies/pivo.nix b/topologies/pivo.nix
-index 50f3349..8488fdc 100644
+index fd7ac5a..9d9f143 100644
 --- a/topologies/pivo.nix
 +++ b/topologies/pivo.nix
-@@ -88,8 +88,8 @@ let
+@@ -87,8 +87,8 @@ let
      let
        # The region names determine the number of stake pools. These names
        # should belong to `attrNames regions`.
--      poolRegionNames = [ "b" ]; # "c" "d" ];
--      # poolRegionNames = [ "b" "c" "d" "e" "f" "g" "h" "i" ];
-+      # poolRegionNames = [ "b" ]; # "c" "d" ];
-+      poolRegionNames = [ "b" "c" "d" "e" "f" "g" "h" "i" ];
+-      poolRegionNames = [ "b" ];
+-      # poolRegionNames = [ "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" ];
++      # poolRegionNames = [ "b" ];
++      poolRegionNames = [ "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" ];
  
        # Stake pool specifications, which will be used to create stake pools.
        poolSpecs =
