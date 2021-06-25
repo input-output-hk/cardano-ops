@@ -26,7 +26,9 @@ in {
 
   dnsZone = "dev.cardano.org";
   domain = "${globals.deploymentName}.${globals.dnsZone}";
-  relaysNew = globals.environmentConfig.relaysNew or "relays.${globals.domain}";
+  relaysNew = if (globals.deploymentName == globals.environmentName)
+    then globals.environmentConfig.relaysNew or "relays.${globals.domain}"
+    else "relays.${globals.domain}";
 
   explorerHostName = "explorer.${globals.domain}";
   explorerForceSSL = true;

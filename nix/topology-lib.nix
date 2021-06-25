@@ -249,7 +249,7 @@ pkgs: with pkgs; with lib; rec {
     stakePool = false;
     region = regions.${r}.name;
     producers = # some nearby relays:
-      [ (regionalRelaysProducer region 3) ];
+      [ (envRegionalRelaysProducer region 2) ];
   } // attrs;
 
   /* given regions (eg. { a = { name = "eu-central-1"; }; b = { name = "us-east-2"; };})
@@ -262,7 +262,7 @@ pkgs: with pkgs; with lib; rec {
     name = "stk-${r}-${toString idx}${suffix}";
     region = regions.${r}.name;
     producers =  # some nearby relays:
-      [ (regionalRelaysProducer region 3) ];
+      [ (envRegionalRelaysProducer region 2) ];
     org = "IOHK";
     stakePool = true;
   } // (optionalAttrs (ticker != "") {
@@ -285,7 +285,7 @@ pkgs: with pkgs; with lib; rec {
       producers = [
         stkNode.name
         relay2.name
-        (regionalRelaysProducer region 1)
+        (envRegionalRelaysProducer region 1)
       ];
     } // def;
     relay2 = rec {
@@ -294,7 +294,7 @@ pkgs: with pkgs; with lib; rec {
       producers = [
         stkNode.name
         relay1.name
-        (regionalRelaysProducer region 1)
+        (envRegionalRelaysProducer region 1)
       ];
     } // def;
   in [
