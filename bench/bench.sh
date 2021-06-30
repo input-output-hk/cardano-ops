@@ -634,13 +634,15 @@ fetch_run() {
               { find logs -type l | xargs rm -f; } &&
               rm -f logs-${mach} &&
               ln -sf logs logs-${mach} &&
+              (test ! -f cardano-node.prof ||
+               mv cardano-node.prof ${mach}.prof;) &&
               (test ! -f cardano-node.eventlog ||
                mv cardano-node.eventlog ${mach}.eventlog;) &&
               ( journalctl -ru cardano-node |
                 head -n 90 | cut -d: -f4 |
                 sed -n '/  \]/,/bytes allocated/ p' |
                 tac > ${mach}-cardano-node-gcstats.log; ) &&
-              tar cz --dereference logs-${mach} \$(ls ${mach}.eventlog ${mach}-cardano-node-gcstats.log 2>/dev/null || true)
+              tar cz --dereference \$(ls | grep '^db-\|^logs$' -v)
            " | tar xz; done
 
         oprint "repacking logs.."
