@@ -220,7 +220,7 @@ deploystate_node_log_commit_id() {
         local mach=$1
 
         set +o pipefail
-        nixops ssh "$mach" -- journalctl -u cardano-node | grep commit | sed 's/.*"\([0-9a-f]\{40\}\)".*/\1/'
+        nixops ssh "$mach" -- journalctl -u cardano-node | grep commit | tail -n1 | sed 's/.*"\([0-9a-f]\{40\}\)".*/\1/'
         set -o pipefail
 }
 
