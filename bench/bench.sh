@@ -643,7 +643,8 @@ fetch_run() {
                 sed -n '/  \]/,/bytes allocated/ p' |
                 tac > ${mach}-cardano-node-gcstats.log; ) &&
               tar cz --dereference \$(ls | grep '^db-\|^logs$' -v)
-           " | tar xz; done
+           " | tar xz & done
+        wait
 
         oprint "repacking logs.."
         local explorer_extra_logs=(
