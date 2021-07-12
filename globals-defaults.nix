@@ -29,6 +29,22 @@ in {
   explorerHostName = "explorer.${globals.domain}";
   explorerForceSSL = true;
   explorerAliases = [];
+  explorerBackends = {
+    a = globals.explorer9;
+    b = globals.explorer10;
+  };
+  explorerActiveBackends = [ "a" ];
+  explorer9 = {
+    cardano-db-sync = sourcePaths.cardano-db-sync-9;
+    cardano-explorer-app = sourcePaths."cardano-explorer-app-1.5";
+    cardano-graphql = sourcePaths.cardano-graphql-4;
+  };
+  explorer10 = {
+    cardano-db-sync = sourcePaths.cardano-db-sync-10;
+    cardano-explorer-app = sourcePaths.cardano-explorer-app-next;
+    cardano-graphql = sourcePaths.cardano-graphql-next;
+  };
+  explorerBackendsInContainers = false;
 
   withMonitoring = true;
   withExplorer = true;
@@ -159,6 +175,7 @@ in {
       explorer = if globals.withHighCapacityExplorer
       then c5-9xlarge
                  else t3a-xlarge;
+      explorer-gw = t3a-small;
       monitoring = if globals.withHighCapacityMonitoring
                    then t3-2xlargeMonitor
                    else t3a-xlargeMonitor;
@@ -178,6 +195,7 @@ in {
     explorer = if globals.withHighCapacityExplorer
       then large
       else medium;
+    explorer-gw = small;
     monitoring = if globals.withHighCapacityMonitoring
       then large
       else medium;

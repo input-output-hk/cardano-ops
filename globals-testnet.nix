@@ -12,6 +12,12 @@ pkgs: {
   withMetadata = true;
   withHighLoadRelays = true;
 
+  explorerBackends = with pkgs.globals; {
+    a = explorer10;
+    b = explorer10;
+  };
+  explorerActiveBackends = [ "a" "b" ];
+
   faucetHostname = "faucet";
 
   initialPythonExplorerDBSyncDone = true;

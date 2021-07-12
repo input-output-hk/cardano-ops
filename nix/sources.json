@@ -23,7 +23,19 @@
         "url": "https://github.com/input-output-hk/cardano-benchmarking/archive/708ce37b4cf1ea74764c4f0d825a3a1b8212eafe.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-db-sync": {
+    "cardano-db-sync-10": {
+        "branch": "refs/tags/10.0.0",
+        "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "cardano-db-sync",
+        "rev": "44ce5b94475c31a57a8d7a892f5e112f0cb4c012",
+        "sha256": "0kcfkkcx1sszz97d5gjb4bb0r1i2fx1njz35dx35d4fb5qfsmhym",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/44ce5b94475c31a57a8d7a892f5e112f0cb4c012.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "cardano-db-sync-9": {
         "branch": "refs/tags/9.0.0",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
@@ -35,7 +47,19 @@
         "url": "https://github.com/input-output-hk/cardano-db-sync/archive/0b054e18aec3b1e387a1c7b713c562ade37417a3.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-explorer-app": {
+    "cardano-db-sync-service": {
+        "branch": "master",
+        "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "cardano-db-sync",
+        "rev": "7815b392bfe9825bd89966bf96c04437e02c2429",
+        "sha256": "0q4gx121ls69hgypwv8ii1n7x8i5w75zmwa49j2q0yb82rbz6ddi",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/7815b392bfe9825bd89966bf96c04437e02c2429.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "cardano-explorer-app-1.5": {
         "branch": "refs/tags/1.5.0",
         "description": "Cardano Explorer App",
         "homepage": "",
@@ -45,6 +69,18 @@
         "sha256": "0py4i76kigrp2mkpbl4wbqgvrk7ki69zdy969vyb64x4n3lwmbw3",
         "type": "tarball",
         "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/6233695d96a4f566d7033f246c9b3c9f06a83884.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "cardano-explorer-app-next": {
+        "branch": "chore/cardano-graphql-5.0.0-compat",
+        "description": "Cardano Explorer App",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "cardano-explorer-app",
+        "rev": "351acc63df0b67be3762a189f7e344dcb729ca36",
+        "sha256": "04z68rrishc8xr6nwrml00lhq6b8w227c0x18chgikc5gl6idb0y",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-explorer-app/archive/351acc63df0b67be3762a189f7e344dcb729ca36.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
@@ -59,7 +95,7 @@
         "url": "https://github.com/input-output-hk/cardano-faucet/archive/daa31ad1e5bb3db4b3427cd808aa47eede9cfd76.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-graphql": {
+    "cardano-graphql-4": {
         "branch": "refs/tags/4.0.0",
         "description": "GraphQL API for Cardano",
         "homepage": "",
@@ -69,6 +105,19 @@
         "sha256": "1n1wj8n5k3xws0iyslyihl53a9ha7b6y7yzfb343za88ssh2mr9g",
         "type": "tarball",
         "url": "https://github.com/input-output-hk/cardano-graphql/archive/058873f7cfa6d5d287f859a58bf511b128da6494.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
+        "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
+    },
+    "cardano-graphql-next": {
+        "branch": "chore/cardano-db-sync-10-compat",
+        "description": "GraphQL API for Cardano",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "cardano-graphql",
+        "rev": "efa008c3ea0a2c98bee2aa40afeaeba2b5b3e3f3",
+        "sha256": "10dd4zsbz2nhv4s2x5yf1zkfw1kskvr8nswikdlb5lc9r73igs5f",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/efa008c3ea0a2c98bee2aa40afeaeba2b5b3e3f3.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
@@ -102,34 +151,22 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "bc4216c5b0e14dbde5541763f4952f99c3c712fa",
-        "sha256": "0y5n3limj5dg1vgxyxafg0ky35qq7w97rr00gr3yl16xx5jrhs6w",
+        "rev": "6d55b8fec8423eac577b462220424041b86f4ca7",
+        "sha256": "0dwx98nrg36kfcnicsvcl7wjcvl0qhhdz9wrizr1430j0szgd4xp",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/bc4216c5b0e14dbde5541763f4952f99c3c712fa.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/6d55b8fec8423eac577b462220424041b86f4ca7.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
-        "branch": "nixos-20.09",
+        "branch": "nixos-21.05",
         "description": "Nix Packages collection",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "nixpkgs",
-        "rev": "49fbe8b1fd816a49ff363fea3f7761c6881ae996",
-        "sha256": "0gl2id7nwrxq8db7x0qwp46gh5ry0nw42rrwd6y3d493dml9ycp4",
+        "rev": "0a16a8e71e2ffadc1a5b8a46ccfe60d3cf532803",
+        "sha256": "1d4n300015q7nh5c0s4r86rs9s8mc3qv10mpbh8ln3hghnza4k2y",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/nixpkgs/archive/49fbe8b1fd816a49ff363fea3f7761c6881ae996.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "nixpkgs-crystal": {
-        "branch": "nixpkgs-unstable",
-        "description": "A read-only mirror of NixOS/nixpkgs tracking the released channels. Send issues and PRs to",
-        "homepage": "https://github.com/NixOS/nixpkgs",
-        "owner": "NixOS",
-        "repo": "nixpkgs-channels",
-        "rev": "39b92f6e45534658b49e79c78154df6333af8472",
-        "sha256": "1g95hqvc8hpjijwc2nrxvgnvasfjn2hrjd8g4x9cklphcz2mz0v8",
-        "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs-channels/archive/39b92f6e45534658b49e79c78154df6333af8472.tar.gz",
+        "url": "https://github.com/input-output-hk/nixpkgs/archive/0a16a8e71e2ffadc1a5b8a46ccfe60d3cf532803.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "offchain-metadata-tools": {
@@ -150,10 +187,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "65aa6890699aba9055b8b410216b73d80317839e",
-        "sha256": "0w1yc0lxyzk3qgksiv6lyank3nybh5jvq03is9ixj431q7dak2dx",
+        "rev": "6966af0beb489379711cec45a60ccbea6e4dc8e7",
+        "sha256": "0bp67nc9ldzf4hjnaa1lzq2xqds7a461wvk01mbfn4x02jxzha5a",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/65aa6890699aba9055b8b410216b73d80317839e.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/6966af0beb489379711cec45a60ccbea6e4dc8e7.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "smash": {

@@ -13,7 +13,7 @@ targets:
 
 dependencies:
   email:
-    github: arcage/crystal-mail
+    github: arcage/crystal-email
     version: 0.6.1
 
 crystal: 0.34.0

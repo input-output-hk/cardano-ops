@@ -1,6 +1,7 @@
 pkgs: {
 
   deploymentName = "rc-staging";
+  deploymentPath = "$HOME/staging";
 
   dnsZone = "${pkgs.globals.domain}";
 
@@ -12,6 +13,12 @@ pkgs: {
   withSmash = true;
   withFaucet = true;
   faucetHostname = "faucet";
+
+  explorerBackends = with pkgs.globals; {
+    a = explorer10;
+    b = explorer10;
+  };
+  explorerActiveBackends = [ "a" "b" ];
 
   topology = import ./topologies/staging.nix pkgs;
 
