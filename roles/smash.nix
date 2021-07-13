@@ -4,6 +4,9 @@ let
   cfg = config.services.smash;
   hostAddr = getListenIp nodes.${name};
   inherit (import (sourcePaths.smash + "/nix") {}) smashHaskellPackages;
+
+  # Force usage of cardano-node 1.26
+  inherit (import (sourcePaths.cardano-node-service + "/nix") { gitrev = self.sourcePaths."cardano-node-1.26".rev; }) cardano-node;
 in {
   environment = {
     systemPackages = [
@@ -21,8 +24,9 @@ in {
 
   services.cardano-node = {
     allProducers = [ globals.relaysNew ];
-    # FIXME Reactivate when smash update to 1.25+:
-    #package = smashHaskellPackages.cardano-node.components.exes.cardano-node;
+    # FIXME Reactivate when smash update to 1.28:
+    #package = import  cardanoNodeHaskellPackages.cardano-node.components.exes.cardano-node;
+    package = cardano-node;
 
     totalMaxHeapSizeMbytes = 0.5 * config.node.memory * 1024;
   };

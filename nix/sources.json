@@ -133,6 +133,18 @@
         "url": "https://github.com/input-output-hk/cardano-node/archive/8fe46140a52810b6ca456be01d652ca08fe730bf.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "cardano-node-1.26": {
+        "branch": "refs/tags/1.26.1",
+        "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
+        "homepage": "https://cardano.org",
+        "owner": "input-output-hk",
+        "repo": "cardano-node",
+        "rev": "62f38470098fc65e7de5a4b91e21e36ac30799f3",
+        "sha256": "0ws2lgpl88p6bbrim43dczm19an9nba97sr483abq32b1xh4m3qh",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/62f38470098fc65e7de5a4b91e21e36ac30799f3.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-rosetta": {
         "branch": "refs/tags/1.1.0",
         "description": "https://www.rosetta-api.org implementation for Cardano Node",
