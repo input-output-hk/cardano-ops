@@ -6,7 +6,7 @@ let
   inherit (import (sourcePaths.smash + "/nix") {}) smashHaskellPackages;
 
   # Force usage of cardano-node 1.26
-  inherit (import (sourcePaths."cardano-node-1.26" + "/nix") { gitrev = self.sourcePaths."cardano-node-1.26".rev; }) cardano-node;
+  inherit (import (sourcePaths."cardano-node-1.26" + "/nix") { gitrev = sourcePaths."cardano-node-1.26".rev; }) cardano-node;
 in {
   environment = {
     systemPackages = [
