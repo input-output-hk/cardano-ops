@@ -41,6 +41,9 @@ in {
 
     # Not yet available as an attribute for the Unit section in nixpkgs 20.09
     StartLimitBurst = 3;
+
+    # Restart every 12 hours until a memory leak is addressed
+    RuntimeMaxSec = 12 * 3600;
   };
   systemd.services.metadata-webhook.serviceConfig = {
     Restart = "always";
