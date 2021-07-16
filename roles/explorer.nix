@@ -5,8 +5,11 @@ let
   maintenanceMode = false;
   cfg = config.services.cardano-db-sync;
   nodeCfg = config.services.cardano-node;
+  ogmiosCfg = config.services.cardano-ogmios;
   nodeId = config.node.nodeId;
   getSrc = name: variant.${name} or sourcePaths.${name};
+
+  cardanoNodeConfigPath = builtins.toFile "cardano-node-config.json" (builtins.toJSON nodeCfg.nodeConfig);
 
   dbSyncPkgs = let s = getSrc "cardano-db-sync"; in import (s + "/nix") { gitrev = s.rev; };
   inherit (dbSyncPkgs) cardanoDbSyncHaskellPackages;
@@ -18,11 +21,12 @@ let
   cardano-explorer-app-pkgs = import (getSrc "cardano-explorer-app");
 in {
   imports = [
-    ((getSrc "cardano-graphql") + "/nix/nixos")
-    ((sourcePaths.cardano-db-sync-service or (getSrc "cardano-db-sync")) + "/nix/nixos")
-    ((getSrc "cardano-rosetta") + "/nix/nixos")
-    cardano-ops.modules.base-service
     cardano-ops.modules.cardano-postgres
+    cardano-ops.modules.base-service
+    ((sourcePaths.cardano-db-sync-service or (getSrc "cardano-db-sync")) + "/nix/nixos")
+    ((getSrc "ogmios") + "/nix/nixos")
+    ((getSrc "cardano-graphql") + "/nix/nixos")
+    ((getSrc "cardano-rosetta") + "/nix/nixos")
   ];
 
   environment.systemPackages = with pkgs; [
@@ -51,15 +55,23 @@ in {
     '';
   };
 
+  services.cardano-ogmios = {
+    enable = true;
+    nodeConfig = cardanoNodeConfigPath;
+    nodeSocketPath = nodeCfg.socketPath;
+    hostAddr = "127.0.0.1";
+  };
+
   services.graphql-engine.enable = true;
   services.cardano-graphql = {
     enable = true;
+    inherit cardanoNodeConfigPath;
     genesisByron = nodeCfg.nodeConfig.ByronGenesisFile;
     genesisShelley = nodeCfg.nodeConfig.ShelleyGenesisFile;
     allowListPath = cardano-explorer-app-pkgs.allowList;
-    cardanoNodeSocketPath = nodeCfg.socketPath;
-    cardanoNodeConfigPath = builtins.toFile "cardano-node-config.json" (builtins.toJSON nodeCfg.nodeConfig);
     metadataServerUri = globals.environmentConfig.metadataUrl or null;
+    ogmiosHost = ogmiosCfg.hostAddr;
+    ogmiosPort = ogmiosCfg.port;
   };
 
   services.cardano-rosetta-server = {
@@ -107,6 +119,11 @@ in {
     # FIXME: https://github.com/input-output-hk/cardano-db-sync/issues/102
     Restart = "always";
     RestartSec = "30s";
+  };
+
+  systemd.services.cardano-ogmios.serviceConfig = {
+    User = "cexplorer";
+    SupplementaryGroups = "cardano-node";
   };
 
   systemd.services.cardano-rosetta-server.serviceConfig = {
