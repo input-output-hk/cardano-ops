@@ -36,13 +36,14 @@ in {
   explorerActiveBackends = [ "a" ];
   explorer9 = {
     cardano-db-sync = sourcePaths.cardano-db-sync-9;
-    cardano-explorer-app = sourcePaths."cardano-explorer-app-1.5";
     cardano-graphql = sourcePaths.cardano-graphql-4;
+    cardano-explorer-app = sourcePaths."cardano-explorer-app-1.5";
   };
   explorer10 = {
     cardano-db-sync = sourcePaths.cardano-db-sync-10;
-    cardano-explorer-app = sourcePaths.cardano-explorer-app-next;
-    cardano-graphql = sourcePaths.cardano-graphql-next;
+    cardano-graphql = sourcePaths.cardano-graphql-5;
+    cardano-explorer-app = sourcePaths."cardano-explorer-app-1.6";
+    cardano-rosetta = sourcePaths."cardano-rosetta-1.3";
   };
   explorerBackendsInContainers = false;
 
