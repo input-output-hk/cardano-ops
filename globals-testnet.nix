@@ -40,5 +40,5 @@ pkgs: {
   # Trigger relay topology refresh 12 hours before next epoch
   relayUpdateHoursBeforeNextEpoch = 12;
 
-  alertChainDensityLow = "60";
+  alertChainDensityLow = "50";
 }
