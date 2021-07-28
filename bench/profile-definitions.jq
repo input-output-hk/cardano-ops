@@ -225,6 +225,10 @@ def utxo_delegators_density_profiles:
     , generator: { tps: 128 } }
   , { genesis: { utxo: 2000000, delegators:  500000, max_block_size: 2048000 }
     , generator: { tps: 256 } }
+
+  , { genesis: { utxo:  4000000, delegators:  1000000 } }
+  , { genesis: { utxo:  8000000, delegators:  2000000 } }
+  , { genesis: { utxo: 10000000, delegators:  2500000 } }
   ];
 
 def generator_profiles:
