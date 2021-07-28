@@ -1,6 +1,11 @@
 { system ? builtins.currentSystem
 , crossSystem ? null
 , config ? {}
+, deploymentGlobalsFn ? ## :: Pkgs -> GlobalsOverlayOverDefaults
+    pkgs:
+    if builtins.pathExists ../globals.nix
+    then import ../globals.nix pkgs
+    else builtins.trace "globals.nix missing, please add symlink" {}
 }:
 let
   defaultSourcePaths = import ./sources.nix { inherit pkgs; };
@@ -90,19 +95,19 @@ let
     (import ./packages.nix)
   ];
 
-  globals =
-    if builtins.pathExists ../globals.nix
-    then [(pkgs: _: with pkgs.lib; let
+  buildGlobals =
+    specificGlobalsFn:
+
+    [(pkgs: _: with pkgs.lib; let
       globalsDefault = import ../globals-defaults.nix pkgs;
-      globalsSpecific = import ../globals.nix pkgs;
+      globalsSpecific = specificGlobalsFn pkgs;
     in {
       globals = globalsDefault // (recursiveUpdate {
         inherit (globalsDefault) ec2 libvirtd environmentVariables;
       } globalsSpecific);
-    })]
-    else builtins.trace "globals.nix missing, please add symlink" [(pkgs: _: {
-      globals = import ../globals-defaults.nix pkgs;
     })];
+
+  globals = buildGlobals deploymentGlobalsFn;
 
   # merge upstream sources with our own:
   upstream-overlay = self: super: {
@@ -111,6 +116,7 @@ let
       inherit overlays;
       modules = self.importWithPkgs ../modules;
       roles = self.importWithPkgs ../roles;
+      deployment-shell = import ./deployment-shell.nix { pkgs = self; };
     };
     sourcePaths = (super.sourcePaths or {}) // sourcePaths;
   };
@@ -125,8 +131,8 @@ let
       varnish-overlay
     ];
 
-    pkgs = import nixpkgs {
-      inherit system crossSystem config overlays;
-    };
+  pkgs = import nixpkgs {
+    inherit system crossSystem config overlays;
+  };
 in
   pkgs
