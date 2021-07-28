@@ -10,43 +10,8 @@
     inherit config;
   }
 }:
-with pkgs; with lib;
-let
-  nivOverrides = writeShellScriptBin "niv-overrides" ''
-    niv --sources-file ${toString globals.sourcesJsonOverride} $@
-  '';
 
-in  mkShell (rec {
-  nativeBuildInputs = [
-    awscli2
-    bashInteractive
-    cardano-cli
-    dnsutils
-    niv
-    locli
-    nivOverrides
-    nix
-    nix-diff
-    nixops
-    pandoc
-    perl
-    pstree
-    telnet
-    cardano-ping
-    git
-    direnv
-    nix-direnv
-    lorri
-    relayUpdateTimer
-  ] ++ (lib.optionals pkgs.stdenv.hostPlatform.isLinux ([
-    # Those fail to compile under macOS:
-    node-update
-    # script NOT for use on mainnet:
-  ] ++ lib.optional (globals.environmentName != "mainnet") kes-rotation));
+## See the definition of `cardanoOpsMkShellDefault` for a reference implementation
+##   of a cardano-ops-like shell with deployment capability.
+pkgs.cardano-ops.deployment-shell.cardanoOpsMkShellDefault
 
-  NIX_PATH = "nixpkgs=${path}";
-  NIXOPS_DEPLOYMENT = "${globals.deploymentName}";
-  passthru = {
-    gen-graylog-creds = iohk-ops-lib.scripts.gen-graylog-creds { staticPath = ./static; };
-  };
-} // globals.environmentVariables)
