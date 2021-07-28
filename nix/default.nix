@@ -111,6 +111,7 @@ let
       inherit overlays;
       modules = self.importWithPkgs ../modules;
       roles = self.importWithPkgs ../roles;
+      deployment-shell = import ./deployment-shell.nix { pkgs = self; };
     };
     sourcePaths = (super.sourcePaths or {}) // sourcePaths;
   };
