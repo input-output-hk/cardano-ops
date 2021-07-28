@@ -142,13 +142,10 @@ in (rec {
       imports = [
         pkgs.cardano-ops.roles.tx-generator
         ({ config, ...}: {
-          services.cardano-db-sync.enable = mkForce false;
-          # services.cardano-explorer-api.enable = mkForce false;
           services.cardano-submit-api.enable = mkForce false;
           systemd.services.cardano-explorer-api.enable = mkForce false;
         })
       ];
-      services.cardano-graphql.enable = mkForce false;
       services.cardano-postgres.enable = mkForce false;
       services.cardano-rosetta-server.enable = mkForce false;
       services.custom-metrics.enable = mkForce false;

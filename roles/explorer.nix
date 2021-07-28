@@ -13,9 +13,9 @@ let
   inherit (cardanoDbSyncHaskellPackages.cardano-db-tool.components.exes) cardano-db-tool;
 in {
   imports = [
-    (sourcePaths.cardano-graphql + "/nix/nixos")
-    (sourcePaths.cardano-db-sync + "/nix/nixos")
-    (sourcePaths.cardano-rosetta + "/nix/nixos")
+    (sourcePaths.cardano-graphql   + "/nix/nixos")
+    (sourcePaths.cardano-db-sync-9 + "/nix/nixos")
+    (sourcePaths.cardano-rosetta   + "/nix/nixos")
     cardano-ops.modules.base-service
     cardano-ops.modules.cardano-postgres
   ];
