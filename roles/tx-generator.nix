@@ -1,5 +1,5 @@
 pkgs: { config, name, lib, nodes, resources, ... }:
-with pkgs;
+with pkgs; with pkgs.lib;
 
 let
   inherit (globals.environmentConfig.networkConfig) Protocol;
@@ -13,19 +13,25 @@ let
     }."${Protocol}"
       or (abort "Unsupported protocol: ${Protocol}");
 
-  cardanoNodes = lib.filterAttrs
+  cardanoNodes = filterAttrs
     (_: node: node.config.services.cardano-node.enable or false &&
               ! (node.config.services.cardano-db-sync.enable or false))
     nodes;
 
-  # benchmarking-src = ../../cardano-benchmarking;
-  benchmarking-src = sourcePaths.cardano-benchmarking;
+  node-src = sourcePaths.cardano-node;
+  node-cfg = config.services.cardano-node;
+  mayFetchNodeCfgAttr = attr:
+    optionalAttrs (hasAttr attr (node-cfg.nodeConfig)) { ${attr} = node-cfg.nodeConfig.${attr}; };
 in {
   imports = [
-    (benchmarking-src + "/nix/nixos/tx-generator-service.nix")
+    (import (node-src + "/nix/nixos/tx-generator-service.nix")
+      ## XXX: ugly -- svclib should really move to iohk-nix.
+      (pkgs
+       //
+       { commonLib = import (node-src + "/nix/svclib.nix") { inherit pkgs; }; }))
   ];
 
-  services.tx-generator = {
+  services.tx-generator = rec {
     enable = true;
     targetNodes = __mapAttrs
       (name: node:
@@ -33,43 +39,27 @@ in {
                  in __trace "generator target:  ${name}/${ip}" ip;
           port = node.config.services.cardano-node.port;
         })
-      (lib.filterAttrs
+      (filterAttrs
         (_: n: ! (n.config.node.roles.isExplorer))
         cardanoNodes);
 
     ## nodeConfig of the locally running observer node.
-    localNodeConf = config.services.cardano-node;
+    localNodeConf = node-cfg;
+    localNodeSocketPath = node-cfg.socketPath;
     sigKey = "/var/lib/keys/cardano-node-signing";
 
     ## The nodeConfig of the Tx generator itself.
     nodeConfig = {
+      TurnOnLogging    = true;
+      TurnOnLogMetrics = false;
       minSeverity = "Debug";
       TracingVerbosity = "MaximalVerbosity";
-
-      TraceBlockFetchClient             = true;
-      TraceBlockFetchDecisions          = false;
-      TraceBlockFetchProtocol           = true;
-      TraceBlockFetchProtocolSerialised = false;
-      TraceBlockFetchServer             = false;
-      TraceChainDb                      = true;
-      TraceChainSyncClient              = true;
-      TraceChainSyncBlockServer         = false;
-      TraceChainSyncHeaderServer        = false;
-      TraceChainSyncProtocol            = true;
-      TraceDNSResolver                  = false;
-      TraceDNSSubscription              = false;
-      TraceErrorPolicy                  = true;
-      TraceForge                        = false;
-      TraceIpSubscription               = false;
-      TraceLocalChainSyncProtocol       = true;
-      TraceLocalTxSubmissionProtocol    = true;
-      TraceLocalTxSubmissionServer      = true;
-      TraceMempool                      = false;
-      TraceMux                          = false;
-      TraceTxInbound                    = true;
-      TraceTxOutbound                   = true;
-      TraceTxSubmissionProtocol         = true;
-
+      defaultBackends = [
+        "KatipBK"
+      ];
+      setupBackends = [
+        "KatipBK"
+      ];
       defaultScribes = [
         [ "StdoutSK" "stdout" ]
         [ "FileSK"   "logs/generator.json" ]
@@ -83,7 +73,24 @@ in {
             rpKeepFilesNum  = 20;
           }; }
       ];
-    };
+      options = {
+      };
+    } // __foldl' (x: y: x // y) {}
+      (map mayFetchNodeCfgAttr
+        [ "ByronGenesisFile"
+          "ShelleyGenesisFile"
+          "AlonzoGenesisFile"
+          "Protocol"
+          "LastKnownBlockVersion-Major"
+          "LastKnownBlockVersion-Minor"
+          "LastKnownBlockVersion-Alt"
+          "TestEnableDevelopmentHardForkEras"
+          "TestEnableDevelopmentNetworkProtocols"
+          "TestShelleyHardForkAtEpoch"
+          "TestAllegraHardForkAtEpoch"
+          "TestMaryHardForkAtEpoch"
+          "TestAlonzoHardForkAtEpoch" ]);
+    nodeConfigFile = __toFile "generator-config.json" (__toJSON nodeConfig);
 
     dsmPassthrough = {
       # rtsOpts = ["-xc"];
@@ -91,7 +98,12 @@ in {
   } // globals.environmentConfig.generatorConfig;
 
   services.cardano-node = {
-    nodeConfig = lib.mkForce (globals.environmentConfig.nodeConfig // {
+    instances = 1;
+
+    socketPath = "/var/lib/cardano-node/node.socket";
+    systemdSocketActivation = mkForce false;
+
+    nodeConfig = mkForce (globals.environmentConfig.nodeConfig // {
       defaultScribes = [
         [ "StdoutSK" "stdout" ]
         [ "FileSK"   "logs/node.json" ]
@@ -166,7 +178,7 @@ in {
   };
 
   deployment.keys = {
-    "cardano-node-signing" = builtins.trace ("${name}: using " + (toString signingKey)) {
+    "cardano-node-signing" = {
         keyFile = signingKey;
         user = "cardano-node";
         group = "cardano-node";

@@ -53,8 +53,7 @@ update_deployfiles() {
           , genesis_hash:      \"$(genesis_hash)\"
           , profile_content:   $(profjq "${prof}" .)
           , pins:
-            { \"cardano-benchmarking\":  $(jq '.["cardano-benchmarking"].rev' nix/sources.json)
-            , \"cardano-node\":          $(jq '.["cardano-node"].rev'         nix/sources.bench.json)
+            { \"cardano-node\":          $(jq '.["cardano-node"].rev'         nix/sources.bench.json)
             , \"cardano-ops\":           \"$(git rev-parse HEAD)\"
             }
           , ops_modified:      $(if git diff --quiet --exit-code
@@ -106,14 +105,13 @@ deploystate_create() {
 
 deploystate_deploy_profile() {
         local prof=$1 include=$2 deploylog=$3 full=
-        local era topology node_rev benchmarking_rev ops_rev ops_checkout_state
+        local era topology node_rev ops_rev ops_checkout_state
 
         if test "$include" = "$(params all-machines)"
         then include=; full='(full)'; fi
 
         era=$(get_era)
         topology=$(parmetajq .topology)
-        benchmarking_rev=$(jq --raw-output '.["cardano-benchmarking"].rev' nix/sources.json)
         node_rev=$(jq --raw-output '.["cardano-node"].rev' nix/sources.bench.json)
         ops_rev=$(git rev-parse HEAD)
         ops_branch=$(maybe_local_repo_branch . ${ops_rev})
@@ -129,7 +127,6 @@ deploystate_deploy_profile() {
 --(   era:           $era
 --(   topology:      $topology
 --(   node:          $node_rev
---(   benchmarking:  $benchmarking_rev
 --(   ops:           $ops_rev / $ops_branch  $ops_checkout_state
 --(   generator:     $(profjq "$prof" .generator --compact-output)
 --(   genesis:       $(profjq "$prof" .genesis   --compact-output)

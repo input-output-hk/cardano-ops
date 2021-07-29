@@ -136,7 +136,7 @@ in (rec {
     } // pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig;
 
     ## This is overlaid atop the defaults in the tx-generator service,
-    ## as specified in the 'cardano-benchmarking' repository.
+    ## as specified in the 'cardano-node' repository.
     generatorConfig = benchmarkingProfile.generator;
   };
 
@@ -182,7 +182,10 @@ in (rec {
 
   ec2 = with pkgs.iohk-ops-lib.physical.aws;
     {
-      instances.core-node = c5-2xlarge;
+      instances = {
+        core-node = c5-2xlarge;
+        relay-node = c5-2xlarge;
+      };
       credentials = {
         accessKeyIds = {
           IOHK = "dev-deployer";

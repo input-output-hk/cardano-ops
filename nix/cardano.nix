@@ -9,6 +9,8 @@ self: super: with self; {
   inherit ((if (sourcePaths ? ouroboros-network)
     then ouroboros-network-pkgs.ouroborosNetworkHaskellPackages
     else cardanoNodePkgs.cardanoNodeHaskellPackages).network-mux.components.exes) cardano-ping;
+  inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.locli.components.exes) locli;
+  inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.tx-generator.components.exes) tx-generator;
 
   cardano-node-eventlogged = cardanoNodePkgs.cardanoNodeEventlogHaskellPackages.cardano-node.components.exes.cardano-node;
 
