@@ -620,8 +620,6 @@ fetch_run() {
         oprint "run directory:  ${dir}"
         pushd "${dir}" >/dev/null || return 1
 
-        run_fetch_benchmarking 'tools'
-
         local producers
         producers=($(params producers))
         oprint "fetching logs from:  explorer ${producers[*]}"

@@ -24,16 +24,6 @@ run_report_name() {
         echo "$date.$batch.$prof${suffix:+.$suffix}"
 }
 
-run_fetch_benchmarking() {
-        local targetdir=$1
-        oprint "fetching tools from 'cardano-benchmarking' $(nix-instantiate --eval -E "(import $(dirname "${self}")/../nix/sources.nix).cardano-benchmarking.rev" | tr -d '"' | cut -c-8) .."
-        export nix_store_benchmarking=$(nix-instantiate --eval -E "(import $(dirname "${self}")/../nix/sources.nix).cardano-benchmarking.outPath" | tr -d '"' )
-        test -d "$nix_store_benchmarking" ||
-                fail "couldn't fetch 'cardano-benchmarking'"
-        mkdir -p "$targetdir"
-        cp -fa "$nix_store_benchmarking"/scripts/*.sh "$targetdir"
-}
-
 is_run_broken() {
         local dir=${1:-}
 

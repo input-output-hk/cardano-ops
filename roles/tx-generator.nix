@@ -18,11 +18,14 @@ let
               ! (node.config.services.cardano-db-sync.enable or false))
     nodes;
 
-  # benchmarking-src = ../../cardano-benchmarking;
-  benchmarking-src = sourcePaths.cardano-benchmarking;
+  node-src = sourcePaths.cardano-node;
 in {
   imports = [
-    (benchmarking-src + "/nix/nixos/tx-generator-service.nix")
+    (import (node-src + "/nix/nixos/tx-generator-service.nix")
+      ## XXX: ugly -- svclib should really move to iohk-nix.
+      (pkgs
+       //
+       { commonLib = import (node-src + "/nix/svclib.nix") { inherit pkgs; }; }))
   ];
 
   services.tx-generator = {

@@ -133,7 +133,7 @@ in (rec {
     } // pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig;
 
     ## This is overlaid atop the defaults in the tx-generator service,
-    ## as specified in the 'cardano-benchmarking' repository.
+    ## as specified in the 'cardano-node' repository.
     generatorConfig = benchmarkingProfile.generator;
   };
 

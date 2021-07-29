@@ -53,8 +53,7 @@ update_deployfiles() {
           , genesis_hash:      \"$(genesis_hash)\"
           , profile_content:   $(profjq "${prof}" .)
           , pins:
-            { \"cardano-benchmarking\":  $(jq '.["cardano-benchmarking"].rev' nix/sources.json)
-            , \"cardano-node\":          $(jq '.["cardano-node"].rev'         nix/sources.bench.json)
+            { \"cardano-node\":          $(jq '.["cardano-node"].rev'         nix/sources.bench.json)
             , \"cardano-ops\":           \"$(git rev-parse HEAD)\"
             }
           , ops_modified:      $(if git diff --quiet --exit-code
@@ -113,7 +112,6 @@ deploystate_deploy_profile() {
 
         era=$(get_era)
         topology=$(parmetajq .topology)
-        benchmarking_rev=$(jq --raw-output '.["cardano-benchmarking"].rev' nix/sources.json)
         node_rev=$(jq --raw-output '.["cardano-node"].rev' nix/sources.bench.json)
         ops_rev=$(git rev-parse HEAD)
         ops_branch=$(maybe_local_repo_branch . ${ops_rev})
