@@ -91,8 +91,11 @@ in (rec {
 
   networkName = "Benchmarking, size ${toString (__length benchmarkingTopology.coreNodes)}";
 
+  withCardanoDBExtended = false;
+  withExplorer = false;
   withMonitoring = false;
-  withExplorer = true;
+  explorerBackends = {};
+  explorerActiveBackends = [];
 
   environmentName = "bench-${benchmarkingParams.meta.topology}-${benchmarkingProfileName}";
 
@@ -137,28 +140,30 @@ in (rec {
     generatorConfig = benchmarkingProfile.generator;
   };
 
-  topology = benchmarkingTopology // {
-    explorer = {
+  topology = {
+    relayNodes = map (recursiveUpdate {
+      ## XXX: assumes we have `explorer` as our only relay.
       imports = [
         pkgs.cardano-ops.roles.tx-generator
-        ({ config, ...}: {
-          services.cardano-submit-api.enable = mkForce false;
-          systemd.services.cardano-explorer-api.enable = mkForce false;
-        })
+        # ({ config, ...}: {
+        # })
       ];
-      services.cardano-postgres.enable = mkForce false;
-      services.cardano-rosetta-server.enable = mkForce false;
-      services.custom-metrics.enable = mkForce false;
-      services.graphql-engine.enable = mkForce false;
-      services.nginx.enable = mkForce false;
-      services.postgresql.enable = mkForce false;
+      documentation = {
+        man.enable = false;
+        doc.enable = false;
+      };
+      networking.firewall.allowPing = mkForce true;
       services.cardano-node.package = mkForce pkgs.cardano-node-eventlogged;
       systemd.services.dump-registered-relays-topology.enable = mkForce false;
-      systemd.services.nginx.enable = mkForce false;
-      networking.firewall.allowPing = mkForce true;
-    };
+    }) (benchmarkingTopology.relayNodes or []);
     coreNodes = map (recursiveUpdate {
       stakePool = true;
+
+      documentation = {
+        man.enable = false;
+        doc.enable = false;
+      };
+      networking.firewall.allowPing = mkForce true;
       services.cardano-node.nodeConfig =
         recursiveUpdate
           (removeAttrs pkgs.globals.environmentConfig.nodeConfig ["AlonzoGenesisHash"])
@@ -172,8 +177,6 @@ in (rec {
                TraceMempool     = true;
                TraceTxInbound   = true;
              }));
-      services.custom-metrics.enable = mkForce false;
-      networking.firewall.allowPing = mkForce true;
     }) (benchmarkingTopology.coreNodes or []);
   };
 

@@ -25,5 +25,13 @@
     }
   ];
 
-  relayNodes = [];
+  relayNodes = [
+    {
+      name = "explorer";
+      nodeId = 3;
+      org = "IOHK";
+      region = "eu-central-1";
+      producers = ["node-0" "node-1" "node-2"];
+    }
+  ];
 }

@@ -174,14 +174,5 @@ in {
     };
   };
 
-  # services.cardano-explorer-api.enable = lib.mkForce false;
-  # services.cardano-db-sync.enable      = lib.mkForce false;
-  # services.cardano-graphql.enable      = lib.mkForce false;
-  # services.cardano-postgres.enable     = lib.mkForce false;
-  # services.cardano-submit-api.enable   = lib.mkForce false;
-  # services.graphql-engine.enable       = lib.mkForce false;
-  # services.postgresql.enable           = lib.mkForce false;
-  # services.nginx.enable                = lib.mkForce false;
-
   users.users.cardano-node.extraGroups = [ "keys" ];
 }
