@@ -299,3 +299,14 @@ op_jq_generator() {
 op_blocks() {
         nixops ssh explorer 'jq --compact-output "select (.data.kind == \"Recv\" and .data.msg.kind == \"MsgBlock\") | .data.msg" /var/lib/cardano-node/logs/node-*.json'
 }
+
+op_fetch_utxo() {
+    local node=${1:-explorer}
+    local tag=$(cluster_last_meta_tag)
+    local file='runs/'$tag/utxo.$(date +%s).json
+
+    oprint "querying UTxO on $node.."
+    op_on $node cardano-cli query utxo --cardano-mode --whole-utxo --testnet-magic 42 --out-file '/var/lib/cardano-node/utxo'
+    oprint "fetching UTxO from $node into $file.."
+    nixops scp --from $node '/var/lib/cardano-node/utxo' "$file"
+}

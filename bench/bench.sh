@@ -94,6 +94,8 @@ usage_extra() {
 
     nodes CMD..           Run CMD either on forging nodes or the explorer.
     explorer CMD..
+    fetch-utxo [NODE=explorer]
+                          Fetch UTxO from NODE into FILE.
 
     jq-explorer [JQEXPR=.]
     jq-generator [JQEXPR=.]
@@ -270,6 +272,7 @@ EOF
 
                 nodes | n )           op_nodes       "$@";;
                 explorer | e )        op_on 'explorer'    "$@";;
+                fetch-utxo | utxo )   op_fetch_utxo "$@";;
 
                 jq-explorer | jqe )   op_jq 'explorer' "$@" | ${jq_select};;
                 jq-generator | jqg )  op_jq_generator "$@" | ${jq_select};;
@@ -415,6 +418,7 @@ op_bench_start() {
                op_wait_for_empty_blocks "$prof" fetch_systemd_unit_startup_logs
                ret=$?
              }
+        op_fetch_utxo
         op_stop
 
         return $ret
