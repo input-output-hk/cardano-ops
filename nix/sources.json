@@ -158,7 +158,7 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rosetta-1.3": {
-        "branch": "1-3-stable",
+        "branch": "refs/tags/1.3.0",
         "description": "An implementation of Rosetta for Cardano ",
         "homepage": "https://www.rosetta-api.org",
         "owner": "input-output-hk",
