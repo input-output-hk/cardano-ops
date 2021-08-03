@@ -14,9 +14,11 @@ let
       or (abort "Unsupported protocol: ${Protocol}");
 
   cardanoNodes = filterAttrs
-    (_: node: node.config.services.cardano-node.enable or false &&
-              ! (node.config.services.cardano-db-sync.enable or false))
+    (_: node:    node.config.services.cardano-node.enable or false)
     nodes;
+  poolNodes    = filterAttrs
+    (name: node: name != "explorer" && name != "node-0")
+    cardanoNodes;
 
   node-src = sourcePaths.cardano-node;
   node-cfg = config.services.cardano-node;
@@ -39,9 +41,7 @@ in {
                  in __trace "generator target:  ${name}/${ip}" ip;
           port = node.config.services.cardano-node.port;
         })
-      (filterAttrs
-        (_: n: ! (n.config.node.roles.isExplorer))
-        cardanoNodes);
+      poolNodes;
 
     ## nodeConfig of the locally running observer node.
     localNodeConf = node-cfg;
