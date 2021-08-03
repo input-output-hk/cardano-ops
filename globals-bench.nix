@@ -174,8 +174,18 @@ in (rec {
                TracingVerbosity = "NormalVerbosity";
                minSeverity = "Debug";
                TurnOnLogMetrics = true;
-               TraceMempool     = true;
-               TraceTxInbound   = true;
+
+               TestEnableDevelopmentHardForkEras = true;
+               TestEnableDevelopmentNetworkProtocols = true;
+
+               TraceMempool               = true;
+               TraceTxInbound             = true;
+               TraceBlockFetchClient      = true;
+               TraceBlockFetchServer      = true;
+               TraceChainSyncHeaderServer = true;
+               TraceChainSyncClient       = true;
+               TraceTxSubmissionProtocol  = true;
+               TraceTxSubmission2Protocol = true;
              }));
     }) (benchmarkingTopology.coreNodes or []);
   };

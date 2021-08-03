@@ -120,6 +120,9 @@ in {
       minSeverity = "Debug";
       TracingVerbosity = "NormalVerbosity";
 
+      TestEnableDevelopmentHardForkEras = true;
+      TestEnableDevelopmentNetworkProtocols = true;
+
       TraceAcceptPolicy                 = false;
       TraceBlockFetchClient             = true;
       TraceBlockFetchDecisions          = false;
