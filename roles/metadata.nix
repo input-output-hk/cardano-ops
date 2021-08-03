@@ -42,8 +42,11 @@ in {
     # Not yet available as an attribute for the Unit section in nixpkgs 20.09
     StartLimitBurst = 3;
 
-    # Restart every 6 hours until a memory leak is addressed
-    RuntimeMaxSec = 6 * 3600;
+    # Limit memory until a memory leak is addressed (keep memory for varnish)
+    MemoryMax = "${toString (config.node.memory * 1024 / 3)}M";
+
+    # Restart every x hours until a memory leak is addressed
+    RuntimeMaxSec = 12 * 3600;
   };
   systemd.services.metadata-webhook.serviceConfig = {
     Restart = "always";
@@ -115,7 +118,7 @@ in {
   services.varnish = {
     enable = true;
     extraModules = [ pkgs.varnish-modules ];
-    extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 4)}M";
+    extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 2)}M";
     config = ''
       vcl 4.1;
 

@@ -33,6 +33,7 @@ pkgs: {
         dns = "default";
       };
     };
+    instances.metadata = pkgs.iohk-ops-lib.physical.aws.t3a-large;
   };
 
   relayUpdateArgs = "-m 50 -s -e devops@iohk.io";
