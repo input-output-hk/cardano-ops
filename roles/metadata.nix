@@ -115,7 +115,7 @@ in {
   services.varnish = {
     enable = true;
     extraModules = [ pkgs.varnish-modules ];
-    extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 3)}M";
+    extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 2)}M";
     config = ''
       vcl 4.1;
 
@@ -214,7 +214,7 @@ in {
       }
 
       sub vcl_backend_response {
-        set beresp.ttl = 3h;
+        set beresp.ttl = 2h;
         if (beresp.status == 404) {
           set beresp.ttl = 1h;
         }
