@@ -43,10 +43,7 @@ in {
     StartLimitBurst = 3;
 
     # Limit memory until a memory leak is addressed (keep memory for varnish)
-    MemoryMax = "${toString (config.node.memory * 1024 / 3)}M";
-
-    # Restart every x hours until a memory leak is addressed
-    RuntimeMaxSec = 12 * 3600;
+    MemoryMax = "${toString (config.node.memory * 1024 / 4)}M";
   };
   systemd.services.metadata-webhook.serviceConfig = {
     Restart = "always";
@@ -118,7 +115,7 @@ in {
   services.varnish = {
     enable = true;
     extraModules = [ pkgs.varnish-modules ];
-    extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 2)}M";
+    extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 3)}M";
     config = ''
       vcl 4.1;
 
@@ -217,7 +214,7 @@ in {
       }
 
       sub vcl_backend_response {
-        set beresp.ttl = 4h;
+        set beresp.ttl = 3h;
         if (beresp.status == 404) {
           set beresp.ttl = 1h;
         }
