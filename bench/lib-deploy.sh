@@ -53,8 +53,7 @@ update_deployfiles() {
           , genesis_hash:      \"$(genesis_hash)\"
           , profile_content:   $(profjq "${prof}" .)
           , pins:
-            { \"cardano-benchmarking\":  $(jq '.["cardano-benchmarking"].rev' nix/sources.json)
-            , \"cardano-node\":          $(jq '.["cardano-node"].rev'         nix/sources.bench.json)
+            { \"cardano-node\":          $(jq '.["cardano-node"].rev'         nix/sources.bench.json)
             , \"cardano-ops\":           \"$(git rev-parse HEAD)\"
             }
           , ops_modified:      $(if git diff --quiet --exit-code
@@ -106,14 +105,13 @@ deploystate_create() {
 
 deploystate_deploy_profile() {
         local prof=$1 include=$2 deploylog=$3 full=
-        local era topology node_rev benchmarking_rev ops_rev ops_checkout_state
+        local era topology node_rev ops_rev ops_checkout_state
 
         if test "$include" = "$(params all-machines)"
         then include=; full='(full)'; fi
 
         era=$(get_era)
         topology=$(parmetajq .topology)
-        benchmarking_rev=$(jq --raw-output '.["cardano-benchmarking"].rev' nix/sources.json)
         node_rev=$(jq --raw-output '.["cardano-node"].rev' nix/sources.bench.json)
         ops_rev=$(git rev-parse HEAD)
         ops_branch=$(maybe_local_repo_branch . ${ops_rev})
@@ -129,7 +127,6 @@ deploystate_deploy_profile() {
 --(   era:           $era
 --(   topology:      $topology
 --(   node:          $node_rev
---(   benchmarking:  $benchmarking_rev
 --(   ops:           $ops_rev / $ops_branch  $ops_checkout_state
 --(   generator:     $(profjq "$prof" .generator --compact-output)
 --(   genesis:       $(profjq "$prof" .genesis   --compact-output)
@@ -220,7 +217,7 @@ deploystate_node_log_commit_id() {
         local mach=$1
 
         set +o pipefail
-        nixops ssh "$mach" -- journalctl -u cardano-node | grep commit | sed 's/.*"\([0-9a-f]\{40\}\)".*/\1/'
+        nixops ssh "$mach" -- journalctl -u cardano-node | grep commit | tail -n1 | sed 's/.*"\([0-9a-f]\{40\}\)".*/\1/'
         set -o pipefail
 }
 
@@ -301,4 +298,15 @@ op_jq_generator() {
 
 op_blocks() {
         nixops ssh explorer 'jq --compact-output "select (.data.kind == \"Recv\" and .data.msg.kind == \"MsgBlock\") | .data.msg" /var/lib/cardano-node/logs/node-*.json'
+}
+
+op_fetch_utxo() {
+    local node=${1:-explorer}
+    local tag=$(cluster_last_meta_tag)
+    local file='runs/'$tag/utxo.$(date +%s).json
+
+    oprint "querying UTxO on $node.."
+    op_on $node cardano-cli query utxo --cardano-mode --whole-utxo --testnet-magic 42 --out-file '/var/lib/cardano-node/utxo'
+    oprint "fetching UTxO from $node into $file.."
+    nixops scp --from $node '/var/lib/cardano-node/utxo' "$file"
 }

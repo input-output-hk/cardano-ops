@@ -19,6 +19,7 @@ let
         (import benchmarkingTopologyFile)
         benchmarkingProfile)
     else abort "Benchmarking topology file implied by configured node count ${toString (__length benchmarkingParams.meta.node_names)} does not exist: ${benchmarkingTopologyFile}";
+  AlonzoGenesisFile  = ./keys/alonzo-genesis.json;
   ShelleyGenesisFile = ./keys/genesis.json;
   ShelleyGenesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/GENHASH);
   ByronGenesisFile = ./keys/byron/genesis.json;
@@ -81,6 +82,7 @@ let
     options = {
       mapBackends = {
         "cardano.node.resources" = [ "KatipBK" ];
+        "cardano.node.metrics"   = [ "EKGViewBK" ];
       };
     };
   };
@@ -89,8 +91,11 @@ in (rec {
 
   networkName = "Benchmarking, size ${toString (__length benchmarkingTopology.coreNodes)}";
 
+  withCardanoDBExtended = false;
+  withExplorer = false;
   withMonitoring = false;
-  withExplorer = true;
+  explorerBackends = {};
+  explorerActiveBackends = [];
 
   environmentName = "bench-${benchmarkingParams.meta.topology}-${benchmarkingProfileName}";
 
@@ -100,13 +105,15 @@ in (rec {
     relays = "relays.${pkgs.globals.domain}";
     edgePort = pkgs.globals.cardanoNodePort;
     private = true;
-    networkConfig = envConfigBase.networkConfig // {
+    networkConfig = (removeAttrs envConfigBase.networkConfig ["AlonzoGenesisHash"]) // {
       Protocol = "Cardano";
+      inherit  AlonzoGenesisFile;
       inherit ShelleyGenesisFile ShelleyGenesisHash;
       inherit   ByronGenesisFile   ByronGenesisHash;
     };
-    nodeConfig = envConfigBase.nodeConfig // {
+    nodeConfig = (removeAttrs envConfigBase.nodeConfig ["AlonzoGenesisHash"]) // {
       Protocol = "Cardano";
+      inherit  AlonzoGenesisFile;
       inherit ShelleyGenesisFile ShelleyGenesisHash;
       inherit   ByronGenesisFile   ByronGenesisHash;
     } // {
@@ -125,41 +132,41 @@ in (rec {
     }.${pkgs.globals.environmentConfig.generatorConfig.era};
     txSubmitConfig = {
       inherit (networkConfig) RequiresNetworkMagic;
-      inherit ShelleyGenesisFile ByronGenesisFile;
+      inherit AlonzoGenesisFile ShelleyGenesisFile ByronGenesisFile;
     } // pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig;
 
     ## This is overlaid atop the defaults in the tx-generator service,
-    ## as specified in the 'cardano-benchmarking' repository.
+    ## as specified in the 'cardano-node' repository.
     generatorConfig = benchmarkingProfile.generator;
   };
 
-  topology = benchmarkingTopology // {
-    explorer = {
+  topology = {
+    relayNodes = map (recursiveUpdate {
+      ## XXX: assumes we have `explorer` as our only relay.
       imports = [
         pkgs.cardano-ops.roles.tx-generator
-        ({ config, ...}: {
-          services.cardano-db-sync.enable = mkForce false;
-          services.cardano-explorer-api.enable = mkForce false;
-          services.cardano-submit-api.enable = mkForce false;
-          systemd.services.cardano-explorer-api.enable = mkForce false;
-        })
+        # ({ config, ...}: {
+        # })
       ];
-      services.cardano-graphql.enable = mkForce false;
-      services.cardano-postgres.enable = mkForce false;
-      services.cardano-rosetta-server.enable = mkForce false;
-      services.custom-metrics.enable = mkForce false;
-      services.graphql-engine.enable = mkForce false;
-      services.nginx.enable = mkForce false;
-      services.postgresql.enable = mkForce false;
+      documentation = {
+        man.enable = false;
+        doc.enable = false;
+      };
+      networking.firewall.allowPing = mkForce true;
       services.cardano-node.package = mkForce pkgs.cardano-node-eventlogged;
       systemd.services.dump-registered-relays-topology.enable = mkForce false;
-      systemd.services.nginx.enable = mkForce false;
-    };
+    }) (benchmarkingTopology.relayNodes or []);
     coreNodes = map (recursiveUpdate {
       stakePool = true;
+
+      documentation = {
+        man.enable = false;
+        doc.enable = false;
+      };
+      networking.firewall.allowPing = mkForce true;
       services.cardano-node.nodeConfig =
         recursiveUpdate
-          pkgs.globals.environmentConfig.nodeConfig
+          (removeAttrs pkgs.globals.environmentConfig.nodeConfig ["AlonzoGenesisHash"])
           (recursiveUpdate
             (benchmarkingLogConfig "node")
             ({
@@ -167,16 +174,28 @@ in (rec {
                TracingVerbosity = "NormalVerbosity";
                minSeverity = "Debug";
                TurnOnLogMetrics = true;
-               TraceMempool     = true;
-               TraceTxInbound   = true;
+
+               TestEnableDevelopmentHardForkEras = true;
+               TestEnableDevelopmentNetworkProtocols = true;
+
+               TraceMempool               = true;
+               TraceTxInbound             = true;
+               TraceBlockFetchClient      = true;
+               TraceBlockFetchServer      = true;
+               TraceChainSyncHeaderServer = true;
+               TraceChainSyncClient       = true;
+               TraceTxSubmissionProtocol  = true;
+               TraceTxSubmission2Protocol = true;
              }));
-      services.custom-metrics.enable = mkForce false;
     }) (benchmarkingTopology.coreNodes or []);
   };
 
   ec2 = with pkgs.iohk-ops-lib.physical.aws;
     {
-      instances.core-node = c5-2xlarge;
+      instances = {
+        core-node = c5-2xlarge;
+        relay-node = c5-2xlarge;
+      };
       credentials = {
         accessKeyIds = {
           IOHK = "dev-deployer";

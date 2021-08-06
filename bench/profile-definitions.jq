@@ -72,7 +72,7 @@ def genesis_defaults($era; $compo):
   }
 
 , mary:
-  { decentralisation_param:  0.5
+  { decentralisation_param:  0
   }
 } | (.common + .[$era]);
 
@@ -123,7 +123,7 @@ def derived_generator_params($era; $compo; $gtor; $gsis; $node):
 { common:
   { era:                     $era
   , tx_count:                ($gtor.tx_count
-                              // ($duration * ([$gtor.tps, 7] | min)))
+                              // ($duration * $gtor.tps))
   }
 } | (.common + (.[$era] // {}));
 
@@ -198,6 +198,8 @@ def utxo_delegators_density_profiles:
   , { genesis: { utxo: 4000000, delegators: 1000000 } }
   , { genesis: { utxo: 2000000, delegators:  500000, epoch_length: 4400 } }
   , { genesis: { utxo: 2000000, delegators:  500000, epoch_length: 6600 } }
+  , { genesis: { utxo: 2000000, delegators:  500000, dense_pool_density: 2 } }
+  , { genesis: { utxo: 2000000, delegators:  500000, dense_pool_density: 5 } }
   , { genesis: { utxo: 2000000, delegators:  500000, dense_pool_density: 10 } }
   , { genesis: { utxo: 2000000, delegators:  500000, dense_pool_density: 20 } }
   , { genesis: { utxo: 2000000, delegators:  500000 }
@@ -208,6 +210,25 @@ def utxo_delegators_density_profiles:
     , generator: { tps: 5 } }
   , { genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: { tps: 10 } }
+
+
+  , { genesis: { utxo: 2000000, delegators:  500000 }
+    , generator: { epochs:  6 } }
+
+  , { genesis: { utxo: 2000000, delegators:  500000, max_block_size:  128000 }
+    , generator: { tps:  16 } }
+  , { genesis: { utxo: 2000000, delegators:  500000, max_block_size:  256000 }
+    , generator: { tps:  32 } }
+  , { genesis: { utxo: 2000000, delegators:  500000, max_block_size:  512000 }
+    , generator: { tps:  64 } }
+  , { genesis: { utxo: 2000000, delegators:  500000, max_block_size: 1024000 }
+    , generator: { tps: 128 } }
+  , { genesis: { utxo: 2000000, delegators:  500000, max_block_size: 2048000 }
+    , generator: { tps: 256 } }
+
+  , { genesis: { utxo:  4000000, delegators:  1000000 } }
+  , { genesis: { utxo:  8000000, delegators:  2000000 } }
+  , { genesis: { utxo: 10000000, delegators:  2500000 } }
   ];
 
 def generator_profiles:
@@ -242,7 +263,7 @@ def era_tolerances($era; $genesis):
   , last_log_spread_s:              120
   , silence_since_last_block_s:     120
   , tx_loss_ratio:                  0.02
-  , finish_patience:                21
+  , finish_patience:                42
   , minimum_chain_density:          ($genesis.active_slots_coeff * 0.5)
   }
 , shelley:

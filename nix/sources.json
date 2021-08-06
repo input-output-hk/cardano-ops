@@ -11,18 +11,6 @@
         "url": "https://github.com/turnkeylinux/aws-datacenters/archive/a7106906e60969e917e555fd770454f72c78bb75.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-benchmarking": {
-        "branch": "master",
-        "description": "Epic win",
-        "homepage": null,
-        "owner": "input-output-hk",
-        "repo": "cardano-benchmarking",
-        "rev": "708ce37b4cf1ea74764c4f0d825a3a1b8212eafe",
-        "sha256": "0p3ikpsyla5qy1qxamvfrg2lv7zlz9fa524y8izxjd6xb2i8df90",
-        "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-benchmarking/archive/708ce37b4cf1ea74764c4f0d825a3a1b8212eafe.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "cardano-db-sync-10": {
         "branch": "refs/tags/10.0.0",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",

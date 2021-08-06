@@ -94,6 +94,8 @@ usage_extra() {
 
     nodes CMD..           Run CMD either on forging nodes or the explorer.
     explorer CMD..
+    fetch-utxo [NODE=explorer]
+                          Fetch UTxO from NODE into FILE.
 
     jq-explorer [JQEXPR=.]
     jq-generator [JQEXPR=.]
@@ -270,6 +272,7 @@ EOF
 
                 nodes | n )           op_nodes       "$@";;
                 explorer | e )        op_on 'explorer'    "$@";;
+                fetch-utxo | utxo )   op_fetch_utxo "$@";;
 
                 jq-explorer | jqe )   op_jq 'explorer' "$@" | ${jq_select};;
                 jq-generator | jqg )  op_jq_generator "$@" | ${jq_select};;
@@ -415,6 +418,7 @@ op_bench_start() {
                op_wait_for_empty_blocks "$prof" fetch_systemd_unit_startup_logs
                ret=$?
              }
+        op_fetch_utxo
         op_stop
 
         return $ret
@@ -528,6 +532,9 @@ EOF
           })
    | from_entries' "${dir}"/meta/cluster.raw.json)
 }" --null-input
+
+        oprint "recording the network latency matrix.."
+        ./bench/latency-map.sh "$metafile" > "$dir"/network-latency-matrix.json
 }
 
 op_wait_for_nonempty_block() {
@@ -617,8 +624,6 @@ fetch_run() {
         oprint "run directory:  ${dir}"
         pushd "${dir}" >/dev/null || return 1
 
-        run_fetch_benchmarking 'tools'
-
         local producers
         producers=($(params producers))
         oprint "fetching logs from:  explorer ${producers[*]}"
@@ -631,14 +636,17 @@ fetch_run() {
               { find logs -type l | xargs rm -f; } &&
               rm -f logs-${mach} &&
               ln -sf logs logs-${mach} &&
+              (test ! -f cardano-node.prof ||
+               mv cardano-node.prof ${mach}.prof;) &&
               (test ! -f cardano-node.eventlog ||
                mv cardano-node.eventlog ${mach}.eventlog;) &&
               ( journalctl -ru cardano-node |
                 head -n 90 | cut -d: -f4 |
                 sed -n '/  \]/,/bytes allocated/ p' |
                 tac > ${mach}-cardano-node-gcstats.log; ) &&
-              tar cz --dereference logs-${mach} \$(ls ${mach}.eventlog ${mach}-cardano-node-gcstats.log 2>/dev/null || true)
-           " | tar xz; done
+              tar cz --dereference \$(ls | grep '^db-\|^logs$' -v)
+           " | tar xz & done
+        wait
 
         oprint "repacking logs.."
         local explorer_extra_logs=(

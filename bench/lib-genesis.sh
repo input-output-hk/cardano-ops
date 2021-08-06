@@ -230,6 +230,25 @@ profile_genesis_singleshot() {
         ## update genesis from template
         cli genesis create-staked "${params[@]}"
 
+        jq '
+          { adaPerUTxOWord: 0
+          , executionPrices:
+            { prMem:              1
+            , prSteps:            1
+            }
+          , maxTxExUnits:
+            { exUnitsMem:         2000000000
+            , exUnitsSteps:       2000000000
+            }
+          , maxBlockExUnits:
+            { exUnitsMem:         200000000000
+            , exUnitsSteps:       200000000000
+            }
+          , maxValueSize:         1000
+          , collateralPercentage: 100
+          , maxCollateralInputs:  1
+          }' --null-input > "$target_dir"/alonzo-genesis.json
+
         genesis_remap_key_names "$prof" "$ids_pool_map"
 
         ## Fix up the key, so the generator can read it:

@@ -14,12 +14,7 @@ do case "$1" in
            * ) break;; esac; shift; done
 set -u
 
-other_repo=${1:-$(realpath "$this_repo"/../cardano-benchmarking)}
-other_project=$other_repo/cabal.project
-other_name=$(basename "$other_repo")
-
 repos=(
-        "$other_name"
         cardano-node
 )
 
@@ -59,8 +54,8 @@ fail() {
     exit 1
 }
 
-test -r "$other_project" ||
-        fail "Usage:  $(basename "$0") [SYNC-FROM-REPO=../${other_name}]"
+# test -r "$other_project" ||
+#         fail "Usage:  $(basename "$0") [SYNC-FROM-REPO=../${other_name}]"
 
 declare -A repo_commit
 declare -A repo_hash
@@ -100,11 +95,6 @@ Updated ${repo}/nix/${sources}.json pin for $pin:
 EOF
         fi
 }
-
-## Update sources.json
-update_sources_pin "$this_repo" 'sources' "$other_name" \
-                   "${repo_commit[$other_name]}" \
-                   "${repo_hash[$other_name]}"
 
 update_sources_pin "$this_repo" 'sources.bench' 'cardano-node' \
                    "${repo_commit['cardano-node']}" \

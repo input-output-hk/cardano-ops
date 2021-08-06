@@ -9,39 +9,30 @@ at_exit() {
 }
 trap at_exit EXIT
 
-nixpkgs="$(nix-build ./nix \
-                     --no-out-link )"
-## TODO: make the following work -- that'll improve caching:
-# nixpkgs=./nix
-test -n "${nixpkgs}" || { echo "ERROR:  couldn't evaluate 'nixpkgs'" >&2; exit 1; }
-
-nixops="$(nix-build  -I nixpkgs="${nixpkgs}"    \
-                     '<nixpkgs>'     -A nixops  \
-                     --no-out-link)"
+nixops="$(nix-build  ./nix -A nixops --no-out-link)"
 test -n "${nixops}" || { echo "ERROR:  couldn't evaluate 'nixops'" >&2; exit 1; }
 
-nixexpr="$(mktemp --tmpdir deploy-XXXXXX.nix)"
+nixexpr="$(mktemp --tmpdir test-deploy-XXXXXX.nix)"
 CLEANUP+=("rm -f ${nixexpr}")
 
 cat >"${nixexpr}" <<EOF
 import <nixops/eval-machine-info.nix> {
         networkExprs = [
                 "$(realpath deployments/cardano-aws.nix)"
-                "$(realpath physical/physical-shelley-dev.nix)"
+                "$(realpath physical/mock.nix)"
         ];
         uuid = "11111111-1111-1111-1111-111111111111";
         deploymentName = "deployme";
         args = {};
-        # pluginNixExprs = [];
-        checkConfigurationOptions = false; }
+        checkConfigurationOptions = false;
+        pluginNixExprs = [];
+}
 EOF
 
-export NIX_PATH="nixpkgs=${nixpkgs}:nixops=${nixops}/share/nix/nixops"
+export NIX_PATH="$NIX_PATH:nixops=${nixops}/share/nix/nixops"
 NODES=(
         explorer
-        # a
-        # b
-        # c
+        node-1
 )
 ARGS=(
         "${nixexpr}"
