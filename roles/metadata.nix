@@ -42,8 +42,9 @@ in {
     # Not yet available as an attribute for the Unit section in nixpkgs 20.09
     StartLimitBurst = 3;
 
-    # Limit memory until a memory leak is addressed (keep memory for varnish)
+    # Limit memory and runtime until a memory leak is addressed (keep memory for varnish)
     MemoryMax = "${toString (config.node.memory * 1024 / 4)}M";
+    RuntimeMaxSec = 4 * 3600;
   };
   systemd.services.metadata-webhook.serviceConfig = {
     Restart = "always";
