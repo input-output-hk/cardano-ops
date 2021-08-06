@@ -214,9 +214,9 @@ in {
       }
 
       sub vcl_backend_response {
-        set beresp.ttl = 2h;
+        set beresp.ttl = 30m;
         if (beresp.status == 404) {
-          set beresp.ttl = 1h;
+          set beresp.ttl = 5m;
         }
       }
     '';
