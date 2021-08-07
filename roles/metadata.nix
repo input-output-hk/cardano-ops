@@ -121,7 +121,10 @@ in {
   services.varnish = {
     enable = true;
     extraModules = [ pkgs.varnish-modules ];
-    extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 2)}M";
+    # FIXME: varnish is using too much memory (4xmalloc ?), maybe due to:
+    # https://github.com/varnishcache/varnish-cache/issues/3511
+    # We should consider switching away from varnish-embedded version of jemalloc.
+    extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 6)}M";
     config = ''
       vcl 4.1;
 
@@ -220,7 +223,7 @@ in {
       }
 
       sub vcl_backend_response {
-        set beresp.ttl = 30m;
+        set beresp.ttl = 20m;
         if (beresp.status == 404) {
           set beresp.ttl = 5m;
         }
