@@ -35,16 +35,21 @@ in {
   systemd.services.metadata-server.startLimitIntervalSec = 1800;
   systemd.services.metadata-webhook.startLimitIntervalSec = 1800;
 
-  systemd.services.metadata-server.serviceConfig = {
-    Restart = "always";
-    RestartSec = "30s";
+  systemd.services.metadata-server = {
+    environment = {
+      GHCRTS = "-N2 -M${toString (config.node.memory * 1024 / 4)}M";
+    };
+    serviceConfig = {
+      Restart = "always";
+      RestartSec = "30s";
 
-    # Not yet available as an attribute for the Unit section in nixpkgs 20.09
-    StartLimitBurst = 3;
+      # Not yet available as an attribute for the Unit section in nixpkgs 20.09
+      StartLimitBurst = 3;
 
-    # Limit memory and runtime until a memory leak is addressed (keep memory for varnish)
-    MemoryMax = "${toString (config.node.memory * 1024 / 4)}M";
-    RuntimeMaxSec = 4 * 3600;
+      # Limit memory and runtime until a memory leak is addressed (keep memory for varnish)
+      MemoryMax = "${toString (config.node.memory * 1024 / 4)}M";
+      RuntimeMaxSec = 4 * 3600;
+    };
   };
   systemd.services.metadata-webhook.serviceConfig = {
     Restart = "always";

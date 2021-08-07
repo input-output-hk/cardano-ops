@@ -145,15 +145,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "offchain-metadata-tools": {
-        "branch": "v0.2.0.0",
+        "branch": "rtsopts",
         "description": "Tools for creating, submitting, and managing off-chain metadata such as multi-asset token metadata",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "offchain-metadata-tools",
-        "rev": "dd052829f0f070f91edd67cffe073db1622ea55d",
-        "sha256": "0s3bmgjcgn4lx8mx4iwb3i88nvj03cmyfl1ik85xd7y9rcl1sf0q",
+        "rev": "d3a62ff81b320ba0ba6b75333793764ea37f371d",
+        "sha256": "0lyi88xrqh59dvkvmavwnm4wylnhlwa59y69b75l0qpv7dyqa0ck",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/offchain-metadata-tools/archive/dd052829f0f070f91edd67cffe073db1622ea55d.tar.gz",
+        "url": "https://github.com/input-output-hk/offchain-metadata-tools/archive/d3a62ff81b320ba0ba6b75333793764ea37f371d.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ogmios": {
