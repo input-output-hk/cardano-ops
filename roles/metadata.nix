@@ -230,6 +230,13 @@ in {
       }
     '';
   };
+  systemd.services.varnish.serviceConfig = {
+    Restart = "always";
+
+    # Limit memory due to https://github.com/varnishcache/varnish-cache/issues/3511
+    # (probably)
+    MemoryMax = "${toString (config.node.memory * 1024 * 2 / 3)}M";
+  };
 
   # Ensure the worker processes don't hit TCP file descriptor limits
   systemd.services.nginx.serviceConfig.LimitNOFILE = 65535;
