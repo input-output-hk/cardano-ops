@@ -181,18 +181,19 @@ in {
     path = [ config.services.postgresql.package jq netcat curl dnsutils ];
     script = ''
       set -uo pipefail
-      excludeList="$(sort ${relays_exclude_file})"
-      cd $STATE_DIRECTORY
-      rm -f relays.json
-      for r in $(psql -t < ${extract_relays_sql} | jq -c '.[]'); do
-        addr=$(echo "$r" | jq -r '.addr')
-        port=$(echo "$r" | jq -r '.port')
-        allAddresses="$addr\n$(dig +short $addr)"
-        excludedAddresses=$(comm -12 <(echo "$allAddresses" | sort) <(echo "$excludeList"))
-        nbExcludedAddresses=$(echo $excludedAddresses | wc -w)
-        if [[ $nbExcludedAddresses == 0 ]]; then
+
+      pingAddr() {
+        index=$1
+        addr=$2
+        port=$3
+        allAddresses=$(dig +nocookie +short $addr A)
+        if [ -z $allAddresses ]; then
+          allAddresses=$addr
+        fi
+
+        while IFS= read -r ip; do
           set +e
-          PING="$(timeout 2s ${cardano-ping}/bin/cardano-ping -h $addr -p $port -m ${toString networkMagic} -c 1 -q --json)"
+          PING="$(timeout 7s ${cardano-ping}/bin/cardano-ping -h $ip -p $port -m ${toString networkMagic} -c 1 -q --json)"
           res=$?
           if [ $res -eq 0 ]; then
             echo $PING | ${jq}/bin/jq -c > /dev/null 2>&1
@@ -200,9 +201,9 @@ in {
           fi
           set -e
           if [ $res -eq 0 ]; then
-            >&2 echo "Successfully pinged $addr:$port"
+            >&2 echo "Successfully pinged $addr:$port (on ip: $ip)"
             set +e
-            geoinfo=$(curl -s -k --retry 6 https://json.geoiplookup.io/$addr)
+            geoinfo=$(curl -s -k --retry 6 https://json.geoiplookup.io/$ip)
             res=$?
             set -e
             if [ $res -eq 0 ]; then
@@ -214,22 +215,48 @@ in {
                 state=$country_code
               fi
               echo $r | jq -c --arg continent "$continent" \
-                --arg state "$state" '. + {continent: $continent, state: $state}' >> relays.json
+                --arg state "$state" '. + {continent: $continent, state: $state}' > $index-relay.json
+              break
             else
-              >&2 echo "Failed to retrieved goip info for $addr"
+              >&2 echo "Failed to retrieved goip info for $ip"
               exit $res
             fi
           else
-            >&2 echo "failed to cardano-ping $addr:$port"
+            >&2 echo "failed to cardano-ping $addr:$port (on ip: $ip)"
           fi
+        done <<< "$allAddresses"
+      }
+
+      excludeList="$(sort ${relays_exclude_file})"
+      cd $STATE_DIRECTORY
+      rm -f *-relay.json
+      i=0
+      for r in $(psql -t < ${extract_relays_sql} | jq -c '.[]'); do
+        addr=$(echo "$r" | jq -r '.addr')
+        port=$(echo "$r" | jq -r '.port')
+        allAddresses=$addr$'\n'$(dig +nocookie +short $addr A)
+        excludedAddresses=$(comm -12 <(echo "$allAddresses" | sort) <(echo "$excludeList"))
+        nbExcludedAddresses=$(echo $excludedAddresses | wc -w)
+        if [[ $nbExcludedAddresses == 0 ]]; then
+          ((i+=1))
+          pingAddr $i $addr $port &
+          sleep 0.2
         else
           >&2 echo "$addr excluded due to dns name or IPs being in exclude list:\n$excludedAddresses"
         fi
       done
-      if [ -f relays.json ]; then
-        cat relays.json | jq -n '. + [inputs]' | jq '{ Producers : . }' > topology.json
+
+      wait
+
+      if test -n "$(find . -maxdepth 1 -name '*-relay.json' -print -quit)"; then
+        echo "Found a total of $(find . -name '*-relay.json' -printf '.' | wc -m) relays to include in topology.json"
+        find . -name '*-relay.json' -printf '%f\t%p\n' | sort -k1 -n | cut -d$'\t' -f2 | tr '\n' '\0' | xargs -r0 cat \
+          | jq -n '. + [inputs]' | jq '{ Producers : . }' > topology.json
         mkdir -p relays
         mv topology.json relays/topology.json
+        rm *-relay.json
+      else
+        echo "No relays found!!"
       fi
     '';
     serviceConfig = {
