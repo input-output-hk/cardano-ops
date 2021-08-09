@@ -25,7 +25,10 @@ regions = {
   bftCoreNodes = let
     mkBftCoreNode = mkBftCoreNodeForRegions regions;
   in regionalConnectGroupWith (reverseList stakingPoolNodes)
-  (fullyConnectNodes [
+  (fullyConnectNodes (map (withModule {
+    # Disable monitoring of bft nodes (do not produces blocks anymore)
+    services.monitoring-exporters.metrics = false;
+  }) [
     # OBFT centralized nodes recovery nodes
     (mkBftCoreNode "a" 1 {
       org = "IOHK";
@@ -55,7 +58,7 @@ regions = {
       org = "IOHK";
       nodeId = 7;
     })
-  ]);
+  ]));
 
   stakingPoolNodes = let
     mkStakingPool = mkStakingPoolForRegions regions;
