@@ -1,5 +1,5 @@
 { lib, stdenv, fetchurl, fetchpatch, pcre, libxslt, groff, ncurses, pkg-config, readline, libedit
-, python3, makeWrapper }:
+, python3, makeWrapper, jemalloc }:
 
 let
   common = { version, sha256, extraNativeBuildInputs ? [], patches ? [] }:
@@ -16,10 +16,10 @@ let
 
       nativeBuildInputs = with python3.pkgs; [ pkg-config docutils sphinx ];
       buildInputs = [
-        pcre libxslt groff ncurses readline libedit makeWrapper python3
+        pcre libxslt groff ncurses readline libedit makeWrapper python3 jemalloc
       ];
 
-      buildFlags = [ "localstatedir=/var/spool" ];
+      buildFlags = [ "localstatedir=/var/spool" "JEMALLOC_LDADD=${jemalloc}/lib/libjemalloc.so" ];
 
       postInstall = ''
         wrapProgram "$out/sbin/varnishd" --prefix PATH : "${lib.makeBinPath [ stdenv.cc ]}"
