@@ -240,7 +240,7 @@ in {
         if [[ $nbExcludedAddresses == 0 ]]; then
           ((i+=1))
           pingAddr $i $addr $port &
-          sleep 0.2
+          sleep 0.5
         else
           >&2 echo "$addr excluded due to dns name or IPs being in exclude list:\n$excludedAddresses"
         fi
