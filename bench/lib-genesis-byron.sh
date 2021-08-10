@@ -67,8 +67,6 @@ profile_genesis_byron() {
 
         cardano-cli byron genesis genesis "${genesis_cli_args[@]}"
         rm -f "$byron_params_tmpfile"
-
-        oprint "generated genesis for $prof in:  $target_dir"
 }
 
 genesis_update_starttime_byron() {

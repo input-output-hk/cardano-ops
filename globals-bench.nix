@@ -88,6 +88,7 @@ let
   };
 
 in (rec {
+  inherit benchmarkingProfile;
 
   networkName = "Benchmarking, size ${toString (__length benchmarkingTopology.coreNodes)}";
 

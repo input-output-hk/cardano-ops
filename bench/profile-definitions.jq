@@ -79,7 +79,7 @@ def genesis_defaults($era; $compo):
 def generator_defaults($era):
 { common:
   { add_tx_size:             100
-  , init_cooldown:           90
+  , init_cooldown:           45
   , inputs_per_tx:           2
   , outputs_per_tx:          2
   , tx_fee:                  1000000
@@ -150,16 +150,15 @@ def profile_name($compo; $gsis; $gtor; $node):
   [ "k\($gsis.n_pools)" ]
   + may_attr("dense_pool_density";
              $gsis; genesis_defaults($era; $compo); 1; "ppn")
-  + [ ($gtor.epochs                | tostring) + "ep"
-    , ($gsis.utxo       | . / 1000 | tostring) + "kU"
-    , ($gsis.delegators | . / 1000 | tostring) + "kD"
+  + [ ($gtor.epochs                    | tostring) + "ep"
+    , ($gsis.utxo           | . / 1000 | tostring) + "kU"
+    , ($gsis.delegators     | . / 1000 | tostring) + "kD"
+    , ($gsis.max_block_size | . / 1000 | tostring) + "kbs"
     ]
   + may_attr("tps";
              $gtor; generator_defaults($era); 1; "tps")
   + may_attr("epoch_length";
-             $gsis; genesis_defaults($era; $compo); 1; "esec")
-  + may_attr("max_block_size";
-             $gsis; genesis_defaults($era; $compo); 1000; "kb")
+             $gsis; genesis_defaults($era; $compo); 1; "eplen")
   + may_attr("add_tx_size";
              $gtor; generator_defaults($era); 1; "b")
   + may_attr("inputs_per_tx";
@@ -195,22 +194,32 @@ def utxo_delegators_density_profiles:
   , { genesis: { utxo:  8000000, delegators:  2000000 } }
   , { genesis: { utxo: 10000000, delegators:  2500000 } }
 
-  ## Calibration, with ~30 tx/64k-block:
-  , { genesis: { utxo: 2000000, delegators:  500000 }
-    , generator: { add_tx_size: 2000, tps: 5 } }
-
-  ## Baseline for Alonzo hard fork, as agreed with Neil:
-  , { genesis: { utxo:  3000000, delegators:   750000 }
+  , { desc: "#1: baseline for Alonzo hard fork, as agreed with Neil"
+    , genesis: { utxo:  3000000, delegators:   750000 }
+    , generator: { epochs: 4 }
     , node: { extra_config:
               { TestAlonzoHardForkAtEpoch: 1
               }}}
 
-  ## Baseline + some time
-  , { genesis: { utxo:  4500000, delegators:  1000000 }
+  , { desc: "#2: baseline + some time"
+    , genesis: { utxo:  4500000, delegators:  1000000 }
+    , generator: { epochs: 4 }
     , node: { extra_config:
               { TestAlonzoHardForkAtEpoch: 1
               }}}
-  ];
+
+  , { desc: "#3: for 1.29 release, below mainnet datasets, but we need comparability"
+    , genesis: { utxo: 2000000, delegators:  500000 }
+    , generator: { tps: 10, scriptMode: false } }
+
+  , { desc: "#4: for 1.29 release, at mainnet datasets"
+    , genesis: { utxo: 3000000, delegators:  750000 }
+    , generator: { tps: 10, scriptMode: false } }
+
+  , { desc: "#5: calibration, with ~30 tx/64k-block"
+    , genesis: { utxo: 2000000, delegators:  500000 }
+    , generator: { add_tx_size: 2000, tps: 10, scriptMode: false } }
+];
 
 def generator_profiles:
   [ { generator: {} }
@@ -230,10 +239,10 @@ def profiles:
   | map (. *
         { node:
           { expected_activation_time:
-            (120 * ((.genesis.delegators / 500000)
-                    +
-                    (.genesis.utxo       / 2000000))
-                 / 2)
+            (60 * ((.genesis.delegators / 500000)
+                   +
+                   (.genesis.utxo       / 2000000))
+                / 2)
           }
         });
 
@@ -253,7 +262,7 @@ def era_tolerances($era; $genesis):
 } | (.common + .[$era]);
 
 def aux_profiles:
-[ { name: "10000"
+[ { name: "smoke-10000"
   , generator: { tx_count: 10000, inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100 }
   , genesis:
     { genesis_future_offset: "3 minutes"
@@ -261,7 +270,7 @@ def aux_profiles:
     , dense_pool_density:    10
     }
   }
-, { name: "1000"
+, { name: "smoke-1000"
   , generator: { tx_count: 1000,  inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
                , init_cooldown: 25, finish_patience: 4 }
   , genesis:
@@ -270,7 +279,7 @@ def aux_profiles:
     , dense_pool_density:    10
     }
   }
-, { name: "100"
+, { name: "smoke-100"
   , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
                , init_cooldown: 25, finish_patience: 4 }
   , genesis:
@@ -279,7 +288,7 @@ def aux_profiles:
     , dense_pool_density:    10
     }
   }
-, { name: "k50-smoke"
+, { name: "smoke-k50"
   , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
                , init_cooldown: 90, finish_patience: 4 }
   , genesis:

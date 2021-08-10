@@ -223,7 +223,7 @@ analysis_derived() {
             <<<0
 }
 
-analysis_list+=(analysis_sanity)
+analysis_list+=()
 analysis_sanity() {
         local dir=${1:-.} tag errors
         tag=$(run_tag "$dir")
