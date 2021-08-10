@@ -19,6 +19,7 @@ let
         pcre libxslt groff ncurses readline libedit makeWrapper python3 jemalloc
       ];
 
+      #Use external jemmaloc: https://github.com/varnishcache/varnish-cache/issues/3511
       buildFlags = [ "localstatedir=/var/spool" "JEMALLOC_LDADD=${jemalloc}/lib/libjemalloc.so" ];
 
       postInstall = ''

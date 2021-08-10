@@ -124,7 +124,7 @@ in {
     # FIXME: varnish is using too much memory (4xmalloc ?), maybe due to:
     # https://github.com/varnishcache/varnish-cache/issues/3511
     # We should consider switching away from varnish-embedded version of jemalloc.
-    extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 6)}M";
+    extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 2)}M";
     config = ''
       vcl 4.1;
 
@@ -223,19 +223,12 @@ in {
       }
 
       sub vcl_backend_response {
-        set beresp.ttl = 20m;
+        set beresp.ttl = 30m;
         if (beresp.status == 404) {
-          set beresp.ttl = 5m;
+          set beresp.ttl = 10m;
         }
       }
     '';
-  };
-  systemd.services.varnish.serviceConfig = {
-    Restart = "always";
-
-    # Limit memory due to https://github.com/varnishcache/varnish-cache/issues/3511
-    # (probably)
-    MemoryMax = "${toString (config.node.memory * 1024 * 2 / 3)}M";
   };
 
   # Ensure the worker processes don't hit TCP file descriptor limits
