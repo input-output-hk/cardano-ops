@@ -187,7 +187,7 @@ in {
         addr=$2
         port=$3
         allAddresses=$(dig +nocookie +short $addr A)
-        if [ -z $allAddresses ]; then
+        if [ -z "$allAddresses" ]; then
           allAddresses=$addr
         fi
 
