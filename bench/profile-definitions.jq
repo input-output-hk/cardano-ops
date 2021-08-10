@@ -168,47 +168,12 @@ def profile_name($compo; $gsis; $gtor; $node):
              $gtor; generator_defaults($era); 1; "o")
   | join("-");
 
-def utxo_profiles:
-  [ { genesis: { utxo:         1000000 } }
-  , { genesis: { utxo:         2000000 } }
-  , { genesis: { utxo:         4000000 } }
-  ];
-
-def delegator_profiles:
-  [ { genesis: { delegators:    125000 } }
-  , { genesis: { delegators:    250000 } }
-  , { genesis: { delegators:    500000 } }
-  , { genesis: { delegators:   1000000 } }
-  , { genesis: { delegators:   2000000 } }
-  ];
-
-def pool_density_profiles:
-  [ { genesis: { dense_pool_density: 1  } }
-  , { genesis: { dense_pool_density: 10 } }
-  , { genesis: { dense_pool_density: 20 } }
-  , { genesis: { dense_pool_density: 40 } }
-  ];
-
 def utxo_delegators_density_profiles:
   [ { genesis: { utxo: 2000000, delegators:  500000 } }
-  , { genesis: { utxo: 2000000, delegators:  750000 } }
-  , { genesis: { utxo: 2000000, delegators: 1000000 } }
-  , { genesis: { utxo: 3000000, delegators:  500000 } }
-  , { genesis: { utxo: 4000000, delegators:  500000 } }
-  , { genesis: { utxo: 4000000, delegators: 1000000 } }
-  , { genesis: { utxo: 2000000, delegators:  500000, epoch_length: 4400 } }
-  , { genesis: { utxo: 2000000, delegators:  500000, epoch_length: 6600 } }
   , { genesis: { utxo: 2000000, delegators:  500000, dense_pool_density: 2 } }
-  , { genesis: { utxo: 2000000, delegators:  500000, dense_pool_density: 5 } }
-  , { genesis: { utxo: 2000000, delegators:  500000, dense_pool_density: 10 } }
-  , { genesis: { utxo: 2000000, delegators:  500000, dense_pool_density: 20 } }
   , { genesis: { utxo: 2000000, delegators:  500000 }
     , generator: { tps: 5 } }
   , { genesis: { utxo: 2000000, delegators:  500000 }
-    , generator: { tps: 10 } }
-  , { genesis: { utxo: 4000000, delegators: 1000000 }
-    , generator: { tps: 5 } }
-  , { genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: { tps: 10 } }
 
 
@@ -229,6 +194,22 @@ def utxo_delegators_density_profiles:
   , { genesis: { utxo:  4000000, delegators:  1000000 } }
   , { genesis: { utxo:  8000000, delegators:  2000000 } }
   , { genesis: { utxo: 10000000, delegators:  2500000 } }
+
+  ## Calibration, with ~30 tx/64k-block:
+  , { genesis: { utxo: 2000000, delegators:  500000 }
+    , generator: { add_tx_size: 2000, tps: 5 } }
+
+  ## Baseline for Alonzo hard fork, as agreed with Neil:
+  , { genesis: { utxo:  3000000, delegators:   750000 }
+    , node: { extra_config:
+              { TestAlonzoHardForkAtEpoch: 1
+              }}}
+
+  ## Baseline + some time
+  , { genesis: { utxo:  4500000, delegators:  1000000 }
+    , node: { extra_config:
+              { TestAlonzoHardForkAtEpoch: 1
+              }}}
   ];
 
 def generator_profiles:
