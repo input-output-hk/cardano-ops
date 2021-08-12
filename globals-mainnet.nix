@@ -31,6 +31,8 @@ pkgs: {
     CF = 36;
   };
 
+  minMemoryPerInstance = 10;
+
   ec2 = {
     credentials = {
       accessKeyIds = {
@@ -39,9 +41,6 @@ pkgs: {
         CF = "mainnet-cf";
         dns = "mainnet-iohk";
       };
-    };
-    instances = with pkgs.iohk-ops-lib.physical.aws; {
-      relay-node = t3-xlarge;
     };
   };
 
