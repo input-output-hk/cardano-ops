@@ -175,7 +175,7 @@ list_profiles() {
             | to_entries
             | sort_by(.value.description)
             | map("\(.key
-                    | " " * (40 - length))\(.key): \(.value.description)")
+                    | " " * (50 - length))\(.key): \(.value.description)")
             | .[]'
 }
 
