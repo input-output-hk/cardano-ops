@@ -194,31 +194,28 @@ def utxo_delegators_density_profiles:
   , { genesis: { utxo:  8000000, delegators:  2000000 } }
   , { genesis: { utxo: 10000000, delegators:  2500000 } }
 
-  , { desc: "#1: baseline for Alonzo hard fork, as agreed with Neil"
+  , { desc: "#1: would the Alonzo hard fork meet the performance constraints?"
     , genesis: { utxo:  3000000, delegators:   750000 }
-    , generator: { epochs: 4 }
-    , node: { extra_config:
-              { TestAlonzoHardForkAtEpoch: 1
-              }}}
-
-  , { desc: "#2: baseline + some time - delayed HF @ epoch 3"
-    , genesis: { utxo:  4500000, delegators:  1000000 }
     , generator: { epochs: 6 }
     , node: { extra_config:
               { TestAlonzoHardForkAtEpoch: 3
               }}}
 
-  , { desc: "#3: for 1.29 release, below mainnet datasets, but we need comparability"
+  , { desc: "#2: regression test with February 2021 data set sizes"
     , genesis: { utxo: 2000000, delegators:  500000 }
     , generator: { tps: 10, scriptMode: false } }
 
-  , { desc: "#4: for 1.29 release, at mainnet datasets"
+  , { desc: "#3: block boundary busy period reduced by longer epochs"
+    , genesis: { utxo: 2000000, delegators:  500000, epoch_length: 4400 }
+    , generator: { tps: 10, scriptMode: false } }
+
+  , { desc: "#4: regression test with August 2021 data set sizes"
     , genesis: { utxo: 3000000, delegators:  750000 }
     , generator: { tps: 10, scriptMode: false } }
 
-  , { desc: "#5: calibration, with ~30 tx/64k-block"
+  , { desc: "#5: calibration, with ~30 tx/64k-block; NOTE: needs special node & ops"
     , genesis: { utxo: 2000000, delegators:  500000 }
-    , generator: { add_tx_size: 2000, tps: 10, scriptMode: false } }
+    , generator: { tps: 10, scriptMode: false, add_tx_size: 2000 } }
 ];
 
 def generator_profiles:
