@@ -201,11 +201,11 @@ def utxo_delegators_density_profiles:
               { TestAlonzoHardForkAtEpoch: 1
               }}}
 
-  , { desc: "#2: baseline + some time"
+  , { desc: "#2: baseline + some time - delayed HF @ epoch 3"
     , genesis: { utxo:  4500000, delegators:  1000000 }
-    , generator: { epochs: 4 }
+    , generator: { epochs: 6 }
     , node: { extra_config:
-              { TestAlonzoHardForkAtEpoch: 1
+              { TestAlonzoHardForkAtEpoch: 3
               }}}
 
   , { desc: "#3: for 1.29 release, below mainnet datasets, but we need comparability"
