@@ -18,7 +18,7 @@ fetch_effective_service_node_config() {
         test -n "$execstart" || \
                 fail "Couldn't determine ExecStart for '$svc' on '$mach'"
         configfilename=$(nixops ssh "$mach" -- \
-                         grep -e '-config-.*\.json' "$execstart"  |
+                         grep -e '-config.*\.json' "$execstart"  |
                          sed 's_^.*\(/nix/store/.*\.json\).*_\1_' |
                          head -n1 ||
                          fail "Failed to fetch & parse ExecStart of '$svc' on '$mach'")

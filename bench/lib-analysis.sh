@@ -70,7 +70,7 @@ analyse_run() {
         do echo -n " $a" | sed 's/analysis_//'
            $a "$dir" "${machines[@]}"; done
 
-        patch_run "$dir"
+        # patch_run "$dir"
 
         # rm -rf "$dir"/analysis/{analysis,logs-node-*,logs-explorer,startup}
 

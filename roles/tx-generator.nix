@@ -151,7 +151,6 @@ in {
       TraceLocalTxSubmissionProtocol    = true;
       TraceLocalTxSubmissionServer      = true;
       TraceMempool                      = true;
-      TraceMux                          = true;
       TraceTxInbound                    = true;
       TraceTxOutbound                   = true;
       TraceTxSubmissionProtocol         = true;
@@ -177,7 +176,8 @@ in {
           TestAllegraHardForkAtEpoch = 0;
           TestMaryHardForkAtEpoch = 0;
         };
-    }).${globals.environmentConfig.generatorConfig.era});
+    }).${globals.environmentConfig.generatorConfig.era}
+    // (globals.benchmarkingProfile.node.extra_config or {}));
   };
 
   deployment.keys = {

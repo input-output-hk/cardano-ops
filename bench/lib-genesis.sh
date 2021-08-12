@@ -38,6 +38,19 @@ genesis_cache_id() {
         genesis_cache_params_cache_id "$(genesis_params_cache_params "$1")"
 }
 
+ensure_genesis() {
+    local prof=$1
+
+    oprint "ensuring proper genesis.."
+    local genesislog
+    genesislog=runs/$(timestamp).genesis.$prof.log
+    profile_genesis "$prof" 2>&1 || {
+        fprint "genesis generation failed:"
+        cat "$genesislog" >&2
+        exit 1
+    } | tee "$genesislog";
+}
+
 profile_genesis() {
         local profile=$1 genesis_dir=${2:-./keys}
         local genesis_params genesis_cache_params cache_id cache_path genesis_future_offset

@@ -172,7 +172,7 @@ main() {
 
         case "${op}" in
                 init-params | init )  params_init "$@"
-                                      rparmjq 'del(.meta) | keys';;
+                                      list_profiles;;
                 reinit-params | reinit )
                                       local node_count era topology
                                       node_count=$(parmetajq '.node_names | length')
@@ -183,7 +183,7 @@ main() {
                                       if test -z "$era"
                                       then fail "reinit:  cannot get era from params file -- use init instead."; fi
                                       params_init "$node_count" "$era" "$topology" "$@"
-                                      rparmjq 'del(.meta) | keys';;
+                                      list_profiles;;
 
                 deploy )              profile_deploy "$@";;
                 update-deployfiles | update )
@@ -245,7 +245,7 @@ EOF
                                       export tagroot resultroot
                                       package_tag "$@";;
 
-                list-profiles | ps )  rparmjq 'del(.meta) | keys';;
+                list-profiles | ps )  list_profiles;;
                 query-profiles | query | qps | q )
                                       params query-profiles "${@:-.}" |
                                         words_to_lines | jq --raw-input |
@@ -259,7 +259,7 @@ EOF
                                       op_bench "$@";;
                 profiles-jq | pjq )   local batch=$1 query=$2; shift 2
                                       op_bench "$batch" "jq($query)" "$@";;
-                smoke-test | smoke )  op_bench 'smoke' '100';;
+                smoke-test | smoke )  op_bench 'smoke' 'smoke-100';;
 
                 list-runs | runs | ls )
                                       ls -1 runs/*/meta.json | cut -d/ -f2;;
@@ -364,13 +364,13 @@ op_bench_start() {
         oprint "stopping generator.."
         nixops ssh explorer "systemctl stop tx-generator || true"
 
-        oprint "stopping nodes & explorer.."
+        oprint "stopping nodes & journald.."
         op_stop
 
         oprint "resetting node states: node DBs & logs.."
-        nixops ssh-for-each --parallel "rm -rf /var/log/journal/* /var/lib/cardano-node/db* /var/lib/cardano-node/logs/*"
+        nixops ssh-for-each --parallel "rm -rf /var/log/journal/* /var/lib/cardano-node/{db*,logs,logs-*,*.log,utxo}"
 
-        oprint "$(date), restarting nodes.."
+        oprint "$(date), restarting journald & nodes.."
         nixops ssh-for-each --parallel "systemctl start systemd-journald"
         sleep 3s
         nixops ssh-for-each --parallel "systemctl start cardano-node"

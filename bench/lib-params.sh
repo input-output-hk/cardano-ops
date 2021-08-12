@@ -100,7 +100,9 @@ include "profile-definitions" { search: "bench" };
   | ($generator_defaults  * .generator)  as $gtor
   | ($node_defaults       * .node)       as $node
   | era_tolerances($era; $gsis)          as $tolr
-  | { genesis:
+  | { description:
+        (.desc // .description // "")
+    , genesis:
         ($gsis * derived_genesis_params($era; $compo; $gtor; $gsis; $node))
     , generator:
         ($gtor * derived_generator_params($era; $compo; $gtor; $gsis; $node))
@@ -166,6 +168,15 @@ parmjqtest() {
 
 get_era() {
         parmetajq '.era'
+}
+
+list_profiles() {
+    rparmjq 'del(.meta)
+            | to_entries
+            | sort_by(.value.description)
+            | map("\(.key
+                    | " " * (40 - length))\(.key): \(.value.description)")
+            | .[]'
 }
 
 query_profiles() {

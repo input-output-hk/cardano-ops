@@ -42,7 +42,7 @@ sanity_check_last_log_spread() {
              } + .)
           | .[]'
 }
-sanity_check_list+=(sanity_check_not_even_started)
+sanity_check_list+=()
 sanity_check_not_even_started() {
         local dir=$1 t=${2:-$(jq .meta.profile_content.tolerances $dir/meta.json)}
         sanity_check "$t" "$dir" '
@@ -52,7 +52,7 @@ sanity_check_not_even_started() {
           | { kind:       "blockchain-not-even-started"
             }' --slurpfile blocks "$dir"/analysis/explorer.MsgBlock.json
 }
-sanity_check_list+=(sanity_check_silence_since_last_block)
+sanity_check_list+=()
 sanity_check_silence_since_last_block() {
         local dir=$1 t=${2:-$(jq .meta.profile_content.tolerances $dir/meta.json)}
         sanity_check "$t" "$dir" '
@@ -109,7 +109,7 @@ sanity_check_tx_loss_over_threshold() {
           , received:     $txstats.tx_seen_in_blocks
           }'
 }
-sanity_check_list+=(sanity_check_chain_density)
+sanity_check_list+=()
 sanity_check_chain_density() {
         local dir=$1 t=${2:-$(jq .meta.profile_content.tolerances $dir/meta.json)}
         sanity_check "$t" "$dir" '

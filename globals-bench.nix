@@ -88,6 +88,7 @@ let
   };
 
 in (rec {
+  inherit benchmarkingProfile;
 
   networkName = "Benchmarking, size ${toString (__length benchmarkingTopology.coreNodes)}";
 
@@ -186,7 +187,8 @@ in (rec {
                TraceChainSyncClient       = true;
                TraceTxSubmissionProtocol  = true;
                TraceTxSubmission2Protocol = true;
-             }));
+            } //
+            (benchmarkingProfile.node.extra_config or {})));
     }) (benchmarkingTopology.coreNodes or []);
   };
 

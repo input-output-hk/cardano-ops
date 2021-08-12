@@ -32,22 +32,18 @@ profile_deploy() {
         then { sleep 0.3; tail -f "$deploylog"; } &
              watcher_pid=$!; fi
 
-        if test -z "$no_prebuild"
-        then oprint "prebuilding:"
-             ## 0. Prebuild:
-             time deploy_build_only "$prof" "$deploylog" "$watcher_pid"; fi
-
         if test -n "$watcher_pid"
         then kill "$watcher_pid" >/dev/null 2>&1 || true; fi
 
-        oprint "regenerating genesis.."
-        local genesislog
-        genesislog=runs/$(timestamp).genesis.$prof.log
-        profile_genesis "$prof" 2>&1 || {
-                fprint "genesis generation failed:"
-                cat "$genesislog" >&2
-                exit 1
-        } | tee "$genesislog";
+        local genesis_timestamp=$(timestamp)
+
+        if test -z "$no_prebuild"
+        then oprint "prebuilding:"
+             ## 0. Prebuild:
+             ensure_genesis "$prof" "$genesis_timestamp"
+             time deploy_build_only "$prof" "$deploylog" "$watcher_pid"; fi
+
+        ensure_genesis "$prof" "$genesis_timestamp"
 
         include="explorer $(params producers)"
 
