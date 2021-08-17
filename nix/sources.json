@@ -24,15 +24,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync-service": {
-        "branch": "master",
+        "branch": "dump-only-public-schema",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "7815b392bfe9825bd89966bf96c04437e02c2429",
-        "sha256": "0q4gx121ls69hgypwv8ii1n7x8i5w75zmwa49j2q0yb82rbz6ddi",
+        "rev": "ddc4d42afa9a148dfc6bb5fd11e56a254240a8de",
+        "sha256": "1qg2zi8cb86hfjkmgi8lvxapk5j7pgndqf985dlnj9jhbpjj4pbk",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/7815b392bfe9825bd89966bf96c04437e02c2429.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/ddc4d42afa9a148dfc6bb5fd11e56a254240a8de.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer-app-1.6": {
@@ -60,15 +60,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql-5": {
-        "branch": "refs/tags/5.0.0",
+        "branch": "jbgi/custom_schema",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "754d9e9acc31a75b3f786cac5553bd3155e6a968",
-        "sha256": "07jcvgzxdll1818kmag9bafqp0yc7pq1h85bmsi4hak9mdhz76jd",
+        "rev": "96aae9b677e74078c0d3bc940668c0028fe257e0",
+        "sha256": "01689hdgrjf72dgrmpbbrq850mpn0d3i32knn692f5mqd4lia7hj",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/754d9e9acc31a75b3f786cac5553bd3155e6a968.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/96aae9b677e74078c0d3bc940668c0028fe257e0.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },

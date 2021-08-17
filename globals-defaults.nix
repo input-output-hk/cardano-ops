@@ -33,7 +33,7 @@ in {
     a = globals.explorer10;
     b = globals.explorer10;
   };
-  explorerActiveBackends = [ "a" "b" ];
+  explorerActiveBackends = [ "a" ];
   explorer10 = {
     cardano-db-sync = sourcePaths.cardano-db-sync-10;
     cardano-graphql = sourcePaths.cardano-graphql-5;
