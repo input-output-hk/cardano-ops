@@ -37,11 +37,17 @@ in {
   services.cardano-postgres.enable = true;
   services.postgresql = {
     ensureDatabases = [ "cexplorer" ];
+    initialScript = builtins.toFile "enable-pgcrypto.sql" ''
+      \connect template1
+      CREATE EXTENSION IF NOT EXISTS pgcrypto SCHEMA pg_catalog;
+    '';
     ensureUsers = [
       {
         name = "cexplorer";
         ensurePermissions = {
           "DATABASE cexplorer" = "ALL PRIVILEGES";
+          "ALL TABLES IN SCHEMA information_schema" = "SELECT";
+          "ALL TABLES IN SCHEMA pg_catalog" = "SELECT";
         };
       }
     ];
@@ -62,7 +68,9 @@ in {
     hostAddr = "127.0.0.1";
   };
 
-  services.graphql-engine.enable = true;
+  services.graphql-engine = {
+    enable = true;
+  };
   services.cardano-graphql = {
     enable = true;
     inherit cardanoNodeConfigPath;
@@ -111,11 +119,13 @@ in {
     };
   };
 
-  users.users.cexplorer.isSystemUser = true;
+  users.users.cexplorer = {
+    isSystemUser = true;
+    # so that it can write socket file:
+    extraGroups = ["cardano-node"];
+  };
 
   systemd.services.cardano-db-sync.serviceConfig = {
-    # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
-    SupplementaryGroups = "cardano-node";
     # FIXME: https://github.com/input-output-hk/cardano-db-sync/issues/102
     Restart = "always";
     RestartSec = "30s";
@@ -123,12 +133,10 @@ in {
 
   systemd.services.cardano-ogmios.serviceConfig = {
     User = "cexplorer";
-    SupplementaryGroups = "cardano-node";
   };
 
   systemd.services.cardano-rosetta-server.serviceConfig = {
     User = "cexplorer";
-    SupplementaryGroups = "cardano-node";
   };
 
   systemd.services.cardano-graphql = {
@@ -138,8 +146,6 @@ in {
     serviceConfig = {
       User = "cexplorer";
       RuntimeDirectory = "cardano-graphql";
-      # Put cardano-graphql in "cardano-node" group so that it can write socket file:
-      SupplementaryGroups = "cardano-node";
     };
   };
 
@@ -147,10 +153,12 @@ in {
     environment = {
       HASURA_GRAPHQL_LOG_LEVEL = "warn";
     };
+    # FIXME: run under cexplorer (remove sudo use)
+    #serviceConfig.User = "cexplorer";
   };
 
   systemd.services.cardano-submit-api.serviceConfig = lib.mkIf globals.withSubmitApi {
-    # Put cardano-db-sync in "cardano-node" group so that it can write socket file:
+    # Put cardano-submit-api in "cardano-node" group so that it can write socket file:
     SupplementaryGroups = "cardano-node";
   };
 
