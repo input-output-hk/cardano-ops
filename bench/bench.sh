@@ -418,7 +418,7 @@ op_bench_start() {
                op_wait_for_empty_blocks "$prof" fetch_systemd_unit_startup_logs
                ret=$?
              }
-        op_fetch_utxo
+#        op_fetch_utxo
         op_stop
 
         return $ret
