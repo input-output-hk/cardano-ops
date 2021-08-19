@@ -13,7 +13,6 @@ pkgs: {
     a = explorer10;
     b = explorer10;
   };
-  explorerActiveBackends = [ "a" "b" ];
   withCardanoDBExtended = true;
   withSmash = true;
   withSubmitApi = true;

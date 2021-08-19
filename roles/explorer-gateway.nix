@@ -12,8 +12,20 @@ let backendAddr = let
 in {
 
   imports = [
-    cardano-ops.modules.common
+    (cardano-ops.roles.explorer globals.explorerDbSnapshots)
   ];
+
+  # Disable services not necessary for snapshots:
+  services.cardano-ogmios.enable = lib.mkForce false;
+  services.graphql-engine.enable = lib.mkForce false;
+  services.cardano-graphql.enable = lib.mkForce false;
+  services.cardano-rosetta-server.enable = lib.mkForce false;
+  services.cardano-submit-api.enable = lib.mkForce false;
+  services.nginx.enable = lib.mkForce false;
+
+  # Create a new snapshot every 24h (if not exist alreay):
+  services.cardano-db-sync.takeSnapshot = true;
+  systemd.services.cardano-db-sync.serviceConfig.RuntimeMaxSec = 24 * 60 * 60;
 
   environment.systemPackages = with pkgs; [
     bat fd lsof netcat ncdu ripgrep tree vim dnsutils

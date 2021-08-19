@@ -130,4 +130,8 @@ self: super: with self; {
         echo "  systemctl --user status relay-update-${globals.deploymentName}.service"
       fi
     '';
+
+  s3cmd = (super.s3cmd.overrideAttrs (old: {
+    makeWrapperArgs = (old.makeWrapperArgs or []) ++ ["--unset" "PYTHONPATH"];
+  }));
 }

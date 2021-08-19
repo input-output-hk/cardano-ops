@@ -8,7 +8,7 @@ PREFIX=${3:-}
 if [ $PREFIX = "" ]; then
   PATH_PREFIX=""
 else
-  PATH_PREFIX="/$PREFIX"
+  PATH_PREFIX="$PREFIX/"
 fi
 
 if [[ $BUCKET == *"."* ]]; then
@@ -20,14 +20,11 @@ fi
 sha256sum $FILE > "$FILE.sha256sum"
 gpg --armor --detach-sign $FILE
 
+export PYTHONPATH=
 for f in "$FILE.sha256sum" "$FILE.asc" "$FILE"; do
   echo "Uploading $f"
 
-  aws s3api put-object \
-    --bucket $BUCKET \
-    --key $PREFIX/$(basename $f) \
-    --body $f \
-    --acl public-read
+  s3cmd put --acl-public --multipart-chunk-size-mb=512 $f s3://$BUCKET/$PREFIX
 done
 
 echo "Uploaded files:"

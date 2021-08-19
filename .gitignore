@@ -8,6 +8,7 @@ result*
 /runs
 /runs-archive
 /runs-last
+/db-sync-snapshot
 *-logs/
 
 .envrc
