@@ -18,6 +18,10 @@ in {
   relayUpdateArgs = "-m 1";
   relayUpdatePeriod = "weekly";
 
+  dbSyncSnapshotArgs = "";
+
+  dbSyncSnapshotPeriod = "10d";
+
   environmentName = globals.deploymentName;
 
   topology = import (./topologies + "/${globals.deploymentName}.nix") pkgs;
@@ -38,6 +42,7 @@ in {
     b = globals.explorer11;
   };
   explorerActiveBackends = attrNames globals.explorerBackends;
+  explorerDbSnapshots = globals.explorer11;
   explorer11 = {
     cardano-db-sync = sourcePaths.cardano-db-sync-11;
     cardano-graphql = sourcePaths."cardano-graphql-5.1";
@@ -111,11 +116,13 @@ in {
   cardanoNodePort = 3001;
 
   cardanoNodePrometheusExporterPort = 12798;
-  cardanoExplorerPrometheusExporterPort = 8080;
+  cardanoExplorerPrometheusExporterPort = 12698;
+  cardanoExplorerGwPrometheusExporterPort = 12699;
   netdataExporterPort = 19999;
 
   extraPrometheusExportersPorts = [
     globals.cardanoExplorerPrometheusExporterPort
+    globals.cardanoExplorerGwPrometheusExporterPort
     globals.netdataExporterPort
   ] ++ builtins.genList (i: globals.cardanoNodePrometheusExporterPort + i) globals.nbInstancesPerRelay;
 
@@ -179,9 +186,11 @@ in {
       faucet = node-baseline;
       metadata = t3a-2xlarge;
       explorer = if globals.withHighCapacityExplorer
-      then c5-9xlarge
+                 then c5-9xlarge
                  else t3a-xlarge;
-      explorer-gw = t3a-small;
+      explorer-gw = if globals.withHighCapacityExplorer
+                    then t3a-2xlarge
+                    else t3a-xlarge;
       monitoring = if globals.withHighCapacityMonitoring
                    then t3-2xlargeMonitor
                    else t3a-xlargeMonitor;

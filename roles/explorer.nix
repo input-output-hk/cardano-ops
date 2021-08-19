@@ -1,4 +1,4 @@
-pkgs: variant: { name, config, ... }:
+pkgs: variant: { name, config, options, ... }:
 with pkgs;
 
 let
@@ -78,6 +78,9 @@ in {
     metadataServerUri = globals.environmentConfig.metadataUrl or null;
     ogmiosHost = ogmiosCfg.hostAddr;
     ogmiosPort = ogmiosCfg.port;
+  } // lib.optionalAttrs (options.services.cardano-graphql ? genesisByron) {
+    genesisByron = nodeCfg.nodeConfig.ByronGenesisFile;
+    genesisShelley = nodeCfg.nodeConfig.ShelleyGenesisFile;
   };
 
   services.cardano-rosetta-server = {
@@ -108,7 +111,7 @@ in {
     cluster = globals.environmentName;
     environment = globals.environmentConfig;
     socketPath = nodeCfg.socketPath;
-    logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { hasPrometheus = [ "0.0.0.0" 12698 ]; };
+    logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { PrometheusPort = globals.cardanoExplorerPrometheusExporterPort; };
     user = "cexplorer";
     extended = globals.withCardanoDBExtended;
     inherit dbSyncPkgs;
@@ -172,6 +175,15 @@ in {
 
   systemd.services.dump-registered-relays-topology = let
     excludedPools = lib.concatStringsSep ", " (map (hash: "'${hash}'") globals.static.poolsExcludeList);
+    get_latest_synced_block = writeText "extract_relays.sql" ''
+      select array_to_json(array_agg(row_to_json(t))) from (
+        select COALESCE(ipv4, dns_name) as addr, port from (
+          select min(update_id) as update_id, ipv4, dns_name, port from pool_relay inner join pool_update ON pool_update.id = pool_relay.update_id inner join pool_hash ON pool_update.hash_id = pool_hash.id where ${lib.optionalString (globals.static.poolsExcludeList != []) "pool_hash.view not in (${excludedPools}) and "}(
+            (ipv4 is null and dns_name NOT LIKE '% %') or ipv4 !~ '(^0\.)|(^10\.)|(^100\.6[4-9]\.)|(^100\.[7-9]\d\.)|(^100\.1[0-1]\d\.)|(^100\.12[0-7]\.)|(^127\.)|(^169\.254\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.0\.0\.)|(^192\.0\.2\.)|(^192\.88\.99\.)|(^192\.168\.)|(^198\.1[8-9]\.)|(^198\.51\.100\.)|(^203.0\.113\.)|(^22[4-9]\.)|(^23[0-9]\.)|(^24[0-9]\.)|(^25[0-5]\.)')
+            group by ipv4, dns_name, port order by update_id
+        ) t
+      ) t;
+    '';
     extract_relays_sql = writeText "extract_relays.sql" ''
       select array_to_json(array_agg(row_to_json(t))) from (
         select COALESCE(ipv4, dns_name) as addr, port from (
@@ -182,9 +194,10 @@ in {
       ) t;
     '';
     relays_exclude_file = builtins.toFile "relays-exclude.txt" (lib.concatStringsSep "\n" globals.static.relaysExcludeList);
-    networkMagic = (builtins.fromJSON (builtins.readFile globals.environmentConfig.nodeConfig.ShelleyGenesisFile)).networkMagic;
   in {
-    path = [ config.services.postgresql.package jq netcat curl dnsutils ];
+    path = config.environment.systemPackages
+      ++ [ config.services.postgresql.package jq netcat curl dnsutils ];
+    environment = config.environment.variables;
     script = ''
       set -uo pipefail
 
@@ -199,10 +212,10 @@ in {
 
         while IFS= read -r ip; do
           set +e
-          PING="$(timeout 7s ${cardano-ping}/bin/cardano-ping -h $ip -p $port -m ${toString networkMagic} -c 1 -q --json)"
+          PING="$(timeout 7s cardano-ping -h $ip -p $port -m $NETWORK_MAGIC -c 1 -q --json)"
           res=$?
           if [ $res -eq 0 ]; then
-            echo $PING | ${jq}/bin/jq -c > /dev/null 2>&1
+            echo $PING | jq -c > /dev/null 2>&1
             res=$?
           fi
           set -e
@@ -232,6 +245,14 @@ in {
           fi
         done <<< "$allAddresses"
       }
+
+      epoch=$(cardano-cli query tip --testnet-magic $NETWORK_MAGIC | jq .epoch)
+      db_sync_epoch=$(psql -t --command="select no from epoch_sync_time order by id desc limit 1;")
+
+      if [ $(( $epoch - $db_sync_epoch )) -gt 1 ]; then
+        >&2 echo "cardano-db-sync has not catch-up with current epoch yet. Skipping."
+        exit 0
+      fi
 
       excludeList="$(sort ${relays_exclude_file})"
       cd $STATE_DIRECTORY
@@ -265,9 +286,13 @@ in {
         echo "No relays found!!"
       fi
     '';
+    startLimitIntervalSec = 1800;
     serviceConfig = {
       User = cfg.user;
       StateDirectory = "registered-relays-dump";
+      Restart = "always";
+      RestartSec = "30s";
+      StartLimitBurst = 3;
     };
   };
   systemd.timers.dump-registered-relays-topology = {
@@ -421,9 +446,6 @@ in {
           "/relays" = {
             root = "/var/lib/registered-relays-dump";
           };
-          "/metrics2/exporter" = {
-            proxyPass = "http://127.0.0.1:8080/";
-          };
           "/metrics2/cardano-graphql" = {
             proxyPass = "http://127.0.0.1:3100/metrics";
           };
@@ -441,14 +463,15 @@ in {
     {
       job_name = "explorer-exporter";
       scrape_interval = "10s";
-      metrics_path = "/metrics2/exporter";
+      port = globals.cardanoExplorerPrometheusExporterPort;
+      metrics_path = "/";
       labels = { alias = "explorer-exporter"; };
     }
+  ] ++ lib.optional config.services.cardano-graphql.enable
     {
       job_name = "cardano-graphql-exporter";
       scrape_interval = "10s";
       metrics_path = "/metrics2/cardano-graphql";
       labels = { alias = "cardano-graphql-exporter"; };
-    }
-  ];
+    };
 }

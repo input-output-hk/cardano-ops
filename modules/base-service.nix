@@ -91,10 +91,10 @@ in
 
   config = {
 
-    environment.systemPackages = [ pkgs.cardano-cli ];
-    environment.variables = {
+    environment.systemPackages = [ pkgs.cardano-cli pkgs.cardano-ping ];
+    environment.variables = globals.environmentVariables // {
       CARDANO_NODE_SOCKET_PATH = cfg.socketPath;
-    } // globals.environmentVariables;
+    };
     services.monitoring-exporters.extraPrometheusExporters = genList (i: {
       job_name = "cardano-node";
       scrape_interval = "10s";

@@ -29,10 +29,10 @@
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "7815b392bfe9825bd89966bf96c04437e02c2429",
-        "sha256": "0q4gx121ls69hgypwv8ii1n7x8i5w75zmwa49j2q0yb82rbz6ddi",
+        "rev": "91d3eda3431a017dd87a6703c2bbea43884591fb",
+        "sha256": "1jac7y9sqgqyxrd0md1rwdkr6w96ybv3a5nf9bgw4ryy40ffl1np",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/7815b392bfe9825bd89966bf96c04437e02c2429.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/91d3eda3431a017dd87a6703c2bbea43884591fb.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer-app-1.6": {

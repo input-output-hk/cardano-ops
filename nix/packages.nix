@@ -52,6 +52,7 @@ self: super: with self; {
 
   inherit (callPackage ../pkgs/kes-rotation {}) kes-rotation;
   inherit (callPackage ../pkgs/node-update {}) node-update;
+  inherit (callPackage ../pkgs/db-sync-snapshot {}) db-sync-snapshot;
 
   aws-affinity-indexes = runCommand "aws-affinity-indexes" {
     nativeBuildInputs = with self; [ csvkit jq ];
@@ -130,4 +131,69 @@ self: super: with self; {
         echo "  systemctl --user status relay-update-${globals.deploymentName}.service"
       fi
     '';
+
+
+  dbSyncSnapshotTimer =
+    let
+      writeIni = filename: cfg: writeTextFile {
+        name = filename;
+        text = lib.generators.toINI {} cfg;
+        destination = "/${filename}";
+      } + "/${filename}";
+
+      runDbSyncSnapshot = writeShellScript "run-db-sync-snapshot" ''
+        set -eu -o pipefail
+        cd ${globals.deploymentPath}
+        mkdir -p db-sync-snapshot/logs
+        nix-shell --run 'db-sync-snapshot ${globals.dbSyncSnapshotArgs}' &> db-sync-snapshot/logs/db-sync-snapshot-$(date -u +"%F_%H-%M-%S").log
+      '';
+
+      service = writeIni "db-sync-snapshot-${globals.deploymentName}.service" {
+        Unit = {};
+        Service = {
+           ExecStart = "${runDbSyncSnapshot}";
+           Environment = "PATH=${lib.makeBinPath [ nix coreutils git gnutar ]}";
+        };
+      };
+
+      timer = writeIni "db-sync-snapshot-${globals.deploymentName}.timer" {
+        Unit = {};
+        Timer = {
+          OnCalendar = globals.relayUpdatePeriod;
+          Unit = "db-sync-snapshot-${globals.deploymentName}.service";
+        };
+        Install = {
+          WantedBy = "default.target";
+        };
+      };
+
+    in writeShellScriptBin "db-sync-snapshot-timer" ''
+      set -eu -o pipefail
+      cd ${globals.deploymentPath}
+      MODE=''${1:-""}
+      if [ "$MODE" = "--install" ]; then
+        nix-store --indirect --add-root .nix-gc-roots/db-sync-snapshot-service --realise ${service}
+        nix-store --indirect --add-root .nix-gc-roots/db-sync-snapshot-timer  --realise ${timer}
+        mkdir -p ~/.config/systemd/user/
+        ln -sf ${service} ~/.config/systemd/user/
+        ln -sf ${timer} ~/.config/systemd/user/
+        systemctl --user enable db-sync-snapshot-${globals.deploymentName}.timer
+        systemctl --user start db-sync-snapshot-${globals.deploymentName}.timer
+        systemctl --user status db-sync-snapshot-${globals.deploymentName}.timer
+      elif [ "$MODE" = "--uninstall" ]; then
+        rm -f .nix-gc-roots/db-sync-snapshot-*
+        systemctl --user disable db-sync-snapshot-${globals.deploymentName}.timer
+        systemctl --user disable db-sync-snapshot-${globals.deploymentName}.service
+      else
+        echo "usage: db-sync-snapshot-timer --(un)install"
+        echo ""
+        echo "after install, check status with:"
+        echo "  systemctl --user status db-sync-snapshot-${globals.deploymentName}.timer"
+        echo "  systemctl --user status db-sync-snapshot-${globals.deploymentName}.service"
+      fi
+    '';
+
+  s3cmd = (super.s3cmd.overrideAttrs (old: {
+    makeWrapperArgs = (old.makeWrapperArgs or []) ++ ["--unset" "PYTHONPATH"];
+  }));
 }

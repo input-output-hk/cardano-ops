@@ -65,7 +65,7 @@ in {
           package = mkForce cardano-node;
         };
         services.cardano-db-sync = lib.mkIf (b == "a") {
-          #takeSnapshot = true;
+          #takeSnapshot = "once";
           #restoreSnapshot = "db-sync-snapshot-schema-10-block-1254641-x86_64.tgz";
         };
       };
