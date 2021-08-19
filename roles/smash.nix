@@ -24,10 +24,7 @@ in {
 
   services.cardano-node = {
     allProducers = [ globals.relaysNew ];
-    # FIXME Reactivate when smash update to 1.28:
-    #package = import  cardanoNodeHaskellPackages.cardano-node.components.exes.cardano-node;
-    package = cardano-node;
-
+    package = smashHaskellPackages.cardano-node.components.exes.cardano-node;
     totalMaxHeapSizeMbytes = 0.5 * config.node.memory * 1024;
   };
 

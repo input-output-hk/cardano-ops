@@ -237,7 +237,7 @@ in with pkgs; {
 
         if PROTOCOL_CONFIG=$(protocol_params); then
           A_0=$(jq '.a0' <<< "$PROTOCOL_CONFIG")
-          DECENTRALISATION_PARAM=$(jq '.decentralisationParam' <<< "$PROTOCOL_CONFIG")
+          DECENTRALISATION_PARAM=$(jq '.decentralization' <<< "$PROTOCOL_CONFIG")
           E_MAX=$(jq '.eMax' <<< "$PROTOCOL_CONFIG")
           KEY_DECAY_RATE=$(jq '.keyDecayRate' <<< "$PROTOCOL_CONFIG")
           KEY_DEPOSIT=$(jq '.keyDeposit' <<< "$PROTOCOL_CONFIG")

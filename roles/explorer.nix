@@ -66,8 +66,6 @@ in {
   services.cardano-graphql = {
     enable = true;
     inherit cardanoNodeConfigPath;
-    genesisByron = nodeCfg.nodeConfig.ByronGenesisFile;
-    genesisShelley = nodeCfg.nodeConfig.ShelleyGenesisFile;
     allowListPath = cardano-explorer-app-pkgs.allowList;
     metadataServerUri = globals.environmentConfig.metadataUrl or null;
     ogmiosHost = ogmiosCfg.hostAddr;
@@ -265,7 +263,7 @@ in {
     };
   };
   systemd.timers.dump-registered-relays-topology = {
-    timerConfig.OnCalendar = "daily";
+    timerConfig.OnCalendar = globals.registeredRelaysDumpPeriod;
     wantedBy = [ "timers.target" ];
   };
 

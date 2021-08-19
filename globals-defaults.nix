@@ -9,22 +9,26 @@ let
 in {
 
   static = import ./static pkgs;
+  overlay = (_:_: {});
 
   deploymentName = "${builtins.baseNameOf ./.}";
   deploymentPath = "$HOME/${globals.deploymentName}";
 
+  registeredRelaysDumpPeriod = "hourly";
   relayUpdateArgs = "-m 1";
   relayUpdatePeriod = "weekly";
 
   environmentName = globals.deploymentName;
 
-  topology = import (./topologies + "/${globals.environmentName}.nix") pkgs;
+  topology = import (./topologies + "/${globals.deploymentName}.nix") pkgs;
 
   sourcesJsonOverride = ./nix + "/sources.${globals.environmentName}.json";
 
   dnsZone = "dev.cardano.org";
   domain = "${globals.deploymentName}.${globals.dnsZone}";
-  relaysNew = globals.environmentConfig.relaysNew or "relays-new.${globals.domain}";
+  relaysNew = if (globals.deploymentName == globals.environmentName)
+    then globals.environmentConfig.relaysNew or "relays.${globals.domain}"
+    else "relays.${globals.domain}";
 
   explorerHostName = "explorer.${globals.domain}";
   explorerForceSSL = true;
@@ -33,12 +37,18 @@ in {
     a = globals.explorer10;
     b = globals.explorer10;
   };
-  explorerActiveBackends = [ "a" "b" ];
+  explorerActiveBackends = attrNames globals.explorerBackends;
   explorer10 = {
     cardano-db-sync = sourcePaths.cardano-db-sync-10;
     cardano-graphql = sourcePaths.cardano-graphql-5;
     cardano-explorer-app = sourcePaths."cardano-explorer-app-1.6";
     cardano-rosetta = sourcePaths."cardano-rosetta-1.3";
+  };
+  explorer11 = globals.explorer10 // {
+    cardano-db-sync = sourcePaths.cardano-db-sync-11;
+    cardano-graphql = sourcePaths."cardano-graphql-5.1";
+    ogmios = sourcePaths.ogmios-next;
+    cardano-rosetta = sourcePaths."cardano-rosetta-1.4";
   };
   explorerBackendsInContainers = false;
 
@@ -47,6 +57,7 @@ in {
   withCardanoDBExtended = true;
   withSubmitApi = false;
   withFaucet = false;
+  faucetHostname = "faucet";
   withFaucetOptions = {};
   withSmash = false;
 
@@ -77,6 +88,8 @@ in {
       stkNodes = filter (c: c.stakePool) globals.topology.coreNodes;
     in rec {
       ENVIRONMENT = globals.environmentName;
+      RELAYS = globals.relaysNew;
+      DOMAIN = globals.domain;
 
       CORE_NODES = toString (map (x: x.name) globals.topology.coreNodes);
       NB_CORE_NODES = toString (builtins.length globals.topology.coreNodes);
@@ -87,6 +100,7 @@ in {
 
       GENESIS_PATH = toString genesisFile;
       # Network parameters.
+      NETWORK_MAGIC = toString genesis.networkMagic;
       EPOCH_LENGTH = toString genesis.epochLength;
       SLOT_LENGTH = toString genesis.slotLength;
       K = toString genesis.securityParam;
@@ -95,6 +109,8 @@ in {
     } // (optionalAttrs (builtins.pathExists genesisFile) {
       SYSTEM_START = genesis.systemStart;
       # End: Network parameters.
+    }) // (optionalAttrs (globals.environmentConfig.nodeConfig ? ByronGenesisFile) {
+      BYRON_GENESIS_PATH = toString globals.environmentConfig.nodeConfig.ByronGenesisFile;
     }));
 
   deployerIp = requireEnv "DEPLOYER_IP";

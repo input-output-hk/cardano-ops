@@ -11,7 +11,9 @@ let
     then defaultSourcePaths.nixpkgs
     else (import defaultSourcePaths.iohk-nix {}).nixpkgs;
 
-  sourcesOverride = let sourcesFile = ((import defaultNixpkgs { overlays = globals; }).globals).sourcesJsonOverride; in
+  inherit (import defaultNixpkgs { overlays = [globalsOverlay]; }) globals;
+
+  sourcesOverride = let sourcesFile = globals.sourcesJsonOverride; in
     if (builtins.pathExists sourcesFile)
     then import ./sources.nix { inherit pkgs sourcesFile; }
     else {};
@@ -89,19 +91,19 @@ let
     (import ./packages.nix)
   ];
 
-  globals =
+  globalsOverlay =
     if builtins.pathExists ../globals.nix
-    then [(pkgs: _: with pkgs.lib; let
+    then (pkgs: _: with pkgs.lib; let
       globalsDefault = import ../globals-defaults.nix pkgs;
       globalsSpecific = import ../globals.nix pkgs;
     in {
       globals = globalsDefault // (recursiveUpdate {
         inherit (globalsDefault) ec2 libvirtd environmentVariables;
       } globalsSpecific);
-    })]
-    else builtins.trace "globals.nix missing, please add symlink" [(pkgs: _: {
+    })
+    else builtins.trace "globals.nix missing, please add symlink" (pkgs: _: {
       globals = import ../globals-defaults.nix pkgs;
-    })];
+    });
 
   # merge upstream sources with our own:
   upstream-overlay = self: super: {
@@ -117,11 +119,12 @@ let
   overlays =
     ops-lib-overlays ++
     local-overlays ++
-    globals ++
     [
       upstream-overlay
       nginx-overlay
       varnish-overlay
+      globalsOverlay
+      globals.overlay
     ];
 
     pkgs = import nixpkgs {

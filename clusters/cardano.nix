@@ -227,6 +227,8 @@ let
         "stakePool"
         "instance"
         "pools"
+        "ticker"
+        "public"
       ]);
 
 in {

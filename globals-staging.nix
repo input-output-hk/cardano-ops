@@ -16,9 +16,9 @@ pkgs: {
 
   explorerBackends = with pkgs.globals; {
     a = explorer10;
-    b = explorer10;
+    b = explorer11;
   };
-  explorerActiveBackends = [ "a" "b" ];
+  explorerActiveBackends = [ "b" ];
 
   topology = import ./topologies/staging.nix pkgs;
 
