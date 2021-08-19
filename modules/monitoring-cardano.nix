@@ -10,6 +10,7 @@ let
   MbpsCrit = toString globals.alertMbpsCrit;
   slotLength = globals.environmentVariables.SLOT_LENGTH;
 in {
+  services.monitoring-services.logging = false;
   services.monitoring-services.applicationDashboards = ./grafana/cardano;
   services.monitoring-services.applicationRules = [
     {

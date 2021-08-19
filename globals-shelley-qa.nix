@@ -3,17 +3,11 @@ pkgs: {
   deploymentName = "shelley-qa";
   environmentName = "shelley_qa";
 
-  topology = import ./topologies/shelley-qa.nix pkgs;
-  environmentConfig = pkgs.iohkNix.cardanoLib.environments.shelley_qa;
+  relaysNew = pkgs.globals.environmentConfig.relaysNew;
 
   withFaucet = true;
   withExplorer = true;
   explorerBackendsInContainers = true;
-  explorerBackends = with pkgs.globals; {
-    a = explorer10;
-    b = explorer10;
-  };
-  explorerActiveBackends = [ "a" "b" ];
   withCardanoDBExtended = true;
   withSmash = true;
   withSubmitApi = true;

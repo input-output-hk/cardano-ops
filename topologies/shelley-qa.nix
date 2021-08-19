@@ -8,9 +8,7 @@ let
     d = { name = "eu-west-2";      /* Europe (London)          */ };
   };
 
-  stakingPoolNodes = let
-    mkStakingPool = mkStakingPoolForRegions regions;
-  in fullyConnectNodes [
+  stakingPoolNodes = fullyConnectNodes [
     (mkStakingPool "a" 1 "IOHK1" { nodeId = 1; })
     (mkStakingPool "b" 1 "IOHK2" { nodeId = 2; })
     (mkStakingPool "c" 1 "IOHK3" { nodeId = 3; })
@@ -30,7 +28,7 @@ let
 
 in {
 
-  inherit coreNodes relayNodes;
+  inherit coreNodes relayNodes regions;
 
   monitoring = {
     services.monitoring-services.publicGrafana = false;
@@ -47,6 +45,9 @@ in {
       lovelacesToGiveApiKeyAuth = 10000000000;
       useByronWallet = false;
     };
+    services.cardano-node = {
+      package = mkForce cardano-node;
+    };
   };
 
 
@@ -59,6 +60,9 @@ in {
         services.cardano-graphql = {
           allowListPath = mkForce null;
           allowIntrospection = true;
+        };
+        services.cardano-node = {
+          package = mkForce cardano-node;
         };
         services.cardano-db-sync = lib.mkIf (b == "a") {
           #takeSnapshot = true;

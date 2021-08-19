@@ -22,9 +22,7 @@ let
     };
   };
 
-  stakingPoolNodes = let
-    mkStakingPool = mkStakingPoolForRegions regions;
-  in fullyConnectNodes [
+  stakingPoolNodes = fullyConnectNodes [
     (mkStakingPool "a" 1 "" { nodeId = 1; })
     (mkStakingPool "b" 1 "" { nodeId = 2; })
     (mkStakingPool "c" 1 "" { nodeId = 3; })
@@ -44,7 +42,7 @@ let
   });
 
 in {
-  inherit coreNodes relayNodes;
+  inherit coreNodes relayNodes regions;
 
   services.monitoring-services.publicGrafana = true;
 
