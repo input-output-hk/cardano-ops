@@ -415,7 +415,8 @@ op_bench_start() {
 
                op_wait_for_nonempty_block "$prof" 200
 
-               op_wait_for_empty_blocks "$prof" fetch_systemd_unit_startup_logs
+               # op_wait_for_empty_blocks "$prof" fetch_systemd_unit_startup_logs
+	       sleep 4h
                ret=$?
              }
 #        op_fetch_utxo
