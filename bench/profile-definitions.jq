@@ -215,7 +215,22 @@ def utxo_delegators_density_profiles:
 
   , { desc: "#5: calibration, with ~30 tx/64k-block; NOTE: needs special node & ops"
     , genesis: { utxo: 2000000, delegators:  500000 }
-    , generator: { tps: 10, scriptMode: false, add_tx_size: 2000 } }
+    , generator: { add_tx_size: 2000, tps: 10, scriptMode: false } }
+
+  , { desc: "#6: HF at ep 3"
+    , genesis: { utxo:  3000000, delegators:   750000 }
+    , generator: { epochs: 6 }
+    , node: { extra_config:
+              { TestAlonzoHardForkAtEpoch: 3
+              }}}
+
+  , { desc: "#7: HF at ep 4"
+    , genesis: { utxo:  3000000, delegators:   750000 }
+    , generator: { epochs: 8 }
+    , node: { extra_config:
+              { TestAlonzoHardForkAtEpoch: 3
+              }}}
+
 ];
 
 def generator_profiles:
