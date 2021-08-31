@@ -112,8 +112,10 @@ in {
             "explorer-${z}" = {
               config.networking.privateIPv4 = localAddress;
               options.networking.privateIPv4.isDefined = true;
+              options.networking.publicIPv4.isDefined = false;
             };
           };
+          resources = {};
         };
         nixpkgs.pkgs = pkgs;
         imports = [(cardano-ops.roles.explorer variant)];

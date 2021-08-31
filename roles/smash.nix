@@ -2,7 +2,6 @@ pkgs: with pkgs; { nodes, name, config, ... }:
 let
   nodeCfg = config.services.cardano-node;
   cfg = config.services.smash;
-  hostAddr = getListenIp nodes.${name};
   inherit (import (sourcePaths.smash + "/nix") {}) smashHaskellPackages;
 in {
   environment = {

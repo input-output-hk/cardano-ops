@@ -3,6 +3,7 @@ let
   lib = pkgs.lib;
   cfg = config.services.custom-metrics;
   cfgExporters = config.services.monitoring-exporters;
+  cfgNode = config.services.cardano-node;
   inherit (lib) mkIf mkOption types;
 in with pkgs; {
   options = {
@@ -102,10 +103,8 @@ in with pkgs; {
       };
     };
     systemd.services.custom-metrics = {
-      path = with pkgs; [ cardano-cli coreutils gawk gnugrep gnused jq nmap procps ];
-      environment = {
-        CARDANO_NODE_SOCKET_PATH = config.services.cardano-node.socketPath;
-      };
+      path = with pkgs; [ cardano-cli cardano-ping coreutils gawk gnugrep gnused jq nmap procps ];
+      environment = config.environment.variables;
       script = ''
         STATSD_HOST="localhost"
         STATSD_PORT="${if (cfg.statsdExporter == "node") then (toString cfgExporters.statsdPort) else (toString cfg.netdataStatsdPort)}"
@@ -159,6 +158,9 @@ in with pkgs; {
         CARDANO_CLI_VERSION_MAJOR="-1"
         CARDANO_CLI_VERSION_MINOR="-1"
         CARDANO_CLI_VERSION_PATCH="-1"
+
+        # Default cardano-ping metrics
+        CARDANO_PING_LATENCY="-1"
 
         statsd() {
           local UDP="-u" ALL="''${*}"
@@ -258,6 +260,11 @@ in with pkgs; {
           TAU=$(jq '.tau' <<< "$PROTOCOL_CONFIG")
         fi
 
+        if CARDANO_PING_OUPUT=$(cardano-ping --count=1 --host=${cfgNode.hostAddr} --port=${toString cfgNode.port} --magic=$NETWORK_MAGIC --quiet --json); then
+          CARDANO_PING_LATENCY=$(jq '.pongs[-1].sample * 1000' <<< "$CARDANO_PING_OUPUT")
+        fi
+
+
         echo "cardano_node_decode_certIssueNum:''${CERT_ISSUE_NUM}|g"
         echo "cardano_node_decode_kesCreatedPeriod:''${KES_CREATED_PERIOD}|g"
 
@@ -299,6 +306,8 @@ in with pkgs; {
         echo "cardano_node_cli_version_major:''${CARDANO_CLI_VERSION_MAJOR}|g"
         echo "cardano_node_cli_version_minor:''${CARDANO_CLI_VERSION_MINOR}|g"
         echo "cardano_node_cli_version_patch:''${CARDANO_CLI_VERSION_PATCH}|g"
+
+        echo "cardano_ping_latency_ms:''${CARDANO_PING_LATENCY}|g"
 
         statsd \
           "cardano_node_decode_certIssueNum:''${CERT_ISSUE_NUM}|g" \
@@ -344,6 +353,9 @@ in with pkgs; {
           "cardano_node_cli_version_major:''${CARDANO_CLI_VERSION_MAJOR}|g" \
           "cardano_node_cli_version_minor:''${CARDANO_CLI_VERSION_MINOR}|g" \
           "cardano_node_cli_version_patch:''${CARDANO_CLI_VERSION_PATCH}|g"
+
+        statsd \
+          "cardano_ping_latency_ms:''${CARDANO_PING_LATENCY}|g"
       '';
     };
     systemd.timers.custom-metrics = {
