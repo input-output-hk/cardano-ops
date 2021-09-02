@@ -26,6 +26,18 @@ in {
       };
     }
     {
+      alert = "High cardano ping latency";
+      expr = "quantile_over_time(0.95, cardano_ping_latency_ms[1h:1m]) > 30";
+      for = "15m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: Cardano ping P95 latency has been above 30 milliseconds";
+        description = "{{$labels.alias}}: Cardano ping P95 latency has been above 30 milliseconds for the last 15 minutes.";
+      };
+    }
+    {
       alert = "chain_quality_degraded";
       expr = "(cardano_node_metrics_density_real / on(alias) cardano_node_genesis_activeSlotsCoeff * 100) < ${chainDensityLow}";
       for = "5m";
