@@ -108,6 +108,18 @@
         "url": "https://github.com/input-output-hk/cardano-rosetta/archive/b72793c3c69412f66db3647fa9a84a16f81b0d60.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "cardano-wallet": {
+        "branch": "refs/tags/v2021-08-27",
+        "description": "HTTP server & command-line for managing UTxOs and HD wallets in Cardano.",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "cardano-wallet",
+        "rev": "e71dddd506e7dd317055fddc725fe29bc058f48f",
+        "sha256": "113d5h5b84bdgc9iclk22a02272xr9pja7n48wfdqrciqzy3ng30",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-wallet/archive/e71dddd506e7dd317055fddc725fe29bc058f48f.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "iohk-nix": {
         "branch": "master",
         "description": "nix scripts shared across projects",

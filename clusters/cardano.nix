@@ -102,6 +102,7 @@ let
           class = "faucet";
         };
         org = "IOHK";
+        nodeId = def.nodeId or 99;
       };
     } def;
   }) // (lib.optionalAttrs globals.withSmash {

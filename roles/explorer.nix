@@ -100,7 +100,7 @@ in {
     allProducers = if (globals.topology.relayNodes != [])
         then [ globals.relaysNew ]
         else (map (n: n.name) globals.topology.coreNodes);
-    totalMaxHeapSizeMbytes = 0.4375 * config.node.memory * 1024;
+    totalMaxHeapSizeMbytes = 0.25 * config.node.memory * 1024;
   };
 
   services.cardano-db-sync = {
