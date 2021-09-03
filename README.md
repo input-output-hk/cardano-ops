@@ -123,3 +123,27 @@ On mainnet:
 source ../proposal-ui/static/proposal-ui-mainnet.sh
 ./scripts/checksum-sign-upload.sh db-sync-snapshot-schema-10-block-2700107-x86_64.tgz update-cardano-mainnet.iohk.io cardano-db-sync
 ```
+
+## Accessing Prometheus ##
+
+
+It is possible to query [Prometheus instances](https://monitoring.cardano-mainnet.iohk.io/prometheus "cardano-mainnet") directly (rather than via [Grafana](https://monitoring.cardano-mainnet.iohk.io/grafana/ "cardano-mainnet") using the Prometheus [query language](https://prometheus.io/docs/prometheus/latest/querying/basics/), for example
+
+```
+cardano_node_metrics_utxoSize_int{hostname="stk-a-1-IOG1-ip"}[5m]
+```
+
+For larger queries, replacing `5m` (minutes) by `5d` (days) the GUI is
+inconvenient and it is better to use a programming environment to
+submit an HTTP request and parse the response. One way to do this is
+to use Firefox as described
+[here](https://daniel.haxx.se/blog/2015/11/23/copy-as-curl/).
+
+Using this may give you several possible HTTP requests:
+
+![](images/FirefoxDebugExample.png "Obtaining the HTTP request")
+
+Choose the one that corresponds to the required query and then copy as
+`cURL` and execute it at the command line. It should also be possible
+to use this in a programming language such as Python.
+
