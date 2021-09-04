@@ -136,8 +136,8 @@ in {
 
   alertChainDensityLow = "99";
   alertMemPoolHigh = "190";
-  alertTcpHigh = 220 * pkgs.globals.nbInstancesPerRelay;
-  alertTcpCrit = 250 * pkgs.globals.nbInstancesPerRelay;
+  alertTcpHigh = 300 * pkgs.globals.nbInstancesPerRelay;
+  alertTcpCrit = 350 * pkgs.globals.nbInstancesPerRelay;
   alertMbpsHigh = 150 * pkgs.globals.nbInstancesPerRelay;
   alertMbpsCrit = 200 * pkgs.globals.nbInstancesPerRelay;
 
