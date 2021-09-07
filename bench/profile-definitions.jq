@@ -165,6 +165,7 @@ def profile_name($compo; $gsis; $gtor; $node):
              $gtor; generator_defaults($era); 1; "i")
   + may_attr("outputs_per_tx";
              $gtor; generator_defaults($era); 1; "o")
+  + [ if $gtor.scriptMode then "scr" else "cli" end ]
   | join("-");
 
 def utxo_delegators_density_profiles:
@@ -231,6 +232,9 @@ def utxo_delegators_density_profiles:
               { TestAlonzoHardForkAtEpoch: 3
               }}}
 
+  , { desc: "#8: regression test with August 2021 data set sizes, script mode"
+    , genesis: { utxo: 3000000, delegators:  750000 }
+    , generator: { tps: 10, scriptMode: true } }
 ];
 
 def generator_profiles:
