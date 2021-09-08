@@ -235,6 +235,17 @@ def utxo_delegators_density_profiles:
   , { desc: "#8: regression test with August 2021 data set sizes, script mode"
     , genesis: { utxo: 3000000, delegators:  750000 }
     , generator: { tps: 10, scriptMode: true } }
+
+, { desc: "#8: regression test with August 2021 data set sizes, script mode"
+    , genesis: { utxo: 3000000, delegators:  750000 }
+    , generator: { tps: 10, scriptMode: true } }
+
+, { desc: "#9: regression test with August 2021 data set sizes, script mode smoke"
+    , genesis: { utxo: 3000000, delegators:  750000 }
+    , generator: { tx_count: 4000, tps: 10
+                 , scriptMode: true }
+    }
+
 ];
 
 def generator_profiles:
