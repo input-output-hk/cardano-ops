@@ -290,14 +290,13 @@ in {
     serviceConfig = {
       User = cfg.user;
       StateDirectory = "registered-relays-dump";
+      Type = "simple";
       Restart = "always";
       RestartSec = "30s";
       StartLimitBurst = 3;
+      RemainAfterExit = "yes";
+      RuntimeMaxSec = 5 * 3600;
     };
-  };
-  systemd.timers.dump-registered-relays-topology = {
-    timerConfig.OnCalendar = globals.registeredRelaysDumpPeriod;
-    wantedBy = [ "timers.target" ];
   };
 
   services.nginx = {
@@ -465,7 +464,7 @@ in {
       scrape_interval = "10s";
       port = globals.cardanoExplorerPrometheusExporterPort;
       metrics_path = "/";
-      labels = { alias = "explorer-exporter"; };
+      labels = { alias = "${name}-exporter"; };
     }
   ] ++ lib.optional config.services.cardano-graphql.enable
     {

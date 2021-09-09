@@ -14,7 +14,6 @@ in {
   deploymentName = "${builtins.baseNameOf ./.}";
   deploymentPath = "$HOME/${globals.deploymentName}";
 
-  registeredRelaysDumpPeriod = "hourly";
   relayUpdateArgs = "-m 1";
   relayUpdatePeriod = "weekly";
 
@@ -117,6 +116,8 @@ in {
 
   cardanoNodePrometheusExporterPort = 12798;
   cardanoExplorerPrometheusExporterPort = 12698;
+  # DB-sync on explorer gw is restarting regularly to take snapshot:
+  intermittentMonitoringTargets = [ "explorer-exporter" ];
   cardanoExplorerGwPrometheusExporterPort = 12699;
   netdataExporterPort = 19999;
 
@@ -143,8 +144,8 @@ in {
 
   alertChainDensityLow = "99";
   alertMemPoolHigh = "190";
-  alertTcpHigh = 300 * pkgs.globals.nbInstancesPerRelay;
-  alertTcpCrit = 350 * pkgs.globals.nbInstancesPerRelay;
+  alertTcpHigh = 333 * pkgs.globals.nbInstancesPerRelay;
+  alertTcpCrit = 500 * pkgs.globals.nbInstancesPerRelay;
   alertMbpsHigh = 150 * pkgs.globals.nbInstancesPerRelay;
   alertMbpsCrit = 200 * pkgs.globals.nbInstancesPerRelay;
 

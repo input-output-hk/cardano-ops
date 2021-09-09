@@ -101,7 +101,7 @@ let
     (bftCoreNodes ++ stakingPoolNodes);
 
   relayNodes = map (composeAll [
-    (withAutoRestartEvery 6)
+    #(withAutoRestartEvery 6)
     (forNodes {
       services.cardano-node.extraNodeConfig = {
         TraceMempool = true;
