@@ -146,8 +146,9 @@ def may_attr($attr; $dict; $defdict; $scale; $suf):
   then [($dict[$attr] | . / $scale | tostring) + $suf] else [] end;
 
 def profile_name($compo; $gsis; $gtor; $node):
+  $node.extra_config.TestAlonzoHardForkAtEpoch as $alzoHFAt
   ## Genesis
-  [ "k\($gsis.n_pools)" ]
+  | [ "k\($gsis.n_pools)" ]
   + may_attr("dense_pool_density";
              $gsis; genesis_defaults($era; $compo); 1; "ppn")
   + [ ($gtor.epochs                    | tostring) + "ep"
@@ -166,6 +167,9 @@ def profile_name($compo; $gsis; $gtor; $node):
   + may_attr("outputs_per_tx";
              $gtor; generator_defaults($era); 1; "o")
   + [ if $gtor.scriptMode then "scr" else "cli" end ]
+  + if $alzoHFAt != null
+    then [ "alzo@\($alzoHFAt)" ]
+    else [] end
   | join("-");
 
 def utxo_delegators_density_profiles:
@@ -232,9 +236,34 @@ def utxo_delegators_density_profiles:
               { TestAlonzoHardForkAtEpoch: 3
               }}}
 
-  , { desc: "#8: regression test with August 2021 data set sizes, script mode"
+  , { desc: "regression, February 2021 data set sizes, script mode"
+    , genesis: { utxo: 2000000, delegators:  500000 }
+    , generator: { tps: 10, scriptMode: true } }
+
+  , { desc: "regression, August 2021 data set sizes, script mode"
     , genesis: { utxo: 3000000, delegators:  750000 }
     , generator: { tps: 10, scriptMode: true } }
+
+  , { desc: "regression, August 2021 data set sizes, Alonzo @4, script mode"
+    , genesis: { utxo: 3000000, delegators:  750000 }
+    , generator: { tps: 10, scriptMode: true }
+    , node: { extra_config:
+              { TestAlonzoHardForkAtEpoch: 4
+              }} }
+
+  , { desc: "regression, August 2021 data set sizes, Alonzo @0, script mode"
+    , genesis: { utxo: 3000000, delegators:  750000 }
+    , generator: { tps: 10, scriptMode: true }
+    , node: { extra_config:
+              { TestAlonzoHardForkAtEpoch: 0
+              }} }
+
+  , { desc: "regression, projected future, data set sizes, Alonzo @0, script mode"
+    , genesis: { utxo: 4000000, delegators: 1000000 }
+    , generator: { tps: 10, scriptMode: true }
+    , node: { extra_config:
+              { TestAlonzoHardForkAtEpoch: 0
+              }} }
 ];
 
 def generator_profiles:
