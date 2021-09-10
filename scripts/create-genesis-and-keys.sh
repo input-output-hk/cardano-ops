@@ -28,7 +28,7 @@ cd "$(dirname "$0")/.."
 export NB_CORE_NODES=$(($NB_BFT_NODES + $NB_POOL_NODES))
 DELAY="${DELAY:-30}"
 UTXO_KEYS="${UTXO_KEYS:-3}"
-DPARAM=$(awk "BEGIN{print 1.0 - 1.0 * $NB_POOL_NODES / $NB_CORE_NODES}")
+DPARAM="${DPARAM:-$(awk "BEGIN{print 1.0 - 1.0 * $NB_POOL_NODES / $NB_CORE_NODES}")}"
 
 echo "Generating new genesis and keys using following environments variables:
 

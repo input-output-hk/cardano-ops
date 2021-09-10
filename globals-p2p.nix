@@ -4,7 +4,11 @@ pkgs: with pkgs.iohkNix.cardanoLib; with pkgs.globals; {
   deploymentName = "p2p";
 
   withFaucet = true;
-  withSmash = true;
+
+  explorerBackends = {
+    a = explorer11;
+  };
+  explorerBackendsInContainers = true;
 
   overlay = self: super: {
     sourcePaths = super.sourcePaths // {
