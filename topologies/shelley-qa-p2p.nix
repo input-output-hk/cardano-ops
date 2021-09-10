@@ -20,7 +20,6 @@ let
     (withAutoRestartEvery 6)
     (withModule {
       services.cardano-node = {
-        useNewTopology = true;
         asserts = true;
         systemdSocketActivation = mkForce false;
       };

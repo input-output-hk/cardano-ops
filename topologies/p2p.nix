@@ -25,7 +25,6 @@ let
     (withModule {
       services.cardano-node = {
         asserts = true;
-        useNewTopology = true;
         systemdSocketActivation = mkForce false;
       };
     })
@@ -64,12 +63,26 @@ in {
   explorer = {
     services.cardano-node = {
       package = mkForce cardano-node;
+      systemdSocketActivation = mkForce false;
     };
+    containers = mapAttrs (b: _: {
+      config = {
+        services.cardano-graphql = {
+          allowListPath = mkForce null;
+          allowIntrospection = true;
+        };
+        services.cardano-node = {
+          package = mkForce cardano-node;
+          systemdSocketActivation = mkForce false;
+        };
+      };
+    }) globals.explorerBackends;
   };
 
   smash = {
     services.cardano-node = {
       package = mkForce cardano-node;
+      systemdSocketActivation = mkForce false;
     };
   };
 
@@ -85,6 +98,7 @@ in {
     };
     services.cardano-node = {
       package = mkForce cardano-node;
+      systemdSocketActivation = mkForce false;
     };
   };
 

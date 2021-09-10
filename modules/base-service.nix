@@ -125,7 +125,6 @@ in
       ipv6HostAddr = mkIf (cfg.instances > 1) "::1";
       producers = mkDefault [];
       publicProducers = mkDefault [];
-      useNewTopology = mkDefault false;
       port = nodePort;
       environments = {
         "${globals.environmentName}" = globals.environmentConfig;
