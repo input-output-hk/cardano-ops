@@ -246,56 +246,61 @@ in {
         done <<< "$allAddresses"
       }
 
-      epoch=$(cardano-cli query tip --testnet-magic $NETWORK_MAGIC | jq .epoch)
-      db_sync_epoch=$(psql -t --command="select no from epoch_sync_time order by id desc limit 1;")
+      run() {
+        epoch=$(cardano-cli query tip --testnet-magic $NETWORK_MAGIC | jq .epoch)
+        db_sync_epoch=$(psql -t --command="select no from epoch_sync_time order by id desc limit 1;")
 
-      if [ $(( $epoch - $db_sync_epoch )) -gt 1 ]; then
-        >&2 echo "cardano-db-sync has not catch-up with current epoch yet. Skipping."
-        exit 0
-      fi
-
-      excludeList="$(sort ${relays_exclude_file})"
-      cd $STATE_DIRECTORY
-      rm -f *-relay.json
-      i=0
-      for r in $(psql -t < ${extract_relays_sql} | jq -c '.[]'); do
-        addr=$(echo "$r" | jq -r '.addr')
-        port=$(echo "$r" | jq -r '.port')
-        allAddresses=$addr$'\n'$(dig +nocookie +short $addr A)
-        excludedAddresses=$(comm -12 <(echo "$allAddresses" | sort) <(echo "$excludeList"))
-        nbExcludedAddresses=$(echo $excludedAddresses | wc -w)
-        if [[ $nbExcludedAddresses == 0 ]]; then
-          ((i+=1))
-          pingAddr $i $addr $port &
-          sleep 0.5
-        else
-          >&2 echo "$addr excluded due to dns name or IPs being in exclude list:\n$excludedAddresses"
+        if [ $(( $epoch - $db_sync_epoch )) -gt 1 ]; then
+          >&2 echo "cardano-db-sync has not catch-up with current epoch yet. Skipping."
+          exit 0
         fi
+
+        excludeList="$(sort ${relays_exclude_file})"
+        cd $STATE_DIRECTORY
+        rm -f *-relay.json
+        i=0
+        for r in $(psql -t < ${extract_relays_sql} | jq -c '.[]'); do
+          addr=$(echo "$r" | jq -r '.addr')
+          port=$(echo "$r" | jq -r '.port')
+          allAddresses=$addr$'\n'$(dig +nocookie +short $addr A)
+          excludedAddresses=$(comm -12 <(echo "$allAddresses" | sort) <(echo "$excludeList"))
+          nbExcludedAddresses=$(echo $excludedAddresses | wc -w)
+          if [[ $nbExcludedAddresses == 0 ]]; then
+            ((i+=1))
+            pingAddr $i $addr $port &
+            sleep 0.5
+          else
+            >&2 echo "$addr excluded due to dns name or IPs being in exclude list:\n$excludedAddresses"
+          fi
+        done
+
+        wait
+
+        if test -n "$(find . -maxdepth 1 -name '*-relay.json' -print -quit)"; then
+          echo "Found a total of $(find . -name '*-relay.json' -printf '.' | wc -m) relays to include in topology.json"
+          find . -name '*-relay.json' -printf '%f\t%p\n' | sort -k1 -n | cut -d$'\t' -f2 | tr '\n' '\0' | xargs -r0 cat \
+            | jq -n '. + [inputs]' | jq '{ Producers : . }' > topology.json
+          mkdir -p relays
+          mv topology.json relays/topology.json
+          rm *-relay.json
+        else
+          echo "No relays found!!"
+        fi
+      }
+
+      while true
+      do
+        run
+        sleep 3600
       done
-
-      wait
-
-      if test -n "$(find . -maxdepth 1 -name '*-relay.json' -print -quit)"; then
-        echo "Found a total of $(find . -name '*-relay.json' -printf '.' | wc -m) relays to include in topology.json"
-        find . -name '*-relay.json' -printf '%f\t%p\n' | sort -k1 -n | cut -d$'\t' -f2 | tr '\n' '\0' | xargs -r0 cat \
-          | jq -n '. + [inputs]' | jq '{ Producers : . }' > topology.json
-        mkdir -p relays
-        mv topology.json relays/topology.json
-        rm *-relay.json
-      else
-        echo "No relays found!!"
-      fi
     '';
     startLimitIntervalSec = 1800;
     serviceConfig = {
       User = cfg.user;
       StateDirectory = "registered-relays-dump";
-      Type = "simple";
       Restart = "always";
       RestartSec = "30s";
       StartLimitBurst = 3;
-      RemainAfterExit = "yes";
-      RuntimeMaxSec = 5 * 3600;
     };
   };
 
