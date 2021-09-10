@@ -26,10 +26,15 @@ let
     (fullyConnectNodes [
       (mkStkNode "a" 1 "WAV1" { nodeId = 1; })
       (mkStkNode "d" 1 "CFD1" { nodeId = 2; })
-      (mkRelNode "a" 1 { nodeId = 3; })
-      (mkRelNode "d" 1 { nodeId = 4; })
-      (mkRelNode "a" 2 { nodeId = 5; })
-      (mkRelNode "d" 2 { nodeId = 6; })
+      (mkStkNode "a" 2 "WAV2" { nodeId = 3; })
+      (mkStkNode "d" 2 "WAV3" { nodeId = 4; })
+      (mkStkNode "a" 3 "WAV4" { nodeId = 5; })
+      (mkStkNode "d" 3 "WAV5" { nodeId = 6; })
+      (mkStkNode "a" 4 "WAV6" { nodeId = 7; })
+      (mkRelNode "a" 1 { nodeId = 8; })
+      (mkRelNode "d" 1 { nodeId = 9; })
+      (mkRelNode "a" 2 { nodeId = 10; })
+      (mkRelNode "d" 2 { nodeId = 11; })
     ]);
 
   relayNodes = filter (n: !(n.stakePool or false)) nodes;
