@@ -37,7 +37,7 @@ in {
 
   systemd.services.metadata-server = {
     environment = {
-      GHCRTS = "-N2 -M${toString (config.node.memory * 1024 / 4)}M";
+      GHCRTS = "-M${toString (config.node.memory * 1024 / 4)}M";
     };
     serviceConfig = {
       Restart = "always";
@@ -47,8 +47,8 @@ in {
       StartLimitBurst = 3;
 
       # Limit memory and runtime until a memory leak is addressed (keep memory for varnish)
-      MemoryMax = "${toString (config.node.memory * 1024 / 4)}M";
-      RuntimeMaxSec = 4 * 3600;
+      MemoryMax = "${toString (128 + config.node.memory * 1024 / 4)}M";
+      RuntimeMaxSec = 30 * 60;
     };
   };
   systemd.services.metadata-webhook.serviceConfig = {
@@ -263,6 +263,11 @@ in {
         /status/format/prometheus 0;
         default $loggable_varnish;
       }
+
+      map $request_method $upstream_location {
+        GET     127.0.0.1:6081;
+        default 127.0.0.1:${toString metadataServerPort};
+      }
     '';
 
     virtualHosts = {
@@ -291,11 +296,11 @@ in {
             "/webhook"
           ];
           in (lib.recursiveUpdate (lib.genAttrs serverEndpoints (p: {
-            proxyPass = "http://127.0.0.1:${toString metadataServerPort}${p}";
+            proxyPass = "http://$upstream_location";
             extraConfig = corsConfig;
            })) {
-           # Add varnish caching to only the `/metadata/query` endpoint
-           "/metadata/query".proxyPass = "http://127.0.0.1:6081/metadata/query";
+           # Add varnish caching for all request on `/metadata/query` endpoint
+           "/metadata/query".proxyPass = "http://127.0.0.1:6081";
            "/metadata/query".extraConfig = ''
              limit_req zone=metadataQueryPerIP burst=20 nodelay;
              ${corsConfig}
