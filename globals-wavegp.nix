@@ -21,5 +21,11 @@ pkgs: {
     };
   };
 
-  alertChainDensityLow = "92";
+  alertChainDensityLow = "85";
+  alertTcpHigh = "220";
+  alertTcpCrit = "250";
+
+
+  # 20GB per node instance
+  nodeDbDiskAllocationSize = 20;
 }

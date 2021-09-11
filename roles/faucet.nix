@@ -2,56 +2,41 @@ pkgs: { name, config, nodes, resources, ... }:
 with pkgs;
 let
   faucetPkgs = (import (sourcePaths.cardano-faucet + "/nix") {});
-  hostAddr = getListenIp nodes.${name};
-  nodePort = globals.cardanoNodePort;
-  monitoringPort = globals.cardanoNodePrometheusExporterPort;
+  walletPackages = import sourcePaths.cardano-wallet { gitrev = sourcePaths.cardano-wallet.rev; };
+  inherit (walletPackages) cardano-wallet cardano-node;
   inherit (pkgs.lib) mkIf;
 in {
 
   imports = [
-    cardano-ops.modules.common
-    cardano-ops.modules.custom-metrics
+    cardano-ops.modules.base-service
 
     # Cardano faucet needs to pair a compatible version of wallet with node
     # The following service import will do this:
-    (sourcePaths.cardano-faucet + "/nix/nixos/cardano-faucet-service-with-node.nix")
-
-    # To instead use this deployments own native cardano node niv pin,
-    # switch to the following two imports.  This may break the faucet wallet!
-    # A compatible wallet package may be specified with the cardano-faucet
-    # walletPackage option.
-    #(sourcePaths.cardano-faucet + "/nix/nixos/cardano-faucet-service.nix")
-    #(sourcePaths.cardano-node + "/nix/nixos")
+    (sourcePaths.cardano-faucet + "/nix/nixos/cardano-faucet-service.nix")
   ];
 
   networking.firewall.allowedTCPPorts = [
     80
     443
-    nodePort
   ];
 
   environment.systemPackages = with pkgs; [
     sqlite-interactive
   ];
 
-  services.monitoring-exporters.extraPrometheusExporters = [{
-     job_name = "cardano-node";
-     scrape_interval = "10s";
-     port = monitoringPort;
-     metrics_path = "/metrics";
-     labels = { alias = "cardano-faucet"; };
-  }];
-
-  services.custom-metrics = {
-    enable = true;
-    statsdExporter = "node";
-  };
-
   services.cardano-faucet = {
     enable = true;
     cardanoEnv = globals.environmentName;
     cardanoEnvAttrs = globals.environmentConfig;
-    package = faucetPkgs.packages.cardano-faucet;
+    walletPackage = cardano-wallet;
+  };
+
+  services.cardano-node = {
+    package = cardano-node;
+    allProducers = if (globals.topology.relayNodes != [])
+        then [ globals.relaysNew ]
+        else (map (n: n.name) globals.topology.coreNodes);
+    totalMaxHeapSizeMbytes = 0.6 * config.node.memory * 1024;
   };
 
   deployment.keys = {
@@ -83,13 +68,7 @@ in {
       permissions = "0400";
     };
   };
-
-  # NOTE: Cardano Faucet maintains its own cardano-node niv pin which is used here
   users.users.cardano-node.extraGroups = [ "keys" ];
-  users.users.cardano-node.isSystemUser = true;
-  services.cardano-node.nodeConfig = globals.environmentConfig.nodeConfig // {
-    hasPrometheus = [ hostAddr monitoringPort ];
-  };
 
   security.acme = mkIf (config.deployment.targetEnv != "libvirtd") {
     email = "devops@iohk.io";

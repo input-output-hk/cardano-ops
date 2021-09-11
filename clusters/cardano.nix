@@ -39,7 +39,7 @@ let
       # TODO: activate for 21.05
       #services.grafana.declarativePlugins = with pkgs.grafanaPlugins; [ grafana-piechart-panel ];
     } def;
-  }) // (lib.optionalAttrs globals.withExplorer {
+  }) // (lib.optionalAttrs globals.withExplorer ({
     explorer = let def = (topology.explorer or {}); in mkNode {
       _file = ./cardano.nix;
       deployment.ec2 = {
@@ -63,7 +63,7 @@ let
         nodeId = def.nodeId or 99;
       };
     } def;
-  }) // (lib.optionalAttrs (!globals.explorerBackendsInContainers)
+  } // (lib.optionalAttrs (!globals.explorerBackendsInContainers)
     (lib.mapAttrs' (z: variant: lib.nameValuePair "explorer-${z}"
       (let def = (topology."explorer-${z}" or {}); in mkNode {
         _file = ./cardano.nix;
@@ -87,7 +87,7 @@ let
         };
       } def)
     ) globals.explorerBackends)
-  ) // (lib.optionalAttrs globals.withFaucet {
+  ))) // (lib.optionalAttrs globals.withFaucet {
     "${globals.faucetHostname}" = let def = (topology.${globals.faucetHostname} or {}); in mkNode {
       deployment.ec2 = {
         region = "eu-central-1";
@@ -102,6 +102,7 @@ let
           class = "faucet";
         };
         org = "IOHK";
+        nodeId = def.nodeId or 99;
       };
     } def;
   }) // (lib.optionalAttrs globals.withSmash {
@@ -227,6 +228,8 @@ let
         "stakePool"
         "instance"
         "pools"
+        "ticker"
+        "public"
       ]);
 
 in {

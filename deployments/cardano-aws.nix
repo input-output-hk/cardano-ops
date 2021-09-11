@@ -3,7 +3,8 @@ let
   inherit (pkgs.lib)
     attrValues attrNames filter filterAttrs flatten foldl' hasAttrByPath listToAttrs
     mapAttrs' mapAttrs nameValuePair recursiveUpdate unique optional any concatMap
-    getAttrs optionalString hasPrefix take drop length concatStringsSep;
+    getAttrs optionalString hasPrefix take drop length concatStringsSep head toLower
+    elem;
 
   inherit (globals.topology) coreNodes relayNodes;
   privateRelayNodes = globals.topology.privateRelayNodes or [];
@@ -123,16 +124,23 @@ let
             accessKeyId = pkgs.globals.ec2.credentials.accessKeyIds.dns;
           })
           # AWS records are limited to 200 values:
-        ) (let relays = filter relayFilter relayNodes;
+        ) (let relays = filter (r: (r.public or true) && relayFilter r) relayNodes;
           numberOfRelays = length relays;
         in if (numberOfRelays > 200) then builtins.trace
           "WARNING: Getting over the 200 values limit for ${relaysNewPrefix} dns entry (${toString numberOfRelays} relays). Excluding ${concatStringsSep " " (map (r: r.name) (drop 200 relays))}."
           (take 200 relays)
         else relays));
         in mkRelayRecords "" (_: true)
-        // mkRelayRecords "asia-pacific" (n: hasPrefix "ap" n.region)
-        // mkRelayRecords "north-america" (n: hasPrefix "us" n.region)
-        // mkRelayRecords "europe" (n: hasPrefix "eu" n.region);
+          // mkRelayRecords "asia-pacific" (n: hasPrefix "ap" n.region)
+          // mkRelayRecords "north-america" (n: hasPrefix "us" n.region)
+          // mkRelayRecords "europe" (n: hasPrefix "eu" n.region)
+          // (
+            let records = map (coreNode: if coreNode ? ticker
+              then mkRelayRecords (toLower coreNode.ticker) (r: elem coreNode.name r.producers)
+              else {}
+            ) coreNodes;
+            in foldl' (a: b: a // b) {} records);
+
     };
     defaults = { name, resources, config, ... }: {
       deployment.ec2 = {

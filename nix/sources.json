@@ -11,16 +11,16 @@
         "url": "https://github.com/turnkeylinux/aws-datacenters/archive/a7106906e60969e917e555fd770454f72c78bb75.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-db-sync-10": {
-        "branch": "refs/tags/10.0.0",
+    "cardano-db-sync-11": {
+        "branch": "refs/tags/11.0.0",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "44ce5b94475c31a57a8d7a892f5e112f0cb4c012",
-        "sha256": "0kcfkkcx1sszz97d5gjb4bb0r1i2fx1njz35dx35d4fb5qfsmhym",
+        "rev": "07ee3b0aa3f2991eda0be6c96ec1d6d17e81f732",
+        "sha256": "15cc633k5d4px5zgrnwzxg3ps9gfypckc896bffpswsqlbrdljf9",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/44ce5b94475c31a57a8d7a892f5e112f0cb4c012.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/07ee3b0aa3f2991eda0be6c96ec1d6d17e81f732.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync-service": {
@@ -29,10 +29,10 @@
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "7815b392bfe9825bd89966bf96c04437e02c2429",
-        "sha256": "0q4gx121ls69hgypwv8ii1n7x8i5w75zmwa49j2q0yb82rbz6ddi",
+        "rev": "91d3eda3431a017dd87a6703c2bbea43884591fb",
+        "sha256": "1jac7y9sqgqyxrd0md1rwdkr6w96ybv3a5nf9bgw4ryy40ffl1np",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/7815b392bfe9825bd89966bf96c04437e02c2429.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/91d3eda3431a017dd87a6703c2bbea43884591fb.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer-app-1.6": {
@@ -48,76 +48,76 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
-        "branch": "master",
+        "branch": "alonzo-wallet",
         "description": "Faucet for Cardano",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "daa31ad1e5bb3db4b3427cd808aa47eede9cfd76",
-        "sha256": "0mkdbl96pd64jn8ph3g9sap939fn87zkm0nx4bpldipfhfpgdw6m",
+        "rev": "7879212e7e353eef66fce44c460a4bf030bb57b5",
+        "sha256": "0c3kd6528a33jqymn92dd8yi6vyz59lnx1q104bm22b63b8w7a8p",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/daa31ad1e5bb3db4b3427cd808aa47eede9cfd76.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/7879212e7e353eef66fce44c460a4bf030bb57b5.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-graphql-5": {
-        "branch": "refs/tags/5.0.0",
+    "cardano-graphql-5.1": {
+        "branch": "refs/tags/5.1.0",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "754d9e9acc31a75b3f786cac5553bd3155e6a968",
-        "sha256": "07jcvgzxdll1818kmag9bafqp0yc7pq1h85bmsi4hak9mdhz76jd",
+        "rev": "0a13e5b7224621a660bfa949a92ced8f629d2db4",
+        "sha256": "17qwnnj3fa9z04xqbb22yd7cn35rsbhggyfbl98r26hx01bwghxc",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/754d9e9acc31a75b3f786cac5553bd3155e6a968.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/0a13e5b7224621a660bfa949a92ced8f629d2db4.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
     "cardano-node": {
-        "branch": "refs/tags/1.27.0",
+        "branch": "refs/tags/1.29.0",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "8fe46140a52810b6ca456be01d652ca08fe730bf",
-        "sha256": "1c9zc899wlgicrs49i33l0bwb554acsavzh1vcyhnxmpm0dmy8vj",
+        "rev": "4c59442958072657812c6c0bb8e0b4ab85ce1ba2",
+        "sha256": "0pc26hrgdsf93h3qvp8m76axm4jspzclg6psn14mbaf1mkc1fxmx",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/8fe46140a52810b6ca456be01d652ca08fe730bf.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/4c59442958072657812c6c0bb8e0b4ab85ce1ba2.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-node-1.26": {
-        "branch": "refs/tags/1.26.1",
+    "cardano-node-service": {
+        "branch": "p2p-master",
         "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
         "homepage": "https://cardano.org",
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "62f38470098fc65e7de5a4b91e21e36ac30799f3",
-        "sha256": "0ws2lgpl88p6bbrim43dczm19an9nba97sr483abq32b1xh4m3qh",
+        "rev": "3540e1d4fba849a91099df655d6c376cdec571be",
+        "sha256": "0582s0pj404z5bcl2bv29qm14hwf33529554xyps34r7dpavk1mr",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/62f38470098fc65e7de5a4b91e21e36ac30799f3.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/3540e1d4fba849a91099df655d6c376cdec571be.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-rosetta": {
-        "branch": "refs/tags/1.1.0",
-        "description": "https://www.rosetta-api.org implementation for Cardano Node",
-        "homepage": "",
-        "owner": "input-output-hk",
-        "repo": "cardano-rosetta",
-        "rev": "46f814f78884377010b46e6e307746ebea02ffce",
-        "sha256": "0f9xxb2xcn1zi6s41fm6i44k7r452pygxbqhka6wmqklf3h1ai9f",
-        "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/46f814f78884377010b46e6e307746ebea02ffce.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "cardano-rosetta-1.3": {
-        "branch": "refs/tags/1.3.0",
+    "cardano-rosetta-1.4": {
+        "branch": "refs/tags/1.4.0",
         "description": "An implementation of Rosetta for Cardano ",
         "homepage": "https://www.rosetta-api.org",
         "owner": "input-output-hk",
         "repo": "cardano-rosetta",
-        "rev": "05ba365dc112a3dc0b2e101ddfd65d6ec4ae9155",
-        "sha256": "1imbp1pmxxfhdjiaqyn8zswjcrd3fsck7j64fa8bc2n9xj4x5c7l",
+        "rev": "b72793c3c69412f66db3647fa9a84a16f81b0d60",
+        "sha256": "0ykq3sjq1v4b8kid9h1ybc6m95r6sfdmssv1v9xb5gzgrxpmx38y",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/05ba365dc112a3dc0b2e101ddfd65d6ec4ae9155.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/b72793c3c69412f66db3647fa9a84a16f81b0d60.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "cardano-wallet": {
+        "branch": "refs/tags/v2021-08-27",
+        "description": "HTTP server & command-line for managing UTxOs and HD wallets in Cardano.",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "cardano-wallet",
+        "rev": "e71dddd506e7dd317055fddc725fe29bc058f48f",
+        "sha256": "113d5h5b84bdgc9iclk22a02272xr9pja7n48wfdqrciqzy3ng30",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-wallet/archive/e71dddd506e7dd317055fddc725fe29bc058f48f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "iohk-nix": {
@@ -126,10 +126,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "6d55b8fec8423eac577b462220424041b86f4ca7",
-        "sha256": "0dwx98nrg36kfcnicsvcl7wjcvl0qhhdz9wrizr1430j0szgd4xp",
+        "rev": "8e65ca078e00b2138c77f1a2739d394ccfe4a5e7",
+        "sha256": "084abfng9maldqqlr7bvrvqz1blblcnxkrx415jhwf7y5zfk5v8q",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/6d55b8fec8423eac577b462220424041b86f4ca7.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/8e65ca078e00b2138c77f1a2739d394ccfe4a5e7.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
@@ -157,15 +157,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ogmios": {
-        "branch": "refs/tags/v4.0.0-beta.4",
+        "branch": "refs/tags/v4.0.0-beta.9",
         "description": " ❇️ A JSON-WSP WebSocket bridge for cardano-node",
         "homepage": "https://ogmios.dev",
         "owner": "CardanoSolutions",
         "repo": "ogmios",
-        "rev": "a2a92ee54b08e9b8b3c8cc95ea4f4c4d83904579",
-        "sha256": "1qgrqw31wd0jpxcn0jaih8dmsr6446rqcy8zqgh2wrylfncpznap",
+        "rev": "5d32e544395174af412ac98294d3006ee897da69",
+        "sha256": "011kna3v0y3j7wn988mgiral60j41ka4c126m76v5gnahrk7shbk",
         "type": "tarball",
-        "url": "https://github.com/CardanoSolutions/ogmios/archive/a2a92ee54b08e9b8b3c8cc95ea4f4c4d83904579.tar.gz",
+        "url": "https://github.com/CardanoSolutions/ogmios/archive/5d32e544395174af412ac98294d3006ee897da69.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
@@ -174,22 +174,22 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "bd8d88e35225eeac61d1d6068bb658c41bf01f04",
-        "sha256": "1fsn6p0k6z5gq8ssjp6rb2cilbr39qll200l3l0lkwbirwqnprvp",
+        "rev": "de4df607592147b1c09e9f67c6900f2ce3fa8cf4",
+        "sha256": "171cdfwjwywaa08qc5qw2ficgxga3an9j3qg5lyv7amhczww1xya",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/bd8d88e35225eeac61d1d6068bb658c41bf01f04.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/de4df607592147b1c09e9f67c6900f2ce3fa8cf4.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "smash": {
-        "branch": "refs/tags/v1.4.0",
+        "branch": "refs/tags/1.6.0",
         "description": "Stakepool Metadata Aggregation Server",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "smash",
-        "rev": "5da923f901dde65a933b9b0cd9820f3b7d1ff6a8",
-        "sha256": "0kysn90h2ak9gsjcf9qzy8n8cjp52fn6xc1qpr8kv0bgjb0a9wh1",
+        "rev": "355c45359b0d6444e5146cf576c216d765bdc987",
+        "sha256": "1gmmrbnv8855z9mwfqyrylph8py75w4q3v2v1h82w7yj359ks36q",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/smash/archive/5da923f901dde65a933b9b0cd9820f3b7d1ff6a8.tar.gz",
+        "url": "https://github.com/input-output-hk/smash/archive/355c45359b0d6444e5146cf576c216d765bdc987.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

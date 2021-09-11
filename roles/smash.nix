@@ -2,11 +2,7 @@ pkgs: with pkgs; { nodes, name, config, ... }:
 let
   nodeCfg = config.services.cardano-node;
   cfg = config.services.smash;
-  hostAddr = getListenIp nodes.${name};
   inherit (import (sourcePaths.smash + "/nix") {}) smashHaskellPackages;
-
-  # Force usage of cardano-node 1.26
-  inherit (import (sourcePaths."cardano-node-1.26" + "/nix") { gitrev = sourcePaths."cardano-node-1.26".rev; }) cardano-node;
 in {
   environment = {
     systemPackages = [
@@ -24,10 +20,7 @@ in {
 
   services.cardano-node = {
     allProducers = [ globals.relaysNew ];
-    # FIXME Reactivate when smash update to 1.28:
-    #package = import  cardanoNodeHaskellPackages.cardano-node.components.exes.cardano-node;
-    package = cardano-node;
-
+    package = smashHaskellPackages.cardano-node.components.exes.cardano-node;
     totalMaxHeapSizeMbytes = 0.5 * config.node.memory * 1024;
   };
 
@@ -55,7 +48,7 @@ in {
     inherit (globals) environmentName;
     environment = globals.environmentConfig;
     inherit (nodeCfg) socketPath;
-    logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { hasPrometheus = [ hostAddr 12698 ]; };
+    logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { PrometheusPort = globals.cardanoExplorerPrometheusExporterPort; };
   };
   services.cardano-postgres.enable = true;
   services.postgresql = {
@@ -153,6 +146,20 @@ in {
         if (beresp.status == 404) {
           set beresp.ttl = 1h;
         }
+        # Default vcl_backend_response (without no-store):
+          if (beresp.ttl <= 0s ||
+              beresp.http.Set-Cookie ||
+              beresp.http.Surrogate-control ~ "no-store" ||
+              (!beresp.http.Surrogate-Control &&
+              beresp.http.Cache-Control ~ "no-cache|private") ||
+              beresp.http.Vary == "*") {
+              /*
+              * Mark as "Hit-For-Pass" for the next 2 minutes
+              */
+              set beresp.ttl = 120s;
+              set beresp.uncacheable = true;
+          }
+          return (deliver);
       }
     '';
   };
@@ -177,8 +184,6 @@ in {
                        '"$request" $status $body_bytes_sent '
                        '"$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
 
-      access_log syslog:server=unix:/dev/log x-fwd if=$loggable;
-
       map $arg_apiKey $api_client_name {
         default "";
 
@@ -194,12 +199,6 @@ in {
       map $sent_http_x_cache $loggable_varnish {
         "hit cached" 0;
         default 1;
-      }
-
-      map $request_uri $loggable {
-        /status/format/prometheus 0;
-        /metrics2/exporter 0;
-        default $loggable_varnish;
       }
 
       map $origin_allowed $origin {
@@ -263,13 +262,6 @@ in {
             '';
           };
       };
-      "smash-ip" = {
-        locations = {
-          "/metrics2/exporter" = {
-            proxyPass = "http://127.0.0.1:8080/";
-          };
-        };
-      };
     };
   };
 
@@ -281,7 +273,8 @@ in {
     {
       job_name = "smash-exporter";
       scrape_interval = "10s";
-      metrics_path = "/metrics2/exporter";
+      port = globals.cardanoExplorerPrometheusExporterPort;
+      metrics_path = "/";
       labels = { alias = "smash-exporter"; };
     }
   ];

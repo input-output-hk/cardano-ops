@@ -21,13 +21,15 @@ done
 
 cd "$(dirname "$0")/.."
 
-DEPLOY_ID=$(nixops export -d $NIXOPS_DEPLOYMENT | jq -r 'keys | .[]')
+DEPLOY_JSON=$(nixops export -d $NIXOPS_DEPLOYMENT)
+DEPLOY_ID=$(jq -r 'keys | .[]' <<< $DEPLOY_JSON)
 
 for r in $TARGET_NODES; do
-    REGION=$(nixops export | jq -r ".\"$DEPLOY_ID\".resources.\"$r\".\"ec2.region\"")
-    VOL_ID=$(nixops export | jq -r ".\"$DEPLOY_ID\".resources.\"$r\".\"ec2.blockDeviceMapping\"" | jq -r '."/dev/xvda".volumeId')
+    AWS_PROFILE=$(jq -r ".\"$DEPLOY_ID\".resources.\"$r\".\"ec2.accessKeyId\"" <<< $DEPLOY_JSON)
+    REGION=$(jq -r ".\"$DEPLOY_ID\".resources.\"$r\".\"ec2.region\"" <<< $DEPLOY_JSON)
+    VOL_ID=$( (jq -r ".\"$DEPLOY_ID\".resources.\"$r\".\"ec2.blockDeviceMapping\"" | jq -r '."/dev/xvda".volumeId') <<< $DEPLOY_JSON)
     echo "resizing root volume for $r"
-
+    export AWS_PROFILE
     aws --region $REGION ec2 modify-volume --size $TARGET_SIZE --volume-id $VOL_ID
  done
 

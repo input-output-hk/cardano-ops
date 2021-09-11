@@ -39,8 +39,8 @@ done
 for i in `seq $((NB_BFT_NODES+1)) $NB_CORE_NODES`; do
   cardano-cli node issue-op-cert \
               --hot-kes-verification-key-file node-kes$i.vkey.new \
-              --cold-signing-key-file ../pool-keys/node$i-cold.skey \
-              --operational-certificate-issue-counter ../pool-keys/node$i-cold.counter \
+              --cold-signing-key-file ../pools/cold$((i - $NB_BFT_NODES)).skey \
+              --operational-certificate-issue-counter ../pools/opcert$((i - $NB_BFT_NODES)).counter \
               --kes-period $PERIOD \
               --out-file node$i.opcert
 done

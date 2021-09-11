@@ -9,6 +9,7 @@ let
 in {
 
   static = import ./static pkgs;
+  overlay = (_:_: {});
 
   deploymentName = "${builtins.baseNameOf ./.}";
   deploymentPath = "$HOME/${globals.deploymentName}";
@@ -16,29 +17,36 @@ in {
   relayUpdateArgs = "-m 1";
   relayUpdatePeriod = "weekly";
 
+  dbSyncSnapshotArgs = "";
+
+  dbSyncSnapshotPeriod = "10d";
+
   environmentName = globals.deploymentName;
 
-  topology = import (./topologies + "/${globals.environmentName}.nix") pkgs;
+  topology = import (./topologies + "/${globals.deploymentName}.nix") pkgs;
 
   sourcesJsonOverride = ./nix + "/sources.${globals.environmentName}.json";
 
   dnsZone = "dev.cardano.org";
   domain = "${globals.deploymentName}.${globals.dnsZone}";
-  relaysNew = globals.environmentConfig.relaysNew or "relays-new.${globals.domain}";
+  relaysNew = if (globals.deploymentName == globals.environmentName)
+    then globals.environmentConfig.relaysNew or "relays.${globals.domain}"
+    else "relays.${globals.domain}";
 
   explorerHostName = "explorer.${globals.domain}";
   explorerForceSSL = true;
   explorerAliases = [];
   explorerBackends = {
-    a = globals.explorer10;
-    b = globals.explorer10;
+    a = globals.explorer11;
+    b = globals.explorer11;
   };
-  explorerActiveBackends = [ "a" "b" ];
-  explorer10 = {
-    cardano-db-sync = sourcePaths.cardano-db-sync-10;
-    cardano-graphql = sourcePaths.cardano-graphql-5;
+  explorerActiveBackends = attrNames globals.explorerBackends;
+  explorerDbSnapshots = globals.explorer11;
+  explorer11 = {
+    cardano-db-sync = sourcePaths.cardano-db-sync-11;
+    cardano-graphql = sourcePaths."cardano-graphql-5.1";
     cardano-explorer-app = sourcePaths."cardano-explorer-app-1.6";
-    cardano-rosetta = sourcePaths."cardano-rosetta-1.3";
+    cardano-rosetta = sourcePaths."cardano-rosetta-1.4";
   };
   explorerBackendsInContainers = false;
 
@@ -47,6 +55,7 @@ in {
   withCardanoDBExtended = true;
   withSubmitApi = false;
   withFaucet = false;
+  faucetHostname = "faucet";
   withFaucetOptions = {};
   withSmash = false;
 
@@ -77,6 +86,8 @@ in {
       stkNodes = filter (c: c.stakePool) globals.topology.coreNodes;
     in rec {
       ENVIRONMENT = globals.environmentName;
+      RELAYS = globals.relaysNew;
+      DOMAIN = globals.domain;
 
       CORE_NODES = toString (map (x: x.name) globals.topology.coreNodes);
       NB_CORE_NODES = toString (builtins.length globals.topology.coreNodes);
@@ -87,6 +98,7 @@ in {
 
       GENESIS_PATH = toString genesisFile;
       # Network parameters.
+      NETWORK_MAGIC = toString genesis.networkMagic;
       EPOCH_LENGTH = toString genesis.epochLength;
       SLOT_LENGTH = toString genesis.slotLength;
       K = toString genesis.securityParam;
@@ -95,17 +107,23 @@ in {
     } // (optionalAttrs (builtins.pathExists genesisFile) {
       SYSTEM_START = genesis.systemStart;
       # End: Network parameters.
+    }) // (optionalAttrs (globals.environmentConfig.nodeConfig ? ByronGenesisFile) {
+      BYRON_GENESIS_PATH = toString globals.environmentConfig.nodeConfig.ByronGenesisFile;
     }));
 
   deployerIp = requireEnv "DEPLOYER_IP";
   cardanoNodePort = 3001;
 
   cardanoNodePrometheusExporterPort = 12798;
-  cardanoExplorerPrometheusExporterPort = 8080;
+  cardanoExplorerPrometheusExporterPort = 12698;
+  # DB-sync on explorer gw is restarting regularly to take snapshot:
+  intermittentMonitoringTargets = [ "explorer-exporter" ];
+  cardanoExplorerGwPrometheusExporterPort = 12699;
   netdataExporterPort = 19999;
 
   extraPrometheusExportersPorts = [
     globals.cardanoExplorerPrometheusExporterPort
+    globals.cardanoExplorerGwPrometheusExporterPort
     globals.netdataExporterPort
   ] ++ builtins.genList (i: globals.cardanoNodePrometheusExporterPort + i) globals.nbInstancesPerRelay;
 
@@ -126,8 +144,8 @@ in {
 
   alertChainDensityLow = "99";
   alertMemPoolHigh = "190";
-  alertTcpHigh = 220 * pkgs.globals.nbInstancesPerRelay;
-  alertTcpCrit = 250 * pkgs.globals.nbInstancesPerRelay;
+  alertTcpHigh = 333 * pkgs.globals.nbInstancesPerRelay;
+  alertTcpCrit = 500 * pkgs.globals.nbInstancesPerRelay;
   alertMbpsHigh = 150 * pkgs.globals.nbInstancesPerRelay;
   alertMbpsCrit = 200 * pkgs.globals.nbInstancesPerRelay;
 
@@ -169,9 +187,11 @@ in {
       faucet = node-baseline;
       metadata = t3a-2xlarge;
       explorer = if globals.withHighCapacityExplorer
-      then c5-9xlarge
+                 then c5-9xlarge
                  else t3a-xlarge;
-      explorer-gw = t3a-small;
+      explorer-gw = if globals.withHighCapacityExplorer
+                    then t3a-2xlarge
+                    else t3a-xlarge;
       monitoring = if globals.withHighCapacityMonitoring
                    then t3-2xlargeMonitor
                    else t3a-xlargeMonitor;

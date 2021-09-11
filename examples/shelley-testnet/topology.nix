@@ -19,7 +19,6 @@ let
     c = { name = "ap-southeast-1"; /* Asia Pacific (Singapore) */ };
     d = { name = "eu-west-2";      /* Europe (London)          */ };
   };
-
   bftCoreNodes =
     let
       # The region names will determine the number of BFT nodes. These names
@@ -34,7 +33,6 @@ let
             }
         )
         (length bftNodeRegionNames);
-      mkBftCoreNode = mkBftCoreNodeForRegions regions;
       bftNodes =
         map defineKeys
             (fullyConnectNodes
@@ -90,7 +88,6 @@ let
             }
         )
         (length poolRegionNames);
-      mkStakingPool = mkStakingPoolForRegions regions;
       pools =
         map defineKeys
             (fullyConnectNodes
@@ -136,5 +133,5 @@ let
 
   coreNodes = bftCoreNodes ++ stakePoolNodes;
 in {
-  inherit bftCoreNodes stakePoolNodes coreNodes relayNodes;
+  inherit bftCoreNodes stakePoolNodes coreNodes relayNodes regions;
 }

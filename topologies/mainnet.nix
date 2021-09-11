@@ -1,7 +1,7 @@
-pkgs: with pkgs; with lib; with topology-lib;
+pkgs: with pkgs; with lib; with topology-lib ;
 let
 
-regions = {
+  regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
       minRelays = 35;
     };
@@ -22,9 +22,7 @@ regions = {
     };
   };
 
-  bftCoreNodes = let
-    mkBftCoreNode = mkBftCoreNodeForRegions regions;
-  in regionalConnectGroupWith (reverseList stakingPoolNodes)
+  bftCoreNodes = regionalConnectGroupWith (reverseList stakingPoolNodes)
   (fullyConnectNodes (map (withModule {
     # Disable monitoring of bft nodes (do not produces blocks anymore)
     services.monitoring-exporters.metrics = false;
@@ -60,9 +58,7 @@ regions = {
     })
   ]));
 
-  stakingPoolNodes = let
-    mkStakingPool = mkStakingPoolForRegions regions;
-  in regionalConnectGroupWith bftCoreNodes
+  stakingPoolNodes = regionalConnectGroupWith bftCoreNodes
   (twoHopsConnectNodes [
     (mkStakingPool "a" 1 "IOG1" { nodeId = 8; })
 
@@ -105,7 +101,7 @@ regions = {
     (bftCoreNodes ++ stakingPoolNodes);
 
   relayNodes = map (composeAll [
-    (withAutoRestartEvery 6)
+    #(withAutoRestartEvery 6)
     (forNodes {
       services.cardano-node.extraNodeConfig = {
         TraceMempool = true;
@@ -120,7 +116,7 @@ regions = {
 
 in {
 
-  inherit coreNodes relayNodes;
+  inherit coreNodes relayNodes regions;
 
   monitoring = {
     services.monitoring-services.publicGrafana = false;

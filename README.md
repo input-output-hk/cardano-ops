@@ -57,7 +57,7 @@ If this is a major upgrade, database on `explorer-a` need to be deleted:
 First we need to wait until `cardano-db-sync` is fully synced. Then we modify topology file to include this bit:
 
 ```nix
-explorer-a.services.cardano-db-sync.takeSnapshot = true;
+explorer-a.services.cardano-db-sync.takeSnapshot = "once";
 ```
 
 3. Swith frontend to updated backend (`explorer-a`) and prepare upgrade of `explorer-b`:

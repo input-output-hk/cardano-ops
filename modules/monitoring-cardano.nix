@@ -10,6 +10,7 @@ let
   MbpsCrit = toString globals.alertMbpsCrit;
   slotLength = globals.environmentVariables.SLOT_LENGTH;
 in {
+  services.monitoring-services.logging = false;
   services.monitoring-services.applicationDashboards = ./grafana/cardano;
   services.monitoring-services.applicationRules = [
     {
@@ -22,6 +23,18 @@ in {
       annotations = {
         summary = "{{$labels.job}}: Blackbox probe is down for {{$labels.instance}}.";
         description = "{{$labels.job}}: Blackbox probe has been down for at least 5 minutes for {{$labels.instance}}.";
+      };
+    }
+    {
+      alert = "High cardano ping latency";
+      expr = "quantile_over_time(0.95, cardano_ping_latency_ms[1h:1m]) > 50";
+      for = "15m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: Cardano ping P95 latency has been above 50 milliseconds";
+        description = "{{$labels.alias}}: Cardano ping P95 latency has been above 50 milliseconds for the last 15 minutes.";
       };
     }
     {
@@ -39,7 +52,7 @@ in {
     {
       alert = "mempoolsize_tx_count_too_large";
       expr = "max_over_time(cardano_node_metrics_txsInMempool_int[5m]) > ${memPoolHigh}";
-      for = "5m";
+      for = "10m";
       labels = {
         severity = "page";
       };

@@ -1,0 +1,21 @@
+name: db-sync-snapshot
+version: 0.1.0
+
+authors:
+  - Jean-Baptiste Giraudeau <jean-baptiste.giraudeau@iohk.io>
+
+description: |
+  Upload db-sync snapshot, to be schedule on a X epochs period.
+
+targets:
+  db-sync-snapshot:
+    main: src/db-sync-snapshot.cr
+
+dependencies:
+  email:
+    github: arcage/crystal-email
+    version: 0.6.3
+
+crystal: 1.0.0
+
+license: MIT
