@@ -1161,6 +1161,8 @@
         "min": false,
         "rightSide": true,
         "show": true,
+        "sort": "current",
+        "sortDesc": false,
         "total": false,
         "values": true
       },
@@ -1343,102 +1345,121 @@
       }
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorPostfix": false,
-      "colorPrefix": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "#FF9830",
-        "#d44a3a"
-      ],
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
       "datasource": "prometheus",
-      "decimals": 0,
       "fieldConfig": {
         "defaults": {},
         "overrides": []
       },
-      "format": "short",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
+      "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 8,
         "y": 30
       },
-      "id": 45,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "pluginVersion": "6.6.2",
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": true,
-        "lineColor": "rgb(31, 120, 193)",
+      "hiddenSeries": false,
+      "id": 66,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
         "show": true,
-        "ymax": null,
-        "ymin": null
+        "total": false,
+        "values": false
       },
-      "tableColumn": "",
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.7",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
-          "expr": "avg(cardano_node_Forge_metrics_currentKESPeriod_int)",
+          "exemplar": true,
+          "expr": "avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize[15m]) / (64*1024))",
+          "hide": false,
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "15 min average",
+          "queryType": "randomWalk",
           "refId": "A"
         },
         {
-          "expr": "avg(cardano_node_metrics_currentKESPeriod_int)",
+          "exemplar": false,
+          "expr": "quantile(0.5, cardano_node_metrics_blockfetchclient_blocksize / (64*1024))",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "last",
           "refId": "B"
-        }
-      ],
-      "thresholds": "",
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Current KES Period",
-      "type": "singlestat",
-      "valueFontSize": "200%",
-      "valueMaps": [
+        },
         {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
+          "exemplar": true,
+          "expr": "avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize[4h]) / (64*1024))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "4h average",
+          "refId": "C"
         }
       ],
-      "valueName": "current"
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Block utilization (%)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:163",
+          "decimals": null,
+          "format": "percentunit",
+          "label": null,
+          "logBase": 1,
+          "max": "1",
+          "min": "0",
+          "show": true
+        },
+        {
+          "$$hashKey": "object:164",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "aliasColors": {},
@@ -1490,9 +1511,11 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "cardano_node_metrics_txsInMempool_int",
+          "exemplar": true,
+          "expr": "avg(avg_over_time(cardano_node_metrics_txsInMempool_int[30m]))",
+          "hide": false,
           "interval": "",
-          "legendFormat": "{{alias}}",
+          "legendFormat": "30 min average",
           "refId": "C"
         }
       ],
@@ -1645,109 +1668,102 @@
       }
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorPostfix": false,
+      "colorPrefix": false,
+      "colorValue": false,
+      "colors": [
+        "#299c46",
+        "#FF9830",
+        "#d44a3a"
+      ],
       "datasource": "prometheus",
-      "description": "KES time remaining",
+      "decimals": 0,
       "fieldConfig": {
-        "defaults": {
-          "links": []
-        },
+        "defaults": {},
         "overrides": []
       },
-      "fill": 1,
-      "fillGradient": 0,
+      "format": "short",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 8,
         "y": 38
       },
-      "hiddenSeries": false,
-      "id": 50,
-      "interval": "",
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
+      "id": 45,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "pluginVersion": "6.6.2",
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": true,
+        "lineColor": "rgb(31, 120, 193)",
         "show": true,
-        "total": false,
-        "values": false
+        "ymax": null,
+        "ymin": null
       },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "7.5.7",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "tableColumn": "",
       "targets": [
         {
-          "expr": "cardano_node_Forge_metrics_remainingKESPeriods_int * on(alias) cardano_node_genesis_slotsPerKESPeriod * on(alias) cardano_node_genesis_slotLength",
+          "expr": "avg(cardano_node_Forge_metrics_currentKESPeriod_int)",
           "interval": "",
-          "legendFormat": "{{alias}}",
-          "refId": "C"
-        },
-        {
-          "expr": "cardano_node_metrics_remainingKESPeriods_int * on(alias) cardano_node_genesis_slotsPerKESPeriod * on(alias) cardano_node_genesis_slotLength",
-          "interval": "",
-          "legendFormat": "{{alias}}",
+          "legendFormat": "",
           "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "KES Time Remaining Until Expiration",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:591",
-          "format": "s",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
         },
         {
-          "$$hashKey": "object:592",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
+          "expr": "avg(cardano_node_metrics_currentKESPeriod_int)",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "B"
         }
       ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "thresholds": "",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Current KES Period",
+      "type": "singlestat",
+      "valueFontSize": "200%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
     },
     {
       "aliasColors": {},
@@ -1962,7 +1978,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
-      "description": "",
+      "description": "KES time remaining",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -1978,7 +1994,7 @@
         "y": 46
       },
       "hiddenSeries": false,
-      "id": 48,
+      "id": 50,
       "interval": "",
       "legend": {
         "avg": false,
@@ -2006,17 +2022,23 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "cardano_node_protocol_decentralisationParam >= 0",
+          "expr": "cardano_node_Forge_metrics_remainingKESPeriods_int * on(alias) cardano_node_genesis_slotsPerKESPeriod * on(alias) cardano_node_genesis_slotLength",
           "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "C"
+        },
+        {
+          "expr": "cardano_node_metrics_remainingKESPeriods_int * on(alias) cardano_node_genesis_slotsPerKESPeriod * on(alias) cardano_node_genesis_slotLength",
+          "interval": "",
+          "legendFormat": "{{alias}}",
+          "refId": "A"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Decentralization Parameter (d)",
+      "title": "KES Time Remaining Until Expiration",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -2032,8 +2054,8 @@
       },
       "yaxes": [
         {
-          "$$hashKey": "object:500",
-          "format": "short",
+          "$$hashKey": "object:591",
+          "format": "s",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -2041,7 +2063,7 @@
           "show": true
         },
         {
-          "$$hashKey": "object:501",
+          "$$hashKey": "object:592",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -2251,6 +2273,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -2266,7 +2289,8 @@
         "y": 54
       },
       "hiddenSeries": false,
-      "id": 37,
+      "id": 48,
+      "interval": "",
       "legend": {
         "avg": false,
         "current": false,
@@ -2293,16 +2317,17 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rts_gc_current_bytes_used/(1024*1024)",
+          "expr": "cardano_node_protocol_decentralisationParam >= 0",
+          "interval": "",
           "legendFormat": "{{alias}}",
-          "refId": "A"
+          "refId": "C"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Node current \"residency\" (amount of live data, MBytes)",
+      "title": "Decentralization Parameter (d)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -2318,6 +2343,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:500",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -2326,6 +2352,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:501",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -2547,7 +2574,6 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
-      "description": "Counts memory that is free as well as reclaimable from caches and buffers",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -2563,8 +2589,7 @@
         "y": 62
       },
       "hiddenSeries": false,
-      "id": 23,
-      "interval": "",
+      "id": 37,
       "legend": {
         "avg": false,
         "current": false,
@@ -2591,9 +2616,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "node_memory_MemAvailable_bytes{alias!~\"monitoring.*\"} / node_memory_MemTotal_bytes{alias!~\"monitoring.*\"} * 100",
-          "hide": false,
-          "interval": "",
+          "expr": "rts_gc_current_bytes_used/(1024*1024)",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -2602,7 +2625,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Node Memory Available (%)",
+      "title": "Node current \"residency\" (amount of live data, MBytes)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -2618,7 +2641,7 @@
       },
       "yaxes": [
         {
-          "format": "none",
+          "format": "short",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -2841,6 +2864,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
+      "description": "Counts memory that is free as well as reclaimable from caches and buffers",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -2856,7 +2880,8 @@
         "y": 70
       },
       "hiddenSeries": false,
-      "id": 32,
+      "id": 23,
+      "interval": "",
       "legend": {
         "avg": false,
         "current": false,
@@ -2883,7 +2908,9 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rts_gc_max_bytes_used/(1024*1024)",
+          "expr": "node_memory_MemAvailable_bytes{alias!~\"monitoring.*\"} / node_memory_MemTotal_bytes{alias!~\"monitoring.*\"} * 100",
+          "hide": false,
+          "interval": "",
           "legendFormat": "{{alias}}",
           "refId": "A"
         }
@@ -2892,7 +2919,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Node max \"residency\" (amount of live data, MBytes)",
+      "title": "Node Memory Available (%)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -2908,7 +2935,7 @@
       },
       "yaxes": [
         {
-          "format": "short",
+          "format": "none",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -3133,7 +3160,6 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "prometheus",
-      "description": "20 second rolling time average",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -3149,8 +3175,7 @@
         "y": 78
       },
       "hiddenSeries": false,
-      "id": 20,
-      "interval": "",
+      "id": 32,
       "legend": {
         "avg": false,
         "current": false,
@@ -3177,21 +3202,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(node_network_receive_bytes_total{alias!~\"monitoring.*\",device!~\"lo\"}[20s]) * 8",
+          "expr": "rts_gc_max_bytes_used/(1024*1024)",
           "legendFormat": "{{alias}}",
           "refId": "A"
-        },
-        {
-          "expr": "rate(node_network_transmit_bytes_total{alias!~\"monitoring.*\",device!~\"lo\"}[20s]) * -8",
-          "legendFormat": "{{alias}}",
-          "refId": "B"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Node Bandwidth (bps)",
+      "title": "Node max \"residency\" (amount of live data, MBytes)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -3207,18 +3227,16 @@
       },
       "yaxes": [
         {
-          "decimals": null,
-          "format": "decbits",
-          "label": "",
+          "format": "short",
+          "label": null,
           "logBase": 1,
           "max": null,
           "min": null,
           "show": true
         },
         {
-          "decimals": null,
           "format": "short",
-          "label": "",
+          "label": null,
           "logBase": 1,
           "max": null,
           "min": null,
@@ -3325,9 +3343,112 @@
         "align": false,
         "alignLevel": null
       }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "description": "20 second rolling time average",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 86
+      },
+      "hiddenSeries": false,
+      "id": 20,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.7",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "rate(node_network_receive_bytes_total{alias!~\"monitoring.*\",device!~\"lo\"}[20s]) * 8",
+          "legendFormat": "{{alias}}",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(node_network_transmit_bytes_total{alias!~\"monitoring.*\",device!~\"lo\"}[20s]) * -8",
+          "legendFormat": "{{alias}}",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Node Bandwidth (bps)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "decbits",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
-  "refresh": false,
+  "refresh": "10s",
   "schemaVersion": 27,
   "style": "dark",
   "tags": [],
