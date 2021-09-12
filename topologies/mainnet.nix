@@ -2,7 +2,7 @@ pkgs: with pkgs; with lib; with topology-lib ;
 let
 
   cardanoNodeBlockSizePkgs = import (sourcePaths.cardano-node-block-size + "/nix")
-    { gitrev = self.sourcePaths.cardano-node-block-size.rev; };
+    { gitrev = sourcePaths.cardano-node-block-size.rev; };
 
   regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
