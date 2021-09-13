@@ -36,6 +36,7 @@ in {
     allProducers = if (globals.topology.relayNodes != [])
         then [ globals.relaysNew ]
         else (map (n: n.name) globals.topology.coreNodes);
+    topology = lib.mkForce null;
     totalMaxHeapSizeMbytes = 0.6 * config.node.memory * 1024;
   };
 
