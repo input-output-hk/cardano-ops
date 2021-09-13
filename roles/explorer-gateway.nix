@@ -133,7 +133,7 @@ in {
         imports = [(cardano-ops.roles.explorer variant)];
         networking.nameservers = [ hostAddress ];
         node = {
-          inherit (config.node) nodeId;
+          nodeId = config.node.nodeId + 1;
           memory = config.node.memory / (lib.length (lib.attrNames globals.explorerBackends));
         };
       };

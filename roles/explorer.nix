@@ -6,7 +6,6 @@ let
   cfg = config.services.cardano-db-sync;
   nodeCfg = config.services.cardano-node;
   ogmiosCfg = config.services.cardano-ogmios;
-  nodeId = config.node.nodeId;
   getSrc = name: variant.${name} or sourcePaths.${name};
 
   cardanoNodeConfigPath = builtins.toFile "cardano-node-config.json" (builtins.toJSON nodeCfg.nodeConfig);

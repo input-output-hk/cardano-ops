@@ -188,7 +188,7 @@ in with pkgs; {
           CARDANO_CLI_VERSION_PATCH=$(echo $VERSION | cut -f 3 -d ".")
         fi
 
-        if CONFIG=$(pgrep -a cardano-node | grep -oP ".*--config \K.*-0\.json"); then
+        if CONFIG=$(pgrep -a cardano-node | grep -oP ".*--config \K.*-${toString cfgNode.nodeId}-0\.json"); then
           echo "Cardano node config file is: $CONFIG"
           PROTOCOL=$(jq -r '.Protocol' < "$CONFIG")
           LAST_KNOWN_BLOCK_VERSION_MAJOR=$(jq -r '."LastKnownBlockVersion-Major"'  < "$CONFIG")
