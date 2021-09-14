@@ -4,6 +4,7 @@
 ##    "shelley"
 ##    "allegra"
 ##    "mary"
+##    "alonzo"
 ##
 ##  $composition:
 ##    { n_bft_hosts:       INT
@@ -72,6 +73,10 @@ def genesis_defaults($era; $compo):
   }
 
 , mary:
+  { decentralisation_param:  0
+  }
+
+, alonzo:
   { decentralisation_param:  0
   }
 } | (.common + .[$era]);
@@ -167,47 +172,27 @@ def profile_name($compo; $gsis; $gtor; $node):
   + may_attr("outputs_per_tx";
              $gtor; generator_defaults($era); 1; "o")
   + [ if $gtor.scriptMode then "scr" else "cli" end ]
-  + if $alzoHFAt != null
+  + if $alzoHFAt != null and $alzoHFAt != 0
     then [ "alzo@\($alzoHFAt)" ]
     else [] end
   | join("-");
 
 def utxo_delegators_density_profiles:
   [ { desc: "regression, February 2021 data set sizes, unsaturated"
-    , genesis: { utxo: 2000000, delegators:  500000, scriptMode: false } }
+    , genesis: { utxo: 2000000, delegators:  500000 }
+    , generator: { scriptMode: false } }
 
   , { desc: "regression, February 2021 data set sizes"
-    , genesis: { utxo: 2000000, delegators:  500000, scriptMode: false }
-    , generator: { tps: 10 } }
+    , genesis: { utxo: 2000000, delegators:  500000 }
+    , generator: { tps: 10, scriptMode: false } }
 
   , { desc: "regression, August 2021 data set sizes"
-    , genesis: { utxo: 3000000, delegators:  750000, scriptMode: false }
-    , generator: { tps: 10 } }
-
-  , { desc: "would the Alonzo hard fork meet the performance constraints?"
-    , genesis: { utxo:  3000000, delegators:   750000 }
-    , generator: { epochs: 6 }
-    , node: { extra_config:
-              { TestAlonzoHardForkAtEpoch: 3
-              }}}
+    , genesis: { utxo: 3000000, delegators:  750000 }
+    , generator: { tps: 10, scriptMode: false } }
 
   , { desc: "calibration, with ~30 tx/64k-block; NOTE: needs special node & ops"
     , genesis: { utxo: 2000000, delegators:  500000 }
     , generator: { add_tx_size: 2000, tps: 10, scriptMode: false } }
-
-  , { desc: "Alonzo HF at ep 3"
-    , genesis: { utxo:  3000000, delegators:   750000 }
-    , generator: { epochs: 6 }
-    , node: { extra_config:
-              { TestAlonzoHardForkAtEpoch: 3
-              }}}
-
-  , { desc: "Alonzo HF at ep 4"
-    , genesis: { utxo:  3000000, delegators:   750000 }
-    , generator: { epochs: 8 }
-    , node: { extra_config:
-              { TestAlonzoHardForkAtEpoch: 3
-              }}}
 
   , { desc: "regression, February 2021 data set sizes, script mode"
     , genesis: { utxo: 2000000, delegators:  500000 }
@@ -216,27 +201,6 @@ def utxo_delegators_density_profiles:
   , { desc: "regression, August 2021 data set sizes, script mode"
     , genesis: { utxo: 3000000, delegators:  750000 }
     , generator: { tps: 10, scriptMode: true } }
-
-  , { desc: "regression, August 2021 data set sizes, Alonzo @4, script mode"
-    , genesis: { utxo: 3000000, delegators:  750000 }
-    , generator: { tps: 10, scriptMode: true }
-    , node: { extra_config:
-              { TestAlonzoHardForkAtEpoch: 4
-              }} }
-
-  , { desc: "regression, August 2021 data set sizes, Alonzo @0, script mode"
-    , genesis: { utxo: 3000000, delegators:  750000 }
-    , generator: { tps: 10, scriptMode: true }
-    , node: { extra_config:
-              { TestAlonzoHardForkAtEpoch: 0
-              }} }
-
-  , { desc: "regression, projected future, data set sizes, Alonzo @0, script mode"
-    , genesis: { utxo: 4000000, delegators: 1000000 }
-    , generator: { tps: 10, scriptMode: true }
-    , node: { extra_config:
-              { TestAlonzoHardForkAtEpoch: 0
-              }} }
 ];
 
 def generator_profiles:

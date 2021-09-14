@@ -130,6 +130,12 @@ in (rec {
           TestAllegraHardForkAtEpoch = 0;
           TestMaryHardForkAtEpoch    = 0;
         };
+      alonzo =
+        { TestShelleyHardForkAtEpoch = 0;
+          TestAllegraHardForkAtEpoch = 0;
+          TestMaryHardForkAtEpoch    = 0;
+          TestAlonzoHardForkAtEpoch  = 0;
+        };
     }.${pkgs.globals.environmentConfig.generatorConfig.era};
     txSubmitConfig = {
       inherit (networkConfig) RequiresNetworkMagic;
