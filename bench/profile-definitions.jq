@@ -146,8 +146,9 @@ def may_attr($attr; $dict; $defdict; $scale; $suf):
   then [($dict[$attr] | . / $scale | tostring) + $suf] else [] end;
 
 def profile_name($compo; $gsis; $gtor; $node):
+  $node.extra_config.TestAlonzoHardForkAtEpoch as $alzoHFAt
   ## Genesis
-  [ "k\($gsis.n_pools)" ]
+  | [ "k\($gsis.n_pools)" ]
   + may_attr("dense_pool_density";
              $gsis; genesis_defaults($era; $compo); 1; "ppn")
   + [ ($gtor.epochs                    | tostring) + "ep"
@@ -165,57 +166,77 @@ def profile_name($compo; $gsis; $gtor; $node):
              $gtor; generator_defaults($era); 1; "i")
   + may_attr("outputs_per_tx";
              $gtor; generator_defaults($era); 1; "o")
+  + [ if $gtor.scriptMode then "scr" else "cli" end ]
+  + if $alzoHFAt != null
+    then [ "alzo@\($alzoHFAt)" ]
+    else [] end
   | join("-");
 
 def utxo_delegators_density_profiles:
-  [ { genesis: { utxo: 2000000, delegators:  500000 } }
-  , { genesis: { utxo: 2000000, delegators:  500000, dense_pool_density: 2 } }
-  , { genesis: { utxo: 2000000, delegators:  500000 }
-    , generator: { tps: 5 } }
-  , { genesis: { utxo: 2000000, delegators:  500000 }
+  [ { desc: "regression, February 2021 data set sizes, unsaturated"
+    , genesis: { utxo: 2000000, delegators:  500000, scriptMode: false } }
+
+  , { desc: "regression, February 2021 data set sizes"
+    , genesis: { utxo: 2000000, delegators:  500000, scriptMode: false }
     , generator: { tps: 10 } }
 
+  , { desc: "regression, August 2021 data set sizes"
+    , genesis: { utxo: 3000000, delegators:  750000, scriptMode: false }
+    , generator: { tps: 10 } }
 
-  , { genesis: { utxo: 2000000, delegators:  500000 }
-    , generator: { epochs:  6 } }
-
-  , { genesis: { utxo: 2000000, delegators:  500000, max_block_size:  128000 }
-    , generator: { tps:  16 } }
-  , { genesis: { utxo: 2000000, delegators:  500000, max_block_size:  256000 }
-    , generator: { tps:  32 } }
-  , { genesis: { utxo: 2000000, delegators:  500000, max_block_size:  512000 }
-    , generator: { tps:  64 } }
-  , { genesis: { utxo: 2000000, delegators:  500000, max_block_size: 1024000 }
-    , generator: { tps: 128 } }
-  , { genesis: { utxo: 2000000, delegators:  500000, max_block_size: 2048000 }
-    , generator: { tps: 256 } }
-
-  , { genesis: { utxo:  4000000, delegators:  1000000 } }
-  , { genesis: { utxo:  8000000, delegators:  2000000 } }
-  , { genesis: { utxo: 10000000, delegators:  2500000 } }
-
-  , { desc: "#1: would the Alonzo hard fork meet the performance constraints?"
+  , { desc: "would the Alonzo hard fork meet the performance constraints?"
     , genesis: { utxo:  3000000, delegators:   750000 }
     , generator: { epochs: 6 }
     , node: { extra_config:
               { TestAlonzoHardForkAtEpoch: 3
               }}}
 
-  , { desc: "#2: regression test with February 2021 data set sizes"
+  , { desc: "calibration, with ~30 tx/64k-block; NOTE: needs special node & ops"
     , genesis: { utxo: 2000000, delegators:  500000 }
-    , generator: { tps: 10, scriptMode: false } }
+    , generator: { add_tx_size: 2000, tps: 10, scriptMode: false } }
 
-  , { desc: "#3: block boundary busy period reduced by longer epochs"
-    , genesis: { utxo: 2000000, delegators:  500000, epoch_length: 4400 }
-    , generator: { tps: 10, scriptMode: false } }
+  , { desc: "Alonzo HF at ep 3"
+    , genesis: { utxo:  3000000, delegators:   750000 }
+    , generator: { epochs: 6 }
+    , node: { extra_config:
+              { TestAlonzoHardForkAtEpoch: 3
+              }}}
 
-  , { desc: "#4: regression test with August 2021 data set sizes"
+  , { desc: "Alonzo HF at ep 4"
+    , genesis: { utxo:  3000000, delegators:   750000 }
+    , generator: { epochs: 8 }
+    , node: { extra_config:
+              { TestAlonzoHardForkAtEpoch: 3
+              }}}
+
+  , { desc: "regression, February 2021 data set sizes, script mode"
+    , genesis: { utxo: 2000000, delegators:  500000 }
+    , generator: { tps: 10, scriptMode: true } }
+
+  , { desc: "regression, August 2021 data set sizes, script mode"
     , genesis: { utxo: 3000000, delegators:  750000 }
-    , generator: { tps: 10, scriptMode: false } }
+    , generator: { tps: 10, scriptMode: true } }
 
-  , { desc: "#5: calibration, with ~30 tx/64k-block; NOTE: needs special node & ops"
-    , genesis: { utxo: 2000000, delegators:  500000 }
-    , generator: { tps: 10, scriptMode: false, add_tx_size: 2000 } }
+  , { desc: "regression, August 2021 data set sizes, Alonzo @4, script mode"
+    , genesis: { utxo: 3000000, delegators:  750000 }
+    , generator: { tps: 10, scriptMode: true }
+    , node: { extra_config:
+              { TestAlonzoHardForkAtEpoch: 4
+              }} }
+
+  , { desc: "regression, August 2021 data set sizes, Alonzo @0, script mode"
+    , genesis: { utxo: 3000000, delegators:  750000 }
+    , generator: { tps: 10, scriptMode: true }
+    , node: { extra_config:
+              { TestAlonzoHardForkAtEpoch: 0
+              }} }
+
+  , { desc: "regression, projected future, data set sizes, Alonzo @0, script mode"
+    , genesis: { utxo: 4000000, delegators: 1000000 }
+    , generator: { tps: 10, scriptMode: true }
+    , node: { extra_config:
+              { TestAlonzoHardForkAtEpoch: 0
+              }} }
 ];
 
 def generator_profiles:
