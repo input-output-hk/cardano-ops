@@ -43,6 +43,7 @@ let
       };
     } [ "rel-a-1" "rel-b-1" "rel-c-1" "rel-d-1" "rel-e-1" "rel-f-1" ])
   ]) (mkRelayTopology {
+  ]) (mkRelayTopology {
     inherit regions coreNodes;
     autoscaling = false;
     maxProducersPerNode = 20;
