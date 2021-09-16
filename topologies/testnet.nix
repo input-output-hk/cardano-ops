@@ -1,6 +1,9 @@
 pkgs: with pkgs; with lib; with topology-lib;
 let
 
+  cardanoNodeBlockSizePkgs = import (sourcePaths.cardano-node-block-size + "/nix")
+    { gitrev = sourcePaths.cardano-node-block-size.rev; };
+
   regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
       minRelays = 3;
@@ -32,9 +35,18 @@ let
     (mkStakingPool "a" 2 "" { nodeId = 7; })
   ];
 
-  coreNodes = map (withAutoRestartEvery 6) stakingPoolNodes;
+  coreNodes = stakingPoolNodes;
 
-  relayNodes = map (withAutoRestartEvery 6) (mkRelayTopology {
+  relayNodes = map (composeAll [
+    (forNodes {
+      services.cardano-node = {
+        extraNodeInstanceConfig = i: optionalAttrs (i == 0) {
+          TraceMempool = true;
+        };
+        cardanoNodePkgs = mkForce cardanoNodeBlockSizePkgs;
+      };
+    } [ "rel-a-1" "rel-b-1" "rel-c-1" "rel-d-1" "rel-e-1" "rel-f-1" ])
+  ]) (mkRelayTopology {
     inherit regions coreNodes;
     autoscaling = false;
     maxProducersPerNode = 20;

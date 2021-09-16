@@ -74,10 +74,6 @@ in
         type = types.listOf (types.either types.str types.attrs);
         description = ''Static routes to peers.'';
       };
-      extraNodeConfig = mkOption {
-        type = types.attrs;
-        default = {};
-      };
       totalMaxHeapSizeMbytes = mkOption {
         type = types.float;
         default = config.node.memory * 1024 * 0.875;
@@ -129,7 +125,8 @@ in
       environments = {
         "${globals.environmentName}" = globals.environmentConfig;
       };
-      nodeConfig = recursiveUpdate globals.environmentConfig.nodeConfig (recursiveUpdate {
+      nodeConfig = globals.environmentConfig.nodeConfig;
+      extraNodeConfig = {
         hasPrometheus = [ cfg.hostAddr globals.cardanoNodePrometheusExporterPort ];
         # Use Journald output:
         setupScribes = [{
@@ -145,7 +142,7 @@ in
         ];
         # TraceMempool makes cpu usage x3, disabling by default:
         TraceMempool = false;
-      } cfg.extraNodeConfig);
+      };
       extraServiceConfig = _: {
         serviceConfig = {
           MemoryMax = "${toString (1.15 * cfg.totalMaxHeapSizeMbytes / cfg.instances)}M";

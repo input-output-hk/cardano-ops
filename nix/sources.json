@@ -97,15 +97,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-service": {
-        "branch": "p2p-master",
+        "branch": "jbgi/p2p-master",
         "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
         "homepage": "https://cardano.org",
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "3540e1d4fba849a91099df655d6c376cdec571be",
-        "sha256": "0582s0pj404z5bcl2bv29qm14hwf33529554xyps34r7dpavk1mr",
+        "rev": "97c42368aef183c924d7406b246d9509ea98c577",
+        "sha256": "1g1sdq1qyir3aakiibk7jllkx860ha45k6qxgm3dx6fi00sldcny",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/3540e1d4fba849a91099df655d6c376cdec571be.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/97c42368aef183c924d7406b246d9509ea98c577.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rosetta-1.4": {

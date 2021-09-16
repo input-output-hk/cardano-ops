@@ -104,10 +104,9 @@ let
     (bftCoreNodes ++ stakingPoolNodes);
 
   relayNodes = map (composeAll [
-    #(withAutoRestartEvery 6)
     (forNodes {
       services.cardano-node = {
-        extraNodeConfig = {
+        extraNodeInstanceConfig = i: optionalAttrs (i == 0) {
           TraceMempool = true;
         };
         cardanoNodePkgs = mkForce cardanoNodeBlockSizePkgs;
