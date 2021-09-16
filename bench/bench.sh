@@ -547,13 +547,13 @@ op_wait_for_nonempty_block() {
 
         echo -n "--( waiting for a non-empty block on explorer (patience until $patience_start_pretty + ${patience}s).  Seen empty: 00"
         while now=$(date +%s); test "${now}" -lt ${patience_until}
-        do r=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq --compact-output \"select(.data.msg.\\\"txIds\\\" != [])\" | wc -l'")
+        do r=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | head -n 20 | jq --compact-output \"select(.data.msg.\\\"txIds\\\" != [])\" | wc -l'")
            if test "$r" -ne 0
-           then l=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq \".data.msg.\\\"txIds\\\" | select(. != []) | length\" | jq . --slurp --compact-output'")
+           then l=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | head -n 20 | jq \".data.msg.\\\"txIds\\\" | select(. != []) | length\" | jq . --slurp --compact-output'")
                 echo ", got $l, after $((now - since)) seconds"
                 return 0; fi
            e=$(nixops ssh explorer -- sh -c \
-                   "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | jq --slurp \"map (.data.msg.\\\"txIds\\\" | select(. == [])) | length\"'")
+                   "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | head -n 20 | jq --slurp \"map (.data.msg.\\\"txIds\\\" | select(. == [])) | length\"'")
            echo -ne "\b\b"; printf "%02d" "$e"
            sleep 5; done
 
