@@ -100,8 +100,7 @@ let
     (mkStakingPool "d" 6 "LEO1"   { nodeId = 60; })
   ]);
 
-  coreNodes = map (withAutoRestartEvery 6)
-    (bftCoreNodes ++ stakingPoolNodes);
+  coreNodes = bftCoreNodes ++ stakingPoolNodes;
 
   relayNodes = map (composeAll [
     (forNodes {
