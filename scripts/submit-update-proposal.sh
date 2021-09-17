@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
-set -euox pipefail
+set -euo pipefail
 
 
 FEE="${FEE:-250000}"
 PAYMENT_KEY_PREFIX="${PAYMENT_KEY_PREFIX:-keys/utxo-keys/utxo1}"
 CARDANO_NODE_SOCKET_PATH="${CARDANO_NODE_SOCKET_PATH:-$PWD/node.socket}"
+export CARDANO_NODE_SOCKET_PATH
 
 USAGE="Usage: $0 versionMajor versionMinor [targetEpoch] \n
 (use current epoch if not provided) \n
@@ -17,17 +18,16 @@ Environnement variables: \n
  - CARDANO_NODE_SOCKET_PATH ($CARDANO_NODE_SOCKET_PATH)
 "
 
-if [ $# -lt 3 ]; then
+if [ $# -lt 2 ]; then
 	echo -e "$USAGE"
 	exit 1
 fi
 
+set -x
+
 MAJOR=$1
 MINOR=$2
 EPOCH=${3:-$(cardano-cli query tip --testnet-magic $NETWORK_MAGIC | jq .epoch)}
-
-FEE="${FEE:-250000}"
-PAYMENT_KEY_PREFIX="${PAYMENT_KEY_PREFIX:-keys/utxo-keys/utxo1}"
 
 ADDR=$(cat $PAYMENT_KEY_PREFIX.addr)
 ADDR_AMOUNT=$(cardano-cli query utxo --address $ADDR --testnet-magic $NETWORK_MAGIC | awk '{if(NR==3) print $3}')
