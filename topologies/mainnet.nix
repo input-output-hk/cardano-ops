@@ -107,7 +107,7 @@ regions = {
   relayNodes = map (composeAll [
     (withAutoRestartEvery 6)
     (forNodes {
-      services.cardano-node.extraNodeConfig = {
+      services.cardano-node.extraNodeConfigBench = {
         TraceMempool = true;
       };
     } [ "rel-a-1" "rel-b-1" "rel-c-1" "rel-d-1" "rel-e-1" "rel-f-1" ])

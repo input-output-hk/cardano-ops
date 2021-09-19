@@ -68,7 +68,7 @@ in
         type = types.listOf (types.either types.str types.attrs);
         description = ''Static routes to peers.'';
       };
-      extraNodeConfig = mkOption {
+      extraNodeConfigBench = mkOption {
         type = types.attrs;
         default = {};
       };
@@ -138,7 +138,7 @@ in
         ];
         # TraceMempool makes cpu usage x3, disabling by default:
         TraceMempool = false;
-      } cfg.extraNodeConfig);
+      } cfg.extraNodeConfigBench);
       extraServiceConfig = _: {
         serviceConfig = {
           MemoryMax = "${toString (1.15 * cfg.totalMaxHeapSizeMbytes / cfg.instances)}M";
