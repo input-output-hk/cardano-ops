@@ -53,10 +53,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "7879212e7e353eef66fce44c460a4bf030bb57b5",
-        "sha256": "0c3kd6528a33jqymn92dd8yi6vyz59lnx1q104bm22b63b8w7a8p",
+        "rev": "8f9e75eef54c17699852a45cc112abde8f49b3cc",
+        "sha256": "0grbbppah98n2b1la0apx3r8mn61lyzalrqvvlnwgx31cjphxwah",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/7879212e7e353eef66fce44c460a4bf030bb57b5.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/8f9e75eef54c17699852a45cc112abde8f49b3cc.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql-5.1": {
@@ -73,15 +73,15 @@
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
     "cardano-node": {
-        "branch": "refs/tags/1.29.0",
+        "branch": "refs/tags/1.30.0",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "4c59442958072657812c6c0bb8e0b4ab85ce1ba2",
-        "sha256": "0pc26hrgdsf93h3qvp8m76axm4jspzclg6psn14mbaf1mkc1fxmx",
+        "rev": "191b91eec3c7d845a55347781329d50bf36871d7",
+        "sha256": "1y0a80fmrqf7561yqp4p2vx36yrhh83222b01sall2rk791y4yf0",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/4c59442958072657812c6c0bb8e0b4ab85ce1ba2.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/191b91eec3c7d845a55347781329d50bf36871d7.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-block-size": {
@@ -121,15 +121,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-wallet": {
-        "branch": "refs/tags/v2021-08-27",
+        "branch": "anviking/ADP-1133/node-1.30.0",
         "description": "HTTP server & command-line for managing UTxOs and HD wallets in Cardano.",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-wallet",
-        "rev": "e71dddd506e7dd317055fddc725fe29bc058f48f",
-        "sha256": "113d5h5b84bdgc9iclk22a02272xr9pja7n48wfdqrciqzy3ng30",
+        "rev": "c2bcd50cbe80be6b9a13cd908891f3ae5dbb7b83",
+        "sha256": "1hf34y89a8kgpzgg26hh1m03h9jp7kv2vr3lzcz91ixpf8qgc172",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-wallet/archive/e71dddd506e7dd317055fddc725fe29bc058f48f.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-wallet/archive/c2bcd50cbe80be6b9a13cd908891f3ae5dbb7b83.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "iohk-nix": {
