@@ -48,7 +48,7 @@ in {
 
       # Limit memory and runtime until a memory leak is addressed (keep memory for varnish)
       MemoryMax = "${toString (128 + config.node.memory * 1024 / 4)}M";
-      RuntimeMaxSec = 30 * 60;
+      RuntimeMaxSec = 15 * 60;
     };
   };
   systemd.services.metadata-webhook.serviceConfig = {
