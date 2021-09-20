@@ -85,15 +85,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-block-size": {
-        "branch": "karknu/block_sizex",
+        "branch": "karknu/1.30.0_pm_counters",
         "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
         "homepage": "https://cardano.org",
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "3f3de2a246991aac1428b861cf3e71d2881e79d0",
-        "sha256": "02rwd8a959c7gw71s3n2f1vd9wl4m6s4480rqw89z0zpi7shl2jq",
+        "rev": "90c1fbe8e083b2ef39501d486e9ee1874f81ee4d",
+        "sha256": "144z63z9m4qacd03fs67g3fv6xqkszfbc5x6qqwzcs1zd4lc6fcy",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/3f3de2a246991aac1428b861cf3e71d2881e79d0.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/90c1fbe8e083b2ef39501d486e9ee1874f81ee4d.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-service": {
