@@ -87,6 +87,33 @@ let
     };
   };
 
+  setupNodeConfig =
+    { TraceBlockFetchProtocol ? false, ... }:
+    recursiveUpdate
+      (removeAttrs pkgs.globals.environmentConfig.nodeConfig ["AlonzoGenesisHash"])
+      (recursiveUpdate
+        (benchmarkingLogConfig "node")
+        ({
+           inherit ShelleyGenesisHash ByronGenesisHash;
+
+           TracingVerbosity = "NormalVerbosity";
+           minSeverity = "Debug";
+           TurnOnLogMetrics = true;
+
+           TestEnableDevelopmentHardForkEras = true;
+           TestEnableDevelopmentNetworkProtocols = true;
+
+           inherit TraceBlockFetchProtocol;
+
+           TraceMempool               = true;
+           TraceTxInbound             = true;
+           TraceBlockFetchClient      = true;
+           TraceBlockFetchServer      = true;
+           TraceChainSyncHeaderServer = true;
+           TraceChainSyncClient       = true;
+        } //
+        (benchmarkingProfile.node.extra_config or {})));
+
 in (rec {
   inherit benchmarkingProfile;
 
@@ -102,8 +129,11 @@ in (rec {
 
   sourcesJsonOverride = ./nix/sources.bench.json;
 
+  relaysNew = "relays-new.${pkgs.globals.domain}";
+
   environmentConfig = rec {
     relays = "relays.${pkgs.globals.domain}";
+
     edgePort = pkgs.globals.cardanoNodePort;
     private = true;
     networkConfig = (removeAttrs envConfigBase.networkConfig ["AlonzoGenesisHash"]) // {
@@ -160,7 +190,10 @@ in (rec {
         doc.enable = false;
       };
       networking.firewall.allowPing = mkForce true;
-      services.cardano-node.package = mkForce pkgs.cardano-node-eventlogged;
+      services.cardano-node = {
+        package = mkForce pkgs.cardano-node-eventlogged;
+        extraNodeConfig = setupNodeConfig { TraceBlockFetchProtocol = true; };
+      };
       systemd.services.dump-registered-relays-topology.enable = mkForce false;
     }) (benchmarkingTopology.relayNodes or []);
     coreNodes = map (recursiveUpdate {
@@ -171,30 +204,7 @@ in (rec {
         doc.enable = false;
       };
       networking.firewall.allowPing = mkForce true;
-      services.cardano-node.nodeConfig =
-        recursiveUpdate
-          (removeAttrs pkgs.globals.environmentConfig.nodeConfig ["AlonzoGenesisHash"])
-          (recursiveUpdate
-            (benchmarkingLogConfig "node")
-            ({
-               inherit ShelleyGenesisHash ByronGenesisHash;
-               TracingVerbosity = "NormalVerbosity";
-               minSeverity = "Debug";
-               TurnOnLogMetrics = true;
-
-               TestEnableDevelopmentHardForkEras = true;
-               TestEnableDevelopmentNetworkProtocols = true;
-
-               TraceMempool               = true;
-               TraceTxInbound             = true;
-               TraceBlockFetchClient      = true;
-               TraceBlockFetchServer      = true;
-               TraceChainSyncHeaderServer = true;
-               TraceChainSyncClient       = true;
-               TraceTxSubmissionProtocol  = true;
-               TraceTxSubmission2Protocol = true;
-            } //
-            (benchmarkingProfile.node.extra_config or {})));
+      services.cardano-node.extraNodeConfig = setupNodeConfig {};
     }) (benchmarkingTopology.coreNodes or []);
   };
 
