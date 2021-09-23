@@ -12,15 +12,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync-11": {
-        "branch": "refs/tags/11.0.0",
+        "branch": "refs/tags/11.0.4",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "07ee3b0aa3f2991eda0be6c96ec1d6d17e81f732",
-        "sha256": "15cc633k5d4px5zgrnwzxg3ps9gfypckc896bffpswsqlbrdljf9",
+        "rev": "b5cd53d2e86f45127d98de429e8a2b6879fd8a56",
+        "sha256": "1vv3qraflklh1az3niy50f5wa14x8iq2r4gvkjr4ldsklgn8fknf",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/07ee3b0aa3f2991eda0be6c96ec1d6d17e81f732.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/b5cd53d2e86f45127d98de429e8a2b6879fd8a56.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync-service": {
@@ -193,15 +193,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "smash": {
-        "branch": "refs/tags/1.6.0",
+        "branch": "refs/tags/1.6.1",
         "description": "Stakepool Metadata Aggregation Server",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "smash",
-        "rev": "355c45359b0d6444e5146cf576c216d765bdc987",
-        "sha256": "1gmmrbnv8855z9mwfqyrylph8py75w4q3v2v1h82w7yj359ks36q",
+        "rev": "a4012a069ea23b8df74a46b8ddeb5ba7889c1357",
+        "sha256": "1b4g7lvmpjmrjxz9zzl56j1p1jgw9nvxdk4h1wdgcl240qmziisk",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/smash/archive/355c45359b0d6444e5146cf576c216d765bdc987.tar.gz",
+        "url": "https://github.com/input-output-hk/smash/archive/a4012a069ea23b8df74a46b8ddeb5ba7889c1357.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
