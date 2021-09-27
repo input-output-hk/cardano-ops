@@ -61,6 +61,7 @@ in {
   services.metadata-server = {
     enable = true;
     port = metadataServerPort;
+    postgres.numConnections = config.node.cpus;
   };
   services.metadata-webhook = {
     enable = true;
