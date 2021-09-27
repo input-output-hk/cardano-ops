@@ -8,7 +8,7 @@ let
 
   concernedCoreOrPrivateNodes = map (c: c.name) (filter (c: c.region == region && c.org == org) (coreNodes ++ privateRelayNodes));
   connectingCoreNodes = filter (c: any (p: builtins.elem p concernedCoreOrPrivateNodes) c.producers) coreNodes;
-  connectingRelays = partition (r: any (p: builtins.elem p concernedCoreOrPrivateNodes) r.producers) (relayNodes ++ privateRelayNodes);
+  connectingRelays = partition (r: any (p: builtins.elem p concernedCoreOrPrivateNodes) r.producers) (privateRelayNodes ++ relayNodes);
   maxPrivilegedRelays = maxRules - (length connectingCoreNodes);
   privilegedRelays = lib.take maxPrivilegedRelays
     (builtins.trace (let nbCrelays = length connectingRelays.right;
