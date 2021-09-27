@@ -185,7 +185,7 @@ in {
       test-node = m5ad-xlarge;
       smash = t3a-xlarge;
       faucet = node-baseline;
-      metadata = t3a-2xlarge;
+      metadata = r5-2xlarge;
       explorer = if globals.withHighCapacityExplorer
                  then c5-9xlarge
                  else t3a-xlarge;

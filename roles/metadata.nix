@@ -37,7 +37,7 @@ in {
 
   systemd.services.metadata-server = {
     environment = {
-      GHCRTS = "-M${toString (config.node.memory * 1024 / 4)}M";
+      GHCRTS = "-M${toString (config.node.memory * 1024 / 2)}M";
     };
     serviceConfig = {
       Restart = "always";
@@ -47,8 +47,8 @@ in {
       StartLimitBurst = 3;
 
       # Limit memory and runtime until a memory leak is addressed (keep memory for varnish)
-      MemoryMax = "${toString (128 + config.node.memory * 1024 / 4)}M";
-      RuntimeMaxSec = 15 * 60;
+      MemoryMax = "${toString (128 + config.node.memory * 1024 / 2)}M";
+      RuntimeMaxSec = 4 * 60 * 60;
     };
   };
   systemd.services.metadata-webhook.serviceConfig = {
@@ -121,10 +121,7 @@ in {
   services.varnish = {
     enable = true;
     extraModules = [ pkgs.varnish-modules ];
-    # FIXME: varnish is using too much memory (4xmalloc ?), maybe due to:
-    # https://github.com/varnishcache/varnish-cache/issues/3511
-    # We should consider switching away from varnish-embedded version of jemalloc.
-    extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 2)}M";
+    extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 3)}M";
     config = ''
       vcl 4.1;
 
@@ -223,9 +220,9 @@ in {
       }
 
       sub vcl_backend_response {
-        set beresp.ttl = 20m;
+        set beresp.ttl = 30m;
         if (beresp.status == 404) {
-          set beresp.ttl = 10m;
+          set beresp.ttl = 20m;
         }
       }
     '';
