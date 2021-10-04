@@ -11,6 +11,7 @@ self: super: with self; {
     else cardanoNodePkgs.cardanoNodeHaskellPackages).network-mux.components.exes) cardano-ping;
   inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.locli.components.exes) locli;
   inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.tx-generator.components.exes) tx-generator;
+  inherit (cardanoNodePkgs) plutus-scripts;  
 
   cardano-node-eventlogged = cardanoNodePkgs.cardanoNodeEventlogHaskellPackages.cardano-node.components.exes.cardano-node;
 
