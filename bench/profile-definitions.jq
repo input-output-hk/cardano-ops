@@ -276,4 +276,17 @@ def aux_profiles:
   , genesis:
     { genesis_future_offset: "20 minutes" }
   }
+, { name: "smoke-plutus"
+  , generator: { tx_count: 1000,  inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
+               , init_cooldown: 25, finish_patience: 4
+               , scriptMode: true
+               , plutusMode: true
+               , plutusScript: "sum.plutus"
+               }
+  , genesis:
+    { genesis_future_offset: "3 minutes"
+    , utxo:                  1000
+    , dense_pool_density:    10
+    }
+  }
 ];
