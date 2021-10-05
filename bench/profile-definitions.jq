@@ -282,6 +282,7 @@ def aux_profiles:
                , scriptMode: true
                , plutusMode: true
                , plutusScript: "sum.plutus"
+	       , debugMode: true
                }
   , genesis:
     { genesis_future_offset: "3 minutes"
