@@ -1,7 +1,7 @@
 self: super: with self; let
 
   getCardanoNodePackages = src: let
-    inherit (import (src + "/nix") { gitrev = src.rev; }) cardanoNodeProject;
+    inherit (import (src + "/nix") { gitrev = src.rev; }) cardanoNodeProject plutus-scripts;
     cardanoNodeHaskellPackages = lib.mapAttrsRecursiveCond (v: !(lib.isDerivation v))
       (path: value:
         if (lib.isAttrs value) then
@@ -51,6 +51,8 @@ self: super: with self; let
       inherit (cardanoNodeHaskellPackages.network-mux.components.exes) cardano-ping;
       inherit (cardanoNodeHaskellPackages.locli.components.exes) locli;
       inherit (cardanoNodeHaskellPackages.tx-generator.components.exes) tx-generator;
+
+      inherit plutus-scripts;
 
       cardano-node-profiled = cardano-node.passthru.profiled;
       cardano-node-eventlogged = cardano-node.passthru.eventlogged;
