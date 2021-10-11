@@ -59,16 +59,16 @@
         "url": "https://github.com/input-output-hk/cardano-faucet/archive/cd00d79764792a095ae653aa29f0601028a650be.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-graphql-5.1": {
-        "branch": "refs/tags/5.1.0",
+    "cardano-graphql-6": {
+        "branch": "refs/tags/6.0.0",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "0a13e5b7224621a660bfa949a92ced8f629d2db4",
-        "sha256": "17qwnnj3fa9z04xqbb22yd7cn35rsbhggyfbl98r26hx01bwghxc",
+        "rev": "6d496ae07f119c7bbcc0e1d6521897287941ca47",
+        "sha256": "0zviahwwspwpxk693w3saph8p94afm9v11g39cmcpcnlh0kbbvxd",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/0a13e5b7224621a660bfa949a92ced8f629d2db4.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/6d496ae07f119c7bbcc0e1d6521897287941ca47.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
@@ -108,16 +108,16 @@
         "url": "https://github.com/input-output-hk/cardano-node/archive/80c0e554fe02df00055bfb6807f77b281d02ab46.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-rosetta-1.4": {
-        "branch": "refs/tags/1.4.0",
+    "cardano-rosetta-1": {
+        "branch": "refs/tags/1.5.0",
         "description": "An implementation of Rosetta for Cardano ",
         "homepage": "https://www.rosetta-api.org",
         "owner": "input-output-hk",
         "repo": "cardano-rosetta",
-        "rev": "b72793c3c69412f66db3647fa9a84a16f81b0d60",
-        "sha256": "0ykq3sjq1v4b8kid9h1ybc6m95r6sfdmssv1v9xb5gzgrxpmx38y",
+        "rev": "5c453a69b3f103a4580389a229cf9e651f5d0ef5",
+        "sha256": "0sy77przvhjslfl2fchg7plwxxscdhc88dbkvbrhdh9s2qlynbhv",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/b72793c3c69412f66db3647fa9a84a16f81b0d60.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/5c453a69b3f103a4580389a229cf9e651f5d0ef5.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-wallet": {
