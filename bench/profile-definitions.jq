@@ -201,6 +201,50 @@ def utxo_delegators_density_profiles:
   , { desc: "regression, August 2021 data set sizes, script mode"
     , genesis: { utxo: 3000000, delegators:  750000 }
     , generator: { tps: 10, scriptMode: true } }
+
+  , { desc: "always-succeeds-script"
+    , genesis: { utxo: 3000000, delegators:  750000 }
+    , generator: { tps: 11, scriptMode: true
+                 , plutusMode: true
+                 , plutusScript: "always-succeeds-spending.plutus"
+		 , plutusData: 0
+		 , plutusRedeemer: 0
+                 , executionMemory: 125000
+		 , executionSteps: 100000000
+                 } }
+  , { desc: "max-cpu-units-smoke"
+    , genesis: { utxo: 3000000, delegators:  750000 }
+    , generator: {
+                   inputs_per_tx:           1
+                 , outputs_per_tx:          1
+                 , tx_count:             80
+                 , tps: 9
+                 , scriptMode: true
+                 , plutusMode: true
+                 , plutusScript: "sum.plutus"
+                 , plutusData: 3304
+                 , plutusRedeemer: 5459860
+                 , executionMemory:  100000000
+                 , executionSteps:  9999406981
+                 , debugMode: true
+                 } }
+  , { desc: "max-cpu-units-5000txs"
+    , genesis: { utxo: 3000000, delegators:  750000 }
+    , generator: {
+                   inputs_per_tx:           1
+                 , outputs_per_tx:          1
+		 , tx_count:             5000
+                 , tps: 9
+                 , scriptMode: true
+                 , plutusMode: true
+                 , plutusScript: "sum.plutus"
+                 , plutusData: 3304
+                 , plutusRedeemer: 5459860
+                 , executionMemory:  100000000
+                 , executionSteps:  9999406981
+                 , debugMode: false
+                 } }
+
 ];
 
 def generator_profiles:
