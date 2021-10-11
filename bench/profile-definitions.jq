@@ -242,36 +242,47 @@ def utxo_delegators_density_profiles:
                  , executionMemory: 125000
 		 , executionSteps: 100000000
                  } }
-  , { desc: "Plutus max-cpu-units"
+  , { desc: "Plutus, 1e7-mem"
     , genesis: { utxo: 4000000, delegators: 1000000 }
-    , generator: {
-                   inputs_per_tx:           1
+    , generator: { inputs_per_tx:           1
                  , outputs_per_tx:          1
-                 , tx_count:             80
-                 , tps: 9
+		 , tx_count:             7500
+                 , scriptMode: true
+                 , plutusMode: true
+                 , plutusScript: "sum.plutus"
+                 , plutusData: 1144
+                 , plutusRedeemer: 654940
+                 , executionMemory:    9998814   #  452138   + estimate
+                 # true costs:  executionSteps:  3640582981   # 163807162 + estimate
+                 , executionSteps: 10000000000 # set costs to 1e10 to limit plutus to 4 Tx per block
+                 , debugMode: false
+                 } }
+  , { desc: "Plutus, 1e10-cpu smoke"
+    , genesis: { utxo: 4000000, delegators: 1000000 }
+    , generator: { inputs_per_tx:           1
+                 , outputs_per_tx:          1
+                 , tx_count:               80
                  , scriptMode: true
                  , plutusMode: true
                  , plutusScript: "sum.plutus"
                  , plutusData: 3304
                  , plutusRedeemer: 5459860
-                 , executionMemory:  100000000
+                 , executionMemory:   27507774
                  , executionSteps:  9999406981
                  , debugMode: true
                  } }
-  , { desc: "Plutus max-cpu-units, large"
+  , { desc: "Plutus, 1e10-cpu"
     , genesis: { utxo: 4000000, delegators: 1000000 }
-    , generator: {
-                   inputs_per_tx:           1
+    , generator: { inputs_per_tx:           1
                  , outputs_per_tx:          1
-		 , tx_count:             5000
-                 , tps: 9
+		 , tx_count:             7500
                  , scriptMode: true
                  , plutusMode: true
                  , plutusScript: "sum.plutus"
                  , plutusData: 3304
                  , plutusRedeemer: 5459860
-                 , executionMemory:  100000000
-                 , executionSteps:  9999406981
+                 , executionMemory:   27507774    #    460244 + estimate
+                 , executionSteps:  9999406981    # 166751062 + estimate
                  , debugMode: false
                  } }
 
