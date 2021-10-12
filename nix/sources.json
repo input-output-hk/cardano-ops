@@ -169,15 +169,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ogmios": {
-        "branch": "refs/tags/v4.0.0-beta.9",
+        "branch": "refs/tags/v4.1.0",
         "description": " ❇️ A JSON-WSP WebSocket bridge for cardano-node",
         "homepage": "https://ogmios.dev",
         "owner": "CardanoSolutions",
         "repo": "ogmios",
-        "rev": "5d32e544395174af412ac98294d3006ee897da69",
-        "sha256": "011kna3v0y3j7wn988mgiral60j41ka4c126m76v5gnahrk7shbk",
+        "rev": "efabffa9dcac8b1ebedf0f11f61615752908ce81",
+        "sha256": "0n4msmvi3r64kq4x0m5ax636ihhh2jmadfb6hd9dph4mbx8hq6x3",
         "type": "tarball",
-        "url": "https://github.com/CardanoSolutions/ogmios/archive/5d32e544395174af412ac98294d3006ee897da69.tar.gz",
+        "url": "https://github.com/CardanoSolutions/ogmios/archive/efabffa9dcac8b1ebedf0f11f61615752908ce81.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
