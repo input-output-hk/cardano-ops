@@ -271,14 +271,32 @@ def utxo_delegators_density_profiles:
     , generator: {
                    inputs_per_tx:           1
                  , outputs_per_tx:          1
-		 , tx_count:             1000
-                 , tps: 9, scriptMode: true
+                 , tx_count:             80
+                 , tps: 9
+                 , scriptMode: true
                  , plutusMode: true
                  , plutusScript: "sum.plutus"
-		 , plutusData: 3304
-		 , plutusRedeemer: 5459860
+                 , plutusData: 3304
+                 , plutusRedeemer: 5459860
                  , executionMemory:  100000000
-		 , executionSteps:  9999406981
+                 , executionSteps:  9999406981
+                 , debugMode: true
+                 } }
+  , { desc: "max-cpu-units-5000txs"
+    , genesis: { utxo: 3000000, delegators:  750000 }
+    , generator: {
+                   inputs_per_tx:           1
+                 , outputs_per_tx:          1
+		 , tx_count:             5000
+                 , tps: 9
+                 , scriptMode: true
+                 , plutusMode: true
+                 , plutusScript: "sum.plutus"
+                 , plutusData: 3304
+                 , plutusRedeemer: 5459860
+                 , executionMemory:  100000000
+                 , executionSteps:  9999406981
+                 , debugMode: false
                  } }
 
 ];
