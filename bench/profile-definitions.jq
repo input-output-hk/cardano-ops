@@ -266,7 +266,7 @@ def utxo_delegators_density_profiles:
                  , executionMemory: 125000
 		 , executionSteps: 100000000
                  } }
-  , { desc: "max-cpu-units-smoke"
+  , { desc: "1e10-cpu-units-smoke"
     , genesis: { utxo: 3000000, delegators:  750000 }
     , generator: {
                    inputs_per_tx:           1
@@ -278,24 +278,40 @@ def utxo_delegators_density_profiles:
                  , plutusScript: "sum.plutus"
                  , plutusData: 3304
                  , plutusRedeemer: 5459860
-                 , executionMemory:  100000000
+                 , executionMemory:   27507774
                  , executionSteps:  9999406981
                  , debugMode: true
                  } }
-  , { desc: "max-cpu-units-5000txs"
+  , { desc: "1e10-cpu-units-7500txs"
     , genesis: { utxo: 3000000, delegators:  750000 }
     , generator: {
                    inputs_per_tx:           1
                  , outputs_per_tx:          1
-		 , tx_count:             5000
-                 , tps: 9
+		 , tx_count:             7500
+                 , tps: 8
                  , scriptMode: true
                  , plutusMode: true
                  , plutusScript: "sum.plutus"
                  , plutusData: 3304
                  , plutusRedeemer: 5459860
-                 , executionMemory:  100000000
-                 , executionSteps:  9999406981
+                 , executionMemory:   27507774    #    460244 + estimate
+                 , executionSteps:  9999406981    # 166751062 + estimate
+                 , debugMode: false
+                 } }
+  , { desc: "1e7-mem-units-7500txs"
+    , genesis: { utxo: 3000000, delegators:  750000 }
+    , generator: {
+                   inputs_per_tx:           1
+                 , outputs_per_tx:          1
+		 , tx_count:             7500
+                 , tps: 7
+                 , scriptMode: true
+                 , plutusMode: true
+                 , plutusScript: "sum.plutus"
+                 , plutusData: 1144
+                 , plutusRedeemer: 654940
+                 , executionMemory:    9998814   #  452138   + estimate
+                 , executionSteps:  3640582981   # 163807162 + estimate
                  , debugMode: false
                  } }
 
