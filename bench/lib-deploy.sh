@@ -307,7 +307,9 @@ op_fetch_utxo() {
     local file='runs/'$tag/utxo.$(date +%s).json
 
     oprint "querying UTxO on $node.."
+    set -x
     op_on $node cardano-cli query utxo --cardano-mode --whole-utxo --testnet-magic 42 --out-file '/var/lib/cardano-node/utxo'
+    set +x
     oprint "fetching UTxO from $node into $file.."
     nixops scp --from $node '/var/lib/cardano-node/utxo' "$file"
 }
