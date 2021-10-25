@@ -89,7 +89,7 @@ def generator_defaults($era):
   , outputs_per_tx:          2
   , tx_fee:                  1000000
   , epochs:                  10
-  , tps:                     2
+  , tps:                     10
   }
 } | (.common + (.[$era] // {}));
 
@@ -157,6 +157,7 @@ def profile_name($compo; $gsis; $gtor; $node):
   + may_attr("dense_pool_density";
              $gsis; genesis_defaults($era; $compo); 1; "ppn")
   + [ ($gtor.epochs                    | tostring) + "ep"
+    , ($gtor.tx_count       | . / 1000 | tostring) + "kTx"
     , ($gsis.utxo           | . / 1000 | tostring) + "kU"
     , ($gsis.delegators     | . / 1000 | tostring) + "kD"
     , ($gsis.max_block_size | . / 1000 | tostring) + "kbs"
@@ -171,40 +172,48 @@ def profile_name($compo; $gsis; $gtor; $node):
              $gtor; generator_defaults($era); 1; "i")
   + may_attr("outputs_per_tx";
              $gtor; generator_defaults($era); 1; "o")
-  + [ if $gtor.scriptMode then "scr" else "cli" end ]
   + if $alzoHFAt != null and $alzoHFAt != 0
     then [ "alzo@\($alzoHFAt)" ]
     else [] end
+  + if $gtor.scriptMode
+    then if $gtor.plutusMode
+        then [ ($gtor.plutusScript | rtrimstr(".plutus"))
+             , ($gtor.plutusData | tostring)
+             ]
+        else ["scr"] end
+    else ["cli"] end
   | join("-");
 
+def legacy_profiles:
+  [ { desc: "calibration, with ~30 tx/64k-block; NOTE: needs special node & ops"
+    , genesis: { utxo: 2000000, delegators:  500000 }
+    , generator: { add_tx_size: 2000, scriptMode: false } }
+
+  , { desc: "regression, February 2021 data set sizes, unsaturated"
+    , genesis: { utxo: 2000000, delegators:  500000 }
+    , generator: { tps: 2, scriptMode: false } }
+  ];
+
 def utxo_delegators_density_profiles:
-  [ { desc: "regression, February 2021 data set sizes, unsaturated"
-    , genesis: { utxo: 2000000, delegators:  500000 }
-    , generator: { scriptMode: false } }
-
-  , { desc: "regression, February 2021 data set sizes"
-    , genesis: { utxo: 2000000, delegators:  500000 }
-    , generator: { tps: 10, scriptMode: false } }
-
-  , { desc: "regression, August 2021 data set sizes"
+  [ { desc: "regression, August 2021 data set sizes"
     , genesis: { utxo: 3000000, delegators:  750000 }
-    , generator: { tps: 10, scriptMode: false } }
-
-  , { desc: "calibration, with ~30 tx/64k-block; NOTE: needs special node & ops"
-    , genesis: { utxo: 2000000, delegators:  500000 }
-    , generator: { add_tx_size: 2000, tps: 10, scriptMode: false } }
-
-  , { desc: "regression, February 2021 data set sizes, script mode"
-    , genesis: { utxo: 2000000, delegators:  500000 }
-    , generator: { tps: 10, scriptMode: true } }
+    , generator: { scriptMode: false } }
 
   , { desc: "regression, August 2021 data set sizes, script mode"
     , genesis: { utxo: 3000000, delegators:  750000 }
-    , generator: { tps: 10, scriptMode: true } }
+    , generator: { scriptMode: true } }
 
-  , { desc: "always-succeeds-script"
+  , { desc: "regression, 2022 projected data set sizes"
+    , genesis: { utxo: 4000000, delegators: 1000000 }
+    , generator: { scriptMode: false } }
+
+  , { desc: "regression, 2022 projected data set sizes"
+    , genesis: { utxo: 4000000, delegators: 1000000 }
+    , generator: { scriptMode: true } }
+
+  , { desc: "Plutus return-success"
     , genesis: { utxo: 3000000, delegators:  750000 }
-    , generator: { tps: 11, scriptMode: true
+    , generator: { scriptMode: true
                  , plutusMode: true
                  , plutusScript: "always-succeeds-spending.plutus"
 		 , plutusData: 0
@@ -212,7 +221,7 @@ def utxo_delegators_density_profiles:
                  , executionMemory: 125000
 		 , executionSteps: 100000000
                  } }
-  , { desc: "max-cpu-units-smoke"
+  , { desc: "Plutus max-cpu-units"
     , genesis: { utxo: 3000000, delegators:  750000 }
     , generator: {
                    inputs_per_tx:           1
@@ -228,7 +237,7 @@ def utxo_delegators_density_profiles:
                  , executionSteps:  9999406981
                  , debugMode: true
                  } }
-  , { desc: "max-cpu-units-5000txs"
+  , { desc: "Plutus max-cpu-units, large"
     , genesis: { utxo: 3000000, delegators:  750000 }
     , generator: {
                    inputs_per_tx:           1
@@ -288,25 +297,8 @@ def era_tolerances($era; $genesis):
 } | (.common + .[$era]);
 
 def aux_profiles:
-[ { name: "smoke-10000"
-  , generator: { tx_count: 10000, inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100 }
-  , genesis:
-    { genesis_future_offset: "3 minutes"
-    , utxo:                  1000
-    , dense_pool_density:    10
-    }
-  }
-, { name: "smoke-1000"
-  , generator: { tx_count: 1000,  inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
-               , init_cooldown: 25, finish_patience: 4 }
-  , genesis:
-    { genesis_future_offset: "3 minutes"
-    , utxo:                  1000
-    , dense_pool_density:    10
-    }
-  }
-, { name: "smoke-100"
-  , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
+[ { name: "smoke-100"
+  , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1
                , init_cooldown: 25, finish_patience: 4 }
   , genesis:
     { genesis_future_offset: "3 minutes"
@@ -315,7 +307,7 @@ def aux_profiles:
     }
   }
 , { name: "smoke-k50"
-  , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1,  tps: 100
+  , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1
                , init_cooldown: 90, finish_patience: 4 }
   , genesis:
     { genesis_future_offset: "20 minutes" }

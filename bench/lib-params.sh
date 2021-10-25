@@ -174,8 +174,9 @@ list_profiles() {
     rparmjq 'del(.meta)
             | to_entries
             | sort_by(.value.description)
+            | (map (.key | length) | max | . + 1) as $maxlen
             | map("\(.key
-                    | " " * (50 - length))\(.key): \(.value.description)")
+                    | " " * ($maxlen - length))\(.key): \(.value.description)")
             | .[]'
 }
 
