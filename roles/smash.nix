@@ -244,6 +244,7 @@ in {
             "/api/v1/delisted"
             "/api/v1/retired"
             "/api/v1/status"
+            "/api/v1/tickers"
           ];
           in lib.recursiveUpdate (lib.genAttrs endpoints (p: {
             proxyPass = "http://127.0.0.1:6081${p}";
@@ -259,6 +260,14 @@ in {
             '';
             "/api/v1/metadata".extraConfig = ''
               ${corsConfig}
+            '';
+            "/api/v1/tickers".extraConfig = ''
+              ${corsConfig}
+              if ($request_method = GET) {
+                set $arg_apiKey "bypass";
+                set $api_client_name "bypass";
+              }
+              ${apiKeyConfig}
             '';
           };
       };
