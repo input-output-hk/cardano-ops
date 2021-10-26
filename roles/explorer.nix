@@ -225,7 +225,7 @@ in {
               fi
               jq -c --arg addr "$addr" --arg port "$port" \
                 --arg continent "$continent" --arg state "$state" \
-                '{addr: $addr, port: $port, continent: $continent, state: $state}' \
+                '{addr: $addr, port: $port|tonumber, continent: $continent, state: $state}' \
                 <<< '{}' \
                 > $index-relay.json
               break
