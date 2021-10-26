@@ -253,9 +253,6 @@ def utxo_delegators_density_profiles:
                  , executionSteps:  9999406981
                  , debugMode: false
                  } }
-
-    , generator: { tps: 10, scriptMode: true } }
-
   , { desc: "always-succeeds-script"
     , genesis: { utxo: 3000000, delegators:  750000 }
     , generator: { tps: 11, scriptMode: true
@@ -311,7 +308,8 @@ def utxo_delegators_density_profiles:
                  , plutusData: 1144
                  , plutusRedeemer: 654940
                  , executionMemory:    9998814   #  452138   + estimate
-                 , executionSteps:  3640582981   # 163807162 + estimate
+                 # true costs:  executionSteps:  3640582981   # 163807162 + estimate
+                 , executionSteps: 10000000000 # set costs to 1e10 to limit plutus to 4 Tx per block
                  , debugMode: false
                  } }
 
