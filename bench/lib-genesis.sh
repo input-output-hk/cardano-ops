@@ -262,8 +262,8 @@ profile_genesis_singleshot() {
 	      "exUnitsSteps": 10000000000
 	    },
 	    "maxBlockExUnits": {
-	      "exUnitsMem":    5000000000,
-	      "exUnitsSteps": 40000000000
+	      "exUnitsMem":     5000000000,
+	      "exUnitsSteps": 200000000000
 	    },
 	    "maxValueSize": 5000,
 	    "collateralPercentage": 150,

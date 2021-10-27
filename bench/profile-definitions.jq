@@ -279,6 +279,23 @@ def utxo_delegators_density_profiles:
                  , executionSteps:  9999406981
                  , debugMode: true
                  } }
+  , { desc: "1e10-cpu-units-37500txs"
+    , genesis: { utxo: 3000000, delegators:  750000 }
+    , generator: {
+                   inputs_per_tx:           1
+                 , outputs_per_tx:          1
+		 , tx_count:            37500
+                 , tps: 4
+                 , scriptMode: true
+                 , plutusMode: true
+                 , plutusScript: "sum.plutus"
+                 , plutusData: 3304
+                 , plutusRedeemer: 5459860
+                 , executionMemory:   27507774    #    460244 + estimate
+                 , executionSteps:  9999406981    # 166751062 + estimate
+                 , debugMode: false
+                 } }
+
   , { desc: "1e10-cpu-units-7500txs"
     , genesis: { utxo: 3000000, delegators:  750000 }
     , generator: {
