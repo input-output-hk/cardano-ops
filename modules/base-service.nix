@@ -115,7 +115,7 @@ in
       enable = true;
       systemdSocketActivation = true;
       # https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html
-      rtsArgs = [ "-N2" "-A16m" "-qg" "-qb" "-H4G" "-M6553M" ];
+      rtsArgs = [ "-N2" "-A16m" "-qg" "-qb" "-M${toString (cfg.totalMaxHeapSizeMbytes / cfg.instances)}M" ];
       environment = globals.environmentName;
       cardanoNodePkgs = lib.mkDefault cardanoNodePkgs;
       inherit hostAddr nodeId instanceProducers instancePublicProducers;
