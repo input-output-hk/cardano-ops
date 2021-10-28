@@ -96,6 +96,7 @@ def generator_defaults($era):
 def node_defaults($era):
 { common:
   { expected_activation_time:      30
+  , rts_flags_override:            []
   }
 } | (.common + (.[$era] // {}));
 
@@ -182,6 +183,8 @@ def profile_name($compo; $gsis; $gtor; $node):
              ]
         else ["scr"] end
     else ["cli"] end
+  + if $node.rts_flags_override == [] then []
+    else ["RTS", ($node.rts_flags_override | join(""))] end
   | join("-");
 
 def legacy_profiles:
@@ -203,12 +206,30 @@ def utxo_delegators_density_profiles:
     , genesis: { utxo: 3000000, delegators:  750000 }
     , generator: { scriptMode: true } }
 
-  , { desc: "regression, 2022 projected data set sizes"
+  , { desc: "regression, October 2021 data set sizes"
     , genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: { scriptMode: false } }
 
-  , { desc: "regression, 2022 projected data set sizes"
+  , { desc: "regression, October 2021 data set sizes"
     , genesis: { utxo: 4000000, delegators: 1000000 }
+    , generator: { scriptMode: true } }
+
+  , { desc: "rtsflags: batch1, best CPU/mem"
+    , genesis: { utxo: 4000000, delegators: 1000000 }
+    , generator: { scriptMode: true }
+    , node: { rts_flags_override: ["-H4G", "-M6553M", "-c70"] } }
+
+  , { desc: "rtsflags: batch1, better mem, costlier CPU"
+    , genesis: { utxo: 4000000, delegators: 1000000 }
+    , generator: { scriptMode: true }
+    , node: { rts_flags_override: ["-H4G", "-M6553M"] } }
+
+  , { desc: "regression, March 2022 data set sizes"
+    , genesis: { utxo: 5000000, delegators: 1250000 }
+    , generator: { scriptMode: false } }
+
+  , { desc: "regression, March 2022 data set sizes"
+    , genesis: { utxo: 5000000, delegators: 1250000 }
     , generator: { scriptMode: true } }
 
   , { desc: "Plutus return-success"
