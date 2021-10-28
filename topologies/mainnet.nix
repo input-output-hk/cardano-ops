@@ -123,7 +123,10 @@ in {
   inherit coreNodes relayNodes regions;
 
   monitoring = {
-    services.monitoring-services.publicGrafana = false;
+    services.monitoring-services = {
+      publicGrafana = false;
+      prometheus.basicAuthFile = writeText "prometheus.htpasswd" globals.static.prometheusHtpasswd;
+    };
   };
 
   smash = {
