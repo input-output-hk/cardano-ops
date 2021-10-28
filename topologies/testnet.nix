@@ -56,7 +56,12 @@ let
 in {
   inherit coreNodes relayNodes regions;
 
-  services.monitoring-services.publicGrafana = true;
+  monitoring = {
+    services.monitoring-services = {
+      publicGrafana = true;
+      prometheus.basicAuthFile = writeText "prometheus.htpasswd" globals.static.prometheusHtpasswd;
+    };
+  };
 
   "${globals.faucetHostname}" = {
     services.cardano-faucet = {
