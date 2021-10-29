@@ -38,21 +38,24 @@ in {
   explorerAliases = [];
   explorerBackends = {
     a = globals.explorer11;
-    b = globals.explorer11;
+    b = globals.explorer12;
   };
-  explorerActiveBackends = attrNames globals.explorerBackends;
-  explorerDbSnapshots = globals.explorer11;
+  explorerActiveBackends = [ "a" ];
+  explorerDbSnapshots = globals.explorer12;
   explorer11 = {
     cardano-db-sync = sourcePaths.cardano-db-sync-11;
     cardano-graphql = sourcePaths.cardano-graphql-6;
     cardano-explorer-app = sourcePaths."cardano-explorer-app-1.6";
     cardano-rosetta = sourcePaths.cardano-rosetta-1;
   };
+  explorer12 = globals.explorer11 // {
+    cardano-db-sync = sourcePaths.cardano-db-sync-12;
+    cardano-graphql = sourcePaths.cardano-graphql-next;
+  };
   explorerBackendsInContainers = false;
 
   withMonitoring = true;
   withExplorer = true;
-  withCardanoDBExtended = true;
   withSubmitApi = false;
   withFaucet = false;
   faucetHostname = "faucet";

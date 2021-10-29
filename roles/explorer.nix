@@ -13,7 +13,6 @@ let
   dbSyncPkgs = let s = getSrc "cardano-db-sync"; in import (s + "/nix") { gitrev = s.rev; };
   inherit (dbSyncPkgs) cardanoDbSyncHaskellPackages;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-sync.components.exes) cardano-db-sync;
-  inherit (cardanoDbSyncHaskellPackages.cardano-db-sync-extended.components.exes) cardano-db-sync-extended;
   inherit (cardanoDbSyncHaskellPackages.cardano-node.components.exes) cardano-node;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-tool.components.exes) cardano-db-tool;
 
@@ -112,7 +111,6 @@ in {
     socketPath = nodeCfg.socketPath;
     logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { PrometheusPort = globals.cardanoExplorerPrometheusExporterPort; };
     user = "cexplorer";
-    extended = globals.withCardanoDBExtended;
     inherit dbSyncPkgs;
     postgres = {
       database = "cexplorer";
@@ -123,6 +121,11 @@ in {
     isSystemUser = true;
     # so that it can write socket file:
     extraGroups = ["cardano-node"];
+    # TODO: remove after https://github.com/input-output-hk/cardano-db-sync/pull/950 is tagged
+    package = (dbSyncPkgs.cardanoDbSyncProject.projectFunction dbSyncPkgs.haskell-nix [
+      dbSyncPkgs.cardanoDbSyncProject.projectModule
+      { modules = [{packages.cardano-smash-server.flags.disable-basic-auth = true;}]; }
+    ]).hsPkgs.cardano-smash-server.components.exes.cardano-smash-server;
   };
 
   systemd.services.cardano-db-sync.serviceConfig = {
