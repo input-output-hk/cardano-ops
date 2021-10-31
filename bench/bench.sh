@@ -640,10 +640,8 @@ fetch_run() {
                mv cardano-node.prof ${mach}.prof;) &&
               (test ! -f cardano-node.eventlog ||
                mv cardano-node.eventlog ${mach}.eventlog;) &&
-              ( journalctl -ru cardano-node |
-                head -n 90 | cut -d: -f4 |
-                sed -n '/  \]/,/bytes allocated/ p' |
-                tac > ${mach}-cardano-node-gcstats.log; ) &&
+              (test ! -f cardano-node.gcstats ||
+               mv cardano-node.gcstats ${mach}.gcstats;) &&
               tar cz --dereference \$(ls | grep '^db-\|^logs$' -v)
            " | tar xz & done
         wait
