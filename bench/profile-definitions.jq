@@ -233,7 +233,7 @@ def utxo_delegators_density_profiles:
     , generator: { scriptMode: true } }
 
   , { desc: "Plutus return-success"
-    , genesis: { utxo: 3000000, delegators:  750000 }
+    , genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: { scriptMode: true
                  , plutusMode: true
                  , plutusScript: "always-succeeds-spending.plutus"
@@ -243,7 +243,7 @@ def utxo_delegators_density_profiles:
 		 , executionSteps: 100000000
                  } }
   , { desc: "Plutus max-cpu-units"
-    , genesis: { utxo: 3000000, delegators:  750000 }
+    , genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: {
                    inputs_per_tx:           1
                  , outputs_per_tx:          1
@@ -259,7 +259,7 @@ def utxo_delegators_density_profiles:
                  , debugMode: true
                  } }
   , { desc: "Plutus max-cpu-units, large"
-    , genesis: { utxo: 3000000, delegators:  750000 }
+    , genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: {
                    inputs_per_tx:           1
                  , outputs_per_tx:          1
