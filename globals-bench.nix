@@ -205,10 +205,9 @@ in (rec {
       networking.firewall.allowPing = mkForce true;
       services.cardano-node.extraNodeConfig = setupNodeConfig {};
       services.cardano-node.rtsArgs =
-        if benchmarkingProfile.node.rts_flags_override == [] then []
-        else mkForce ([ "-N2" "-A16m" "-qg" "-qb" "-s" "cardano-node.gcstats" ]
-                      ++
-                      benchmarkingProfile.node.rts_flags_override);
+        mkForce ([ "-N2" "-A16m" "-qg" "-qb" "-scardano-node.gcstats" ]
+                 ++
+                 benchmarkingProfile.node.rts_flags_override);
     }) (benchmarkingTopology.coreNodes or []);
   };
 
