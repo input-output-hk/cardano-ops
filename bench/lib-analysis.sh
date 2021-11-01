@@ -7,7 +7,7 @@ logs_of_nodes() {
         local machines=("$@")
 
         for mach in ${machines[*]}
-        do ls -- "$dir"/analysis/logs-"$mach"/node-*.json; done
+        do ls -- "$dir"/analysis/$mach/node-*.json; done
 }
 
 collect_jsonlog_inventory() {
@@ -15,9 +15,9 @@ collect_jsonlog_inventory() {
         local constituents=("$@")
 
         for mach in ${constituents[*]}
-        do jsons=($(ls -- "$dir"/logs-"$mach"/node-*.json))
+        do jsons=($(ls -- "$dir"/$mach/node-*.json))
            jsonlog_inventory "$mach" "${jsons[@]}"; done
-        jsonlog_inventory "generator" "$dir"/logs-explorer/generator-*.json
+        jsonlog_inventory "generator" "$dir"/explorer/generator-*.json
 }
 
 analysis_append() {
@@ -69,10 +69,6 @@ analyse_run() {
         for a in "${analysis_list[@]}"
         do echo -n " $a" | sed 's/analysis_//'
            $a "$dir" "${machines[@]}"; done
-
-        # patch_run "$dir"
-
-        # rm -rf "$dir"/analysis/{analysis,logs-node-*,logs-explorer,startup}
 
         oprint "analysed tag:  ${tag}"
 }
