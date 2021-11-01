@@ -246,7 +246,7 @@ def utxo_delegators_density_profiles:
     , genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: { inputs_per_tx:           1
                  , outputs_per_tx:          1
-		 , tx_count:             7500
+		 , tx_count:            22000
                  , scriptMode: true
                  , plutusMode: true
                  , plutusScript: "sum.plutus"
@@ -275,7 +275,7 @@ def utxo_delegators_density_profiles:
     , genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: { inputs_per_tx:           1
                  , outputs_per_tx:          1
-		 , tx_count:             7500
+		 , tx_count:            22000
                  , scriptMode: true
                  , plutusMode: true
                  , plutusScript: "sum.plutus"
