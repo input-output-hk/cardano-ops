@@ -7,9 +7,9 @@ analysis_list+=(analysis_cleanup)
 analysis_cleanup() {
         local dir=${1:-.}
 
-        rm -f    "$dir"/analysis.json
-        rm -rf   "$dir"/analysis
-        mkdir -p "$dir"/analysis
+        rm -f       "$dir"/analysis.json
+        rm -f       "$dir"/analysis
+        ln -sf logs "$dir"/analysis
 }
 
 analysis_list+=(analysis_block_arrivals)
@@ -19,14 +19,6 @@ analysis_block_arrivals() {
         json_file_append "$dir"/analysis.json '
           { block_arrivals: $arrivals
           }' --rawfile arrivals "$dir"/logs/block-arrivals.gauge <<<0
-}
-
-analysis_list+=(analysis_unpack)
-analysis_unpack() {
-        local dir=${1:-.}
-
-        tar x -C "$dir"/analysis -af "$dir"/logs/logs-explorer.tar.xz
-        tar x -C "$dir"/analysis -af "$dir"/logs/logs-nodes.tar.xz
 }
 
 analysis_list+=(analysis_log_inventory)
@@ -60,8 +52,8 @@ analysis_timetoblock() {
         pushd "$dir"/analysis >/dev/null || return 1
 
         "$dir"/tools/analyse.sh   \
-          logs-explorer/generator \
-          logs-explorer/node      \
+          explorer/generator \
+          explorer/node      \
           "$dir"/analysis
 
         cp -f analysis/*.{csv,json} .
@@ -78,13 +70,13 @@ analysis_submission_threads() {
         local dir=${1:-.} sub_tids tnum
 
         sub_tids="$("$dir"/tools/generator-logs.sh log-tids \
-                      "$dir"/analysis/logs-explorer/generator-*.json || true)"
+                      "$dir"/analysis/explorer/generator-*.json || true)"
         json_file_append "$dir"/analysis.json \
           '{ submission_tids: '"$(jq --slurp <<<$sub_tids)"' }' <<<0
 
         for tnum in $(seq 0 $(($(echo "$sub_tids" | wc -w) - 1)))
         do "$dir"/tools/generator-logs.sh tid-trace "${tnum}" \
-             "$dir"/analysis/logs-explorer/generator-*.json \
+             "$dir"/analysis/explorer/generator-*.json \
              > "$dir"/analysis/generator.submission-thread-trace."${tnum}".json
         done
 }
@@ -94,7 +86,7 @@ analysis_from_benchmarking() {
         local dir=${1:-.}
         local analysis aname files
 
-        files=($(ls -- "$dir"/analysis/logs-node-*/node-*.json 2>/dev/null || true))
+        files=($(ls -- "$dir"/analysis/node-*/node-*.json 2>/dev/null || true))
         echo "tool scripts:" >&2
 
         if test ${#files[*]} -gt 0
@@ -108,7 +100,7 @@ analysis_from_benchmarking() {
                   < "$dir"/analysis/node."$aname".json \
                   > "$dir"/analysis/node."$aname".csv; done; fi
 
-        files=($(ls -- "$dir"/analysis/logs-explorer/node-*.json 2>/dev/null || true))
+        files=($(ls -- "$dir"/analysis/explorer/node-*.json 2>/dev/null || true))
         if test ${#files[*]} -gt 0
         then for analysis in $(ls -- "$dir"/tools/explorer.*.sh 2>/dev/null || true)
              do aname=$(sed 's_^.*/explorer\.\(.*\)\.sh$_\1_' <<<$analysis)
@@ -120,7 +112,7 @@ analysis_from_benchmarking() {
                   < "$dir"/analysis/explorer."$aname".json \
                   > "$dir"/analysis/explorer."$aname".csv; done; fi
 
-        files=($(ls -- "$dir"/analysis/logs-explorer/generator-*.json 2>/dev/null || true))
+        files=($(ls -- "$dir"/analysis/explorer/generator-*.json 2>/dev/null || true))
         if test ${#files[*]} -gt 0
         then for analysis in $(ls -- "$dir"/tools/generator.*.sh 2>/dev/null || true)
              do aname=$(sed 's_^.*/generator\.\(.*\)\.sh$_\1_' <<<$analysis)
@@ -138,7 +130,7 @@ analysis_TraceForgeInvalidBlock() {
         local dir=${1:-.} msg
 
         msg=$(echo ${FUNCNAME[0]} | cut -d_ -f2)
-        files=($(ls -- "$dir"/analysis/logs-node-*/node-*.json 2>/dev/null || true))
+        files=($(ls -- "$dir"/analysis/node-*/node-*.json 2>/dev/null || true))
         if test ${#files[*]} -eq 0
         then return; fi
 
@@ -166,44 +158,9 @@ to_node_list() {
 
         if test ${#machines[*]} -eq 0
         then (cd "$dir"/analysis;
-              find . -type d -name 'logs-node-*' |
-                      sed 's_^\./logs-__';)
+              find . -type d -name 'node-*' |
+                      sed 's_^\./__';)
         else echo ${machines[*]}; fi
-}
-
-# analysis_list+=(analysis_locli_timeline)
-analysis_locli_timeline() {
-        local dir=${1:-.} machines; shift
-        local keyfile locli_timeline_args prof
-        machines=($(to_node_list "$dir" "$@"))
-        prof=$(jq '.meta.profile' "$dir"/meta.json --raw-output)
-
-        locli_timeline_args=(
-            analyse perf-timeline
-            --genesis      "$dir"/genesis.json
-            --run-metafile "$dir"/meta.json
-        )
-
-        keyfile=$(mktemp -t XXXXXXXXXX.keys)
-        locli analyse substring-keys > "$keyfile"
-
-        local count=0
-        printf "mach#/${#machines[*]}: 00"
-        for mach in ${machines[*]}
-        do grep -hFf "$keyfile" "$dir"/analysis/logs-"$mach"/*.json > "$dir"/analysis/logs-"$mach".json
-           locli ${locli_timeline_args[*]} \
-                 --slotstats-json  "$dir"/analysis/logs-"$mach".leaderships.json \
-                 --timeline-pretty "$dir"/analysis/logs-"$mach".timeline.pretty.txt \
-                 --timeline-csv    "$dir"/analysis/logs-"$mach".timeline.export.txt \
-                 --analysis-json   "$dir"/analysis/logs-"$mach".analysis.json \
-                 "$dir"/analysis/logs-"$mach".json
-           echo -ne '\b\b'
-           count=$((count+1))
-           printf "%02d" $count
-        done
-        echo
-
-        rm -f "$keyfile"
 }
 
 # analysis_list+=(analysis_derived)

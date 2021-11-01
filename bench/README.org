@@ -511,18 +511,13 @@ Hostname 18.196.206.34
           *registration* phase of the *benchmark process*:
           =deployment-explorer.json= and =deployment-producer.json=,
 
-       4. =meta/*= -- some miscellaneous run metadata,
-
-       5. =logs/*= -- various logs, both deployment, service startup and runtime,
+       4. =logs/*= -- various logs, both deployment, service startup and runtime,
           for all the nodes (including explorer) and the Tx generator.
           This also includes an extraction from the =cardano-db-sync= database.
 
-       6. =analysis.json= -- a collection of small-output-volume analyses.
+       5. =analysis.json= -- a collection of small-output-volume analysis results.
 
-       7. =analysis/*= -- data extraction based on the available logs.
-
-       8. =tools/*= -- the tools used to perform some of the analyses, fetched
-          from the =cardano-benchmarking= repo.
+       6. =analysis/*= -- data extraction based on the available logs.
 
     2. An archive in the deployment checkout, that contains the exact /content/
        of that directory, but placed in a directory with a user-friendly name:
