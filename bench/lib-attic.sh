@@ -10,13 +10,13 @@ analysis_message_types() {
         do echo -n .$mach >&2
            local types key
            "$dir"/tools/msgtypes.sh \
-             "$dir/analysis/logs-$mach"/node-*.json |
+             "$dir/analysis/$mach"/node-*.json |
            while read -r ty
                  test -n "$ty"
            do key=$(jq .kind <<<$ty -r | sed 's_.*\.__g')
               jq '{ key: .kind, value: $count }' <<<$ty \
                 --argjson count "$(grep -Fh "$key\"" \
-                                     "$dir/analysis/logs-$mach"/node-*.json |
+                                     "$dir/analysis/$mach"/node-*.json |
                                    wc -l)"
            done |
            jq '{ "\($name)": from_entries }
@@ -24,7 +24,7 @@ analysis_message_types() {
            # jq '{ "\($name)": $types }
            #     ' --arg     name  "$mach" --null-input \
            #       --argjson types "$("$dir"/tools/msgtypes.sh \
-           #                          "$dir/analysis/logs-$mach"/node-*.json |
+           #                          "$dir/analysis/$mach"/node-*.json |
            #                          jq . --slurp)"
         done | analysis_append "$dir" \
                  '{ message_types: add

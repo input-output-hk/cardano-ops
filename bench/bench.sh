@@ -259,7 +259,7 @@ EOF
                                       op_bench "$@";;
                 profiles-jq | pjq )   local batch=$1 query=$2; shift 2
                                       op_bench "$batch" "jq($query)" "$@";;
-                smoke-test | smoke )  op_bench 'smoke' 'smoke-100';;
+                smoke-test | smoke )  op_bench 'smoke' 'smoke';;
 
                 list-runs | runs | ls )
                                       ls -1 runs/*/meta.json | cut -d/ -f2;;
@@ -347,9 +347,10 @@ bench_profile() {
         time fetch_run "$dir"
         oprint "concluded run:  ${tag}"
 
-        if test -z "$no_analysis" && analyse_run "${dir}"
-        then package_run "${dir}"
-        fi
+        test -z "$no_analysis" &&
+            analyse_run "${dir}"
+
+        package_run "${dir}"
 }
 
 op_bench_start() {
@@ -368,7 +369,7 @@ op_bench_start() {
         op_stop
 
         oprint "resetting node states: node DBs & logs.."
-        nixops ssh-for-each --parallel "rm -rf /var/log/journal/* /var/lib/cardano-node/{db*,logs,logs-*,*.log,utxo}"
+        nixops ssh-for-each --parallel "rm -rf /var/log/journal/* /var/lib/cardano-node/{db*,logs,node-*,explorer,*.log,utxo}"
 
         oprint "$(date), restarting journald & nodes.."
         nixops ssh-for-each --parallel "systemctl start systemd-journald"
@@ -415,34 +416,13 @@ op_bench_start() {
 
                op_wait_for_nonempty_block "$prof" 200
 
-               op_wait_for_empty_blocks "$prof" fetch_systemd_unit_startup_logs
+               op_wait_for_empty_blocks "$prof" ""
                ret=$?
              }
         op_fetch_utxo
         op_stop
 
         return $ret
-}
-
-fetch_systemd_unit_startup_logs() {
-        local tag dir
-        tag=$(cluster_last_meta_tag)
-        dir="./runs/${tag}"
-
-        pushd "${dir}" >/dev/null || return 1
-
-        mkdir -p 'logs/startup/'
-        nixops ssh explorer "journalctl --boot 0 -u tx-generator | head -n 100" \
-          > 'logs/startup/unit-startup-generator.log'
-        nixops ssh explorer "journalctl --boot 0 -u cardano-node | head -n 100" \
-          > 'logs/startup/unit-startup-explorer.log'
-
-        for node in $(params producers)
-        do nixops ssh "${node}" "journalctl --boot 0 -u cardano-node | head -n 100" \
-             > "logs/startup/unit-startup-${node}.log"
-        done
-
-        popd >/dev/null
 }
 
 git_local_repo_query_description() {
@@ -475,7 +455,7 @@ op_register_new_run() {
         cp "${paramsfile}"   "${dir}"
         touch "${deployfile[@]}"
         cp "${deployfile[@]}" "${dir}"
-        cat                 > "${dir}"/meta/cluster.raw.json <<EOF
+        cat                 > "${dir}"/cluster.raw.json <<EOF
 {$(deploystate_collect_machine_info | sed ':b; N; s_\n_,_; b b' | sed 's_,_\n,_g')
 }
 EOF
@@ -518,19 +498,19 @@ EOF
    | map ({ key:   .key
           , value: (.value + { hostname: .key })
           })
-   | from_entries' "${dir}"/meta/cluster.raw.json)
+   | from_entries' "${dir}"/cluster.raw.json)
 , local_ip:
   $(jq  'to_entries
    | map ({ key:   .value.local_ip
           , value: (.value + { hostname: .key })
           })
-   | from_entries' "${dir}"/meta/cluster.raw.json)
+   | from_entries' "${dir}"/cluster.raw.json)
 , public_ip:
   $(jq  'to_entries
    | map ({ key:   .value.public_ip
           , value: (.value + { hostname: .key })
           })
-   | from_entries' "${dir}"/meta/cluster.raw.json)
+   | from_entries' "${dir}"/cluster.raw.json)
 }" --null-input
 
         oprint "recording the network latency matrix.."
@@ -627,50 +607,55 @@ fetch_run() {
         local producers
         producers=($(params producers))
         oprint "fetching logs from:  explorer ${producers[*]}"
-        mkdir -p 'logs'
-        cd       'logs'
+
+        mkdir -p "$dir"/logs
 
         for mach in 'explorer' ${producers[*]}
         do nixops ssh "${mach}" -- \
              "cd /var/lib/cardano-node &&
-              { find logs -type l | xargs rm -f; } &&
-              rm -f logs-${mach} &&
-              ln -sf logs logs-${mach} &&
-              (test ! -f cardano-node.prof ||
-               mv cardano-node.prof ${mach}.prof;) &&
+              { find logs -type l | xargs rm -f; }          &&
+              rm -f                      ${mach}            &&
+              ln -sf logs                ${mach}            &&
+              (test ! -f cardano-node.prof     ||
+               mv cardano-node.prof      ${mach}.prof)      &&
               (test ! -f cardano-node.eventlog ||
-               mv cardano-node.eventlog ${mach}.eventlog;) &&
-              (test ! -f cardano-node.gcstats ||
-               mv cardano-node.gcstats ${mach}.gcstats;) &&
-              tar cz --dereference \$(ls | grep '^db-\|^logs$' -v)
-           " | tar xz & done
+               mv cardano-node.eventlog  ${mach}.eventlog)  &&
+              (test ! -f cardano-node.gcstats  ||
+               mv cardano-node.gcstats   ${mach}.gcstats)   &&
+              (journalctl --boot 0 --quiet   -u tx-generator |
+               head -n 100        > ${mach}.tx-generator.unit-startup.log &&
+                 test \$(stat -c %s ${mach}.tx-generator.unit-startup.log) != 0 ||
+                   rm -f            ${mach}.tx-generator.unit-startup.log) &&
+              (journalctl --boot 0 --quiet -u cardano-node |
+               head -n 100        > ${mach}.cardano-node.unit-startup.log) &&
+              tar --zstd --dereference \$(ls | grep '^db-\|^logs$' -v) \
+                  --exclude 'node.socket' -c
+           " | tee "$dir"/logs/logs-$mach.tar.zst | tar x --zstd -C "$dir"/logs &
+        done
         wait
 
-        oprint "repacking logs.."
-        local explorer_extra_logs=(
-                unit-startup-generator.log
-                unit-startup-explorer.log
-        )
-
-        { find logs-explorer/ \
-               ${explorer_extra_logs[*]/#/startup\/} \
-               -type f || true
-        } | xargs tar cf logs-explorer.tar.xz --xz --
-
-        { find ./*-cardano-node-gcstats.log \
-               ./*.eventlog \
-               logs-node-*/ \
-               startup/unit-startup-node-*.log \
-               -type f || true
-        } | xargs tar cf logs-nodes.tar.xz    --xz --
-
-        ## These logs could be missing, due to cluster startup errors.
-        rm -f -- logs-*/* startup/* 2>/dev/null || true
-        rmdir -- logs-*/  startup/  2>/dev/null || true
-
         popd >/dev/null
-
         oprint "logs collected from run:  ${tag}"
+}
+
+package_run() {
+        local dir=${1:-.}
+        local tag=$(run_tag "$dir")
+        local rundir=./runs/$tag
+
+        local dirgood=$(realpath ../bench-results-bad)
+        local dirbad=$(realpath ../bench-results)
+        mkdir -p "$dirgood" "$dirbad"
+        if is_run_broken "$dir"
+        then resultroot=$dir
+        else resultroot=$dirbad; fi
+
+        local package=${resultroot}/$tag.tar.zst
+
+        oprint "Packaging $tag ($(ls -d $rundir)) as:  $package"
+        tar -C 'runs' \
+            --exclude '*.gz' --exclude '*.xz' --exclude '*.zst' \
+            -cf "$package"  "$tag" --zstd
 }
 
 # Keep this at the very end, so bash read the entire file before execution starts.
