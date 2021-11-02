@@ -41,7 +41,6 @@ genesis_cache_id() {
 ensure_genesis() {
     local prof=$1
 
-    oprint "ensuring proper genesis.."
     local genesislog
     genesislog=runs/$(timestamp).genesis.$prof.log
     profile_genesis "$prof" 2>&1 || {
@@ -49,6 +48,7 @@ ensure_genesis() {
         cat "$genesislog" >&2
         exit 1
     } | tee "$genesislog";
+    oprint "profile genesis in place"
 }
 
 profile_genesis() {
@@ -75,6 +75,7 @@ profile_genesis() {
 
         rm -f                             "$genesis_dir"
         ln -s               "$cache_path" "$genesis_dir"
+        oprint "updating genesis cache entry $cache_id to match $profile.."
         profile_genesis_update "$profile" "$genesis_dir"
 }
 

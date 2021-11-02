@@ -41,7 +41,9 @@ profile_deploy() {
         then oprint "prebuilding:"
              ## 0. Prebuild:
              ensure_genesis "$prof" "$genesis_timestamp"
-             time deploy_build_only "$prof" "$deploylog" "$watcher_pid"; fi
+             time deploy_build_only "$prof" "$deploylog" "$watcher_pid"
+             oprint "profile prebuild done"
+             fi
 
         ensure_genesis "$prof" "$genesis_timestamp"
 
