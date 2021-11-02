@@ -628,8 +628,7 @@ fetch_run() {
                    rm -f            ${mach}.tx-generator.unit-startup.log) &&
               (journalctl --boot 0 --quiet -u cardano-node |
                head -n 100        > ${mach}.cardano-node.unit-startup.log) &&
-              tar --zstd --dereference \$(ls | grep '^db-\|^logs$' -v) \
-                  --exclude 'node.socket' -c
+              tar c --zstd --dereference \$(ls | grep '^db-\|^logs$' -v)
            " | tee "$dir"/logs/logs-$mach.tar.zst | tar x --zstd -C "$dir"/logs &
         done
         wait

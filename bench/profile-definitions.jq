@@ -40,7 +40,6 @@ def genesis_defaults($era; $compo):
   , epoch_length:            2200   # Ought to be at least (10 * k / f).
   , parameter_k:             10
   , slot_duration:           1
-  , genesis_future_offset:   "3 minutes"
 
   ## Block size & contents
   , max_block_size:          64000
@@ -89,7 +88,7 @@ def node_defaults($era):
 
 def derived_genesis_params($era; $compo; $gtor; $gsis; $node):
   (if      $compo.n_hosts > 50 then 20
-  else if $compo.n_hosts == 3 then 3
+  else if $compo.n_hosts == 3 then 2
   else 10 end end)                      as $future_offset
 |
 { common:
@@ -233,7 +232,7 @@ def utxo_delegators_density_profiles:
     , genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: { inputs_per_tx:           1
                  , outputs_per_tx:          1
-		 , tx_count:            22000
+		 , tx_count:             7500
                  , scriptMode: true
                  , plutusMode: true
                  , plutusScript: "sum.plutus"
@@ -262,7 +261,7 @@ def utxo_delegators_density_profiles:
     , genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: { inputs_per_tx:           1
                  , outputs_per_tx:          1
-		 , tx_count:            22000
+		 , tx_count:             7500
                  , scriptMode: true
                  , plutusMode: true
                  , plutusScript: "sum.plutus"
@@ -322,15 +321,12 @@ def aux_profiles:
                , scriptMode: true
                }
   , genesis:
-    { genesis_future_offset: "3 minutes"
-    , utxo:                  1000
+    { utxo:                  1000
     , dense_pool_density:    10
     }
   }
 , { name: "smoke-k50"
   , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1
                , init_cooldown: 90, finish_patience: 3 }
-  , genesis:
-    { genesis_future_offset: "20 minutes" }
   }
 ];
