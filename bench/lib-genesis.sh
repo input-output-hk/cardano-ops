@@ -81,7 +81,10 @@ profile_genesis() {
 profile_genesis_update() {
         local profile=$1 dir=$2
 
-        cp -vf 'bench/genesis-alonzo-base.json' "$dir"/alonzo-genesis.json
+        profjq "$profile" '$base[0] + .genesis.alonzo
+           ' --slurpfile base 'bench/genesis-alonzo-base.json' \
+             > "$dir"/alonzo-genesis.json
+
         local genesis_future_offset=$(profile_genesis_future_offset "$profile")
         local start_timestamp=$(date +%s --date="now + $genesis_future_offset")
 
