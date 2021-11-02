@@ -49,6 +49,9 @@ def genesis_defaults($era; $compo):
   ## Cluster composition
   , dense_pool_density:      1
 
+  ## BFT overlay
+  , decentralisation_param:  0
+
   ## Ahh, the sweet dear legacy..
   , byron:
     { parameter_k:             2160
@@ -63,23 +66,7 @@ def genesis_defaults($era; $compo):
     , max_block_size:          2000000
     }
   }
-
-, shelley:
-  { decentralisation_param:  0.5
-  }
-
-, allegra:
-  { decentralisation_param:  0.5
-  }
-
-, mary:
-  { decentralisation_param:  0
-  }
-
-, alonzo:
-  { decentralisation_param:  0
-  }
-} | (.common + .[$era]);
+} | (.common + (.[$era] // {}));
 
 def generator_defaults($era):
 { common:
