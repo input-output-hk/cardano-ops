@@ -28,11 +28,27 @@ let
     (mkStakingPoolNodes "c" 3 "f" "IOGA3" { org = "IOHK"; nodeId = 4; })
   ] ++ bftNodes);
 
-  relayNodes = composeAll [
+  test-node = {
+    name = "test-node";
+    nodeId = 99;
+    org = "IOHK";
+    region = "eu-central-1";
+    producers = [
+      "ioga1.relays.alonzo-purple.dev.cardano.org" "ioga1.relays.alonzo-white.dev.cardano.org"
+      "ioga2.relays.alonzo-purple.dev.cardano.org" "ioga2.relays.alonzo-white.dev.cardano.org"
+      "ioga3.relays.alonzo-purple.dev.cardano.org" "ioga3.relays.alonzo-white.dev.cardano.org"
+    ];
+    stakePool = false;
+    public = false;
+  };
+
+  relayNodes = (composeAll [
     connectWithThirdPartyRelays
     (regionalConnectGroupWith bftNodes)
     fullyConnectNodes
-  ] (filter (n: !(n ? stakePool)) nodes);
+  ] (filter (n: !(n ? stakePool)) nodes)) ++ [
+    test-node
+  ];
 
   coreNodes = filter (n: n ? stakePool) nodes;
 
@@ -41,9 +57,14 @@ in {
   inherit coreNodes relayNodes regions;
 
   explorer = {
-    services.cardano-node = {
-      package = mkForce cardano-node;
-    };
+    containers = mapAttrs (b: _: {
+      config = {
+        services.cardano-graphql = {
+          allowListPath = mkForce null;
+          allowIntrospection = true;
+        };
+      };
+    }) globals.explorerBackends;
   };
 
   smash = {
@@ -68,7 +89,7 @@ in {
   };
 
   monitoring = {
-    services.monitoring-services.publicGrafana = false;
+    services.monitoring-services.publicGrafana = true;
     services.nginx.virtualHosts."monitoring.${globals.domain}".locations."/p" = {
       root = ../static/pool-metadata;
     };
