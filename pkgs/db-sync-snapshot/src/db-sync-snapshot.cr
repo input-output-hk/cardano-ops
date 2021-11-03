@@ -136,7 +136,7 @@ class DbSyncSnapshot
 
   def retrieveSnapshot()
 
-    if runCmdVerbose("nixops ssh explorer 'cd /var/lib/cexplorer && ls -tr db-sync-snapshot*.tgz | head -n 1'").success?
+    if runCmdVerbose("nixops ssh explorer 'cd /var/lib/cexplorer && ls -t db-sync-snapshot*.tgz | head -n 1'").success?
       snapshotFile = IO_CMD_OUT.to_s.chomp
 
       if !runCmdVerbose("mkdir -p #{SNAPSHOT_WORK_DIR} "\
