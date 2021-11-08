@@ -82,8 +82,9 @@ profile_genesis() {
 profile_genesis_update() {
         local profile=$1 dir=$2
 
-        profjq "$profile" '$base[0] + .genesis.alonzo
-           ' --slurpfile base 'bench/genesis-alonzo-base.json' \
+        profjq "$profile" '$mainnet[0] * $overlay[0] * (.genesis.alonzo // {})
+           ' --slurpfile mainnet 'bench/genesis-alonzo-mainnet.json' \
+             --slurpfile overlay 'bench/genesis-alonzo-benchmarking.json' \
              > "$dir"/alonzo-genesis.json
 
         local genesis_future_offset=$(profile_genesis_future_offset "$profile")
