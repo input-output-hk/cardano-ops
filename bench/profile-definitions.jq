@@ -211,11 +211,11 @@ def utxo_delegators_density_profiles:
     , node: { rts_flags_override: ["-H4G", "-M6553M"] } }
 
   , { desc: "regression, March 2022 data set sizes"
-    , genesis: { utxo: 5000000, delegators: 1250000 }
+    , genesis: { utxo: 6000000, delegators: 1500000 }
     , generator: { scriptMode: false } }
 
   , { desc: "regression, March 2022 data set sizes"
-    , genesis: { utxo: 5000000, delegators: 1250000 }
+    , genesis: { utxo: 6000000, delegators: 1500000 }
     , generator: { scriptMode: true } }
 
   , { desc: "Plutus return-success"
