@@ -419,7 +419,7 @@ op_bench_start() {
                op_wait_for_empty_blocks "$prof" ""
                ret=$?
              }
-        op_fetch_utxo
+        # op_fetch_utxo
         op_stop
 
         return $ret
