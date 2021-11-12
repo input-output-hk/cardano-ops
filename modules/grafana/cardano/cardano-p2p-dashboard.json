@@ -817,6 +817,8 @@
         "min": false,
         "rightSide": true,
         "show": true,
+        "sort": "current",
+        "sortDesc": true,
         "total": false,
         "values": true
       },
@@ -837,7 +839,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(cardano_node_metrics_served_block_latest_count[1h])/rate(cardano_node_metrics_blockNum_int[1h])",
+          "exemplar": true,
+          "expr": "rate(cardano_node_metrics_served_block_latest_count_int[6h])/rate(cardano_node_metrics_blockNum_int[6h])",
           "interval": "",
           "legendFormat": "{{alias}}",
           "queryType": "randomWalk",
@@ -848,7 +851,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Network usefulness factor (tm): ratio of blocks served in last hour",
+      "title": "Network usefulness factor (tm): ratio of blocks served in last 6 hours",
       "tooltip": {
         "shared": true,
         "sort": 0,
