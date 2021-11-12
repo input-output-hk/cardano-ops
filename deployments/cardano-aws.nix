@@ -49,8 +49,8 @@ let
       groups = [ allow-public-www-https ];
     }
     {
-      nodes = (filterAttrs (_: n: n.node.roles.isSmash or false) nodes);
-      groups = [ allow-public-www-https ];
+      nodes = (filterAttrs (_: n: n.node.roles.isExplorerBackend or false) nodes);
+      groups = [ (import ../physical/aws/security-groups/allow-explorer-gw.nix) ];
     }
     {
       nodes = (filterAttrs (_: n: n.node.roles.isMetadata or false) nodes);
@@ -109,7 +109,15 @@ let
         ) orgs)
         regions);
 
-      route53RecordSets =
+      route53RecordSets = lib.optionalAttrs globals.withSmash {
+        "smash-explorer-alias" = { resources, ... }: {
+            zoneName = "${pkgs.globals.dnsZone}.";
+            domainName = "smash.${globals.domain}.";
+            recordValues = [ resources.machines.explorer ];
+            recordType = "A";
+            accessKeyId = pkgs.globals.ec2.credentials.accessKeyIds.dns;
+          };
+      } // (
         let mkRelayRecords = prefix: let
           relaysNewPrefix = "${prefix}${optionalString (prefix != "") "-"}relays-new";
         in relayFilter: listToAttrs (map (relay:
@@ -139,7 +147,7 @@ let
               then mkRelayRecords (toLower coreNode.ticker) (r: elem coreNode.name r.producers)
               else {}
             ) coreNodes;
-            in foldl' (a: b: a // b) {} records);
+            in foldl' (a: b: a // b) {} records));
 
     };
     defaults = { name, resources, config, ... }: {

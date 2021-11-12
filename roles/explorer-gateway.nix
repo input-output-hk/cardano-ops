@@ -16,6 +16,8 @@ in {
   ];
 
   # Disable services not necessary for snapshots:
+  services.smash.enable = lib.mkForce false;
+  services.varnish.enable = lib.mkForce false;
   services.cardano-ogmios.enable = lib.mkForce false;
   services.graphql-engine.enable = lib.mkForce false;
   services.cardano-graphql.enable = lib.mkForce false;
@@ -75,12 +77,24 @@ in {
             service = "explorer";
             tls.certResolver = "default";
           };
+          smash = {
+            rule = "Host(`smash.${globals.domain}`)";
+            service = "smash";
+            tls.certResolver = "default";
+          };
         };
         services = {
           explorer = {
             loadBalancer = {
               servers = map (b: {
                 url = "http://${backendAddr b}";
+              }) globals.explorerActiveBackends;
+            };
+          };
+          smash = {
+            loadBalancer = {
+              servers = map (b: {
+                url = "http://${backendAddr b}:81";
               }) globals.explorerActiveBackends;
             };
           };

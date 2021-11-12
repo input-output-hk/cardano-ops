@@ -36,15 +36,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync-service": {
-        "branch": "fixes/nixos-postStop-missing-env-var",
+        "branch": "smash-nixos-service",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "a3dbb9f0d4d229bb9a468df410768ec47f3b6285",
-        "sha256": "1jg26yzr9ivavccxkpw5sn09q36iqp3fas46z6qnbs0ghbr0c7dk",
+        "rev": "6ef5b1174d5de3e5e6c3de9fd7cc7603785f159c",
+        "sha256": "140iid5c96ggsp8vpl7rd03j05q9hrkc9zymrb6y2yyjakhj420s",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/a3dbb9f0d4d229bb9a468df410768ec47f3b6285.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/6ef5b1174d5de3e5e6c3de9fd7cc7603785f159c.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer-app-1.6": {
