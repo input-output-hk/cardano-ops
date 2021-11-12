@@ -24,27 +24,27 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync-12": {
-        "branch": "refs/tags/12.0.0",
+        "branch": "refs/tags/12.0.1-pre1",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "9d0180571482ee4c6acb6fbc6bf55b5a4e2ee833",
-        "sha256": "1dxass5r2dyga2rhnzpd6yw4mawnwq74815paqgwdip850bjdfz2",
+        "rev": "e0c2b71bbae95b2a6793f45a3100b66a6e3e0cf1",
+        "sha256": "0bfalsg8m6dn4zany6h2wzl2f6gwz0jfwbrvlw56vjckdm2b6d4p",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/9d0180571482ee4c6acb6fbc6bf55b5a4e2ee833.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/e0c2b71bbae95b2a6793f45a3100b66a6e3e0cf1.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync-service": {
-        "branch": "smash-nixos-service",
+        "branch": "master",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "fd2e76c12e756ccfd31bb558ccf20a836f5c9f65",
-        "sha256": "0hadpi40v0pm4rw5lzj5rwg6br6md20kdsliw092svh0apa12fmw",
+        "rev": "c45b954d8a889b1e977c024e61dea2f166d7f40b",
+        "sha256": "16di7ddrh1n604nbvmpl5lmrsx6c6rhxlfvcxhcip41v9rlkvcl9",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/fd2e76c12e756ccfd31bb558ccf20a836f5c9f65.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/c45b954d8a889b1e977c024e61dea2f166d7f40b.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-explorer-app-1.6": {
@@ -202,18 +202,6 @@
         "sha256": "1brbq6n5k8dxigfkb3mml97xz4kyhfkzb3xmy5aw18p375dxqpr2",
         "type": "tarball",
         "url": "https://github.com/input-output-hk/ops-lib/archive/20646de3e33cd46780418c64ba7c99d8d3547653.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "smash": {
-        "branch": "refs/tags/1.6.1",
-        "description": "Stakepool Metadata Aggregation Server",
-        "homepage": null,
-        "owner": "input-output-hk",
-        "repo": "smash",
-        "rev": "a4012a069ea23b8df74a46b8ddeb5ba7889c1357",
-        "sha256": "1b4g7lvmpjmrjxz9zzl56j1p1jgw9nvxdk4h1wdgcl240qmziisk",
-        "type": "tarball",
-        "url": "https://github.com/input-output-hk/smash/archive/a4012a069ea23b8df74a46b8ddeb5ba7889c1357.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

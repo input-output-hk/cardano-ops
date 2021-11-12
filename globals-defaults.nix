@@ -65,6 +65,8 @@ in {
   withMetadata = false;
   metadataHostName = "metadata.${globals.domain}";
 
+  smashDelistedPools = [];
+
   initialPythonExplorerDBSyncDone = false;
 
   withHighCapacityMonitoring = false;
