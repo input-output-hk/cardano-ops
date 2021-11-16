@@ -225,8 +225,7 @@ def utxo_delegators_density_profiles:
                  , plutusScript: "always-succeeds-spending.plutus"
 		 , plutusData: 0
 		 , plutusRedeemer: 0
-                 , executionMemory: 125000
-		 , executionSteps: 100000000
+                 , plutusAutoCosts: true
                  } }
   , { desc: "Plutus, 1e7-mem"
     , genesis: { utxo: 4000000, delegators: 1000000 }
@@ -253,9 +252,10 @@ def utxo_delegators_density_profiles:
                  , plutusScript: "sum.plutus"
                  , plutusData: 3304
                  , plutusRedeemer: 5459860
-                 , executionMemory:   27507774
-                 , executionSteps:  9999406981
-                 , debugMode: true
+		 , plutusAutoCosts: true
+                 #, executionMemory:   27507774
+                 #, executionSteps:  9999406981
+                 #, debugMode: true
                  } }
   , { desc: "Plutus, 1e10-cpu"
     , genesis: { utxo: 4000000, delegators: 1000000 }
@@ -267,8 +267,7 @@ def utxo_delegators_density_profiles:
                  , plutusScript: "sum.plutus"
                  , plutusData: 3304
                  , plutusRedeemer: 5459860
-                 , executionMemory:   27507774    #    460244 + estimate
-                 , executionSteps:  9999406981    # 166751062 + estimate
+		 , plutusAutoCosts: true
                  , debugMode: false
                  } }
 
