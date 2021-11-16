@@ -27,7 +27,6 @@ in {
 
   # Create a new snapshot every 24h (if not exist alreay):
   services.cardano-db-sync.takeSnapshot = "always";
-  systemd.services.cardano-db-sync.serviceConfig.RuntimeMaxSec = 24 * 60 * 60;
 
   environment.systemPackages = with pkgs; [
     bat fd lsof netcat ncdu ripgrep tree vim dnsutils
