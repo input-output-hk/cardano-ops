@@ -406,7 +406,7 @@ op_bench_start() {
            grep "TraceNoLedgerView" >/dev/null
         then fail "no ledger view, cluster is dead."; fi
 
-        tag=$(generate_run_tag "${batch}" "${prof}")
+        tag=$(generate_run_tag "$batch" "$prof" "$sources_json_node_commit")
         dir="./runs/${tag}"
         oprint "creating new run:  ${tag}"
         op_register_new_run "${batch}" "${prof}" "${tag}" "${deploylog}"
