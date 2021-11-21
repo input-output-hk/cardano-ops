@@ -463,7 +463,8 @@ EOF
 
         oprint "recording (local) genesis"
         ## TODO:  ideally, fetch this from the machines:
-        cp "keys/genesis.json" "${dir}"
+        cp "keys/genesis.json" "$dir"
+        ln -s   'genesis.json' "$dir"/genesis-shelley.json
 
         oprint "recording effective service configs"
         local producers=$(params producers)
