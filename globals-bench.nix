@@ -46,73 +46,16 @@ let
           { pools = if __hasAttr "pools" core && core.pools != null
                     then (if core.pools == 1 then 1 else prof.genesis.dense_pool_density)
                     else 0; });
-        pooledCores = map fixupPools topo.coreNodes;
     in (topo // {
-      coreNodes = map withEventlog pooledCores;
+      coreNodes = map fixupPools topo.coreNodes;
     });
-  withEventlog = def: recursiveUpdate {
-    services.cardano-node.eventlog = mkForce true;
-    services.cardano-node.package = mkForce pkgs.cardano-node-eventlogged;
-  } def;
 
   metadata = {
     inherit benchmarkingProfileName benchmarkingProfile benchmarkingTopology;
   };
 
-  benchmarkingLogConfig = name: {
-    defaultScribes = [
-      [ "StdoutSK" "stdout" ]
-      [ "FileSK"   "logs/${name}.json" ]
-    ];
-    setupScribes = [
-      {
-        scKind     = "StdoutSK";
-        scName     = "stdout";
-        scFormat   = "ScJson"; }
-      {
-        scKind     = "FileSK";
-        scName     = "logs/${name}.json";
-        scFormat   = "ScJson";
-        scRotation = {
-          rpLogLimitBytes = 300000000;
-          rpMaxAgeHours   = 24;
-          rpKeepFilesNum  = 20;
-        }; }
-    ];
-    options = {
-      mapBackends = {
-        "cardano.node.resources" = [ "KatipBK" ];
-        "cardano.node.metrics"   = [ "EKGViewBK" ];
-      };
-    };
-  };
-
-  setupNodeConfig =
-    { TraceBlockFetchProtocol ? false, ... }:
-    recursiveUpdate
-      (removeAttrs pkgs.globals.environmentConfig.nodeConfig ["AlonzoGenesisHash"])
-      (recursiveUpdate
-        (benchmarkingLogConfig "node")
-        ({
-           inherit ShelleyGenesisHash ByronGenesisHash;
-
-           TracingVerbosity = "NormalVerbosity";
-           minSeverity = "Debug";
-           TurnOnLogMetrics = true;
-
-           TestEnableDevelopmentHardForkEras = true;
-           TestEnableDevelopmentNetworkProtocols = true;
-
-           inherit TraceBlockFetchProtocol;
-
-           TraceMempool               = true;
-           TraceTxInbound             = true;
-           TraceBlockFetchClient      = true;
-           TraceBlockFetchServer      = true;
-           TraceChainSyncHeaderServer = true;
-           TraceChainSyncClient       = true;
-        } //
-        (benchmarkingProfile.node.extra_config or {})));
+  inherit (import ./globals-bench-common.nix { inherit pkgs benchmarkingProfile; })
+    mkNodeOverlay;
 
 in (rec {
   inherit benchmarkingProfile;
@@ -177,38 +120,36 @@ in (rec {
   };
 
   topology = {
-    relayNodes = map (recursiveUpdate {
-      ## XXX: assumes we have `explorer` as our only relay.
-      imports = [
-        pkgs.cardano-ops.roles.tx-generator
-        # ({ config, ...}: {
-        # })
-      ];
-      documentation = {
-        man.enable = false;
-        doc.enable = false;
-      };
-      networking.firewall.allowPing = mkForce true;
-      services.cardano-node = {
-        package = mkForce pkgs.cardano-node-eventlogged;
-        extraNodeConfig = setupNodeConfig { TraceBlockFetchProtocol = true; };
-      };
-      systemd.services.dump-registered-relays-topology.enable = mkForce false;
-    }) (benchmarkingTopology.relayNodes or []);
-    coreNodes = map (recursiveUpdate {
-      stakePool = true;
-
-      documentation = {
-        man.enable = false;
-        doc.enable = false;
-      };
-      networking.firewall.allowPing = mkForce true;
-      services.cardano-node.extraNodeConfig = setupNodeConfig {};
-      services.cardano-node.rtsArgs =
-        mkForce ([ "-N2" "-A16m" "-qg" "-qb" "-scardano-node.gcstats" ]
-                 ++
-                 benchmarkingProfile.node.rts_flags_override);
-    }) (benchmarkingTopology.coreNodes or []);
+    relayNodes = map
+      (recursiveUpdate
+        (mkNodeOverlay
+          ## 1. nixos machine overlay
+          {
+            ## XXX: assumes we have `explorer` as our only relay.
+            imports = [
+              pkgs.cardano-ops.roles.tx-generator
+              # ({ config, ...}: {
+              # })
+            ];
+            systemd.services.dump-registered-relays-topology.enable = mkForce false;
+          }
+          ## 2. cardano-node service config overlay
+          {
+            ## This allows tracking block contents on the explorer.
+            TraceBlockFetchProtocol = true;
+          }))
+      (benchmarkingTopology.relayNodes or []);
+    coreNodes = map
+      (recursiveUpdate
+        (mkNodeOverlay
+          ## 1. nixos machine overlay
+          {
+            stakePool = true;
+          }
+          ## 2. cardano-node service config overlay
+          {
+          }
+        )) (benchmarkingTopology.coreNodes or []);
   };
 
   ec2 = with pkgs.iohk-ops-lib.physical.aws;
