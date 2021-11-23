@@ -200,7 +200,16 @@ def utxo_delegators_density_profiles:
     , genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: { scriptMode: true } }
 
-  , { desc: "rtsflags: batch1, best CPU/mem"
+  , { desc: "baseline: quadruple k, so as to get quartapulses"
+    , genesis: { utxo: 4000000, delegators: 1000000
+               , parameter_k:  40
+               , epoch_length: 8800
+               }
+    , generator: { epochs:     3
+                 , scriptMode: true }
+    }
+
+    , { desc: "rtsflags: batch1, best CPU/mem"
     , genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: { scriptMode: true }
     , node: { rts_flags_override: ["-H4G", "-M6553M", "-c70"] } }
