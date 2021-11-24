@@ -34,7 +34,7 @@ pkgs: {
   minMemoryPerInstance = 10;
 
   # GB per node instance
-  nodeDbDiskAllocationSize = 25;
+  nodeDbDiskAllocationSize = 35;
 
   ec2 = {
     credentials = {
@@ -44,6 +44,9 @@ pkgs: {
         CF = "mainnet-cf";
         dns = "mainnet-iohk";
       };
+    };
+    instances = with pkgs.iohk-ops-lib.physical.aws; {
+      core-node = r5-large;
     };
   };
 
