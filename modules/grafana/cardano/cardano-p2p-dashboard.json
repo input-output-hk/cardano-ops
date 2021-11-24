@@ -817,8 +817,6 @@
         "min": false,
         "rightSide": true,
         "show": true,
-        "sort": "current",
-        "sortDesc": true,
         "total": false,
         "values": true
       },
@@ -840,7 +838,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rate(cardano_node_metrics_served_block_latest_count_int[6h])/rate(cardano_node_metrics_blockNum_int[6h])",
+          "expr": "rate(cardano_node_metrics_served_block_latest_count_int[1h])/rate(cardano_node_metrics_blockNum_int[1h])",
           "interval": "",
           "legendFormat": "{{alias}}",
           "queryType": "randomWalk",
@@ -851,7 +849,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Network usefulness factor (tm): ratio of blocks served in last 6 hours",
+      "title": "Network usefulness factor (tm): ratio of blocks served in last hour",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1405,8 +1403,6 @@
         "min": false,
         "rightSide": true,
         "show": true,
-        "sort": "current",
-        "sortDesc": false,
         "total": false,
         "values": true
       },
@@ -1427,8 +1423,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "exemplar": true,
-          "expr": "rate(cardano_node_metrics_blockfetchclient_lateblocks[6h])/rate(cardano_node_metrics_blockNum_int[6h])",
+          "expr": "rate(cardano_node_metrics_blockfetchclient_lateblocks[1h])/rate(cardano_node_metrics_blockNum_int[1h])",
           "interval": "",
           "legendFormat": "{{alias}}",
           "queryType": "randomWalk",
@@ -1563,105 +1558,6 @@
         },
         {
           "$$hashKey": "object:1819",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "prometheus",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 40
-      },
-      "hiddenSeries": false,
-      "id": 19,
-      "legend": {
-        "alignAsTable": true,
-        "avg": false,
-        "current": true,
-        "max": false,
-        "min": false,
-        "rightSide": true,
-        "show": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "7.5.7",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "rate(cardano_node_metrics_forks_int[6h])/rate(cardano_node_metrics_blockNum_int[6h])",
-          "interval": "",
-          "legendFormat": "{{alias}}",
-          "queryType": "randomWalk",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Ratio of forks seen by node (last 6 hours)",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:1740",
-          "format": "percentunit",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:1741",
           "format": "short",
           "label": null,
           "logBase": 1,
