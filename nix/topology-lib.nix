@@ -102,7 +102,7 @@ pkgs: with pkgs; with lib; rec {
   envRelayGroupForRegion = region:
     let prefix =
         if (hasPrefix "ap" region) then "asia-pacific"
-        else if (hasPrefix "us" region) then "north-america"
+        else if (hasPrefix "us" region || hasPrefix "sa" region) then "north-america"
         else "europe";
       in "${prefix}.${globals.environmentConfig.relaysNew}";
 
@@ -280,7 +280,7 @@ pkgs: with pkgs; with lib; rec {
       producers = [ relay1.name relay2.name ];
     } // def;
     relay1 = rec {
-      name = "rel-${r1}-${toString id}";
+      name = "rel-${r1}-${toString id}${optionalString (r1 == r2) "-1"}";
       region = regions.${r1}.name;
       producers = [
         stkNode.name
@@ -289,7 +289,7 @@ pkgs: with pkgs; with lib; rec {
       ];
     } // def;
     relay2 = rec {
-      name = "rel-${r2}-${toString id}";
+      name = "rel-${r2}-${toString id}${optionalString (r1 == r2) "-2"}";
       region = regions.${r2}.name;
       producers = [
         stkNode.name

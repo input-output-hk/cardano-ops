@@ -108,15 +108,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-service": {
-        "branch": "p2p-master",
+        "branch": "nixos-topology-syntax-fix",
         "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
         "homepage": "https://cardano.org",
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "f3dfc1d63ad184dca77331384cbc4d9d54311962",
-        "sha256": "0wir5ljxw608lp7r0mhvnk7xypb7s4i6id66ga30vcsr2v14nh6q",
+        "rev": "aa044a201a0742baf41e7a5107f4e1b3ad3f623b",
+        "sha256": "0w9sn3h8v7vni12dp96vhlx9v4zyfwbzq26szsy9fwwxap9vmlf1",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/f3dfc1d63ad184dca77331384cbc4d9d54311962.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/aa044a201a0742baf41e7a5107f4e1b3ad3f623b.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rosetta-1.6": {

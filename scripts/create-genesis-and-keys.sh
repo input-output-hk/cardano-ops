@@ -208,15 +208,9 @@ if [ -f $BYRON_GENESIS_PATH ]; then
   done
 
 cardano-cli transaction build-raw \
-  --shelley-era \
-  --ttl 10000000000 \
   --fee $((100000 * $NB_POOL_NODES)) \
-  $(for i in `seq 1 $NB_BFT_NODES`; do
-    echo " --tx-in $(cardano-cli byron transaction txid --tx tx$i.tx)#0"
-  done) \
-  $(for i in `seq 1 $UTXO_KEYS`; do
-    echo " --tx-out $(cat utxo-keys/utxo$i.addr)+$((((2 * $MAX_SUPPLY) / 3  - (100000 + 504000000 + $MAX_SUPPLY / 500) * $NB_POOL_NODES) / $UTXO_KEYS))"
-  done) \
+  --tx-out $(cat /home/testnet/testnet/keys/rich-utxo.addr)+$((8724274721427796  - ((100000 + 504000000 + $MAX_SUPPLY / 500) * $NB_POOL_NODES))) \
+  --tx-in "deb9d08f57f923cc368b2e50971c92f4d2dacc37bd6753d719f8e765317fbfbe#0" \
   $(for i in `seq 1 $NB_POOL_NODES`; do
     echo " --tx-out $(cat stake-delegator-keys/staking$i.addr)+$(($MAX_SUPPLY / 500))"
     echo " --certificate-file pools/staking-reward$i.reg.cert"
