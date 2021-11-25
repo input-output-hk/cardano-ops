@@ -128,6 +128,8 @@ in
       nodeConfig = globals.environmentConfig.nodeConfig;
       extraNodeConfig = {
         hasPrometheus = [ cfg.hostAddr globals.cardanoNodePrometheusExporterPort ];
+        # The maximum number of used peers when fetching newly forged blocks:
+        MaxConcurrencyDeadline = 4;
         # Use Journald output:
         setupScribes = [{
           scKind = "JournalSK";
