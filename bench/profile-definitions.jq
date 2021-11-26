@@ -246,6 +246,14 @@ def utxo_delegators_density_profiles:
                  , executionSteps:  9999406981    # 166751062 + estimate
                  , debugMode: false
                  } }
+  , { desc: "Plutus, auto-mode-smoke-test"
+    , generator: { inputs_per_tx:           1
+                 , outputs_per_tx:          1
+		 , tx_count:             100
+                 , scriptMode: true
+                 , plutusMode: true
+                 , plutusAutoMode: true
+                 } }
 
 ];
 
