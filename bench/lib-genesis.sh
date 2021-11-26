@@ -20,6 +20,13 @@ genesis_params_cache_params()
         jq '
             del(.era) |
             del(.genesis_future_offset) |
+            del(.epoch_length) |
+            del(.parameter_k) |
+            del(.slot_duration) |
+            del(.active_slots_coeff) |
+            del(.max_block_size) |
+            del(.max_tx_size) |
+            del(.decentralisation_param) |
             del(.byron)
             ' --sort-keys <<<$1
 }
@@ -59,23 +66,24 @@ profile_genesis() {
         genesis_cache_params=$(genesis_params_cache_params "$genesis_params")
         cache_id=$(genesis_cache_params_cache_id "$genesis_cache_params")
         cache_path=$genesis_cache_root/$cache_id
+        cache_path_id=$(cat "$cache_path"/cache.params.id 2>/dev/null | xargs echo)
 
-        if test -f "$cache_path"/genesis.json
+        if test "$cache_path_id" = "$cache_id"
         then cache_hit=t; cache_hit_desc='hit'
         else cache_hit=;  cache_hit_desc='miss'; fi
         oprint "genesis cache ${cache_hit_desc}:  $cache_id"
 
         if test -z "$cache_hit"
-        then oprint "generating genesis due to miss:  $cache_id @$cache_path"
+        then oprint "generating genesis due to miss:  $cache_id @ $cache_path"
              mkdir -p "$cache_path"
              time profile_genesis_singleshot "$profile" "$cache_path"
              cat <<<$genesis_cache_params > "$cache_path"/cache.params
-             cat <<<$cache_id > "$cache_path"/cache.params.id
+             cat <<<$cache_id             > "$cache_path"/cache.params.id
         fi
 
         rm -f                             "$genesis_dir"
         ln -s               "$cache_path" "$genesis_dir"
-        oprint "updating genesis cache entry $cache_id to match $profile.."
+        oprint "updating genesis cache entry $cache_id ($cache_path) to match $profile.."
         profile_genesis_update "$profile" "$genesis_dir"
 }
 
@@ -89,10 +97,11 @@ profile_genesis_update() {
 
         local genesis_future_offset=$(profile_genesis_future_offset "$profile")
         local start_timestamp=$(date +%s --date="now + $genesis_future_offset")
+        local start_time=$(date --iso-8601=s --date=@$start_timestamp --utc | cut -c-19)Z
 
-        profile_genesis_byron          "$profile"         "$dir/byron"
-        genesis_update_starttime       "$start_timestamp" "$dir"
-        genesis_update_starttime_byron "$start_timestamp" "$dir/byron"
+        shelley_genesis_update         "$profile" "$start_time"      "$dir"
+        profile_genesis_byron          "$profile"                    "$dir/byron"
+        genesis_update_starttime_byron            "$start_timestamp" "$dir/byron"
 
         local hash=$(genesis_hash                         "$dir")
         echo -n "$hash"                                 > "$dir"/GENHASH
@@ -108,7 +117,6 @@ profile_genesis_update() {
           , params:     ($(profgenjq "$profile" .))
           }"
 
-        local start_time=$(date --iso-8601=s --date=@$start_timestamp --utc | cut -c-19)
         oprint "genesis start time:  $start_time, $genesis_future_offset from now"
 }
 
@@ -125,12 +133,12 @@ genesis_info() {
 }
 
 profile_genesis_protocol_params() {
-        local prof=$1 composition=$2
-        jq --argjson prof "$(profgenjq "${prof}" .)" \
-           --argjson comp "$composition" '
+        local prof=$1 startTime=$2
+        jq --argjson prof       "$(profgenjq "${prof}" .)" \
+           --arg     startTime $startTime '
           include "profile-genesis" { search: "bench" };
 
-          . * genesis_protocol_params($prof; $comp)
+          . * genesis_protocol_params($prof; $startTime)
         '
 }
 
@@ -244,7 +252,7 @@ profile_genesis_singleshot() {
         cli genesis create "${params[@]}"
 
         ## set parameters in template
-        profile_genesis_protocol_params "$prof" "$composition" \
+        profile_genesis_protocol_params "$prof" "1970-01-01T00:00:00Z" \
          < "$target_dir"/genesis.spec.json > "$target_dir"/genesis.spec.json.
         mv "$target_dir"/genesis.spec.json.  "$target_dir"/genesis.spec.json
 
@@ -392,12 +400,12 @@ genesis_profile_mismatches() {
         done
 }
 
-genesis_update_starttime() {
-        local start_timestamp=$1 genesis_dir=${2:-./keys} start_time
+shelley_genesis_update() {
+        local prof=$1 start_time=$2 dir=${3:-./keys} start_time
 
-        start_time=$(date --iso-8601=s --date=@$start_timestamp --utc | cut -c-19)
-        json_file_append "$genesis_dir"/genesis.json "
-          { systemStart: \"${start_time}Z\" }" <<<0
+        profile_genesis_protocol_params "$prof" "$start_time" \
+         < "$dir"/genesis.json > "$dir"/genesis.json.
+        mv "$dir"/genesis.json.  "$dir"/genesis.json
 }
 
 genesis_hash() {
