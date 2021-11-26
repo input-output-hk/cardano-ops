@@ -1,6 +1,7 @@
 { system ? builtins.currentSystem
 , crossSystem ? null
 , config ? {}
+, sourcesOverridesDirect ? {}
 }:
 let
   defaultSourcePaths = import ./sources.nix { inherit pkgs; };
@@ -13,12 +14,12 @@ let
 
   inherit (import defaultNixpkgs { overlays = [globalsOverlay]; }) globals;
 
-  sourcesOverride = let sourcesFile = globals.sourcesJsonOverride; in
+  sourcesOverrideFile = let sourcesFile = globals.sourcesJsonOverride; in
     if (builtins.pathExists sourcesFile)
     then import ./sources.nix { inherit pkgs sourcesFile; }
     else {};
 
-  sourcePaths = defaultSourcePaths // sourcesOverride;
+  sourcePaths = defaultSourcePaths // sourcesOverrideFile // sourcesOverridesDirect;
 
   iohkNix = import sourcePaths.iohk-nix {};
 

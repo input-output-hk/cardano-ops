@@ -17,7 +17,7 @@ profgenjq()
 }
 
 profile_deploy() {
-        local batch=$1 prof=${2:-default} include=()
+        local batch=$1 prof=$2 nodesrc=$3 include=()
         prof=$(params resolve-profile "$prof")
 
         mkdir -p runs/deploy-logs
@@ -27,21 +27,17 @@ profile_deploy() {
         echo >"$deploylog"
         ln -sf "$deploylog" 'last-deploy.log'
 
-        watcher_pid=
-        if test -n "${watch_deploy}"
-        then { sleep 0.3; tail -f "$deploylog"; } &
-             watcher_pid=$!; fi
-
-        if test -n "$watcher_pid"
-        then kill "$watcher_pid" >/dev/null 2>&1 || true; fi
-
         local genesis_timestamp=$(timestamp)
 
         if test -z "$no_prebuild"
         then oprint "prebuilding:"
              ## 0. Prebuild:
              ensure_genesis "$prof" "$genesis_timestamp"
-             time deploy_build_only "$prof" "$deploylog" "$watcher_pid"
+             local nodesrcnix=$(nix-instantiate \
+                                    --eval \
+                                    -E "{ json }: __fromJSON json" \
+                                    --argstr json "$nodesrc")
+             time deploy_build_only "$prof" "$nodesrcnix" "$deploylog"
              oprint "profile prebuild done"
              fi
 
@@ -50,7 +46,7 @@ profile_deploy() {
         include="explorer $(params producers)"
 
         if test -z "$no_deploy"
-        then deploystate_deploy_profile "$prof" "$include" "$deploylog"
+        then deploystate_deploy_profile "$prof" "$nodesrc" "$include" "$deploylog"
         else oprint "skippin' deploy, because:  CLI override"
              ln -sf "$deploylog" 'last-deploy.log'
         fi
