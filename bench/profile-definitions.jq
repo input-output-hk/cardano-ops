@@ -32,13 +32,13 @@ def genesis_defaults($era; $compo):
   ## UTxO & delegation
   , total_balance:           900000000000000
   , pools_balance:           800000000000000
-  , delegators:              $compo.n_dense_hosts
-  , utxo:                    1000000
+  , delegators:              1000000
+  , utxo:                    4000000
 
   ## Blockchain time & block density
   , active_slots_coeff:      0.05
-  , epoch_length:            2200   # Ought to be at least (10 * k / f).
-  , parameter_k:             10
+  , epoch_length:            8000   # Ought to be at least (10 * k / f).
+  , parameter_k:             40
   , slot_duration:           1
 
   ## Block size & contents
@@ -74,8 +74,8 @@ def generator_defaults($era):
   , inputs_per_tx:           2
   , outputs_per_tx:          2
   , tx_fee:                  1000000
-  , epochs:                  10
-  , tps:                     10
+  , epochs:                  5
+  , tps:                     9
   }
 } | (.common + (.[$era] // {}));
 
@@ -120,7 +120,13 @@ def derived_generator_params($era; $compo; $gtor; $gsis; $node):
 } | (.common + (.[$era] // {}));
 
 def derived_node_params($era; $compo; $gtor; $gsis; $node):
-{ common: {}
+{ common:
+  { expected_activation_time:
+      (60 * (($gsis.delegators / 500000)
+             +
+             ($gsis.utxo       / 2000000))
+          / 2)
+  }
 } | (.common + (.[$era] // {}));
 
 def derived_tolerances($era; $compo; $gtor; $gsis; $node; $tolers):
@@ -173,49 +179,18 @@ def profile_name($compo; $gsis; $gtor; $node):
     else ["RTS", ($node.rts_flags_override | join(""))] end
   | join("-");
 
-def legacy_profiles:
-  [ { desc: "calibration, with ~30 tx/64k-block; NOTE: needs special node & ops"
-    , genesis: { utxo: 2000000, delegators:  500000 }
-    , generator: { add_tx_size: 2000, scriptMode: false } }
-
-  , { desc: "regression, February 2021 data set sizes, unsaturated"
-    , genesis: { utxo: 2000000, delegators:  500000 }
-    , generator: { tps: 2, scriptMode: false } }
-  ];
-
 def utxo_delegators_density_profiles:
-  [ { desc: "regression, August 2021 data set sizes"
-    , genesis: { utxo: 3000000, delegators:  750000 }
-    , generator: { scriptMode: false } }
-
-  , { desc: "regression, August 2021 data set sizes, script mode"
-    , genesis: { utxo: 3000000, delegators:  750000 }
-    , generator: { scriptMode: true } }
-
-  , { desc: "regression, October 2021 data set sizes"
-    , genesis: { utxo: 4000000, delegators: 1000000 }
+  [ { desc: "regression, October 2021 data set sizes"
     , generator: { scriptMode: false } }
 
   , { desc: "regression, October 2021 data set sizes"
-    , genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: { scriptMode: true } }
-
-  , { desc: "baseline: quadruple k, so as to get quartapulses"
-    , genesis: { utxo: 4000000, delegators: 1000000
-               , parameter_k:  40
-               , epoch_length: 8800
-               }
-    , generator: { epochs:     3
-                 , scriptMode: true }
-    }
 
     , { desc: "rtsflags: batch1, best CPU/mem"
-    , genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: { scriptMode: true }
     , node: { rts_flags_override: ["-H4G", "-M6553M", "-c70"] } }
 
   , { desc: "rtsflags: batch1, better mem, costlier CPU"
-    , genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: { scriptMode: true }
     , node: { rts_flags_override: ["-H4G", "-M6553M"] } }
 
@@ -228,7 +203,6 @@ def utxo_delegators_density_profiles:
     , generator: { scriptMode: true } }
 
   , { desc: "Plutus return-success"
-    , genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: { scriptMode: true
                  , plutusMode: true
                  , plutusScript: "always-succeeds-spending.plutus"
@@ -238,7 +212,6 @@ def utxo_delegators_density_profiles:
 		 , executionSteps: 100000000
                  } }
   , { desc: "Plutus, 1e7-mem"
-    , genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: { inputs_per_tx:           1
                  , outputs_per_tx:          1
 		 , tx_count:             7500
@@ -253,7 +226,6 @@ def utxo_delegators_density_profiles:
                  , debugMode: false
                  } }
   , { desc: "Plutus, 1e10-cpu smoke"
-    , genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: { inputs_per_tx:           1
                  , outputs_per_tx:          1
                  , tx_count:               80
@@ -267,7 +239,6 @@ def utxo_delegators_density_profiles:
                  , debugMode: true
                  } }
   , { desc: "Plutus, 1e10-cpu"
-    , genesis: { utxo: 4000000, delegators: 1000000 }
     , generator: { inputs_per_tx:           1
                  , outputs_per_tx:          1
 		 , tx_count:             7500
@@ -297,16 +268,7 @@ def profiles:
   , node_profiles
   ]
   | [combinations]
-  | map (reduce .[] as $item ({}; . * $item))
-  | map (. *
-        { node:
-          { expected_activation_time:
-            (60 * ((.genesis.delegators / 500000)
-                   +
-                   (.genesis.utxo       / 2000000))
-                / 2)
-          }
-        });
+  | map (reduce .[] as $item ({}; . * $item));
 
 def era_tolerances($era; $genesis):
 { common:
@@ -323,18 +285,26 @@ def era_tolerances($era; $genesis):
   }
 } | (.common + .[$era]);
 
-def aux_profiles:
+def aux_profiles($compo):
 [ { name: "smoke"
+  , desc: "A quick smoke test"
+  , genesis:
+    { utxo:                  1000
+    , delegators:            $compo.n_dense_hosts
+    , dense_pool_density:    10
+    }
   , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1
                , init_cooldown: 25, finish_patience: 4
                , scriptMode: true
                }
+  }
+, { name: "smoke-dense-large"
+  , desc: "A quick smoke test, for large, dense clusters"
   , genesis:
     { utxo:                  1000
+    , delegators:            $compo.n_dense_hosts
     , dense_pool_density:    10
     }
-  }
-, { name: "smoke-k50"
   , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1
                , init_cooldown: 90, finish_patience: 3 }
   }
