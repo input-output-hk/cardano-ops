@@ -122,10 +122,12 @@ def derived_generator_params($era; $compo; $gtor; $gsis; $node):
 def derived_node_params($era; $compo; $gtor; $gsis; $node):
 { common:
   { expected_activation_time:
-      (60 * (($gsis.delegators / 500000)
-             +
-             ($gsis.utxo       / 2000000))
-          / 2)
+      [(60 * (($gsis.delegators / 500000)
+               +
+              ($gsis.utxo       / 2000000))
+           / 2)
+      , 15
+      ] | max
   }
 } | (.common + (.[$era] // {}));
 
