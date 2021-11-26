@@ -14,12 +14,12 @@ let
 
   inherit (import defaultNixpkgs { overlays = [globalsOverlay]; }) globals;
 
-  sourcesOverrideFile = let sourcesFile = globals.sourcesJsonOverride; in
+  sourcesOverride = let sourcesFile = globals.sourcesJsonOverride; in
     if (builtins.pathExists sourcesFile)
     then import ./sources.nix { inherit pkgs sourcesFile; }
     else {};
 
-  sourcePaths = defaultSourcePaths // sourcesOverrideFile // sourcesOverridesDirect;
+  sourcePaths = defaultSourcePaths // sourcesOverride // sourcesOverridesDirect;
 
   iohkNix = import sourcePaths.iohk-nix {};
 

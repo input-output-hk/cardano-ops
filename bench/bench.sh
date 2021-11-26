@@ -256,7 +256,8 @@ EOF
                                       op_bench "$@";;
                 profiles-jq | pjq )   local batch=$1 query=$2; shift 2
                                       op_bench "$batch" "jq($query)" "$@";;
-                smoke-test | smoke )  op_bench 'smoke' 'smoke' "$@";;
+                smoke-test | smoke )  local node=${1:-$(jq '.["cardano-node"].rev' nix/sources.bench.json --raw-output)}
+                                      op_bench 'smoke' "$node" 'smoke';;
 
                 list-runs | runs | ls )
                                       ls -1 runs/*/meta.json | cut -d/ -f2;;
@@ -294,6 +295,7 @@ EOF
 op_bench() {
         local batch=${1:?Usage:  bench profile BATCH COMMITSPEC PROFILE..}
         local node_commit=${2:?Usage:  bench profile BATCH COMMITSPEC PROFILE..}
+        local _prof=${3:?Usage:  bench profile BATCH COMMITSPEC PROFILE..}
         shift 2
 
         local benchmark_schedule
@@ -318,9 +320,13 @@ bench_profile() {
         local batch=${1:?USAGE: bench_profile BATCH PROFSPEC NODE-COMMITSPEC}
         local profspec=${2:?USAGE: bench_profile BATCH PROFSPEC NODE-COMMITSPEC}
         local node_commitspec=${3:?USAGE: bench_profile BATCH PROFSPEC NODE-COMMITSPEC}
-        local node_commit=$(cd ../cardano-node
-                            git fetch >/dev/null
-                            git rev-parse $node_commitspec)
+        local node_commit=$(if test "$node_commitspec" = 'pin'
+                            then jq --raw-output '.["cardano-node"].rev' \
+                                    nix/sources.bench.json
+                            else cd ../cardano-node
+                                 git fetch >/dev/null
+                                 git rev-parse $node_commitspec
+                            fi)
         test -n "$node_commit" ||
             fail "invalid cardano-node commitspec:  $node_commitspec"
 
@@ -337,21 +343,27 @@ bench_profile() {
 
         local node_url="https://github.com/input-output-hk/cardano-node/archive/${node_commit}.tar.gz"
         local node_nixhash=$(nix-prefetch-url --unpack $node_url 2>/dev/null)
-        local nodesrcs=$(jq '.["cardano-node"]
-                             | { rev:    $rev
-                               , sha256: $sha256
-                               , url:    $node_url
-                               }' nix/sources.bench.json \
-                           --arg rev    "$node_commit" \
-                           --arg sha256 "$node_hash"   \
-                           --arg url    "$node_url")
+        local nodesrc=$(jq '.["cardano-node"]
+                            | { rev:    $rev
+                              , sha256: $sha256
+                              , url:    $url
+                              }' nix/sources.bench.json \
+                          --arg rev    "$node_commit" \
+                          --arg sha256 "$node_nixhash" \
+                          --arg url    "$node_url")
+        local args=(
+            --attribute    rev=$node_commit
+            --attribute sha256=$node_nixhash
+            --attribute    url=$node_url
+        )
+        niv --sources-file nix/sources.bench.json 'modify' 'cardano-node' ${args[*]}
 
         if test -z "$no_deploy"
-        then time profile_deploy "$batch" "$prof"
+        then time profile_deploy "$batch" "$prof" "$nodesrc"
         else oprint "NOT deploying profile, due to --no-deploy!"
         fi
 
-        op_bench_start "$batch" "$prof" "$deploylog"
+        op_bench_start "$batch" "$prof" "$deploylog" "$node_commit"
         ret=$?
 
         local tag dir
@@ -396,18 +408,8 @@ op_bench_start() {
         sleep 3s
         nixops ssh-for-each --parallel "systemctl start cardano-node"
 
-        node_activation_time=$(profjq "${prof}" .node.expected_activation_time)
-        if test -z "$no_wait"
-        then oprint "waiting ${node_activation_time}s for the nodes to establish business.."
-             sleep ${node_activation_time}; fi
-
-        if ! nixops ssh "explorer" -- systemctl status cardano-node >/dev/null
-        then fail "nodes service on explorer isn't running!"; fi
-        deploystate_check_node_log_commit_id 'explorer' "$node_commit"
-
         local canary='node-0'
-        if ! nixops ssh "$canary" -- systemctl status cardano-node >/dev/null
-        then fail "nodes service on $canary isn't running!"; fi
+        deploystate_check_node_log_commit_id 'explorer' "$node_commit"
         deploystate_check_node_log_commit_id "$canary"  "$node_commit"
 
         local now patience_start_pretty start_time
@@ -673,6 +675,11 @@ package_run() {
             --exclude '*.gz' --exclude '*.xz' --exclude '*.zst' \
             -cf "$package"  "$tag" --zstd
 }
+
+atexit()
+{ git checkout-index --force nix/sources.bench.json
+}
+trap atexit EXIT
 
 # Keep this at the very end, so bash read the entire file before execution starts.
 main "$@"
