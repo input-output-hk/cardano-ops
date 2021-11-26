@@ -1,4 +1,4 @@
-def genesis_protocol_params($p; $composition):
+def genesis_protocol_params($p; $startTime):
 { activeSlotsCoeff:           $p.active_slots_coeff
 , epochLength:                $p.epoch_length
 , securityParam:              $p.parameter_k
@@ -9,6 +9,7 @@ def genesis_protocol_params($p; $composition):
   , "maxBlockBodySize":       $p.max_block_size
   , "nOpt":                   $p.n_pools
   }
+, startTime  :                $startTime
 };
 
 def genesis_cli_args($p; $composition; $cmd):

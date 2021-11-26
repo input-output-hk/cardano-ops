@@ -81,8 +81,7 @@ def generator_defaults($era):
 
 def node_defaults($era):
 { common:
-  { expected_activation_time:      30
-  , rts_flags_override:            []
+  { rts_flags_override:            []
   }
 } | (.common + (.[$era] // {}));
 
@@ -121,13 +120,7 @@ def derived_generator_params($era; $compo; $gtor; $gsis; $node):
 
 def derived_node_params($era; $compo; $gtor; $gsis; $node):
 { common:
-  { expected_activation_time:
-      [(60 * (($gsis.delegators / 500000)
-               +
-              ($gsis.utxo       / 2000000))
-           / 2)
-      , 15
-      ] | max
+  {
   }
 } | (.common + (.[$era] // {}));
 
@@ -291,7 +284,7 @@ def aux_profiles($compo):
 [ { name: "smoke"
   , desc: "A quick smoke test"
   , genesis:
-    { utxo:                  1000
+    { utxo:                  3
     , delegators:            $compo.n_dense_hosts
     , dense_pool_density:    10
     }
@@ -303,7 +296,7 @@ def aux_profiles($compo):
 , { name: "smoke-dense-large"
   , desc: "A quick smoke test, for large, dense clusters"
   , genesis:
-    { utxo:                  1000
+    { utxo:                  3
     , delegators:            $compo.n_dense_hosts
     , dense_pool_density:    10
     }
