@@ -104,7 +104,7 @@ deploystate_create() {
 }
 
 deploystate_deploy_profile() {
-        local prof=$1 include=$2 deploylog=$3 full=
+        local prof=$1 nodesrc=$2 include=$3 deploylog=$4 full=
         local era topology node_rev ops_rev ops_checkout_state
 
         if test "$include" = "$(params all-machines)"
@@ -112,10 +112,13 @@ deploystate_deploy_profile() {
 
         era=$(get_era)
         topology=$(parmetajq .topology)
-        node_rev=$(jq --raw-output '.["cardano-node"].rev' nix/sources.bench.json)
+        node_rev=$(jq --raw-output '.rev' <<<$nodesrc)
         ops_rev=$(git rev-parse HEAD)
         ops_branch=$(maybe_local_repo_branch . ${ops_rev})
         ops_checkout_state=$(git diff --quiet --exit-code || echo '(modified)')
+        nodesrcnix=$(nix-instantiate --eval \
+                                     -E "{ json }: __fromJSON json" \
+                                     --argstr json "$nodesrc")
 
         if ! nixops info >/dev/null 2>&1
         then oprint "nixops info returned status $?, creating deployment.."
@@ -133,11 +136,6 @@ deploystate_deploy_profile() {
 --(   node:          $(profjq "$prof" .node      --compact-output)
 EOF
 
-        watcher_pid=
-        if test -n "${watch_deploy}"
-        then { sleep 0.3; tail -f "$deploylog"; } &
-             watcher_pid=$!; fi
-
         set +o pipefail
         local host_resources other_resources
         host_resources=( $(nixops info --plain 2>/dev/null | sed 's/^\([a-zA-Z0-9-]*\).*/\1/' | grep -ve '-ip$\|cardano-keypair-\|allow-'))
@@ -152,50 +150,46 @@ EOF
         then oprint "that's too much for a single deploy -- deploying in batches of $max_batch nodes"
 
              oprint "deploying non-host resources first:  ${other_resources[*]}"
-             time deploy_resources "$prof" "$deploylog" "$watcher_pid" \
+             time deploy_resources "$prof" "$nodesrcnix" "$deploylog" \
                                    ${other_resources[*]}
 
              local base=0 batch
              while test $base -lt $host_count
              do local batch=(${host_resources[*]:$base:$max_batch})
                 oprint "deploying host batch:  ${batch[*]}"
-                time deploy_resources "$prof" "$deploylog" "$watcher_pid" ${batch[*]}
+                time deploy_resources "$prof" "$nodesrcnix" "$deploylog" ${batch[*]}
                 oprint "deployed batch of ${#batch[*]} nodes:  ${batch[*]}"
                 base=$((base + max_batch))
              done
         else oprint "that's deployable in one go -- blasting ahead"
-             time deploy_resources "$prof" "$deploylog" "$watcher_pid"
+             time deploy_resources "$prof" "$nodesrcnix" "$deploylog"
         fi
-
-        if test -n "$watcher_pid"
-        then kill "$watcher_pid" >/dev/null 2>&1 || true; fi
 
         oprint "deployment complete, refreshing deploy files.."
         update_deployfiles "$prof" "$deploylog" "$include"
 }
 
 run_nixops_deploy() {
-        local prof=$1 deploylog=$2 watcher_pid=$3
-        shift 3
+        local prof=$1 deploylog=$2
+        shift 2
         local flags=("$@")
         local cmd=(nixops deploy)
-        cmd+=(${flags[*]})
+        cmd+=("${flags[@]}")
 
         echo "-------------------- nixops deploy $*" >>"$deploylog"
         if export BENCHMARKING_PROFILE=${prof}; ! "${cmd[@]}" \
                  >>"$deploylog" 2>&1
         then echo "FATAL:  deployment failed, full log in ${deploylog}"
-             if test -n "$watcher_pid"
-             then kill "$watcher_pid" >/dev/null 2>&1 || true
-             else echo -e "FATAL:  here are the last 200 lines:\n"
-                  tail -n200 "$deploylog"; fi
+             echo -e "FATAL:  here are the last 200 lines:\n"
+             tail -n200 "$deploylog"
              return 1
         fi >&2
 }
 
 deploy_build_only() {
-        local prof=$1 deploylog=$2 watcher_pid=$3
-        run_nixops_deploy "$prof" "$deploylog" "$watcher_pid" \
+        local prof=$1 nodesrcnix=$2 deploylog=$3
+        run_nixops_deploy "$prof" "$deploylog" \
+                --arg 'sourcesOverridesDirect' "{ cardano_node = $nodesrcnix; }" \
                 --build-only \
                 --confirm \
                 --cores 0 \
@@ -203,9 +197,10 @@ deploy_build_only() {
 }
 
 deploy_resources() {
-        local prof=$1 deploylog=$2 watcher_pid=$3
-        shift 3
-        run_nixops_deploy "$prof" "$deploylog" "$watcher_pid" \
+        local prof=$1 nodesrcnix=$2 deploylog=$3
+        shift 2
+        run_nixops_deploy "$prof" "$deploylog" \
+                --arg 'sourcesOverridesDirect' "{ cardano_node = $nodesrcnix; }" \
                 --allow-reboot \
                 --confirm \
                 --cores 0 -j 4 \

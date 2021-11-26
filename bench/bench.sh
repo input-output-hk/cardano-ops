@@ -118,7 +118,6 @@ no_analysis=
 no_wait=
 predeploy=
 force_deploy=
-watch_deploy=
 
 self=$(realpath "$0")
 
@@ -135,8 +134,6 @@ main() {
            --no-analysis | --skip-analysis ) no_analysis=t;;
            --deploy )             force_deploy=t;;
            --pre-deploy | --predeploy ) predeploy=t;;
-           --watch | --watch-deploy )
-                                  watch_deploy=t;;
            --select )             jq_select="jq 'select ($2)'"; shift;;
 
            --cls )                echo -en "\ec">&2;;
@@ -259,7 +256,7 @@ EOF
                                       op_bench "$@";;
                 profiles-jq | pjq )   local batch=$1 query=$2; shift 2
                                       op_bench "$batch" "jq($query)" "$@";;
-                smoke-test | smoke )  op_bench 'smoke' 'smoke';;
+                smoke-test | smoke )  op_bench 'smoke' 'smoke' "$@";;
 
                 list-runs | runs | ls )
                                       ls -1 runs/*/meta.json | cut -d/ -f2;;
@@ -295,14 +292,12 @@ EOF
 ###
 
 op_bench() {
-        local batch=${1:?Usage:  bench profile BATCH PROFILE}
-        local  prof=${2:?Usage:  bench profile BATCH PROFILE}
-        local benchmark_schedule
-        shift 1
+        local batch=${1:?Usage:  bench profile BATCH COMMITSPEC PROFILE..}
+        local node_commit=${2:?Usage:  bench profile BATCH COMMITSPEC PROFILE..}
+        shift 2
 
-        if   test "$1" = 'all'
-        then benchma1k_schedule=($(params profiles))
-        elif case "$1" in jq\(*\) ) true;; * ) false;; esac
+        local benchmark_schedule
+        if   case "$1" in jq\(*\) ) true;; * ) false;; esac
         then local query=$(sed 's_^jq(\(.*\))$_\1_' <<<$1)
              oprint "selecting profiles with:  $query"
              benchmark_schedule=($(query_profiles "$query"))
@@ -315,19 +310,44 @@ op_bench() {
         then oprint "batch ${batch}:  benchmarking profiles:  ${benchmark_schedule[*]}"; fi
 
         for p in ${benchmark_schedule[*]}
-        do bench_profile "$batch" "${p}"
+        do bench_profile "$batch" "${p}" "$node_commit"
         done
 }
 
 bench_profile() {
-        local batch=$1 profspec=${2:-default} prof deploylog
-        prof=$(params resolve-profile "$profspec")
+        local batch=${1:?USAGE: bench_profile BATCH PROFSPEC NODE-COMMITSPEC}
+        local profspec=${2:?USAGE: bench_profile BATCH PROFSPEC NODE-COMMITSPEC}
+        local node_commitspec=${3:?USAGE: bench_profile BATCH PROFSPEC NODE-COMMITSPEC}
+        local node_commit=$(cd ../cardano-node
+                            git fetch >/dev/null
+                            git rev-parse $node_commitspec)
+        test -n "$node_commit" ||
+            fail "invalid cardano-node commitspec:  $node_commitspec"
 
-        oprint "benchmarking profile:  ${prof:?Unknown profile $profspec, see ${paramsfile}}, batch $batch"
-        deploylog='./last-deploy.log'
+        local node_commitqual=$(if test "$node_commit" != "$node_commitspec"
+                                then echo "$node_commitspec"
+                                else (cd ../cardano-node
+                                      git fetch >/dev/null
+                                      git describe --all $node_commit)
+                                fi )
+        local prof=$(params resolve-profile "$profspec")
+
+        oprint "benchmarking profile:  ${prof:?Unknown profile $profspec, see ${paramsfile}}, batch $batch, node $node_commit ($node_commitqual)"
+        local deploylog='./last-deploy.log'
+
+        local node_url="https://github.com/input-output-hk/cardano-node/archive/${node_commit}.tar.gz"
+        local node_nixhash=$(nix-prefetch-url --unpack $node_url 2>/dev/null)
+        local nodesrcs=$(jq '.["cardano-node"]
+                             | { rev:    $rev
+                               , sha256: $sha256
+                               , url:    $node_url
+                               }' nix/sources.bench.json \
+                           --arg rev    "$node_commit" \
+                           --arg sha256 "$node_hash"   \
+                           --arg url    "$node_url")
+
         if test -z "$no_deploy"
-        then oprint "deploying profile.."
-             time profile_deploy "$batch" "$prof"
+        then time profile_deploy "$batch" "$prof"
         else oprint "NOT deploying profile, due to --no-deploy!"
         fi
 
@@ -354,7 +374,7 @@ bench_profile() {
 }
 
 op_bench_start() {
-        local batch=$1 prof=$2 deploylog=$3 tag dir generator_startup_delay
+        local batch=$1 prof=$2 deploylog=$3 node_commit=$4 tag dir generator_startup_delay
 
         if ! params has-profile "${prof}"
         then fail "Unknown profile '${prof}': check ${paramsfile}"; fi
@@ -381,18 +401,14 @@ op_bench_start() {
         then oprint "waiting ${node_activation_time}s for the nodes to establish business.."
              sleep ${node_activation_time}; fi
 
-        local sources_json_node_commit
-        sources_json_node_commit=$(jq '.["cardano-node"].rev' \
-                                      nix/sources.bench.json --raw-output)
-
         if ! nixops ssh "explorer" -- systemctl status cardano-node >/dev/null
         then fail "nodes service on explorer isn't running!"; fi
-        deploystate_check_node_log_commit_id 'explorer' "$sources_json_node_commit"
+        deploystate_check_node_log_commit_id 'explorer' "$node_commit"
 
         local canary='node-0'
         if ! nixops ssh "$canary" -- systemctl status cardano-node >/dev/null
         then fail "nodes service on $canary isn't running!"; fi
-        deploystate_check_node_log_commit_id "$canary"  "$sources_json_node_commit"
+        deploystate_check_node_log_commit_id "$canary"  "$node_commit"
 
         local now patience_start_pretty start_time
         now=$(date +%s)
@@ -406,7 +422,7 @@ op_bench_start() {
            grep "TraceNoLedgerView" >/dev/null
         then fail "no ledger view, cluster is dead."; fi
 
-        tag=$(generate_run_tag "$batch" "$prof" "$sources_json_node_commit")
+        tag=$(generate_run_tag "$batch" "$prof" "$node_commit")
         dir="./runs/${tag}"
         oprint "creating new run:  ${tag}"
         op_register_new_run "${batch}" "${prof}" "${tag}" "${deploylog}"
