@@ -138,8 +138,8 @@ EOF
 
         set +o pipefail
         local host_resources other_resources
-        host_resources=( $(nixops info --plain 2>/dev/null | sed 's/^\([a-zA-Z0-9-]*\).*/\1/' | grep -ve '-ip$\|cardano-keypair-\|allow-'))
-        other_resources=($(nixops info --plain 2>/dev/null | sed 's/^\([a-zA-Z0-9-]*\).*/\1/' | grep  -e '-ip$\|cardano-keypair-\|allow-'))
+        host_resources=( $(nixops info --plain 2>/dev/null | sed 's/^\([a-zA-Z0-9-]*\).*/\1/' | grep -ve '-ip$\|cardano-keypair-\|allow-\|relays-'))
+        other_resources=($(nixops info --plain 2>/dev/null | sed 's/^\([a-zA-Z0-9-]*\).*/\1/' | grep  -e '-ip$\|cardano-keypair-\|allow-\|relays-'))
         set -o pipefail
 
         local host_count=${#host_resources[*]}
@@ -198,7 +198,7 @@ deploy_build_only() {
 
 deploy_resources() {
         local prof=$1 nodesrcnix=$2 deploylog=$3
-        shift 2
+        shift 3
         run_nixops_deploy "$prof" "$deploylog" \
                 --allow-reboot \
                 --confirm \
