@@ -83,23 +83,23 @@ include "profile-definitions" { search: "bench" };
 | generator_defaults($era)               as $generator_defaults
 | node_defaults($era)                    as $node_defaults
 
-| (aux_profiles | map(.name | {key: ., value: null}) | from_entries)
+| (aux_profiles($compo) | map(.name | {key: ., value: null}) | from_entries)
                                          as $aux_names
 
 ## For all IO arities and block sizes:
 | profiles
 | . +
-  ( aux_profiles
+  ( aux_profiles($compo)
   | map ({ name:      .name
          , genesis:   ($genesis_defaults   * ( .genesis   // {} ))
          , generator: ($generator_defaults * ( .generator // {} ))
          , node:      ($node_defaults      * ( .node      // {} ))
          }))
 | map
-  ( ($genesis_defaults    * .genesis)    as $gsis
-  | ($generator_defaults  * .generator)  as $gtor
-  | ($node_defaults       * .node)       as $node
-  | era_tolerances($era; $gsis)          as $tolr
+  ( ($genesis_defaults    * ( .genesis   // {} ))  as $gsis
+  | ($generator_defaults  * ( .generator // {} ))  as $gtor
+  | ($node_defaults       * ( .node      // {} ))  as $node
+  | era_tolerances($era; $gsis)                    as $tolr
   | { description:
         (.desc // .description // "")
     , genesis:
@@ -130,7 +130,7 @@ include "profile-definitions" { search: "bench" };
 
     ## The first entry is the defprof defprof.
     , default_profile:     (.[0] | (. | keys) | .[0])
-    , aux_profiles:        (aux_profiles | map(.name))
+    , aux_profiles:        (aux_profiles($compo) | map(.name))
     , composition:         $compo
     }}
   + (. | add)
