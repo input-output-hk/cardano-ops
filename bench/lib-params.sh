@@ -59,9 +59,9 @@ id_pool_map_composition() {
 ##      - count and the names of producer nodes
 ##      - genesis parameters
 params_init() {
-        local node_count="${1?USAGE:  init-cluster NODECOUNT [PROTOCOL-ERA=shelley] [TOPOLOGY=distrib|eu-central-1]}"
+        local node_count="${1?USAGE:  init-cluster NODECOUNT [PROTOCOL-ERA=shelley] [TOPOLOGY=dense|eu-central-1]}"
         local era="${2:-shelley}"
-        local topology="${3:-distrib}"
+        local topology="${3:-dense}"
         if test $((node_count + 0)) -ne $node_count
         then fail "this operation requires a node count as an integer argument."
         fi
