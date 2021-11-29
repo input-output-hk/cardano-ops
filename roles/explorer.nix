@@ -65,6 +65,8 @@ in {
 
   services.varnish = {
     enable = globals.withSmash;
+    extraModules = [ pkgs.varnish-modules ];
+    extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 4)}M";
     config = ''
       vcl 4.1;
 
@@ -646,6 +648,9 @@ in {
       };
     });
   };
+
+  # Ensure the worker processes don't hit TCP file descriptor limits
+  systemd.services.nginx.serviceConfig.LimitNOFILE = 65535;
 
   # Avoid flooding (and rotating too quicky) default journal with nginx logs:
   # nginx logs: journalctl --namespace nginx
