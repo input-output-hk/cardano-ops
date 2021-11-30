@@ -422,12 +422,18 @@ op_bench_start() {
 
         if nixops ssh "$canary" -- journalctl -u cardano-node |
            grep "TraceNoLedgerView" >/dev/null
-        then fail "no ledger view, cluster is dead."; fi
+        then fail "cluster is dead:  seen TraceNoLedgerView"; fi
 
         tag=$(generate_run_tag "$batch" "$prof" "$node_commit")
         dir="./runs/${tag}"
         oprint "creating new run:  ${tag}"
         op_register_new_run "${batch}" "${prof}" "${tag}" "${deploylog}"
+
+        oprint_ne "waiting until local node socket is up:  "
+        while ! { nixops ssh explorer -- journalctl -u cardano-node |
+                      grep "LocalSocketUp" >/dev/null; }
+        do sleep 1; echo -ne "."; done
+        echo "LocalSocketUp seen"
 
         time { oprint "$(date), starting generator.."
                nixops ssh explorer "systemctl start tx-generator"
