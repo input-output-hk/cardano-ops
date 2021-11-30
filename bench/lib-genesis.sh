@@ -262,6 +262,9 @@ profile_genesis_singleshot() {
         ## update genesis from template
         cli genesis create-staked "${params[@]}"
 
+        oprint "genesis: creation complete, erasing stake delegator keys.."
+        time rm "$target_dir"/stake-delegator-keys -rf
+
         genesis_remap_key_names "$prof" "$ids_pool_map"
 
         ## Fix up the key, so the generator can read it:
