@@ -22,6 +22,14 @@ oprint() {
         msg "--( $*"
 }
 export -f oprint
+
+ovprint() {
+        local verbose=$1; shift
+        test -z "$verbose" ||
+            msg "--( $*"
+}
+export -f oprint
+
 oprint_ne() {
         msg_ne "--( $*"
 }
@@ -142,10 +150,14 @@ maybe_local_repo_branch() {
         ## This needs a shallow clone to be practical.
 }
 
-min() {
+function min() {
         if test "$1" -gt "$2"; then echo -n "$2"; else echo -n "$1"; fi
 }
 
-max() {
+function max() {
         if test "$1" -lt "$2"; then echo -n "$2"; else echo -n "$1"; fi
+}
+
+function UTCTime_at_unix_time() {
+    echo $(date --iso-8601=s --date=@$1 --utc | cut -c-19)Z
 }
