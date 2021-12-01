@@ -60,7 +60,7 @@ analyse_run() {
         then fail "run directory doesn't has no metafile: $dir"; fi
 
         machines=($(jq '.machine_info | keys | join(" ")
-                       ' --raw-output <"$dir/deployment-explorer.json"))
+                       ' --raw-output <"$dir/deployment.json"))
         meta=$(jq .meta "$dir/meta.json")
         tag=$(jq .tag <<<$meta --raw-output)
 

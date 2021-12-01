@@ -180,8 +180,7 @@ we enumerate here shortly, but will also revisit in depth later:
 
 6.  The **deployment state**, which is implicit in the *cluster
     component* states, but also summarised in the **deployment state
-    files** – `deployment-explorer.json` and
-    `deployment-producers.json`.
+    file** – `deployment.json`.
 
 7.  The **genesis** is parametrised by the *benchmarking profile*, and,
     once changed (perhaps due to *benchmarking profile* selection),
@@ -594,20 +593,18 @@ Each successful benchmark run produces the following results:
     
     3.  deployment state summaries of the cluster components, taken
         during the **registration** phase of the **benchmark process**:
-        `deployment-explorer.json` and `deployment-producer.json`,
+        `deployment.json`,
     
-    4.  `meta/*` – some miscellaneous run metadata,
-    
-    5.  `logs/*` – various logs, both deployment, service startup and
+    4.  `logs/*` – various logs, both deployment, service startup and
         runtime, for all the nodes (including explorer) and the Tx
         generator. This also includes an extraction from the
         `cardano-db-sync` database.
     
-    6.  `analysis.json` – a collection of small-output-volume analyses.
+    5.  `analysis.json` – a collection of small-output-volume analyses.
     
-    7.  `analysis/*` – data extraction based on the available logs.
+    6.  `analysis/*` – data extraction based on the available logs.
     
-    8.  `tools/*` – the tools used to perform some of the analyses,
+    7.  `tools/*` – the tools used to perform some of the analyses,
         fetched from the `cardano-benchmarking` repo.
 
 2.  An archive in the deployment checkout, that contains the exact

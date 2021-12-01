@@ -4,96 +4,48 @@
 remote_jq_opts=(--compact-output)
 
 declare -A deployfilename deployfile
-deployfilename=(
-        [explorer]='deployment-explorer.json'
-        [producers]='deployment-producers.json')
-deployfile=(
-        [explorer]=$(realpath "$(dirname "$0")/../${deployfilename[explorer]}")
-        [producers]=$(realpath "$(dirname "$0")/../${deployfilename[producers]}"))
+deployfilename='deployment.json'
+deployfile=$(realpath "$(dirname "$0")/../$deployfilename")
 
 ## Deployfile JQ
 depljq() {
         local comp=$1 q=$2; shift 2
-        jq "$q" "${deployfilename[$comp]}" "$@"
+        jq "$q" "$deployfilename" "$@"
 }
 
-update_deployfiles() {
-        local prof=$1 deploylog=$2 include=${3##--include }
+update_deployfile() {
+        local prof=$1 deploylog=$2 hosts=$3
         local date=$(date "+%Y-%m-%d-%H.%M.%S") stamp=$(date +%s)
-        local machine_info cores files targets
+        local targets
 
-        cores=($(params producers))
-        case "$include" in
-                '' | "explorer ${cores[*]}" | "${cores[*]} explorer" )
-                                files=(${deployfile[*]})
-                                targets=(explorer ${cores[*]});;
+        local targetlist=$(jq . --raw-input <<<"$hosts" | jq 'split(" ")' -c)
+        dprint "deployed hosts: $targetlist"
 
-                'explorer' )    files=(${deployfile[explorer]})
-                                targets=(explorer);;
-
-                "${cores[*]}" ) files=(${deployfile[producers]})
-                                targets=(${cores[*]});;
-
-                * ) fail "include didn't match: '$include'";; esac
-
-        local targetlist
-        targetlist=$(jq . --raw-input <<<"${targets[*]}" | jq 'split(" ")' -c)
-        dprint "target list: $targetlist"
-
-        echo "--( collecting live machine state.."
-        machine_info=$(jq . <<<"{ $(deploystate_collect_machine_info | sed ':b; N; s_\n_,_; b b' | sed 's_,_\n,_g') }")
-        jq >"${files[0]}" "
+        jq >"$deployfile" "
           { era:               \"$(get_era)\"
           , topology:          \"$(parmetajq .topology)\"
           , profile:           \"$prof\"
-          , timestamp:         ${stamp}
           , timestamp:         ${stamp}
           , date:              \"${date}\"
           , targets:           $targetlist
           , genesis_hash:      \"$(genesis_hash)\"
           , profile_content:   $(profjq "${prof}" .)
           , pins:
-            { \"cardano-node\":          $(jq '.["cardano-node"].rev'         nix/sources.bench.json)
-            , \"cardano-ops\":           \"$(git rev-parse HEAD)\"
+            { \"cardano-node\": $(jq '.["cardano-node"].rev' nix/sources.bench.json)
+            , \"cardano-ops\":  \"$(git rev-parse HEAD)\"
             }
           , ops_modified:      $(if git diff --quiet --exit-code
                                  then echo false; else echo true; fi)
-          , machine_info:      $machine_info
           }
           " --null-input
-        if test ${#files[*]} -gt 1
-        then cp -f "${files[0]}" "${files[1]}"; fi
-        echo "--( updated deployment state:  ${files[*]}"
-}
-
-deploystate_node_process_genesis_startTime() {
-        local core="${1:-node-0}"
-
-        local node_process
-        node_process=$(nixops ssh ${core} -- pgrep -al cardano-node)
-
-        local genesis
-        if test -n "$node_process"
-        then genesis=$(nixops ssh ${core} -- jq . \
-                     $(nixops ssh ${core} -- jq .ShelleyGenesisFile \
-                     $(sed 's_.* --config \([^ ]*\) .*_\1_' <<<$node_process)))
-             case $(get_era) in
-                     shelley ) jq '.systemStart
-                                  | fromdateiso8601
-                                  '  --raw-output <<<$genesis;;
-             esac
-        else fail "cardano-node isn't running"; fi
-}
-
-deploystate_local_genesis_startTime() {
-        genesisjq '.start_time'
+        oprint "updated deployment state record"
 }
 
 deploystate_destroy() {
         local cmd=()
 
         oprint "destroying deployment"
-        rm -f "${deployfile[@]}"
+        rm -f "$deployfile"
         if nixops 'info' >/dev/null 2>&1
         then nixops 'destroy' --confirm
              nixops 'delete'  --confirm; fi
@@ -104,11 +56,8 @@ deploystate_create() {
 }
 
 deploystate_deploy_profile() {
-        local prof=$1 nodesrc=$2 include=$3 deploylog=$4 full=
-        local era topology node_rev ops_rev ops_checkout_state
-
-        if test "$include" = "$(params all-machines)"
-        then include=; full='(full)'; fi
+        local prof=$1 hosts=$2 deploylog=$3 nodesrc=$4 nodesrcspec=$5
+        local era topology include node_rev ops_rev ops_checkout_state
 
         era=$(get_era)
         topology=$(parmetajq .topology)
@@ -129,7 +78,7 @@ deploystate_deploy_profile() {
 --( deploying profile $prof
 --(   era:           $era
 --(   topology:      $topology
---(   node:          $node_rev
+--(   node:          $node_rev / $nodesrcspec
 --(   ops:           $ops_rev / $ops_branch  $ops_checkout_state
 --(   generator:     $(profjq "$prof" .generator --compact-output)
 --(   genesis:       $(profjq "$prof" .genesis   --compact-output)
@@ -138,9 +87,13 @@ EOF
 
         set +o pipefail
         local host_resources other_resources
-        host_resources=( $(nixops info --plain 2>/dev/null | sed 's/^\([a-zA-Z0-9-]*\).*/\1/' | grep -ve '-ip$\|cardano-keypair-\|allow-\|relays-'))
+        host_resources=($hosts)
+        host_resources_real=($(nixops info --plain 2>/dev/null | sed 's/^\([a-zA-Z0-9-]*\).*/\1/' | grep -ve '-ip$\|cardano-keypair-\|allow-\|relays-'))
         other_resources=($(nixops info --plain 2>/dev/null | sed 's/^\([a-zA-Z0-9-]*\).*/\1/' | grep  -e '-ip$\|cardano-keypair-\|allow-\|relays-'))
         set -o pipefail
+
+        test "${host_resources[*]}" = "${host_resources_real[*]}" ||
+            fail "requested deployment host set does not match NixOps deployment host set:  nixops (${host_resources_real[*]}) != requested (${host_resources[*]})"
 
         local host_count=${#host_resources[*]}
         oprint "hosts to deploy:  $host_count total:  ${host_resources[*]}"
@@ -165,8 +118,17 @@ EOF
              time deploy_resources "$prof" "$nodesrcnix" "$deploylog"
         fi
 
-        oprint "deployment complete, refreshing deploy files.."
-        update_deployfiles "$prof" "$deploylog" "$include"
+        oprint_ne "freeing disc space on: "
+        for host in $hosts
+        do { local disc_usage_pct=$(node_nixos_root_disk_usage_percent $host)
+             if test $disc_usage_pct -gt 70
+             then echo -n " $host($disc_usage_pct)"
+                  nixops ssh $host -- sh -c "'nix-collect-garbage --delete-old >/dev/null 2>&1'"; fi; } &
+        done
+        time wait
+
+        oprint "deployment complete, recording deployment state.."
+        update_deployfile "$prof" "$deploylog" "$hosts"
 }
 
 run_nixops_deploy() {
@@ -205,42 +167,6 @@ deploy_resources() {
                 --cores 0 -j 4 \
                 --max-concurrent-copy 50 \
                 ${1:+--include} "$@"
-}
-
-deploystate_node_log_commit_id() {
-        local mach=$1
-
-        set +o pipefail
-        nixops ssh "$mach" -- journalctl -u cardano-node | grep commit | tail -n1 | sed 's/.*"\([0-9a-f]\{40\}\)".*/\1/'
-        set -o pipefail
-}
-
-deploystate_check_node_log_commit_id() {
-        local mach=$1 expected=$2 actual=
-
-        oprint_ne "checking node commit on $mach:  "
-        while actual=$(deploystate_node_log_commit_id "$mach");
-              test -z "$actual"
-        do sleep 1; echo -n '.'; done
-
-        if test "$expected" != "$actual"
-        then fail " expected $expected, got $actual"
-        else msg " ok, $expected"; fi
-}
-
-deploystate_collect_machine_info() {
-        local cmd
-        cmd=(
-                eval echo
-                '\"$(hostname)\": { \"local_ip\": \"$(ip addr show scope global | sed -n "/^    inet / s_.*inet \([0-9\.]*\)/.*_\1_; T skip; p; :skip")\", \"public_ip\": \"$(curl --silent http://169.254.169.254/latest/meta-data/public-ipv4)\", \"placement\": \"$(curl --silent http://169.254.169.254/latest/meta-data/placement/availability-zone)\", \"timestamp\": $(date +%s), \"timestamp_readable\": \"$(date)\" }'
-        )
-        nixops ssh-for-each --parallel -- "${cmd[@]@Q}" 2>&1 | cut -d'>' -f2-
-}
-
-nixopsfile_producers() {
-        jq '.benchmarkingTopology.coreNodes
-            | map(.name)
-            | join(" ")' --raw-output "$@"
 }
 
 op_stop() {

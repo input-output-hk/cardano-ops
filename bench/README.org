@@ -146,8 +146,8 @@ Hostname 18.196.206.34
        =benchmarking-cluster-params.json=.
 
     6. The *deployment state*, which is implicit in the /cluster component/
-       states, but also summarised in the *deployment state files* --
-       =deployment-explorer.json= and =deployment-producers.json=.
+       states, but also summarised in the *deployment state file* --
+       =deployment.json=.
 
     7. The *genesis* is parametrised by the /benchmarking profile/, and, once
        changed (perhaps due to /benchmarking profile/ selection), necessitates
@@ -509,7 +509,7 @@ Hostname 18.196.206.34
 
        3. deployment state summaries of the cluster components, taken during the
           *registration* phase of the *benchmark process*:
-          =deployment-explorer.json= and =deployment-producer.json=,
+          =deployment.json=,
 
        4. =logs/*= -- various logs, both deployment, service startup and runtime,
           for all the nodes (including explorer) and the Tx generator.

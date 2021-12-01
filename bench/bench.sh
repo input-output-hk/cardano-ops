@@ -8,9 +8,10 @@ __BENCH_BASEPATH=$(dirname "$(realpath "$0")")
 . "$__BENCH_BASEPATH"/lib-analysis.sh
 . "$__BENCH_BASEPATH"/lib-benchrun.sh
 . "$__BENCH_BASEPATH"/lib-deploy.sh
-. "$__BENCH_BASEPATH"/lib-fetch.sh
 . "$__BENCH_BASEPATH"/lib-genesis.sh
 . "$__BENCH_BASEPATH"/lib-genesis-byron.sh
+. "$__BENCH_BASEPATH"/lib-node-introspection.sh
+. "$__BENCH_BASEPATH"/lib-node-mgmt.sh
 . "$__BENCH_BASEPATH"/lib-params.sh
 . "$__BENCH_BASEPATH"/lib-profile.sh
 . "$__BENCH_BASEPATH"/lib-sanity.sh
@@ -123,8 +124,10 @@ self=$(realpath "$0")
 
 main() {
         local jq_select='cat'
+        local invocation=$(date --iso-8601=s --utc)":  $*"
 
-        echo "$(date --iso-8601=s --utc):  $*" >> ./.bench_history
+        oprint "$invocation"
+        echo "invocation" >> ./.bench_history
 
         while test $# -ge 1
         do case "$1" in
@@ -183,11 +186,9 @@ main() {
                                       list_profiles;;
 
                 deploy )              profile_deploy "$@";;
-                update-deployfiles | update )
-                                      update_deployfiles "$@";;
                 destroy )             deploystate_destroy;;
 
-                genesis )             profile_genesis ${1:-$(params resolve-profile 'default')};;
+                genesis )             profile_genesis ${1:-$(params resolve-profile 'default')} 'keys' 'verbose';;
                 genesis-info | gi )   genesis_info "$@";;
                 profile-genesis-cache | pgc )
                                       prof=$(profgenjq "$1" .)
@@ -257,6 +258,7 @@ EOF
                 profiles-jq | pjq )   local batch=$1 query=$2; shift 2
                                       op_bench "$batch" "jq($query)" "$@";;
                 smoke-test | smoke )  local node=${1:-$(jq '.["cardano-node"].rev' nix/sources.bench.json --raw-output)}
+                                      no_prebuild='true'
                                       op_bench 'smoke' "$node" 'smoke';;
 
                 list-runs | runs | ls )
@@ -294,7 +296,7 @@ EOF
 
 op_bench() {
         local batch=${1:?Usage:  bench profile BATCH COMMITSPEC PROFILE..}
-        local node_commit=${2:?Usage:  bench profile BATCH COMMITSPEC PROFILE..}
+        local node_commitspec=${2:?Usage:  bench profile BATCH COMMITSPEC PROFILE..}
         local _prof=${3:?Usage:  bench profile BATCH COMMITSPEC PROFILE..}
         shift 2
 
@@ -312,7 +314,7 @@ op_bench() {
         then oprint "batch ${batch}:  benchmarking profiles:  ${benchmark_schedule[*]}"; fi
 
         for p in ${benchmark_schedule[*]}
-        do bench_profile "$batch" "${p}" "$node_commit"
+        do bench_profile "$batch" "${p}" "$node_commitspec"
         done
 }
 
@@ -330,15 +332,15 @@ bench_profile() {
         test -n "$node_commit" ||
             fail "invalid cardano-node commitspec:  $node_commitspec"
 
-        local node_commitqual=$(if test "$node_commit" != "$node_commitspec"
-                                then echo "$node_commitspec"
-                                else (cd ../cardano-node
-                                      git fetch >/dev/null
-                                      git describe --all $node_commit)
-                                fi )
+        local node_commit_spec=$(if test "$node_commit" != "$node_commitspec"
+                                 then echo "$node_commitspec"
+                                 else (cd ../cardano-node
+                                       git fetch >/dev/null
+                                       git describe --all $node_commit)
+                                 fi)
         local prof=$(params resolve-profile "$profspec")
 
-        oprint "benchmarking profile:  ${prof:?Unknown profile $profspec, see ${paramsfile}}, batch $batch, node $node_commit ($node_commitqual)"
+        oprint "benchmarking profile:  ${prof:?Unknown profile $profspec, see ${paramsfile}}, batch $batch, node $node_commit ($node_commit_spec)"
         local deploylog='./last-deploy.log'
 
         local node_url="https://github.com/input-output-hk/cardano-node/archive/${node_commit}.tar.gz"
@@ -356,14 +358,15 @@ bench_profile() {
             --attribute sha256=$node_nixhash
             --attribute    url=$node_url
         )
+        oprint_ne "niv:  "
         niv --sources-file nix/sources.bench.json 'modify' 'cardano-node' ${args[*]}
 
         if test -z "$no_deploy"
-        then time profile_deploy "$batch" "$prof" "$nodesrc"
+        then time profile_deploy "$batch" "$prof" "$nodesrc" "$node_commit_spec"
         else oprint "NOT deploying profile, due to --no-deploy!"
         fi
 
-        op_bench_start "$batch" "$prof" "$deploylog" "$node_commit"
+        op_bench_start "$batch" "$prof" "$deploylog" "$node_commit" "$node_commit_spec"
         ret=$?
 
         local tag dir
@@ -386,7 +389,7 @@ bench_profile() {
 }
 
 op_bench_start() {
-        local batch=$1 prof=$2 deploylog=$3 node_commit=$4 tag dir generator_startup_delay
+        local batch=$1 prof=$2 deploylog=$3 node_commit=$4 node_commit_spec=$5 tag dir generator_startup_delay
 
         if ! params has-profile "${prof}"
         then fail "Unknown profile '${prof}': check ${paramsfile}"; fi
@@ -409,31 +412,39 @@ op_bench_start() {
         nixops ssh-for-each --parallel "systemctl start cardano-node"
 
         local canary='node-0'
-        deploystate_check_node_log_commit_id 'explorer' "$node_commit"
-        deploystate_check_node_log_commit_id "$canary"  "$node_commit"
+        node_wait_for_commit_id 'explorer' "$node_commit"
+        node_wait_for_commit_id "$canary"  "$node_commit"
 
-        local now patience_start_pretty start_time
+        ## Wait for genesis.systemStart to come.
+        local now patience_start_pretty system_start
         now=$(date +%s)
-        start_time=$(genesis_starttime)
-        if test "$(max $start_time $now)" != "$now"
-        then oprint "waiting until cluster start time ($((start_time - now)) seconds).."
-             while now=$(date +%s); test $now -lt $((start_time + 15))
+        system_start=$(genesis_systemstart)
+        if test "$(max $system_start $now)" != "$now"
+        then oprint "waiting until cluster start time ($((system_start - now)) seconds).."
+             while now=$(date +%s); test $now -lt $((system_start + 15))
              do sleep 1; done; fi
-
-        if nixops ssh "$canary" -- journalctl -u cardano-node |
-           grep "TraceNoLedgerView" >/dev/null
-        then fail "cluster is dead:  seen TraceNoLedgerView"; fi
 
         tag=$(generate_run_tag "$batch" "$prof" "$node_commit")
         dir="./runs/${tag}"
         oprint "creating new run:  ${tag}"
-        op_register_new_run "${batch}" "${prof}" "${tag}" "${deploylog}"
+        op_register_new_run "$batch" "$prof" "$tag" "$deploylog" "$node_commit_spec"
 
         oprint_ne "waiting until local node socket is up:  "
         while ! { nixops ssh explorer -- journalctl -u cardano-node |
                       grep "LocalSocketUp" >/dev/null; }
         do sleep 1; echo -ne "."; done
         echo "LocalSocketUp seen"
+
+        if nixops ssh "$canary" -- journalctl -u cardano-node |
+           grep "TraceNoLedgerView" >/dev/null
+        then fail "cluster is dead:  seen TraceNoLedgerView"; fi
+
+        oprint_ne "sanity-checking cluster .systemStart:  "
+        local genesis_systemStart=$(node_runtime_genesis_systemStart 'node-0')
+        local logfile_systemStart=$(node_runtime_apparent_systemStart 'node-0')
+        if test "$genesis_systemStart" = "$logfile_systemStart"
+        then echo "genesis matches node log"
+        else fail "systemStart mismatch: genesis=$genesis_systemStart, logfile=$logfile_systemStart"; fi
 
         time { oprint "$(date), starting generator.."
                nixops ssh explorer "systemctl start tx-generator"
@@ -443,7 +454,7 @@ op_bench_start() {
                op_wait_for_empty_blocks "$prof" ""
                ret=$?
              }
-        # op_fetch_utxo
+        op_fetch_utxo
         op_stop
 
         return $ret
@@ -459,7 +470,7 @@ git_local_repo_query_description() {
 }
 
 op_register_new_run() {
-        local batch=$1 prof=$2 tag=$3 deploylog=$4
+        local batch=$1 prof=$2 tag=$3 deploylog=$4 node_commit_spec=$5
 
         test -f "${deploylog}" ||
                 fail "no deployment log found, but is required for registering a new benchmarking run."
@@ -473,26 +484,33 @@ op_register_new_run() {
         rm -f                          ./last-run
         ln -s                 "${dir}" ./last-run
         rm -rf              ./"${dir}"/*
-        mkdir -p              "${dir}/logs"
-        mkdir -p              "${dir}/meta"
+        mkdir -p              "${dir}"/{configs,logs}
 
         cp "${paramsfile}"   "${dir}"
-        touch "${deployfile[@]}"
-        cp "${deployfile[@]}" "${dir}"
-        cat                 > "${dir}"/cluster.raw.json <<EOF
-{$(deploystate_collect_machine_info | sed ':b; N; s_\n_,_; b b' | sed 's_,_\n,_g')
+        touch "$deployfile"
+        cp "$deployfile" "${dir}"
+        cat                 > "${dir}"/machines.json <<EOF
+{$(cluster_machine_infos | sed ':b; N; s_\n_,_; b b' | sed 's_,_\n,_g')
 }
 EOF
         cp "${deploylog}"     "${dir}"/logs/deploy.log
 
-        oprint "recording (local) genesis"
-        ## TODO:  ideally, fetch this from the machines:
-        cp "keys/genesis.json" "$dir"
-        ln -s   'genesis.json' "$dir"/genesis-shelley.json
+        local sample_node=node-1
+        oprint "streaming runtime genesis from $sample_node.."
+        node_runtime_genesis $sample_node > "$dir"/genesis.json &
+        ln -s                'genesis.json' "$dir"/genesis-shelley.json
 
         oprint "recording effective service configs"
-        local producers=$(params producers)
-        fetch_effective_service_node_configs "$dir" ${producers[*]}
+        for mach in $(params producers) 'explorer'
+        do node_effective_service_config $mach 'cardano-node' \
+              > "$dir"/configs/cardano-node.config.$mach.json &
+
+           if test $mach = 'explorer'
+           then node_effective_service_config $mach 'tx-generator' \
+                 > "$dir"/configs/tx-generator.config.$mach.json & fi; done
+
+        oprint "waiting for background transfers to settle.."
+        time wait
 
         local date=$(date "+%Y-%m-%d-%H.%M.%S") stamp=$(date +%s)
         touch                 "${dir}/${date}"
@@ -505,13 +523,14 @@ EOF
   { tag:               \"${tag}\"
   , batch:             \"${batch}\"
   , profile:           \"${prof}\"
-  , genesis_cache_id:  \"$(genesis_cache_id "$(profgenjq "$prof" .)")\"
   , timestamp:         ${stamp}
   , date:              \"${date}\"
+  , node_commit_spec:  \"$node_commit_spec\"
   , node_commit_desc:  \"$(git_local_repo_query_description \
                               'cardano-node' \
                               $(depljq explorer '.pins["cardano-node"]' --raw-output))\"
   , pins:              $(depljq explorer  .pins)
+  , genesis_cache_id:  \"$(genesis_cache_id "$(profgenjq "$prof" .)")\"
   , profile_content:   $(profjq "${prof}" .)
   , deployment_state:
     { explorer:  $(depljq explorer  .)
@@ -523,19 +542,19 @@ EOF
    | map ({ key:   .key
           , value: (.value + { hostname: .key })
           })
-   | from_entries' "${dir}"/cluster.raw.json)
+   | from_entries' "${dir}"/machines.json)
 , local_ip:
   $(jq  'to_entries
    | map ({ key:   .value.local_ip
           , value: (.value + { hostname: .key })
           })
-   | from_entries' "${dir}"/cluster.raw.json)
+   | from_entries' "${dir}"/machines.json)
 , public_ip:
   $(jq  'to_entries
    | map ({ key:   .value.public_ip
           , value: (.value + { hostname: .key })
           })
-   | from_entries' "${dir}"/cluster.raw.json)
+   | from_entries' "${dir}"/machines.json)
 }" --null-input
 
         oprint "recording the network latency matrix.."
@@ -546,7 +565,7 @@ op_wait_for_nonempty_block() {
         local prof=$1 now since patience_start patience=200 patience_until now r
         now=$(date +%s)
         since=$now
-        patience_start=$(max "$(genesis_starttime)" $now)
+        patience_start=$(max "$(genesis_systemStart)" $now)
         patience_start_pretty=$(date --utc --date=@$patience_start --iso-8601=s)
         patience_until=$((patience_start + patience))
 
