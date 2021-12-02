@@ -22,6 +22,8 @@ in
   deploymentName = "maincanary";
   environmentName = "mainnet";
 
+  sourcesJsonOverride = ./nix/sources.bench.json;
+
   relaysNew = "relays.${pkgs.globals.domain}";
   nbInstancesPerRelay = 1;
 
