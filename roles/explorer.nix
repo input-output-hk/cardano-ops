@@ -264,7 +264,7 @@ in {
             sanitizedResolved="$resolved"
           fi
           allAddresses=$addr$'\n'$sanitizedResolved
-          excludedAddresses=$(comm -12 <(echo "$allAddresses" | sort) <(echo "$excludeList"))
+          excludedAddresses=$(comm -12 <(echo -e "$allAddresses" | sort) <(echo "$excludeList"))
           nbExcludedAddresses=$(echo $excludedAddresses | wc -w)
           if [[ $nbExcludedAddresses == 0 ]]; then
             ((i+=1))
