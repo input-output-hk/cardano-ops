@@ -440,8 +440,8 @@ op_bench_start() {
         then fail "cluster is dead:  seen TraceNoLedgerView"; fi
 
         oprint_ne "sanity-checking cluster .systemStart:  "
-        local genesis_systemStart=$(node_runtime_genesis_systemStart 'node-0')
-        local logfile_systemStart=$(node_runtime_apparent_systemStart 'node-0')
+        local genesis_systemStart=$(node_runtime_genesis_systemstart 'node-0')
+        local logfile_systemStart=$(node_runtime_apparent_systemstart 'node-0')
         if test "$genesis_systemStart" = "$logfile_systemStart"
         then echo "genesis matches node log"
         else fail "systemStart mismatch: genesis=$genesis_systemStart, logfile=$logfile_systemStart"; fi
@@ -565,7 +565,7 @@ op_wait_for_nonempty_block() {
         local prof=$1 now since patience_start patience=200 patience_until now r
         now=$(date +%s)
         since=$now
-        patience_start=$(max "$(genesis_systemStart)" $now)
+        patience_start=$(max "$(genesis_systemstart)" $now)
         patience_start_pretty=$(date --utc --date=@$patience_start --iso-8601=s)
         patience_until=$((patience_start + patience))
 
@@ -673,7 +673,7 @@ fetch_run() {
               (journalctl --boot 0 --quiet -u cardano-node |
                head -n 100        > ${mach}.cardano-node.unit-startup.log) &&
               tar c --zstd --dereference \$(ls | grep '^db-\|^logs$' -v)
-           " | tee "$dir"/logs/logs-$mach.tar.zst | tar x --zstd -C "$dir"/logs &
+           " | tee "$dir"/logs/logs-$mach.tar.zst | tar x --zstd -C "$dir" &
         done
         wait
 

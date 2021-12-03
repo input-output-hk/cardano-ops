@@ -394,7 +394,7 @@ genesis_profile_mismatches() {
 }
 
 shelley_genesis_update() {
-        local prof=$1 start_time=$2 dir=${3:-./keys} start_time
+        local prof=$1 start_time=$2 dir=${3:-./keys}
 
         profile_genesis_protocol_params "$prof" "$start_time" \
          < "$dir"/genesis.json  > "$dir"/genesis.json.

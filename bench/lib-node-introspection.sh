@@ -22,17 +22,17 @@ function node_runtime_genesis() {
     else fail "node_runtime_genesis: node process not running on $1"; fi
 }
 
-function node_runtime_genesis_systemStart() {
+function node_runtime_genesis_systemstart() {
     local node_genesis=$(node_runtime_genesis_filepath $1)
 
     if test -n "$node_genesis"
     then nixops ssh $1 -- jq  -r '.systemStart' $node_genesis
-    else fail "node_runtime_genesis_systemStart: node process not running on $1"; fi
+    else fail "node_runtime_genesis_systemstart: node process not running on $1"; fi
 }
 
 ## A leadership check gives us current time and current slot.
 ## Here we rely on that not to be delayed beyond its second.
-function node_runtime_apparent_systemStart() {
+function node_runtime_apparent_systemstart() {
     nixops ssh $1 -- sh -c '"journalctl -u cardano-node | grep TraceStartLeadershipCheck | head -n2 | tail -n1"' |
         cut -d':' -f4- |
         jq '[ (.at | "\(.[:19])Z" | fromdateiso8601)
