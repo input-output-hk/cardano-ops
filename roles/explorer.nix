@@ -299,8 +299,10 @@ in {
         index=$1
         addr=$2
         port=$3
-        allAddresses=$(dig +nocookie +short -q "$addr" A)
+        allAddresses=$(dig +nocookie +short -q "$addr" A || :)
         if [ -z "$allAddresses" ]; then
+          allAddresses=$addr
+        elif [ "$allAddresses" = ";; connection timed out; no servers could be reached" ]; then
           allAddresses=$addr
         fi
 
@@ -359,7 +361,13 @@ in {
         for r in $(psql -t < ${extract_relays_sql} | jq -c '.[]'); do
           addr=$(echo "$r" | jq -r '.addr')
           port=$(echo "$r" | jq -r '.port')
-          allAddresses=$addr$'\n'$(dig +nocookie +short -q "$addr" A)
+          resolved=$(dig +nocookie +short -q "$addr" A || :)
+          if [ "$resolved" = ";; connection timed out; no servers could be reached" ]; then
+            sanitizedResolved=""
+          else
+            sanitizedResolved="$resolved"
+          fi
+          allAddresses=$addr$'\n'$sanitizedResolved
           excludedAddresses=$(comm -12 <(echo "$allAddresses" | sort) <(echo "$excludeList"))
           nbExcludedAddresses=$(echo $excludedAddresses | wc -w)
           if [[ $nbExcludedAddresses == 0 ]]; then
