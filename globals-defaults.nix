@@ -40,17 +40,19 @@ in {
     a = globals.explorer11;
     b = globals.explorer12;
   };
-  explorerActiveBackends = [ "a" ];
+  explorerActiveBackends = [ "b" ];
   explorerDbSnapshots = globals.explorer12;
   explorer11 = {
     cardano-db-sync = sourcePaths.cardano-db-sync-11;
     cardano-graphql = sourcePaths.cardano-graphql-6;
     cardano-explorer-app = sourcePaths."cardano-explorer-app-1.6";
-    cardano-rosetta = sourcePaths.cardano-rosetta-1;
+    cardano-rosetta = sourcePaths."cardano-rosetta-1.5";
   };
   explorer12 = globals.explorer11 // {
     cardano-db-sync = sourcePaths.cardano-db-sync-12;
-    cardano-graphql = sourcePaths.cardano-graphql-next;
+    cardano-graphql = sourcePaths."cardano-graphql-6.1";
+    cardano-rosetta = sourcePaths."cardano-rosetta-1.6";
+    ogmios = sourcePaths."ogmios-4.2";
   };
   explorerBackendsInContainers = false;
 

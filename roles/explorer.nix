@@ -54,6 +54,7 @@ in {
       explorer-users cardano-db-sync cexplorer
       explorer-users cardano-graphql cexplorer
       explorer-users smash cexplorer
+      explorer-users cardano-rosetta-server cexplorer
       explorer-users dump-registered-relays-topology cexplorer
       explorer-users postgres postgres
     '';

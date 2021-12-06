@@ -84,16 +84,16 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
         "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
-    "cardano-graphql-next": {
-        "branch": "master",
+    "cardano-graphql-6.1": {
+        "branch": "6-1-stable",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "254c0987897b1b70adf478413d8e6b16a89efe8f",
-        "sha256": "0br7bwacnn9ijydin940wmh4b5nix5lvv75ra2i3mnjf5j417qz2",
+        "rev": "a54423a765a78780861af3d3ef1eb0b45a92b5de",
+        "sha256": "0gljjq9lg4r04a9x99xlxqas3f7ac6i08avfxasgnwf98l3xn1qa",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/254c0987897b1b70adf478413d8e6b16a89efe8f.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/a54423a765a78780861af3d3ef1eb0b45a92b5de.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
@@ -120,7 +120,7 @@
         "url": "https://github.com/input-output-hk/cardano-node/archive/f3dfc1d63ad184dca77331384cbc4d9d54311962.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-rosetta-1": {
+    "cardano-rosetta-1.5": {
         "branch": "refs/tags/1.5.0",
         "description": "An implementation of Rosetta for Cardano ",
         "homepage": "https://www.rosetta-api.org",
@@ -130,6 +130,18 @@
         "sha256": "0sy77przvhjslfl2fchg7plwxxscdhc88dbkvbrhdh9s2qlynbhv",
         "type": "tarball",
         "url": "https://github.com/input-output-hk/cardano-rosetta/archive/5c453a69b3f103a4580389a229cf9e651f5d0ef5.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "cardano-rosetta-1.6": {
+        "branch": "refs/tags/1.6.0",
+        "description": "An implementation of Rosetta for Cardano ",
+        "homepage": "https://www.rosetta-api.org",
+        "owner": "input-output-hk",
+        "repo": "cardano-rosetta",
+        "rev": "7b4f610c44a87708523b993081af78025be06f85",
+        "sha256": "1ra09yvy917dzyillzcldxac0kcnm9hb9kw7dg78kn7s5lfz8lz6",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/7b4f610c44a87708523b993081af78025be06f85.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-wallet": {
@@ -190,6 +202,18 @@
         "sha256": "0n4msmvi3r64kq4x0m5ax636ihhh2jmadfb6hd9dph4mbx8hq6x3",
         "type": "tarball",
         "url": "https://github.com/CardanoSolutions/ogmios/archive/efabffa9dcac8b1ebedf0f11f61615752908ce81.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "ogmios-4.2": {
+        "branch": "refs/tags/v4.2.1",
+        "description": " ❇️ A JSON-WSP WebSocket bridge for cardano-node",
+        "homepage": "https://ogmios.dev",
+        "owner": "CardanoSolutions",
+        "repo": "ogmios",
+        "rev": "220e0be6a71fe7bbfd649fe2d137044b7141d755",
+        "sha256": "1iiazkav91c7iz1d8lx4p095lv7xnkb7vcvc3p3il6difqm72la1",
+        "type": "tarball",
+        "url": "https://github.com/CardanoSolutions/ogmios/archive/220e0be6a71fe7bbfd649fe2d137044b7141d755.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
