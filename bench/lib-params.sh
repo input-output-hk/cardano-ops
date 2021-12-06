@@ -73,15 +73,22 @@ params_init() {
         id_pool_map=$(topology_id_pool_density_map "$topology_file")
         composition=$(id_pool_map_composition "$id_pool_map")
 
-        local args=(--argjson compo       "$composition"
-                    --arg     topology    "$topology"
-                    --arg     era         "$era")
+        local args=(--argjson   compo        "$composition"
+                    --slurpfile def_byron    'bench/genesis-byron-mainnet.json'
+                    --slurpfile def_shelley  'bench/genesis-shelley-mainnet.json'
+                    --slurpfile def_alonzo   'bench/genesis-alonzo-mainnet.json'
+                    --arg       topology     "$topology"
+                    --arg       era          "$era")
         jq "${args[@]}" '
 include "profile-definitions" { search: "bench" };
 
-  genesis_defaults($era; $compo)         as $genesis_defaults
-| generator_defaults($era)               as $generator_defaults
-| node_defaults($era)                    as $node_defaults
+  { byron:    $def_byron[0]
+  , shelley:  $def_shelley[0]
+  , alonzo:   $def_alonzo[0]
+  } as $defaults_ext
+| genesis_defaults($era; $compo; $defaults_ext) as $genesis_defaults
+| generator_defaults($era)                      as $generator_defaults
+| node_defaults($era)                           as $node_defaults
 
 | (aux_profiles($compo) | map(.name | {key: ., value: null}) | from_entries)
                                          as $aux_names
@@ -112,7 +119,8 @@ include "profile-definitions" { search: "bench" };
         ($tolr * derived_tolerances($era; $compo; $gtor; $gsis; $node; $tolr))
     }                                    as $prof
   | { "\(.name //
-         profile_name($compo; $prof.genesis; $prof.generator; $prof.node))":
+         profile_name($compo; $prof.genesis; $prof.generator; $prof.node;
+                      $genesis_defaults))":
       ($prof
        | delpaths ([ ["generator", "epochs"]
                    , ["generator", "finish_patience"]]))
