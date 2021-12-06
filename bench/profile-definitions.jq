@@ -23,7 +23,7 @@
 ##     yielding _final benchmarking profiles_.
 ##
 
-def genesis_defaults($era; $compo):
+def genesis_defaults($era; $compo; $defaults_external):
 { common:
 
   ## Trivia
@@ -51,6 +51,8 @@ def genesis_defaults($era; $compo):
   ## BFT overlay
   , decentralisation_param:  0
 
+  , alonzo:  $defaults_external.alonzo
+  , shelley: $defaults_external.shelley
   ## Ahh, the sweet dear legacy..
   , byron:
     { parameter_k:             2160
@@ -138,22 +140,31 @@ def may_attr($attr; $dict; $defdict; $scale; $suf):
      != $defdict[$attr]
   then [($dict[$attr] | . / $scale | tostring) + $suf] else [] end;
 
-def profile_name($compo; $gsis; $gtor; $node):
-  $node.extra_config.TestAlonzoHardForkAtEpoch as $alzoHFAt
-  ## Genesis
+def profile_name($compo; $gsis; $gtor; $node; $gsis_defs):
+    $node.extra_config.TestAlonzoHardForkAtEpoch as $alzoHFAt
   | [ "k\($gsis.n_pools)" ]
-  + may_attr("dense_pool_density";
-             $gsis; genesis_defaults($era; $compo); 1; "ppn")
+  + may_attr("dense_pool_density"; $gsis; $gsis_defs; 1; "ppn")
   + [ ($gtor.epochs                    | tostring) + "ep"
     , ($gtor.tx_count       | . / 1000 | tostring) + "kTx"
     , ($gsis.utxo           | . / 1000 | tostring) + "kU"
     , ($gsis.delegators     | . / 1000 | tostring) + "kD"
-    , ($gsis.max_block_size | . / 1000 | tostring) + "kbs"
+    , ($gsis.max_block_size | . / 1000 | floor | tostring) + "kbs"
     ]
+  + if $gtor.plutusMode | not
+    then []
+    else
+        $gsis.alonzo.maxTxExUnits    as $exLimTx
+      | $gsis.alonzo.maxBlockExUnits as $exLimBlk
+      | [ ($exLimTx.exUnitsMem    | . /1000/1000      | floor | tostring) + "MUTx"
+        , ($exLimTx.exUnitsSteps  | . /1000/1000/1000 | floor | tostring) + "BStTx"
+        , ($exLimBlk.exUnitsMem   | . /1000/1000      | floor | tostring) + "MUBk"
+        , ($exLimBlk.exUnitsSteps | . /1000/1000/1000 | floor | tostring) + "BStBk"
+        ]
+    end
   + may_attr("tps";
              $gtor; generator_defaults($era); 1; "tps")
   + may_attr("epoch_length";
-             $gsis; genesis_defaults($era; $compo); 1; "eplen")
+             $gsis; $gsis_defs; 1; "eplen")
   + may_attr("add_tx_size";
              $gtor; generator_defaults($era); 1; "b")
   + may_attr("inputs_per_tx";
@@ -249,12 +260,61 @@ def utxo_delegators_density_profiles:
   , { desc: "Plutus, auto-mode-smoke-test"
     , generator: { inputs_per_tx:           1
                  , outputs_per_tx:          1
-		 , tx_count:             100
-                 , scriptMode: true
-                 , plutusMode: true
-                 , plutusAutoMode: true
-                 } }
-
+		 , tx_count:              100
+                 , scriptMode:           true
+                 , plutusMode:           true
+                 , plutusAutoMode:       true
+                 }
+    }
+  , { desc: "Plutus, baseline"
+    , generator:
+        { inputs_per_tx:           1
+        , outputs_per_tx:          1
+        , epochs:                  7
+        , tx_count:            14000 # 8000eplen * 7eps / 20blockfreq * 5tx/block
+        , scriptMode:           true
+        , plutusMode:           true
+        , plutusAutoMode:       true
+        }
+    }
+  , { desc: "Plutus, bump 1, Dec 2 2021"
+    , generator:
+        { inputs_per_tx:           1
+        , outputs_per_tx:          1
+        , epochs:                  7
+        , tx_count:            14000 # 8000eplen * 7eps / 20blockfreq * 5tx/block
+        , scriptMode:           true
+        , plutusMode:           true
+        , plutusAutoMode:       true
+        }
+    , genesis:
+        { max_block_size:            73728
+        , alonzo:
+            { maxTxExUnits:
+                { exUnitsMem:     11250000
+                }
+            }
+        }
+    }
+  , { desc: "Plutus, bump 2, 2022"
+    , generator:
+        { inputs_per_tx:           1
+        , outputs_per_tx:          1
+        , epochs:                  7
+        , tx_count:            14000 # 8000eplen * 7eps / 20blockfreq * 5tx/block
+        , scriptMode:           true
+        , plutusMode:           true
+        , plutusAutoMode:       true
+        }
+    , genesis:
+        { max_block_size:            73728
+        , alonzo:
+            { maxTxExUnits:
+                { exUnitsMem:     12500000
+                }
+            }
+        }
+    }
 ];
 
 def generator_profiles:
