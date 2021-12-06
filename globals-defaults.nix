@@ -40,7 +40,7 @@ in {
     a = globals.explorer11;
     b = globals.explorer12;
   };
-  explorerActiveBackends = [ "a" ];
+  explorerActiveBackends = [ "b" ];
   explorerDbSnapshots = globals.explorer12;
   explorer11 = {
     cardano-db-sync = sourcePaths.cardano-db-sync-11;
@@ -50,7 +50,9 @@ in {
   };
   explorer12 = globals.explorer11 // {
     cardano-db-sync = sourcePaths.cardano-db-sync-12;
-    cardano-graphql = sourcePaths.cardano-graphql-next;
+    cardano-graphql = sourcePaths."cardano-graphql-6.1";
+    cardano-rosetta = sourcePaths.cardano-rosetta-next;
+    ogmios = sourcePaths."ogmios-4.2";
   };
   explorerBackendsInContainers = false;
 
