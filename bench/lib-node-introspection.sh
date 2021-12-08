@@ -8,14 +8,15 @@ function node_runtime_config_filepath() {
 
 function node_runtime_genesis_filepath() {
     local node_config=$(node_runtime_config_filepath $1)
+    local era=$2
 
     if test -n "$node_config"
-    then nixops ssh $1 -- jq -r '.ShelleyGenesisFile' "$node_config"
+    then nixops ssh $1 -- jq -r ".${era}GenesisFile" "$node_config"
     else fail "node_runtime_genesis_filepath: node process not running on $1"; fi
 }
 
 function node_runtime_genesis() {
-    local node_genesis=$(node_runtime_genesis_filepath $1)
+    local node_genesis=$(node_runtime_genesis_filepath $1 $2)
 
     if test -n "$node_genesis"
     then nixops ssh $1 -- jq . $node_genesis
@@ -23,7 +24,7 @@ function node_runtime_genesis() {
 }
 
 function node_runtime_genesis_systemstart() {
-    local node_genesis=$(node_runtime_genesis_filepath $1)
+    local node_genesis=$(node_runtime_genesis_filepath $1 'Shelley')
 
     if test -n "$node_genesis"
     then nixops ssh $1 -- jq  -r '.systemStart' $node_genesis
