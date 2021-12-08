@@ -497,8 +497,9 @@ EOF
 
         local sample_node=node-1
         oprint "streaming runtime genesis from $sample_node.."
-        node_runtime_genesis $sample_node > "$dir"/genesis.json &
-        ln -s                'genesis.json' "$dir"/genesis-shelley.json
+        node_runtime_genesis $sample_node 'Shelley' > "$dir"/genesis-shelley.json &
+        node_runtime_genesis $sample_node 'Alonzo'  > "$dir"/genesis-alonzo.json &
+        ln -s                  'genesis-shelley.json' "$dir"/genesis.json
 
         oprint "recording effective service configs"
         for mach in $(params producers) 'explorer'
