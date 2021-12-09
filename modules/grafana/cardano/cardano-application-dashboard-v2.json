@@ -1391,7 +1391,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize[15m]) / (64*1024))",
+          "expr": "avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize[15m]) / 74828)",
           "hide": false,
           "interval": "",
           "legendFormat": "15 min average",
@@ -1400,7 +1400,7 @@
         },
         {
           "exemplar": false,
-          "expr": "quantile(0.5, cardano_node_metrics_blockfetchclient_blocksize / (64*1024))",
+          "expr": "quantile(0.5, cardano_node_metrics_blockfetchclient_blocksize / 74828)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1410,7 +1410,7 @@
         },
         {
           "exemplar": true,
-          "expr": "avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize[4h]) / (64*1024))",
+          "expr": "avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize[4h]) / 74828)",
           "hide": false,
           "interval": "",
           "legendFormat": "4h average",
@@ -3448,7 +3448,7 @@
       }
     }
   ],
-  "refresh": "10s",
+  "refresh": "",
   "schemaVersion": 27,
   "style": "dark",
   "tags": [],
@@ -3456,7 +3456,7 @@
     "list": []
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-12h",
     "to": "now"
   },
   "timepicker": {
