@@ -169,15 +169,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
-        "branch": "nixos-21.05",
+        "branch": "nixos-21.11",
         "description": "Nix Packages collection",
         "homepage": null,
-        "owner": "input-output-hk",
+        "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "0a16a8e71e2ffadc1a5b8a46ccfe60d3cf532803",
-        "sha256": "1d4n300015q7nh5c0s4r86rs9s8mc3qv10mpbh8ln3hghnza4k2y",
+        "rev": "573095944e7c1d58d30fc679c81af63668b54056",
+        "sha256": "07s5cwhskqvy82b4rld9b14ljc0013pig23i3jx3l3f957rk95pg",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/nixpkgs/archive/0a16a8e71e2ffadc1a5b8a46ccfe60d3cf532803.tar.gz",
+        "url": "https://github.com/NixOS/nixpkgs/archive/573095944e7c1d58d30fc679c81af63668b54056.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "offchain-metadata-tools": {
@@ -222,10 +222,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "20646de3e33cd46780418c64ba7c99d8d3547653",
-        "sha256": "1brbq6n5k8dxigfkb3mml97xz4kyhfkzb3xmy5aw18p375dxqpr2",
+        "rev": "61f65045dad618f684f76ab8e81d1e13039a8801",
+        "sha256": "0ih3krk4a76bklzmk72diyl2g2gxdijirdy9yn3wvrgy2k4jiqvx",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/20646de3e33cd46780418c64ba7c99d8d3547653.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/61f65045dad618f684f76ab8e81d1e13039a8801.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
