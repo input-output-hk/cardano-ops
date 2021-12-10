@@ -27,7 +27,9 @@ genesis_params_cache_params()
             del(.max_block_size) |
             del(.max_tx_size) |
             del(.decentralisation_param) |
-            del(.byron)
+            del(.byron) |
+            del(.shelley) |
+            del(.alonzo)
             ' --sort-keys <<<$1
 }
 
