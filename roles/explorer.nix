@@ -356,7 +356,7 @@ in {
 
       run() {
         epoch=$(cardano-cli query tip --testnet-magic $NETWORK_MAGIC | jq .epoch)
-        db_sync_epoch=$(psql -t --command="select no from epoch_sync_time order by id desc limit 1;")
+        db_sync_epoch=$(psql -U ${cfg.postgres.user} -t --command="select no from epoch_sync_time order by id desc limit 1;")
 
         if [ $(( $epoch - $db_sync_epoch )) -gt 1 ]; then
           >&2 echo "cardano-db-sync has not catch-up with current epoch yet. Skipping."
@@ -367,7 +367,7 @@ in {
         cd $STATE_DIRECTORY
         rm -f *-relay.json
         i=0
-        for r in $(psql -t < ${extract_relays_sql} | jq -c '.[]'); do
+        for r in $(psql -U ${cfg.postgres.user} -t < ${extract_relays_sql} | jq -c '.[]'); do
           addr=$(echo "$r" | jq -r '.addr')
           port=$(echo "$r" | jq -r '.port')
           resolved=$(dig +nocookie +short -q "$addr" A || :)
