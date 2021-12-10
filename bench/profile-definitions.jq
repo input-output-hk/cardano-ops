@@ -200,6 +200,10 @@ def utxo_delegators_density_profiles:
     , generator: { scriptMode: true }
     , node: { rts_flags_override: ["-H4G", "-M6553M"] } }
 
+  , { desc: "rtsflags: suggestion from PR 3399"
+    , generator: { scriptMode: true }
+    , node: { rts_flags_override: ["-C0", "-A32m", "-n1m", "-AL512M"] } }
+
   , { desc: "regression, March 2022 data set sizes"
     , genesis: { utxo: 6000000, delegators: 1500000 }
     , generator: { scriptMode: false } }
