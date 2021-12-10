@@ -411,7 +411,7 @@ in {
     # 3 failures at max within 24h:
     startLimitIntervalSec = 24 * 60 * 60;
     serviceConfig = {
-      DynamicUser = true;
+      User = "dump-registered-relays-topology";
       # Need for cardano-cli:
       SupplementaryGroups = "cardano-node";
       StateDirectory = "registered-relays-dump";
@@ -420,6 +420,12 @@ in {
       StartLimitBurst = 3;
     };
   };
+
+  users.users.dump-registered-relays-topology = {
+    isSystemUser = true;
+    group = "dump-registered-relays-topology";
+  };
+  users.groups.dump-registered-relays-topology = {};
 
   services.nginx = {
     enable = true;
@@ -667,12 +673,15 @@ in {
     });
   };
 
-  # Ensure the worker processes don't hit TCP file descriptor limits
-  systemd.services.nginx.serviceConfig.LimitNOFILE = 65535;
-
-  # Avoid flooding (and rotating too quicky) default journal with nginx logs:
-  # nginx logs: journalctl --namespace nginx
-  systemd.services.nginx.serviceConfig.LogNamespace = "nginx";
+  systemd.services.nginx.serviceConfig = {
+    # Ensure the worker processes don't hit TCP file descriptor limits
+    LimitNOFILE = 65535;
+    # Avoid flooding (and rotating too quicky) default journal with nginx logs:
+    # nginx logs: journalctl --namespace nginx
+    LogNamespace = "nginx";
+    # Access to topology.json:
+    SupplementaryGroups = "dump-registered-relays-topology";
+  };
 
   services.monitoring-exporters.extraPrometheusExporters = [
     # TODO: remove once explorer exports metrics at path `/metrics`
