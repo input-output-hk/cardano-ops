@@ -318,14 +318,23 @@ in {
           if [ $res -eq 0 ]; then
             >&2 echo "Successfully pinged $addr:$port (on ip: $ip)"
             set +e
-            geoinfo=$(curl -s -k --retry 6 https://json.geoiplookup.io/$ip)
+            geoinfo=$(curl -s --retry 3 http://ip-api.com/json/$ip?fields=1105930)
             res=$?
             set -e
             if [ $res -eq 0 ]; then
-              continent=$(echo "$geoinfo" | jq -r '.continent_name')
-              country_code=$(echo "$geoinfo" | jq -r '.country_code')
+              status=$(echo "$geoinfo" | jq -r '.status')
+              if [ "$status" == "fail" ]; then
+                message=$(echo "$geoinfo" | jq -r '.message')
+                >&2 echo "Failed to retrieved goip info for $ip: $message"
+                exit 1
+              fi
+              continent=$(echo "$geoinfo" | jq -r '.continent')
+              country_code=$(echo "$geoinfo" | jq -r '.countryCode')
               if [ "$country_code" == "US" ]; then
-                state=$(echo $geoinfo | jq -r '.region')
+                state=$(echo $geoinfo | jq -r '.regionName')
+                if [ "$state" == "Washington, D.C." ]; then
+                  state="District of Columbia"
+                fi
               else
                 state=$country_code
               fi
@@ -373,7 +382,7 @@ in {
           if [[ $nbExcludedAddresses == 0 ]]; then
             ((i+=1))
             pingAddr $i "$addr" "$port" &
-            sleep 0.5
+            sleep 1.5 # Due to rate limiting on ip-api.com
           else
             >&2 echo "$addr excluded due to dns name or IPs being in exclude list:\n$excludedAddresses"
           fi

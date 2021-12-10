@@ -61,9 +61,6 @@ in {
           allowListPath = mkForce null;
           allowIntrospection = true;
         };
-        services.cardano-node = {
-          package = mkForce cardano-node;
-        };
         services.cardano-db-sync = lib.mkIf (b == "a") {
           #takeSnapshot = "once";
           #restoreSnapshot = "db-sync-snapshot-schema-10-block-1254641-x86_64.tgz";
