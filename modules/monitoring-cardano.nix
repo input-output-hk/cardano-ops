@@ -8,6 +8,7 @@ let
   tcpCrit = toString globals.alertTcpCrit;
   MbpsHigh = toString globals.alertMbpsHigh;
   MbpsCrit = toString globals.alertMbpsCrit;
+  highBlockUtilization = toString globals.alertHighBlockUtilization;
   slotLength = globals.environmentVariables.SLOT_LENGTH;
 in {
   services.monitoring-services.logging = false;
@@ -47,6 +48,18 @@ in {
       annotations = {
         summary = "{{$labels.alias}}: Degraded Chain Density (<${chainDensityLow}%).";
         description = "{{$labels.alias}}: Degraded Chain Density (<${chainDensityLow}%).";
+      };
+    }
+    {
+      alert = "blocks_utilization_too_high";
+      expr = "100 * avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize[4h]) / on(alias) (cardano_node_protocol_maxBlockBodySize + cardano_node_protocol_maxBlockHeaderSize)) > ${highBlockUtilization}";
+      for = "5m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "Blocks utilization above ${highBlockUtilization}% - follow process in description.";
+        description = "Blocks utilization has been above ${highBlockUtilization}% on average for more than 4h. Follow process at https://docs.google.com/document/d/1H42XpVp5YKUfKTcfyV_YJP5nM2N5D9eU_0MvFbXXp0E";
       };
     }
     {
