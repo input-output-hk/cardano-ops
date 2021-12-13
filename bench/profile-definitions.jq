@@ -375,4 +375,12 @@ def aux_profiles($compo):
   , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1
                , init_cooldown: 90, finish_patience: 3 }
   }
+, { name: "smoke-large-1000"
+  , desc: "A quick smoke test, for large, dense clusters"
+  , generator: { tx_count: 1000, init_cooldown: 90, finish_patience: 5 }
+  }
+, { name: "smoke-large-5000"
+  , desc: "A quick smoke test, for large, dense clusters"
+  , generator: { tx_count: 5000, init_cooldown: 90, finish_patience: 5 }
+  }
 ];
