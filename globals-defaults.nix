@@ -132,6 +132,7 @@ in {
     globals.cardanoExplorerPrometheusExporterPort
     globals.cardanoExplorerGwPrometheusExporterPort
     globals.netdataExporterPort
+    80 # cardano-graphql-exporter
   ] ++ builtins.genList (i: globals.cardanoNodePrometheusExporterPort + i) globals.nbInstancesPerRelay;
 
   extraPrometheusBlackboxExporterModules = {
