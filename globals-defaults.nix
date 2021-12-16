@@ -199,7 +199,7 @@ in {
                  then c5-9xlarge
                  else t3a-xlarge;
       explorer-gw = if globals.withHighCapacityExplorer
-                    then c5a-4xlarge
+                    then c5-4xlarge
                     else t3a-xlarge;
       monitoring = if globals.withHighCapacityMonitoring
                    then t3-2xlargeMonitor
