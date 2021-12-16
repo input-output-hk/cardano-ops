@@ -58,8 +58,7 @@ let
     })
   ]));
 
-  stakingPoolNodes = regionalConnectGroupWith bftCoreNodes
-  (twoHopsConnectNodes [
+  stakingPoolNodes = twoHopsConnectNodes [
     (mkStakingPool "a" 1 "IOG1" { nodeId = 8; })
 
     (mkStakingPool "b" 1 "IOGP2" { nodeId = 28; })
@@ -95,7 +94,7 @@ let
     (mkStakingPool "b" 6 "IOGP32" { nodeId = 58; })
     (mkStakingPool "c" 6 "IOGP33" { nodeId = 59; })
     (mkStakingPool "d" 6 "LEO1"   { nodeId = 60; })
-  ]);
+  ];
 
   coreNodes = bftCoreNodes ++ stakingPoolNodes;
 
@@ -108,7 +107,8 @@ let
       };
     } [ "rel-a-1" "rel-b-1" "rel-c-1" "rel-d-1" "rel-e-1" "rel-f-1" ])
   ]) (mkRelayTopology {
-      inherit regions coreNodes;
+      inherit regions;
+      coreNodes = stakingPoolNodes;
       autoscaling = false;
       maxProducersPerNode = 20;
       maxInRegionPeers = 5;
