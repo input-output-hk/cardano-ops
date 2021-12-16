@@ -222,10 +222,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "61f65045dad618f684f76ab8e81d1e13039a8801",
-        "sha256": "0ih3krk4a76bklzmk72diyl2g2gxdijirdy9yn3wvrgy2k4jiqvx",
+        "rev": "36634f57504660e57d3ba5d943611565101ff3bf",
+        "sha256": "0m1dx4yvcxc3c3gazbz6xfn4gh812wh229rcx630qrv8s0jldbpk",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/61f65045dad618f684f76ab8e81d1e13039a8801.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/36634f57504660e57d3ba5d943611565101ff3bf.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
