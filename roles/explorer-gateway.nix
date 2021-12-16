@@ -70,6 +70,12 @@ in {
     dynamicConfigOptions = {
       http = {
         routers = {
+          rosetta = {
+            rule = lib.concatStringsSep " || "
+              (map (a: "Host(`${a}`)") ([globals.explorerHostName] ++ globals.explorerAliases) ++ ["PathPrefix(`/rosetta`)"]);
+            service = "rosetta";
+            tls.certResolver = "default";
+          };
           explorer = {
             rule = lib.concatStringsSep " || "
               (map (a: "Host(`${a}`)") ([globals.explorerHostName] ++ globals.explorerAliases));
@@ -83,6 +89,13 @@ in {
           };
         };
         services = {
+          rosetta = {
+            loadBalancer = {
+              servers = map (b: {
+                url = "http://${backendAddr b}";
+              }) globals.explorerRosettaActiveBackends;
+            };
+          };
           explorer = {
             loadBalancer = {
               servers = map (b: {

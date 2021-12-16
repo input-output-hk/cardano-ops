@@ -41,6 +41,7 @@ in {
     b = globals.explorer12;
   };
   explorerActiveBackends = [ "b" ];
+  explorerRosettaActiveBackends = globals.explorerActiveBackends;
   explorerDbSnapshots = globals.explorer12;
   explorer11 = {
     cardano-db-sync = sourcePaths.cardano-db-sync-11;

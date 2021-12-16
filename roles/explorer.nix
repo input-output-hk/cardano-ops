@@ -213,7 +213,7 @@ in {
   };
 
   services.smash = {
-    enable = globals.withSmash;
+    enable = globals.withSmash && (dbSyncPkgs.cardanoDbSyncProject.hsPkgs ? cardano-smash-server);
     inherit (globals) environmentName;
     port = 3200;
     inherit dbSyncPkgs;
