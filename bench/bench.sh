@@ -382,6 +382,7 @@ bench_profile() {
         time fetch_run "$dir"
         oprint "concluded run:  ${tag}"
 
+        set -x
         test -z "$no_analysis" &&
             analyse_run "${dir}"
 

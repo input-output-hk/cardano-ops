@@ -365,6 +365,20 @@ def aux_profiles($compo):
                , scriptMode: true
                }
   }
+, { name: "smoke-epoch"
+  , desc: "Smoke test for epoch transitions"
+  , genesis:
+    { utxo:                  1
+    , epoch_length:          60
+    , parameter_k:           2
+    , delegators:            $compo.n_dense_hosts
+    , dense_pool_density:    1
+    }
+  , generator: { tx_count:   (9 * 6000)
+               , init_cooldown: 25, finish_patience: 1000
+               , scriptMode: true
+               }
+  }
 , { name: "smoke-dense-large"
   , desc: "A quick smoke test, for large, dense clusters"
   , genesis:
@@ -373,14 +387,14 @@ def aux_profiles($compo):
     , dense_pool_density:    10
     }
   , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1
-               , init_cooldown: 90, finish_patience: 3 }
+               , init_cooldown: 90, finish_patience: 10 }
   }
 , { name: "smoke-large-1000"
   , desc: "A quick smoke test, for large, dense clusters"
-  , generator: { tx_count: 1000, init_cooldown: 90, finish_patience: 5 }
+  , generator: { tx_count: 1000, init_cooldown: 90, finish_patience: 10 }
   }
 , { name: "smoke-large-5000"
   , desc: "A quick smoke test, for large, dense clusters"
-  , generator: { tx_count: 5000, init_cooldown: 90, finish_patience: 5 }
+  , generator: { tx_count: 5000, init_cooldown: 90, finish_patience: 10 }
   }
 ];
