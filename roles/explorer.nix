@@ -12,7 +12,6 @@ let
 
   dbSyncPkgs = let s = getSrc "cardano-db-sync"; in import (s + "/nix") { gitrev = s.rev; };
   inherit (dbSyncPkgs) cardanoDbSyncHaskellPackages;
-  inherit (cardanoDbSyncHaskellPackages.cardano-db-sync.components.exes) cardano-db-sync;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-sync-extended.components.exes) cardano-db-sync-extended;
   inherit (cardanoDbSyncHaskellPackages.cardano-node.components.exes) cardano-node;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-tool.components.exes) cardano-db-tool;
@@ -52,11 +51,106 @@ in {
     ];
     identMap = ''
       explorer-users root cexplorer
-      explorer-users cexplorer cexplorer
+      explorer-users cardano-db-sync cexplorer
+      explorer-users cardano-graphql cexplorer
+      explorer-users smash cexplorer
+      explorer-users cardano-rosetta-server cexplorer
+      explorer-users dump-registered-relays-topology cexplorer
       explorer-users postgres postgres
     '';
     authentication = ''
       local all all ident map=explorer-users
+    '';
+  };
+
+
+  services.varnish = {
+    enable = globals.withSmash;
+    extraModules = [ pkgs.varnish-modules ];
+    extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 4)}M";
+    config = ''
+      vcl 4.1;
+
+      import std;
+
+      backend default {
+        .host = "127.0.0.1";
+        .port = "${toString config.services.smash.port}";
+      }
+
+      acl purge {
+        "localhost";
+        "127.0.0.1";
+      }
+
+      sub vcl_recv {
+        unset req.http.x-cache;
+
+        # Allow PURGE from localhost
+        if (req.method == "PURGE") {
+          if (!std.ip(req.http.X-Real-Ip, "0.0.0.0") ~ purge) {
+            return(synth(405,"Not Allowed"));
+          }
+
+          # The host is included as part of the object hash
+          # We need to match the public FQDN for the purge to be successful
+          set req.http.host = "smash.${globals.domain}";
+
+          return(purge);
+        }
+      }
+
+      sub vcl_hit {
+        set req.http.x-cache = "hit";
+      }
+
+      sub vcl_miss {
+        set req.http.x-cache = "miss";
+      }
+
+      sub vcl_pass {
+        set req.http.x-cache = "pass";
+      }
+
+      sub vcl_pipe {
+        set req.http.x-cache = "pipe";
+      }
+
+      sub vcl_synth {
+        set req.http.x-cache = "synth synth";
+        set resp.http.x-cache = req.http.x-cache;
+      }
+
+      sub vcl_deliver {
+        if (obj.uncacheable) {
+          set req.http.x-cache = req.http.x-cache + " uncacheable";
+        }
+        else {
+          set req.http.x-cache = req.http.x-cache + " cached";
+        }
+        set resp.http.x-cache = req.http.x-cache;
+      }
+
+      sub vcl_backend_response {
+        set beresp.ttl = 30d;
+        if (beresp.status == 404) {
+          set beresp.ttl = 1h;
+        }
+        # Default vcl_backend_response (without no-store):
+        if (beresp.ttl <= 0s ||
+            beresp.http.Set-Cookie ||
+            beresp.http.Surrogate-control ~ "no-store" ||
+            (!beresp.http.Surrogate-Control &&
+            beresp.http.Cache-Control ~ "no-cache|private") ||
+            beresp.http.Vary == "*") {
+            /*
+            * Mark as "Hit-For-Pass" for the next 2 minutes
+            */
+            set beresp.ttl = 120s;
+            set beresp.uncacheable = true;
+        }
+        return (deliver);
+      }
     '';
   };
 
@@ -107,22 +201,29 @@ in {
 
   services.cardano-db-sync = {
     enable = true;
+    package = cardano-db-sync-extended;
     cluster = globals.environmentName;
     environment = globals.environmentConfig;
     socketPath = nodeCfg.socketPath;
     logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { PrometheusPort = globals.cardanoExplorerPrometheusExporterPort; };
-    user = "cexplorer";
-    extended = globals.withCardanoDBExtended;
     inherit dbSyncPkgs;
     postgres = {
       database = "cexplorer";
     };
   };
 
-  users.users.cexplorer = {
-    isSystemUser = true;
-    # so that it can write socket file:
-    extraGroups = ["cardano-node"];
+  services.smash = {
+    enable = globals.withSmash;
+    inherit (globals) environmentName;
+    port = 3200;
+    inherit dbSyncPkgs;
+    # TODO: remove after https://github.com/input-output-hk/cardano-db-sync/pull/950 is tagged
+    package = (dbSyncPkgs.cardanoDbSyncProject.projectFunction dbSyncPkgs.haskell-nix [
+      dbSyncPkgs.cardanoDbSyncProject.projectModule
+      { modules = [{packages.cardano-smash-server.flags.disable-basic-auth = true;}]; }
+    ]).hsPkgs.cardano-smash-server.components.exes.cardano-smash-server;
+    postgres = { inherit (cfg.postgres) port database user socketdir; };
+    delistedPools = globals.smashDelistedPools;
   };
 
   systemd.services.cardano-db-sync.serviceConfig = {
@@ -132,11 +233,13 @@ in {
   };
 
   systemd.services.cardano-ogmios.serviceConfig = {
-    User = "cexplorer";
+    DynamicUser = true;
+    SupplementaryGroups = "cardano-node";
   };
 
   systemd.services.cardano-rosetta-server.serviceConfig = {
-    User = "cexplorer";
+    DynamicUser = true;
+    SupplementaryGroups = "cardano-node";
   };
 
   systemd.services.cardano-graphql = {
@@ -144,8 +247,8 @@ in {
       HOME = "/run/${config.systemd.services.cardano-graphql.serviceConfig.RuntimeDirectory}";
     };
     serviceConfig = {
-      User = "cexplorer";
       RuntimeDirectory = "cardano-graphql";
+      DynamicUser = true;
     };
   };
 
@@ -160,6 +263,7 @@ in {
   systemd.services.cardano-submit-api.serviceConfig = lib.mkIf globals.withSubmitApi {
     # Put cardano-submit-api in "cardano-node" group so that it can write socket file:
     SupplementaryGroups = "cardano-node";
+    DynamicUser = true;
   };
 
   services.cardano-submit-api = lib.mkIf globals.withSubmitApi {
@@ -170,7 +274,7 @@ in {
     inherit cardanoNodePkgs;
   };
 
-  networking.firewall.allowedTCPPorts = [ 80 ];
+  networking.firewall.allowedTCPPorts = [ 80 81 ];
 
   systemd.services.dump-registered-relays-topology = let
     excludedPools = lib.concatStringsSep ", " (map (hash: "'${hash}'") globals.static.poolsExcludeList);
@@ -195,8 +299,10 @@ in {
         index=$1
         addr=$2
         port=$3
-        allAddresses=$(dig +nocookie +short -q "$addr" A)
+        allAddresses=$(dig +nocookie +short -q "$addr" A || :)
         if [ -z "$allAddresses" ]; then
+          allAddresses=$addr
+        elif [ "$allAddresses" = ";; connection timed out; no servers could be reached" ]; then
           allAddresses=$addr
         fi
 
@@ -212,14 +318,23 @@ in {
           if [ $res -eq 0 ]; then
             >&2 echo "Successfully pinged $addr:$port (on ip: $ip)"
             set +e
-            geoinfo=$(curl -s -k --retry 6 https://json.geoiplookup.io/$ip)
+            geoinfo=$(curl -s --retry 3 http://ip-api.com/json/$ip?fields=1105930)
             res=$?
             set -e
             if [ $res -eq 0 ]; then
-              continent=$(echo "$geoinfo" | jq -r '.continent_name')
-              country_code=$(echo "$geoinfo" | jq -r '.country_code')
+              status=$(echo "$geoinfo" | jq -r '.status')
+              if [ "$status" == "fail" ]; then
+                message=$(echo "$geoinfo" | jq -r '.message')
+                >&2 echo "Failed to retrieved goip info for $ip: $message"
+                exit 1
+              fi
+              continent=$(echo "$geoinfo" | jq -r '.continent')
+              country_code=$(echo "$geoinfo" | jq -r '.countryCode')
               if [ "$country_code" == "US" ]; then
-                state=$(echo $geoinfo | jq -r '.region')
+                state=$(echo $geoinfo | jq -r '.regionName')
+                if [ "$state" == "Washington, D.C." ]; then
+                  state="District of Columbia"
+                fi
               else
                 state=$country_code
               fi
@@ -241,7 +356,7 @@ in {
 
       run() {
         epoch=$(cardano-cli query tip --testnet-magic $NETWORK_MAGIC | jq .epoch)
-        db_sync_epoch=$(psql -t --command="select no from epoch_sync_time order by id desc limit 1;")
+        db_sync_epoch=$(psql -U ${cfg.postgres.user} -t --command="select no from epoch_sync_time order by id desc limit 1;")
 
         if [ $(( $epoch - $db_sync_epoch )) -gt 1 ]; then
           >&2 echo "cardano-db-sync has not catch-up with current epoch yet. Skipping."
@@ -252,16 +367,22 @@ in {
         cd $STATE_DIRECTORY
         rm -f *-relay.json
         i=0
-        for r in $(psql -t < ${extract_relays_sql} | jq -c '.[]'); do
+        for r in $(psql -U ${cfg.postgres.user} -t < ${extract_relays_sql} | jq -c '.[]'); do
           addr=$(echo "$r" | jq -r '.addr')
           port=$(echo "$r" | jq -r '.port')
-          allAddresses=$addr$'\n'$(dig +nocookie +short -q "$addr" A)
-          excludedAddresses=$(comm -12 <(echo "$allAddresses" | sort) <(echo "$excludeList"))
+          resolved=$(dig +nocookie +short -q "$addr" A || :)
+          if [ "$resolved" = ";; connection timed out; no servers could be reached" ]; then
+            sanitizedResolved=""
+          else
+            sanitizedResolved="$resolved"
+          fi
+          allAddresses=$addr$'\n'$sanitizedResolved
+          excludedAddresses=$(comm -12 <(echo -e "$allAddresses" | sort) <(echo "$excludeList"))
           nbExcludedAddresses=$(echo $excludedAddresses | wc -w)
           if [[ $nbExcludedAddresses == 0 ]]; then
             ((i+=1))
             pingAddr $i "$addr" "$port" &
-            sleep 0.5
+            sleep 1.5 # Due to rate limiting on ip-api.com
           else
             >&2 echo "$addr excluded due to dns name or IPs being in exclude list:\n$excludedAddresses"
           fi
@@ -290,13 +411,21 @@ in {
     # 3 failures at max within 24h:
     startLimitIntervalSec = 24 * 60 * 60;
     serviceConfig = {
-      User = cfg.user;
+      User = "dump-registered-relays-topology";
+      # Need for cardano-cli:
+      SupplementaryGroups = "cardano-node";
       StateDirectory = "registered-relays-dump";
       Restart = "always";
       RestartSec = "30s";
       StartLimitBurst = 3;
     };
   };
+
+  users.users.dump-registered-relays-topology = {
+    isSystemUser = true;
+    group = "dump-registered-relays-topology";
+  };
+  users.groups.dump-registered-relays-topology = {};
 
   services.nginx = {
     enable = true;
@@ -310,7 +439,10 @@ in {
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;
-    commonHttpConfig = ''
+    commonHttpConfig = let
+      smashApiKeys = import ../static/smash-keys.nix;
+      smashAllowedOrigins = lib.optionals (builtins.pathExists ../static/smash-allow-origins.nix) (import ../static/smash-allow-origins.nix);
+    in ''
       log_format x-fwd '$remote_addr - $remote_user [$time_local] '
                        '"$request" "$http_accept_language" $status $body_bytes_sent '
                        '"$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
@@ -322,6 +454,28 @@ in {
               default en;
               ~de de;
               ~ja ja;
+      }
+
+      map $arg_apiKey $api_client_name {
+        default "";
+
+        ${lib.concatStringsSep "\n" (lib.mapAttrsToList (client: key: "\"${key}\" \"${client}\";") smashApiKeys)}
+      }
+
+      map $http_origin $origin_allowed {
+        default 0;
+
+        ${lib.concatStringsSep "\n" (map (origin: "${origin} 1;") smashAllowedOrigins)}
+      }
+
+      map $sent_http_x_cache $loggable_varnish {
+        "hit cached" 0;
+        default 1;
+      }
+
+      map $origin_allowed $origin {
+        default "";
+        1 $http_origin;
       }
 
       # set search paths for pure Lua external libraries (';;' is the default path):
@@ -449,12 +603,85 @@ in {
           };
         };
       };
-    };
+    } // (lib.optionalAttrs globals.withSmash {
+      smash = {
+        listen = [ {
+          addr = "0.0.0.0";
+          port = 81;
+        }];
+        default = true;
+        locations =
+          let
+          apiKeyConfig = ''
+            if ($arg_apiKey = "") {
+                return 401; # Unauthorized (please authenticate)
+            }
+            if ($api_client_name = "") {
+                return 403; # Forbidden (invalid API key)
+            }
+          '';
+          corsConfig = ''
+            add_header 'Vary' 'Origin' always;
+            add_header 'Access-Control-Allow-Origin' $origin always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PATCH, OPTIONS' always;
+            add_header 'Access-Control-Allow-Headers' 'User-Agent,X-Requested-With,Content-Type' always;
+
+            if ($request_method = OPTIONS) {
+              add_header 'Access-Control-Max-Age' 1728000;
+              add_header 'Content-Type' 'text/plain; charset=utf-8';
+              add_header 'Content-Length' 0;
+              return 204;
+            }
+          '';
+          endpoints = [
+            "/swagger.json"
+            "/api/v1/metadata"
+            "/api/v1/errors"
+            "/api/v1/exists"
+            "/api/v1/enlist"
+            "/api/v1/delist"
+            "/api/v1/delisted"
+            "/api/v1/retired"
+            "/api/v1/status"
+            "/api/v1/tickers"
+          ];
+          in lib.recursiveUpdate (lib.genAttrs endpoints (p: {
+            proxyPass = "http://127.0.0.1:6081${p}";
+            extraConfig = corsConfig;
+          })) {
+            "/api/v1/delist".extraConfig = ''
+              ${corsConfig}
+              ${apiKeyConfig}
+            '';
+            "/api/v1/enlist".extraConfig = ''
+              ${corsConfig}
+              ${apiKeyConfig}
+            '';
+            "/api/v1/metadata".extraConfig = ''
+              ${corsConfig}
+            '';
+            "/api/v1/tickers".extraConfig = ''
+              ${corsConfig}
+              if ($request_method = GET) {
+                set $arg_apiKey "bypass";
+                set $api_client_name "bypass";
+              }
+              ${apiKeyConfig}
+            '';
+          };
+      };
+    });
   };
 
-  # Avoid flooding (and rotating too quicky) default journal with nginx logs:
-  # nginx logs: journalctl --namespace nginx
-  systemd.services.nginx.serviceConfig.LogNamespace = "nginx";
+  systemd.services.nginx.serviceConfig = {
+    # Ensure the worker processes don't hit TCP file descriptor limits
+    LimitNOFILE = 65535;
+    # Avoid flooding (and rotating too quicky) default journal with nginx logs:
+    # nginx logs: journalctl --namespace nginx
+    LogNamespace = "nginx";
+    # Access to topology.json:
+    SupplementaryGroups = "dump-registered-relays-topology";
+  };
 
   services.monitoring-exporters.extraPrometheusExporters = [
     # TODO: remove once explorer exports metrics at path `/metrics`

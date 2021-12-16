@@ -38,21 +38,26 @@ in {
   explorerAliases = [];
   explorerBackends = {
     a = globals.explorer11;
-    b = globals.explorer11;
+    b = globals.explorer12;
   };
-  explorerActiveBackends = attrNames globals.explorerBackends;
-  explorerDbSnapshots = globals.explorer11;
+  explorerActiveBackends = [ "b" ];
+  explorerDbSnapshots = globals.explorer12;
   explorer11 = {
     cardano-db-sync = sourcePaths.cardano-db-sync-11;
     cardano-graphql = sourcePaths.cardano-graphql-6;
     cardano-explorer-app = sourcePaths."cardano-explorer-app-1.6";
-    cardano-rosetta = sourcePaths.cardano-rosetta-1;
+    cardano-rosetta = sourcePaths."cardano-rosetta-1.5";
+  };
+  explorer12 = globals.explorer11 // {
+    cardano-db-sync = sourcePaths.cardano-db-sync-12;
+    cardano-graphql = sourcePaths."cardano-graphql-6.1";
+    cardano-rosetta = sourcePaths."cardano-rosetta-1.6";
+    ogmios = sourcePaths."ogmios-4.2";
   };
   explorerBackendsInContainers = false;
 
   withMonitoring = true;
   withExplorer = true;
-  withCardanoDBExtended = true;
   withSubmitApi = false;
   withFaucet = false;
   faucetHostname = "faucet";
@@ -61,6 +66,8 @@ in {
 
   withMetadata = false;
   metadataHostName = "metadata.${globals.domain}";
+
+  smashDelistedPools = [];
 
   initialPythonExplorerDBSyncDone = false;
 
@@ -125,6 +132,7 @@ in {
     globals.cardanoExplorerPrometheusExporterPort
     globals.cardanoExplorerGwPrometheusExporterPort
     globals.netdataExporterPort
+    80 # cardano-graphql-exporter
   ] ++ builtins.genList (i: globals.cardanoNodePrometheusExporterPort + i) globals.nbInstancesPerRelay;
 
   extraPrometheusBlackboxExporterModules = {
@@ -148,6 +156,7 @@ in {
   alertTcpCrit = 500 * pkgs.globals.nbInstancesPerRelay;
   alertMbpsHigh = 150 * pkgs.globals.nbInstancesPerRelay;
   alertMbpsCrit = 200 * pkgs.globals.nbInstancesPerRelay;
+  alertHighBlockUtilization = 85; # Alert if blocks are above that % full.
 
 
   # Minimal memory and cpu requirements for cardano-node:

@@ -92,7 +92,6 @@ in (rec {
 
   networkName = "Benchmarking, size ${toString (__length benchmarkingTopology.coreNodes)}";
 
-  withCardanoDBExtended = false;
   withExplorer = false;
   withMonitoring = false;
   explorerBackends = {};

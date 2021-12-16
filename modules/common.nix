@@ -30,11 +30,11 @@ in {
         isCardanoLegacyRelay = boolOption;
         isCardanoRelay = boolOption;
         isExplorer = boolOption;
+        isExplorerBackend = boolOption;
         isFaucet = boolOption;
         isMonitor = boolOption;
         isMetadata = boolOption;
         isPublicSsh = boolOption;
-        isSmash = boolOption;
       };
     };
   };

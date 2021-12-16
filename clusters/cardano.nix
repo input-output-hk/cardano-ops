@@ -79,7 +79,7 @@ let
 
         node = {
           roles = {
-            isExplorer = true;
+            isExplorerBackend = true;
             class = "explorer";
           };
           org = def.org or "IOHK";
@@ -103,24 +103,6 @@ let
         };
         org = "IOHK";
         nodeId = def.nodeId or 99;
-      };
-    } def;
-  }) // (lib.optionalAttrs globals.withSmash {
-    smash = let def = (topology.smash or {}); in mkNode {
-      deployment.ec2 = {
-        region = "eu-central-1";
-      };
-      imports = [
-        (def.instance or instances.smash)
-        cardano-ops.roles.smash
-      ];
-      node = {
-        roles = {
-          isSmash = true;
-          class = "smash";
-        };
-        nodeId = def.nodeId or 100;
-        org = "IOHK";
       };
     } def;
   }) // (lib.optionalAttrs globals.withMetadata {

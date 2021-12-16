@@ -16,6 +16,8 @@ in {
   ];
 
   # Disable services not necessary for snapshots:
+  services.smash.enable = lib.mkForce false;
+  services.varnish.enable = lib.mkForce false;
   services.cardano-ogmios.enable = lib.mkForce false;
   services.graphql-engine.enable = lib.mkForce false;
   services.cardano-graphql.enable = lib.mkForce false;
@@ -25,7 +27,6 @@ in {
 
   # Create a new snapshot every 24h (if not exist alreay):
   services.cardano-db-sync.takeSnapshot = "always";
-  systemd.services.cardano-db-sync.serviceConfig.RuntimeMaxSec = 24 * 60 * 60;
 
   environment.systemPackages = with pkgs; [
     bat fd lsof netcat ncdu ripgrep tree vim dnsutils
@@ -75,12 +76,24 @@ in {
             service = "explorer";
             tls.certResolver = "default";
           };
+          smash = {
+            rule = "Host(`smash.${globals.domain}`)";
+            service = "smash";
+            tls.certResolver = "default";
+          };
         };
         services = {
           explorer = {
             loadBalancer = {
               servers = map (b: {
                 url = "http://${backendAddr b}";
+              }) globals.explorerActiveBackends;
+            };
+          };
+          smash = {
+            loadBalancer = {
+              servers = map (b: {
+                url = "http://${backendAddr b}:81";
               }) globals.explorerActiveBackends;
             };
           };

@@ -10,7 +10,6 @@ pkgs: {
   explorerForceSSL = true;
   explorerAliases = [ "explorer.mainnet.cardano.org" "explorer.${pkgs.globals.domain}" ];
 
-  withCardanoDBExtended = true;
   withHighCapacityMonitoring = true;
   withHighCapacityExplorer = true;
   withHighLoadRelays = true;
@@ -59,4 +58,26 @@ pkgs: {
   alertChainDensityLow = "85";
 
   dbSyncSnapshotS3Bucket = "update-cardano-mainnet.iohk.io";
+
+  smashDelistedPools = [
+    "ce2e5bbae0caa514670d63cfdad3123a5d32cf7c37df87add5a0f75f"
+    "2b830258888a09e846b63474c642ad4e18aecd08dafb1f2a4d653e80"
+    "027a08f49ad5ece08e3a1575fb9cd8e8d7cf3b7815807a20b1a715f1"
+    "4eb1fac09251f8af19ad6b7e06b71cbad09dbe896b481e4670fe565d"
+    "bf44d3187cbdd8874dca1f714a6107beea642753228490bc02c8e038"
+    "00429f0a3e8c48d644a9b45babd09b86c367efe745a35b31f10e859f"
+    "8bc067247b8a85500d40d7bb78afd4de6a5fed2cfcc82c9b9c2fa8a2"
+    "e7e18f2050fa307fc9405f1d517760e894f8fbdf41a9b1b280571b38"
+    "27f4e3c309659f824026893b811dd6e70332881867cb2cba4974191c"
+    "c73186434c6fc6676bd67304d34518fc6fd7d5eaddaf78641b1e7dcf"
+    "2064da38531dad327135edd98003032cefa059c4c8c50c2b0440c63d"
+    "d9df218f8099261e019bdd304b9a40228070ce61272af835ea13d161"
+    "d7d56e1703630780176cf944a77b7829b4ba97888fa9a32468011985"
+    "82e5cb6e4b443c36b087e6218a5629291585d35083ce2cb625506e1f"
+    "0e76c44520b9d7f2e211eccd82de49350288368802c7aaa72a13c3fa"
+    "d471e981d54a7f60496f9239d2d706db7a71df8517025f478c112e3e"
+    "f537b3a5ac2ecdc854a535a15f7732632375a0bf2af17dccbe5b422d"
+    "033fa1cdc17193fa3d549e795591999621e749fd7ef48f7380468d14"
+    "47e694d52e08b1a65636c07911e7dd4282afbc555bccfda22c3c52f0"
+  ];
 }
