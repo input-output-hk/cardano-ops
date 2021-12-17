@@ -71,8 +71,8 @@ in {
       http = {
         routers = {
           rosetta = {
-            rule = lib.concatStringsSep " || "
-              (map (a: "Host(`${a}`)") ([globals.explorerHostName] ++ globals.explorerAliases) ++ ["PathPrefix(`/rosetta`)"]);
+            rule = (lib.concatStringsSep " || "
+              (map (a: "Host(`${a}`)") ([globals.explorerHostName] ++ globals.explorerAliases))) + " && PathPrefix(`/rosetta`)";
             service = "rosetta";
             tls.certResolver = "default";
           };
