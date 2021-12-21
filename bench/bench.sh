@@ -219,14 +219,6 @@ EOF
                 stop )                op_stop "$@";;
                 fetch | f )           op_stop
                                       fetch_tag "$@";;
-                analyse | a )
-                                      export tagroot=$(realpath ./runs)
-                                      analyse_tag "$@";;
-                analyse-run | arun )
-                                      export tagroot=$(realpath ./runs)
-                                      analyse_run "$@";;
-                mass-analyse | mass )
-                                      mass_analyse "$@";;
                 sanity-check | sanity | sane | check )
                                       export tagroot=$(realpath ./runs)
                                       sanity_check_tag "$@";;
@@ -381,10 +373,6 @@ bench_profile() {
         op_stop
         time fetch_run "$dir"
         oprint "concluded run:  ${tag}"
-
-        set -x
-        test -z "$no_analysis" &&
-            analyse_run "${dir}"
 
         package_run "${dir}"
 }
@@ -643,19 +631,17 @@ op_wait_for_empty_blocks() {
              return 1; fi
 }
 
-fetch_run() {
+fetch_logs() {
         local dir=${1:-.} tag components
         tag=$(run_tag "$dir")
 
-        oprint "run directory:  ${dir}"
-        pushd "${dir}" >/dev/null || return 1
+        mkdir -p "$dir"/compressed
 
         local producers
         producers=($(params producers))
         oprint "fetching logs from:  explorer ${producers[*]}"
 
-        mkdir -p "$dir"/logs
-
+        oprint_ne "..done for: "
         for mach in 'explorer' ${producers[*]}
         do nixops ssh "${mach}" -- \
              "cd /var/lib/cardano-node &&
@@ -675,11 +661,46 @@ fetch_run() {
               (journalctl --boot 0 --quiet -u cardano-node |
                head -n 100        > ${mach}.cardano-node.unit-startup.log) &&
               tar c --zstd --dereference \$(ls | grep '^db-\|^logs$' -v)
-           " | tee "$dir"/logs/logs-$mach.tar.zst | tar x --zstd -C "$dir" &
+           " |
+                tee "$dir"/compressed/logs-$mach.tar.zst |
+                tar x --zstd -C "$dir" &&
+                echo -n " $mach" >&2 &
         done
-        wait
+        wait && echo '.' >&2
+}
 
-        popd >/dev/null
+fetch_utxo() {
+    local tag=$1
+    local node=${2:-explorer}
+    local file='runs/'$tag/utxo.$node.$(date +%s).json
+
+    if nixops ssh $node -- cardano-cli query utxo --cardano-mode --whole-utxo --testnet-magic 42 --out-file '/var/lib/cardano-node/utxo'
+    then oprint "fetching UTxO from $node into $file.."
+         nixops scp --from $node '/var/lib/cardano-node/utxo' "$file" ||
+             oprint "failed to fetch UTxO from $node"
+    else oprint "failed to query UTxO on $node"
+    fi
+}
+
+fetch_ledger() {
+    local tag=$1
+    local node=${2:-explorer}
+    local file='runs/'$tag/ledger.$node.$(date +%s).json
+
+    if nixops ssh $node -- cardano-cli query utxo --cardano-mode --whole-utxo --testnet-magic 42 --out-file '/var/lib/cardano-node/utxo'
+    then oprint "fetching UTxO from $node into $file.."
+         nixops scp --from $node '/var/lib/cardano-node/utxo' "$file" ||
+             oprint "failed to fetch UTxO from $node"
+    else oprint "failed to query UTxO on $node"
+    fi
+}
+
+fetch_run() {
+        local dir=${1:-.} tag components
+        tag=$(run_tag "$dir")
+
+        oprint "run directory:  ${dir}"
+        fetch_logs "$dir"
         oprint "logs collected from run:  ${tag}"
 }
 

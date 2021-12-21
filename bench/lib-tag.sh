@@ -31,13 +31,6 @@ fetch_tag() {
         fetch_run "./runs/${tag}"
 }
 
-analyse_tag() {
-        local tag
-        tag=${1:-$(cluster_last_meta_tag)}
-
-        analyse_run "${tagroot}/${tag}" || true
-}
-
 sanity_check_tag() {
         local tag
         tag=${1:-$(cluster_last_meta_tag)}

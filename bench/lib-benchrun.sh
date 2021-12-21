@@ -49,7 +49,6 @@ process_broken_run() {
 
         op_stop
         fetch_run      "$dir"
-        analyse_run    "$dir"
         package_run    "$dir" "$(realpath ../bench-results-bad)"
 }
 
