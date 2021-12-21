@@ -1,6 +1,28 @@
 pkgs: with pkgs; with lib; with topology-lib ;
 let
 
+  # Update for early release testing
+  cardanoNode1330rc1Pkgs = import (sourcePaths.cardano-node-1-33-0rc3 + "/nix")
+    { gitrev = sourcePaths.cardano-node-1-33-0rc3.rev; };
+
+  cardanoNode132AdoptionMetricsPkgs = import (sourcePaths.cardano-node-1-32-adopt-metrics + "/nix")
+    { gitrev = sourcePaths.cardano-node-1-32-adopt-metrics.rev; };
+
+  cardanoNodeTestNodes1300Pkgs = import (sourcePaths.cardano-node-test-nodes-1-30-0 + "/nix")
+    { gitrev = sourcePaths.cardano-node-test-nodes-1-30-0.rev; };
+
+  cardanoNodeTestNodes1300Min2Pkgs = import (sourcePaths.cardano-node-test-nodes-1-30-0min2 + "/nix")
+   { gitrev = sourcePaths.cardano-node-test-nodes-1-30-0min2.rev; };
+
+  cardanoNodeTestNodes1300Min3Pkgs = import (sourcePaths.cardano-node-test-nodes-1-30-0min3 + "/nix")
+   { gitrev = sourcePaths.cardano-node-test-nodes-1-30-0min3.rev; };
+
+  cardanoNodeTestNodes1300rc3Pkgs = import (sourcePaths.cardano-node-test-nodes-1-30-0rc3 + "/nix")
+   { gitrev = sourcePaths.cardano-node-test-nodes-1-30-0rc3.rev; };
+
+  cardanoNodeTestNodes1290Pkgs = import (sourcePaths.cardano-node-test-nodes-1-29-0 + "/nix")
+   { gitrev = sourcePaths.cardano-node-test-nodes-1-29-0.rev; };
+
   regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
       minRelays = 35;
@@ -106,6 +128,27 @@ let
         };
       };
     } [ "rel-a-1" "rel-b-1" "rel-c-1" "rel-d-1" "rel-e-1" "rel-f-1" ])
+    (forNodes {
+      services.cardano-node = {
+        extraNodeInstanceConfig = i: optionalAttrs (i == 0) {
+          TraceBlockFetchClient = true;
+        };
+      };
+    } [ "rel-a-2" "rel-b-2" "rel-c-2" "rel-d-2" "rel-e-2" "rel-f-2" ])
+    (forNodes {
+      services.cardano-node = {
+        cardanoNodePkgs = cardanoNode132AdoptionMetricsPkgs;
+      };
+    } [ "rel-a-3" "rel-b-3" "rel-c-3" "rel-d-3" "rel-e-3" "rel-f-3" ])
+    # Uncomment for early release testing
+    #(forNodes {
+    #  services.cardano-node = {
+    #    cardanoNodePkgs = cardanoNode1330rc1Pkgs;
+    #  };
+    #} [ "rel-a-4" "rel-b-4" "rel-c-4" "rel-d-4" "rel-e-4" "rel-f-4" ])
+    (forNodes {
+      boot.kernel.sysctl."net.ipv4.tcp_slow_start_after_idle" = 0;
+    } [ "rel-a-5" "rel-b-5" "rel-c-5" "rel-d-5" "rel-e-5" "rel-f-5" ])
   ]) (mkRelayTopology {
       inherit regions;
       coreNodes = stakingPoolNodes;
@@ -117,6 +160,144 @@ let
 in {
 
   inherit coreNodes relayNodes regions;
+
+  privateRelayNodes = [
+    # Parallel test node for 1.30.1 testing with no profiling and -c RTS added
+    {
+      name = "memTestNode30NoProf";
+      region = regions.a.name;
+      producers = [
+        "memTestRelay"
+      ];
+      org = "IOHK";
+      nodeId = 505;
+      services.cardano-node = {
+        rtsArgs = [ "-c" ];
+        instances = mkForce 1;
+      };
+    }
+  ] ++ (map (r: recursiveUpdate r {
+    services.monitoring-exporters.metrics = false;
+  }) [
+    # Test node for when syncing is needed; should be nixops stopped during any tests on the test nodes
+    {
+      name = "memTestRelay";
+      region = regions.a.name;
+      producers = [
+        (envRegionalRelaysProducer regions.a.name 1)
+      ];
+      org = "IOHK";
+      nodeId = 500;
+      services.cardano-node = {
+        instances = mkForce 1;
+      };
+    }
+    # Initial test node
+    {
+      name = "memTestNode";
+      region = regions.a.name;
+      producers = [
+        "memTestRelay"
+      ];
+      org = "IOHK";
+      nodeId = 501;
+      services.cardano-node = {
+        cardanoNodePkgs = mkForce cardanoNodeTestNodes1290Pkgs;
+        instances = mkForce 1;
+        # profiling = "space-cost";
+      };
+    }
+    # Parallel test node for 1.30.0 testing
+    {
+      name = "memTestNode30";
+      region = regions.a.name;
+      producers = [
+        "memTestRelay"
+      ];
+      org = "IOHK";
+      nodeId = 502;
+      services.cardano-node = {
+        cardanoNodePkgs = mkForce cardanoNodeTestNodes1300Pkgs;
+        instances = mkForce 1;
+        profiling = "space-heap";
+      };
+    }
+    # Parallel test node for 1.30.0-min testing
+    {
+      name = "memTestNode30min";
+      region = regions.a.name;
+      producers = [
+        "memTestRelay"
+      ];
+      org = "IOHK";
+      nodeId = 503;
+      services.cardano-node = {
+        cardanoNodePkgs = mkForce cardanoNodeTestNodes1300Min2Pkgs;
+        instances = mkForce 1;
+        profiling = "space-heap";
+      };
+    }
+    # Parallel test node for 1.29.0 testing
+    {
+      name = "memTestNode29";
+      region = regions.a.name;
+      producers = [
+        "memTestRelay"
+      ];
+      org = "IOHK";
+      nodeId = 504;
+      services.cardano-node = {
+        cardanoNodePkgs = mkForce cardanoNodeTestNodes1290Pkgs;
+        instances = mkForce 1;
+        profiling = "space-heap";
+      };
+    }
+    # Parallel test node for 1.30.0 testing with space profiling
+    {
+      name = "memTestNode30ProfHT";
+      region = regions.a.name;
+      producers = [
+        "memTestRelay"
+      ];
+      org = "IOHK";
+      nodeId = 506;
+      # Default niv pin is at 1.30.0, so no cardanoNodePkgs change required
+      services.cardano-node = {
+        instances = mkForce 1;
+        profiling = "space-cost";
+      };
+    }
+    # Parallel test node for 1.30.0-min testing with space profiling
+    {
+      name = "memTestNode30minProfHT";
+      region = regions.a.name;
+      producers = [
+        "memTestRelay"
+      ];
+      org = "IOHK";
+      nodeId = 507;
+      services.cardano-node = {
+        cardanoNodePkgs = mkForce cardanoNodeTestNodes1300Min2Pkgs;
+        instances = mkForce 1;
+        profiling = "space-cost";
+      };
+    }
+    # Parallel test node for 1.29.0 testing with space profiling
+    {
+      name = "memTestNode29ProfHT";
+      region = regions.a.name;
+      producers = [
+        "memTestRelay"
+      ];
+      org = "IOHK";
+      nodeId = 508;
+      services.cardano-node = {
+        cardanoNodePkgs = mkForce cardanoNodeTestNodes1290Pkgs;
+        instances = mkForce 1;
+        profiling = "space-cost";
+      };
+    }
+  ]);
 
   monitoring = {
     services.monitoring-services = {
@@ -130,10 +311,19 @@ in {
     deployment.ec2.instanceType = lib.mkForce "t3a.2xlarge";
   };
 
+  explorer-a = {
+    services.cardano-db-sync = {
+      restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/11/db-sync-snapshot-schema-11-block-6531392-x86_64.tgz";
+    };
+    #services.cardano-graphql.loggerMinSeverity = "debug";
+
+  };
+
   metadata = {
     node = {
       org = "CF";
       roles.isPublicSsh = true;
     };
   };
+
 }

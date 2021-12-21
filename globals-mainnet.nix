@@ -9,6 +9,13 @@ pkgs: {
   explorerHostName = "explorer.cardano.org";
   explorerForceSSL = true;
   explorerAliases = [ "explorer.mainnet.cardano.org" "explorer.${pkgs.globals.domain}" ];
+  explorerBackends = {
+    a = pkgs.globals.explorer11;
+    b = pkgs.globals.explorer12;
+  };
+  explorerActiveBackends = [ "b" ];
+  explorerRosettaActiveBackends = ["a"];
+  explorerDbSnapshots = pkgs.globals.explorer12;
 
   withHighCapacityMonitoring = true;
   withHighCapacityExplorer = true;
