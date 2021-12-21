@@ -108,18 +108,6 @@
         "url": "https://github.com/input-output-hk/cardano-node/archive/814df2c146f5d56f8c35a681fe75e85b905aed5d.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-node-1-32-adopt-metrics": {
-        "branch": "karknu/1.32.0_block_adopion_delay",
-        "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
-        "homepage": "https://cardano.org",
-        "owner": "input-output-hk",
-        "repo": "cardano-node",
-        "rev": "4da823394ed38bb79c418644ce902eea30d0efeb",
-        "sha256": "0p4f291nfqqrk9w6alh32dsxsg26ihw9l64z29plwvk1ill6hy1z",
-        "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/4da823394ed38bb79c418644ce902eea30d0efeb.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "cardano-node-1-33-0rc3": {
         "branch": "refs/tags/1.33.0-rc1",
         "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
@@ -130,6 +118,18 @@
         "sha256": "15c8wbfbmbk6cqzc7zwxkixfr7wrvkl3bl9b7lgkdfpvp2x67fgk",
         "type": "tarball",
         "url": "https://github.com/input-output-hk/cardano-node/archive/6d4f85e640b686c375d74ba88d534ce931f61589.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "cardano-node-adopt-metrics": {
+        "branch": "karknu/1.33.0_block_adopion_delay",
+        "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
+        "homepage": "https://cardano.org",
+        "owner": "input-output-hk",
+        "repo": "cardano-node",
+        "rev": "30e16fa136321e7cce73906cc891344df364558a",
+        "sha256": "098wwwj99jqdrn3zhsyfj920hks7znxwvx4iwvkl4k0n409rpm33",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/30e16fa136321e7cce73906cc891344df364558a.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-service": {

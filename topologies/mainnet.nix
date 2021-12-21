@@ -5,8 +5,8 @@ let
   cardanoNode1330rc1Pkgs = import (sourcePaths.cardano-node-1-33-0rc3 + "/nix")
     { gitrev = sourcePaths.cardano-node-1-33-0rc3.rev; };
 
-  cardanoNode132AdoptionMetricsPkgs = import (sourcePaths.cardano-node-1-32-adopt-metrics + "/nix")
-    { gitrev = sourcePaths.cardano-node-1-32-adopt-metrics.rev; };
+  cardanoNodeAdoptionMetricsPkgs = import (sourcePaths.cardano-node-adopt-metrics + "/nix")
+    { gitrev = sourcePaths.cardano-node-adopt-metrics.rev; };
 
   cardanoNodeTestNodes1300Pkgs = import (sourcePaths.cardano-node-test-nodes-1-30-0 + "/nix")
     { gitrev = sourcePaths.cardano-node-test-nodes-1-30-0.rev; };
@@ -19,9 +19,6 @@ let
 
   cardanoNodeTestNodes1300rc3Pkgs = import (sourcePaths.cardano-node-test-nodes-1-30-0rc3 + "/nix")
    { gitrev = sourcePaths.cardano-node-test-nodes-1-30-0rc3.rev; };
-
-  cardanoNodeTestNodes1290Pkgs = import (sourcePaths.cardano-node-test-nodes-1-29-0 + "/nix")
-   { gitrev = sourcePaths.cardano-node-test-nodes-1-29-0.rev; };
 
   regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
@@ -137,7 +134,7 @@ let
     } [ "rel-a-2" "rel-b-2" "rel-c-2" "rel-d-2" "rel-e-2" "rel-f-2" ])
     (forNodes {
       services.cardano-node = {
-        cardanoNodePkgs = cardanoNode132AdoptionMetricsPkgs;
+        cardanoNodePkgs = cardanoNodeAdoptionMetricsPkgs;
       };
     } [ "rel-a-3" "rel-b-3" "rel-c-3" "rel-d-3" "rel-e-3" "rel-f-3" ])
     # Uncomment for early release testing
