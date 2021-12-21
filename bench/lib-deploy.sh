@@ -230,10 +230,5 @@ op_fetch_utxo() {
     local file='runs/'$tag/utxo.$(date +%s).json
 
     oprint "querying UTxO on $node.."
-    if nixops ssh $node -- cardano-cli query utxo --cardano-mode --whole-utxo --testnet-magic 42 --out-file '/var/lib/cardano-node/utxo'
-    then oprint "fetching UTxO from $node into $file.."
-         nixops scp --from $node '/var/lib/cardano-node/utxo' "$file" ||
-             oprint "failed to fetch UTxO from $node"
-    else oprint "failed to query UTxO on $node"
-    fi
+    fetch_utxo "$(cluster_last_meta_tag)" 'explorer'
 }
