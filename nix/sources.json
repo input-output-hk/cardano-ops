@@ -157,15 +157,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rosetta-1.6": {
-        "branch": "refs/tags/1.6.0",
+        "branch": "refs/tags/1.6.1",
         "description": "An implementation of Rosetta for Cardano ",
         "homepage": "https://www.rosetta-api.org",
         "owner": "input-output-hk",
         "repo": "cardano-rosetta",
-        "rev": "7b4f610c44a87708523b993081af78025be06f85",
-        "sha256": "1ra09yvy917dzyillzcldxac0kcnm9hb9kw7dg78kn7s5lfz8lz6",
+        "rev": "d21b40ab21cf8804a33a36454271c8f3a688a4d1",
+        "sha256": "10pf7crjn6x287k53gppfmbgy6xsr1yf4fak962wjywxq6x6vxab",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/7b4f610c44a87708523b993081af78025be06f85.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/d21b40ab21cf8804a33a36454271c8f3a688a4d1.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-wallet": {

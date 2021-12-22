@@ -14,7 +14,6 @@ pkgs: {
     b = pkgs.globals.explorer12;
   };
   explorerActiveBackends = [ "b" ];
-  explorerRosettaActiveBackends = ["a"];
   explorerDbSnapshots = pkgs.globals.explorer12;
 
   withHighCapacityMonitoring = true;
