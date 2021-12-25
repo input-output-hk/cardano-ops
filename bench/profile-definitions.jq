@@ -204,6 +204,25 @@ def utxo_delegators_density_profiles:
     , generator: { scriptMode: true }
     , node: { rts_flags_override: ["-C0", "-A32m", "-n1m", "-AL512M"] } }
 
+  , { desc: "rtsflags: cache fitting extreme"
+    , generator: { scriptMode: true }
+    , node: { rts_flags_override: ["-A1m"] } }
+  , { desc: "rtsflags: cache fitting extreme + parallelism"
+    , generator: { scriptMode: true }
+    , node: { rts_flags_override: ["-A1m", "-N4"] } }
+  , { desc: "rtsflags: cache fitting hard"
+    , generator: { scriptMode: true }
+    , node: { rts_flags_override: ["-A2m"] } }
+  , { desc: "rtsflags: cache fitting hard + parallelism"
+    , generator: { scriptMode: true }
+    , node: { rts_flags_override: ["-A2m", "-N4"] } }
+  , { desc: "rtsflags: cache fitting"
+    , generator: { scriptMode: true }
+    , node: { rts_flags_override: ["-A4m"] } }
+  , { desc: "rtsflags: cache fitting + higher parallelism"
+    , generator: { scriptMode: true }
+    , node: { rts_flags_override: ["-A4m", "-N4"] } }
+
   , { desc: "regression, March 2022 data set sizes"
     , genesis: { utxo: 6000000, delegators: 1500000 }
     , generator: { scriptMode: false } }
