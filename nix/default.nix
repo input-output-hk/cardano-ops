@@ -61,7 +61,32 @@ let
     varnish60Packages = super.varnish60Packages // {
       modules = (self.callPackages ../pkgs/varnish/modules.nix { varnish = self.varnish60Packages.varnish; }).modules15;
     };
-    prometheus-varnish-exporter = self.callPackage ../pkgs/prometheus-varnish-exporter {};
+    prometheus-varnish-exporter = super.prometheus-varnish-exporter.override {
+      buildGoModule = args: self.buildGoModule (args // rec {
+        version = "1.6.1";
+        src = self.fetchFromGitHub {
+          owner = "jonnenauha";
+          repo = "prometheus_varnish_exporter";
+          rev = version;
+          sha256 = "15w2ijz621caink2imlp1666j0ih5pmlj62cbzggyb34ncl37ifn";
+        };
+        vendorSha256 = "sha256-P2fR0U2O0Y4Mci9jkAMb05WR+PrpuQ59vbLMG5b9KQI=";
+      });
+    };
+  };
+
+  traefik-overlay = self: super: {
+    traefik = super.traefik.override {
+      buildGoModule = args: self.buildGoModule (args // rec {
+        version = "2.5.6";
+        src = self.fetchzip {
+          url = "https://github.com/traefik/traefik/releases/download/v${version}/traefik-v${version}.src.tar.gz";
+          sha256 = "sha256-HHJTfAigUH7C0VuKUeGypqFlQwVdy05Ki/aTxDsl+tg=";
+          stripRoot = false;
+        };
+        vendorSha256 = "sha256-DqjqJPyoFlCjIIaHYS5jrROQWDxZk+RGfccC2jYZ8LE=";
+      });
+    };
   };
 
   # our own overlays:
@@ -102,6 +127,7 @@ let
       upstream-overlay
       nginx-overlay
       varnish-overlay
+      traefik-overlay
       globalsOverlay
       globals.overlay
     ];
