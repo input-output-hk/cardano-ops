@@ -11,18 +11,6 @@
         "url": "https://github.com/turnkeylinux/aws-datacenters/archive/a7106906e60969e917e555fd770454f72c78bb75.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-db-sync-11": {
-        "branch": "refs/tags/11.0.4",
-        "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
-        "homepage": "",
-        "owner": "input-output-hk",
-        "repo": "cardano-db-sync",
-        "rev": "b5cd53d2e86f45127d98de429e8a2b6879fd8a56",
-        "sha256": "1vv3qraflklh1az3niy50f5wa14x8iq2r4gvkjr4ldsklgn8fknf",
-        "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/b5cd53d2e86f45127d98de429e8a2b6879fd8a56.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "cardano-db-sync-12": {
         "branch": "refs/tags/12.0.1-pre1",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
@@ -70,19 +58,6 @@
         "type": "tarball",
         "url": "https://github.com/input-output-hk/cardano-faucet/archive/cd00d79764792a095ae653aa29f0601028a650be.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "cardano-graphql-6": {
-        "branch": "refs/tags/6.0.0",
-        "description": "GraphQL API for Cardano",
-        "homepage": "",
-        "owner": "input-output-hk",
-        "repo": "cardano-graphql",
-        "rev": "6d496ae07f119c7bbcc0e1d6521897287941ca47",
-        "sha256": "0zviahwwspwpxk693w3saph8p94afm9v11g39cmcpcnlh0kbbvxd",
-        "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/6d496ae07f119c7bbcc0e1d6521897287941ca47.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
-        "version": "cc7f4ddf78182fb14c8d34516e6c72408ad3eb35o"
     },
     "cardano-graphql-6.1": {
         "branch": "6-1-stable",
@@ -142,18 +117,6 @@
         "sha256": "0wir5ljxw608lp7r0mhvnk7xypb7s4i6id66ga30vcsr2v14nh6q",
         "type": "tarball",
         "url": "https://github.com/input-output-hk/cardano-node/archive/f3dfc1d63ad184dca77331384cbc4d9d54311962.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "cardano-rosetta-1.5": {
-        "branch": "refs/tags/1.5.0",
-        "description": "An implementation of Rosetta for Cardano ",
-        "homepage": "https://www.rosetta-api.org",
-        "owner": "input-output-hk",
-        "repo": "cardano-rosetta",
-        "rev": "5c453a69b3f103a4580389a229cf9e651f5d0ef5",
-        "sha256": "0sy77przvhjslfl2fchg7plwxxscdhc88dbkvbrhdh9s2qlynbhv",
-        "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/5c453a69b3f103a4580389a229cf9e651f5d0ef5.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rosetta-1.6": {

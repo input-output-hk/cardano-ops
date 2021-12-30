@@ -37,19 +37,14 @@ in {
   explorerForceSSL = true;
   explorerAliases = [];
   explorerBackends = {
-    a = globals.explorer11;
+    a = globals.explorer12;
     b = globals.explorer12;
   };
-  explorerActiveBackends = [ "b" ];
+  explorerActiveBackends = [ "a" "b" ];
   explorerRosettaActiveBackends = globals.explorerActiveBackends;
   explorerDbSnapshots = globals.explorer12;
-  explorer11 = {
-    cardano-db-sync = sourcePaths.cardano-db-sync-11;
-    cardano-graphql = sourcePaths.cardano-graphql-6;
+  explorer12 = {
     cardano-explorer-app = sourcePaths."cardano-explorer-app-1.6";
-    cardano-rosetta = sourcePaths."cardano-rosetta-1.5";
-  };
-  explorer12 = globals.explorer11 // {
     cardano-db-sync = sourcePaths.cardano-db-sync-12;
     cardano-graphql = sourcePaths."cardano-graphql-6.1";
     cardano-rosetta = sourcePaths."cardano-rosetta-1.6";
