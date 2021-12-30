@@ -6,7 +6,7 @@ pkgs: with pkgs.iohkNix.cardanoLib; with pkgs.globals; {
   withFaucet = true;
 
   explorerBackends = {
-    a = explorer11;
+    a = explorer12;
   };
   explorerBackendsInContainers = true;
 
