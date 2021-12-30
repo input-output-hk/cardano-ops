@@ -288,7 +288,7 @@ in {
       ) t;
     '';
     relays_exclude_file = builtins.toFile "relays-exclude.txt" (lib.concatStringsSep "\n" globals.static.relaysExcludeList);
-  in {
+  in lib.mkIf config.services.nginx.enable {
     path = config.environment.systemPackages
       ++ [ config.services.postgresql.package jq netcat curl dnsutils ];
     environment = config.environment.variables;
