@@ -66,7 +66,6 @@ in {
 
   services.varnish = {
     enable = globals.withSmash;
-    extraModules = [ pkgs.varnish-modules ];
     extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 4)}M";
     config = ''
       vcl 4.1;

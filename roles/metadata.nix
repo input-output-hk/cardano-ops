@@ -121,7 +121,7 @@ in {
 
   services.varnish = {
     enable = true;
-    extraModules = [ pkgs.varnish-modules ];
+    extraModules = [ pkgs.varnishPackages.modules ];
     extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 3)}M";
     config = ''
       vcl 4.1;

@@ -22,8 +22,7 @@ in pkgs.lib.fix (self: {
       nginxExplorer
       node-update
       prometheus-varnish-exporter
-      varnish
-      varnish-modules
+      varnishPackages.modules
     ];
   };
 })
