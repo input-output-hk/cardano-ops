@@ -147,6 +147,8 @@ in
       };
       extraServiceConfig = _: {
         serviceConfig = {
+          # Allow time to uncompress when restoring db
+          TimeoutStartSec = "1h";
           MemoryMax = "${toString (1.15 * cfg.totalMaxHeapSizeMbytes / cfg.instances)}M";
           LimitNOFILE = "65535";
         };
@@ -163,7 +165,8 @@ in
         fi
       '';
       serviceConfig = {
-        TimeoutStartSec = "5min";
+        # Allow time to uncompress when restoring db
+        TimeoutStartSec = "1h";
       };
     };
 
