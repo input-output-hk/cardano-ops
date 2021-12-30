@@ -176,6 +176,8 @@ in {
       else "Using ${toString actualNbInstances} cardano-node instances per relay: ${configMessage}")
       actualNbInstances;
 
+  metadataVarnishTtl = 30;
+
   # disk allocation for system (GBytes):
   systemDiskAllocationSize = 15;
 

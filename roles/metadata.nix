@@ -221,9 +221,9 @@ in {
       }
 
       sub vcl_backend_response {
-        set beresp.ttl = 30m;
+        set beresp.ttl = ${toString globals.metadataVarnishTtl}m;
         if (beresp.status == 404) {
-          set beresp.ttl = 20m;
+          set beresp.ttl = ${toString (2 * globals.metadataVarnishTtl / 3)}m;
         }
       }
     '';

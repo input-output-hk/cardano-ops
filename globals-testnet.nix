@@ -34,10 +34,10 @@ pkgs: {
   # Trigger relay topology refresh 12 hours before next epoch
   relayUpdateHoursBeforeNextEpoch = 12;
   dbSyncSnapshotPeriod = "15d";
-
   dbSyncSnapshotArgs = "-e devops@iohk.io";
+  dbSyncSnapshotS3Bucket = "updates-cardano-testnet";
 
   alertChainDensityLow = "50";
 
-  dbSyncSnapshotS3Bucket = "updates-cardano-testnet";
+  metadataVarnishTtl = 15;
 }
