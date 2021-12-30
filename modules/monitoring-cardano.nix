@@ -40,14 +40,14 @@ in {
     }
     {
       alert = "chain_quality_degraded";
-      expr = "(cardano_node_metrics_density_real / on(alias) cardano_node_genesis_activeSlotsCoeff * 100) < ${chainDensityLow}";
+      expr = "quantile(0.2, (cardano_node_metrics_density_real / on(alias) cardano_node_genesis_activeSlotsCoeff * 100)) < ${chainDensityLow}";
       for = "5m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "{{$labels.alias}}: Degraded Chain Density (<${chainDensityLow}%).";
-        description = "{{$labels.alias}}: Degraded Chain Density (<${chainDensityLow}%).";
+        summary = "Degraded Chain Density: more than 20% of nodes have low chain density (<${chainDensityLow}%).";
+        description = "Degraded Chain Density: more than 20% of nodes have low chain density (<${chainDensityLow}%).";
       };
     }
     {
@@ -64,14 +64,14 @@ in {
     }
     {
       alert = "mempoolsize_tx_count_too_large";
-      expr = "max_over_time(cardano_node_metrics_txsInMempool_int[5m]) > ${memPoolHigh}";
+      expr = "quantile(0.5, max_over_time(cardano_node_metrics_txsInMempool_int[5m])) > ${memPoolHigh}";
       for = "10m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "{{$labels.alias}}: MemPoolSize tx count is larger than expected (>${memPoolHigh}).";
-        description = "{{$labels.alias}}: When a node's MemPoolSize grows larger than the system can handle, transactions will be dropped. The actual thresholds for that in mainnet are unknown, but [based on benchmarks done beforehand](https://input-output-rnd.slack.com/archives/C2VJ41WDP/p1506563332000201) transactions started getting dropped when the MemPoolSize was ~200 txs.";
+        summary = "MemPoolSize tx count is larger than expected (>${memPoolHigh}) for more than 50% of nodes.";
+        description = "When a node's MemPoolSize grows larger than the system can handle, transactions will be dropped. The actual thresholds for that in mainnet are unknown, but [based on benchmarks done beforehand](https://input-output-rnd.slack.com/archives/C2VJ41WDP/p1506563332000201) transactions started getting dropped when the MemPoolSize was ~200 txs.";
       };
     }
     {
