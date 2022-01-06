@@ -56,9 +56,18 @@ let
 
   varnish-overlay = self: super: {
     varnish70Packages = super.varnish70Packages // {
+      varnish = super.varnish70Packages.varnish.overrideAttrs (oA: {
+        # Work-around excessive malloc overhead (https://github.com/varnishcache/varnish-cache/issues/3511#issuecomment-773889001)
+        buildInputs = oA.buildInputs ++ [ self.jemalloc ];
+        buildFlags = oA.buildFlags ++ [ "JEMALLOC_LDADD=${self.jemalloc}/lib/libjemalloc.so" ];
+      });
       modules = (self.callPackages ../pkgs/varnish/modules.nix { varnish = self.varnish70Packages.varnish; }).modules19;
     };
     varnish60Packages = super.varnish60Packages // {
+      varnish = super.varnish60Packages.varnish.overrideAttrs (oA: {
+        buildInputs = oA.buildInputs ++ [ self.jemalloc ];
+        buildFlags = oA.buildFlags ++ [ "JEMALLOC_LDADD=${self.jemalloc}/lib/libjemalloc.so" ];
+      });
       modules = (self.callPackages ../pkgs/varnish/modules.nix { varnish = self.varnish60Packages.varnish; }).modules15;
     };
     prometheus-varnish-exporter = super.prometheus-varnish-exporter.override {
