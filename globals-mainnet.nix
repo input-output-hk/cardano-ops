@@ -13,7 +13,7 @@ pkgs: {
     a = pkgs.globals.explorer12;
     b = pkgs.globals.explorer12;
   };
-  explorerActiveBackends = [ "b" ];
+  explorerActiveBackends = [ "a" "b" ];
   explorerDbSnapshots = pkgs.globals.explorer12;
 
   withHighCapacityMonitoring = true;
