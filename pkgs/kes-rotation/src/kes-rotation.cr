@@ -173,7 +173,7 @@ class KesRotate
     #p! monitoringNodes
     #p! networkAttrs
 
-    if scriptCmdPrivate("curl -sL #{LATEST_CARDANO_URL} | grep https | grep download | grep -oP '=\"\\K[^\"]+'").success?
+    if scriptCmdPrivate("curl -sL #{LATEST_CARDANO_URL} | grep https | grep download | grep -m1 -oP '=\"\\K[^\"]+'").success?
       latestReportUrl = IO_CMD_OUT.to_s.strip
       IO_TEE_OUT.puts "latestReportUrl: #{latestReportUrl}"
     else
