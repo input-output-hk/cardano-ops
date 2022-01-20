@@ -51,6 +51,18 @@ in {
       };
     }
     {
+      alert = "blocks adoption delay too high";
+      expr = "avg(cardano_node_metrics_blockadoption_cdfFive_real) < 0.95";
+      for = "6h";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "Blocks adoption delay have been above 5s for more than 5% of blocks";
+        description = "Blocks adoption delay have been above 5s for more than 5% of blocks for more than 6 hours";
+      };
+    }
+    {
       alert = "blocks_utilization_too_high";
       expr = "100 * avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize[4h]) / on(alias) (cardano_node_protocol_maxBlockBodySize + cardano_node_protocol_maxBlockHeaderSize)) > ${highBlockUtilization}";
       for = "5m";
