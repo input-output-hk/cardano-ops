@@ -52,14 +52,14 @@ in {
     }
     {
       alert = "blocks adoption delay too high";
-      expr = "avg(cardano_node_metrics_blockadoption_cdfFive_real) < 0.95";
-      for = "6h";
+      expr = "avg(quantile_over_time(0.95, cardano_node_metrics_blockadoption_forgeDelay_real[6h])) >= 4.5";
+      for = "1m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "Blocks adoption delay have been above 5s for more than 5% of blocks";
-        description = "Blocks adoption delay have been above 5s for more than 5% of blocks for more than 6 hours";
+        summary = "Blocks adoption delay have been above 4.5s for more than 5% of blocks";
+        description = "Node average of blocks adoption delay have been above 4.5s for more than 5% of blocks for more than 6 hours";
       };
     }
     {
