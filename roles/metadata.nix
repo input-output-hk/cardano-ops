@@ -297,8 +297,8 @@ in {
             proxyPass = "http://$upstream_location";
             extraConfig = corsConfig;
            })) {
-           # Add varnish caching for all request on `/metadata/query` endpoint
-           "/metadata/query".proxyPass = "http://127.0.0.1:6081";
+           # Uncomment to add varnish caching for all request on `/metadata/query` endpoint:
+           # "/metadata/query".proxyPass = "http://127.0.0.1:6081";
            "/metadata/query".extraConfig = ''
              limit_req zone=metadataQueryPerIP burst=20 nodelay;
              ${corsConfig}

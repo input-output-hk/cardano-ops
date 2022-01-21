@@ -168,15 +168,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "offchain-metadata-tools": {
-        "branch": "master",
+        "branch": "deps-bump",
         "description": "Tools for creating, submitting, and managing off-chain metadata such as multi-asset token metadata",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "offchain-metadata-tools",
-        "rev": "c8d665e0b21237df5a42c53b77f481a3c48e31c6",
-        "sha256": "0vykysrnkkyixqs6pg0111flhx81xpcwa87b63mf7vml27b9h7yy",
+        "rev": "5ed1b19f1d1329a60bafeb12c31edc3e42669a99",
+        "sha256": "12gm3rwd1diadhvc7djwf9n891b5kknbid8zayjaslf82pb327gp",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/offchain-metadata-tools/archive/c8d665e0b21237df5a42c53b77f481a3c48e31c6.tar.gz",
+        "url": "https://github.com/input-output-hk/offchain-metadata-tools/archive/5ed1b19f1d1329a60bafeb12c31edc3e42669a99.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ogmios": {
