@@ -1718,6 +1718,84 @@
           "legendFormat": "Asia Pacific (Tokyo) P50",
           "queryType": "randomWalk",
           "refId": "F"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "exemplar": true,
+          "expr": "avg(quantile_over_time(0.95,cardano_node_metrics_blockfetchclient_blockdelay_s{alias=~\"rel-a-.*\"}[15m]))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Europe (Frankfurt) P95",
+          "queryType": "randomWalk",
+          "refId": "G"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "exemplar": true,
+          "expr": "avg(quantile_over_time(0.95,cardano_node_metrics_blockfetchclient_blockdelay_s{alias=~\"rel-b-.*\"}[15m]))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "US East (Ohio) P95",
+          "queryType": "randomWalk",
+          "refId": "H"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "exemplar": true,
+          "expr": "avg(quantile_over_time(0.95,cardano_node_metrics_blockfetchclient_blockdelay_s{alias=~\"rel-c-.*\"}[15m]))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Asia Pacific (Singapore) P95",
+          "queryType": "randomWalk",
+          "refId": "I"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "exemplar": true,
+          "expr": "avg(quantile_over_time(0.95,cardano_node_metrics_blockfetchclient_blockdelay_s{alias=~\"rel-d-.*\"}[15m]))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Europe (London) P95",
+          "queryType": "randomWalk",
+          "refId": "J"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "exemplar": true,
+          "expr": "avg(quantile_over_time(0.95,cardano_node_metrics_blockfetchclient_blockdelay_s{alias=~\"rel-e-.*\"}[15m]))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "US West (N. California) P95",
+          "queryType": "randomWalk",
+          "refId": "K"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "exemplar": true,
+          "expr": "avg(quantile_over_time(0.95,cardano_node_metrics_blockfetchclient_blockdelay_s{alias=~\"rel-f-.*\"}[15m]))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Asia Pacific (Tokyo) P95",
+          "queryType": "randomWalk",
+          "refId": "L"
         }
       ],
       "title": "Block propagation delay (seconds) - last 15 min",
