@@ -28,14 +28,14 @@ in {
     }
     {
       alert = "High cardano ping latency";
-      expr = "quantile_over_time(0.95, cardano_ping_latency_ms[1h:1m]) > 50";
-      for = "15m";
+      expr = "quantile_over_time(0.95, cardano_ping_latency_ms[100m:1m]) > 100";
+      for = "20m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "{{$labels.alias}}: Cardano ping P95 latency has been above 50 milliseconds";
-        description = "{{$labels.alias}}: Cardano ping P95 latency has been above 50 milliseconds for the last 15 minutes.";
+        summary = "{{$labels.alias}}: Cardano ping P95 latency has been above 100 milliseconds";
+        description = "{{$labels.alias}}: Cardano ping P95 latency has been above 100 milliseconds for the last 2 hours.";
       };
     }
     {
@@ -64,7 +64,7 @@ in {
     }
     {
       alert = "blocks_utilization_too_high";
-      expr = "100 * avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize[4h]) / on(alias) (cardano_node_protocol_maxBlockBodySize + cardano_node_protocol_maxBlockHeaderSize)) > ${highBlockUtilization}";
+      expr = "100 * avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize[6h]) / on(alias) (cardano_node_protocol_maxBlockBodySize + cardano_node_protocol_maxBlockHeaderSize)) > ${highBlockUtilization}";
       for = "5m";
       labels = {
         severity = "page";
