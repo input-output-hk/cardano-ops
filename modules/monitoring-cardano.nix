@@ -71,7 +71,7 @@ in {
       };
       annotations = {
         summary = "Blocks utilization above ${highBlockUtilization}% - follow process in description.";
-        description = "Blocks utilization has been above ${highBlockUtilization}% on average for more than 4h. Follow process at https://docs.google.com/document/d/1H42XpVp5YKUfKTcfyV_YJP5nM2N5D9eU_0MvFbXXp0E";
+        description = "Blocks utilization has been above ${highBlockUtilization}% on average for more than 6h. Follow process at https://docs.google.com/document/d/1H42XpVp5YKUfKTcfyV_YJP5nM2N5D9eU_0MvFbXXp0E";
       };
     }
     {
