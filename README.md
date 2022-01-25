@@ -147,3 +147,5 @@ Choose the one that corresponds to the required query and then copy as
 `cURL` and execute it at the command line. It should also be possible
 to use this in a programming language such as Python.
 
+# DB Sync Best Practices
+The database used in Cardano DB Sync is a PostgreSQL database. Like all databases, it needs to be set up in the best way for the intended environment. For more information, see the [recommendation from the developers](https://docs.google.com/document/d/1dzINT5a-FSF4apgx8-VXSaqPTHMZmtJ1rPvY0MKS6Ak/edit?usp=sharing).
