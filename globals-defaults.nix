@@ -195,7 +195,7 @@ in {
       metadata = r5-2xlarge;
       explorer = if globals.withHighCapacityExplorer
                  then c5-9xlarge
-                 else t3a-xlarge;
+                 else t3a-2xlarge;
       explorer-gw = if globals.withHighCapacityExplorer
                     then c5-4xlarge
                     else t3a-xlarge;
