@@ -161,10 +161,10 @@
         "homepage": null,
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "573095944e7c1d58d30fc679c81af63668b54056",
-        "sha256": "07s5cwhskqvy82b4rld9b14ljc0013pig23i3jx3l3f957rk95pg",
+        "rev": "b3d86c56c786ad9530f1400adbd4dfac3c42877b",
+        "sha256": "09nslcjdgwwb6j9alxrsnq1wvhifq1nmzl2w02l305j0wsmgdial",
         "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/573095944e7c1d58d30fc679c81af63668b54056.tar.gz",
+        "url": "https://github.com/NixOS/nixpkgs/archive/b3d86c56c786ad9530f1400adbd4dfac3c42877b.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "offchain-metadata-tools": {
@@ -209,10 +209,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "36634f57504660e57d3ba5d943611565101ff3bf",
-        "sha256": "0m1dx4yvcxc3c3gazbz6xfn4gh812wh229rcx630qrv8s0jldbpk",
+        "rev": "c12558d54c9306b6917821e3e594148e4bd1eac4",
+        "sha256": "1ic2i2jhnmyxg2fvh5wy4b3wmn9akc6xvzgzjblfxxhmksayfhzl",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/36634f57504660e57d3ba5d943611565101ff3bf.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/c12558d54c9306b6917821e3e594148e4bd1eac4.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
