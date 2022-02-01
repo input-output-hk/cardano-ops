@@ -22,7 +22,7 @@ in {
     cardano-ops.modules.cardano-postgres
     cardano-ops.modules.base-service
     ((sourcePaths.cardano-db-sync-service or (getSrc "cardano-db-sync")) + "/nix/nixos")
-    ((getSrc "ogmios") + "/nix/nixos")
+    (flake-compat { src = (getSrc "ogmios");}).defaultNix.nixosModule
     ((getSrc "cardano-graphql") + "/nix/nixos")
     ((getSrc "cardano-rosetta") + "/nix/nixos")
   ];
@@ -156,7 +156,7 @@ in {
   services.cardano-ogmios = {
     enable = true;
     nodeConfig = cardanoNodeConfigPath;
-    nodeSocketPath = nodeCfg.socketPath;
+    nodeSocket = nodeCfg.socketPath;
     hostAddr = "127.0.0.1";
   };
 

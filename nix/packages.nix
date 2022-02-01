@@ -196,4 +196,6 @@ self: super: with self; {
   s3cmd = (super.s3cmd.overrideAttrs (old: {
     makeWrapperArgs = (old.makeWrapperArgs or []) ++ ["--unset" "PYTHONPATH"];
   }));
+
+  flake-compat = import sourcePaths.flake-compat;
 }

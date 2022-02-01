@@ -1,9 +1,9 @@
-pkgs: {
+pkgs: with pkgs; {
 
   deploymentName = "shelley-qa";
   environmentName = "shelley_qa";
 
-  relaysNew = pkgs.globals.environmentConfig.relaysNew;
+  relaysNew = globals.environmentConfig.relaysNew;
 
   withFaucet = true;
   withExplorer = true;
