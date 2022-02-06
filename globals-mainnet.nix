@@ -39,7 +39,7 @@ pkgs: {
   minMemoryPerInstance = 10;
 
   # GB per node instance
-  nodeDbDiskAllocationSize = 35;
+  nodeDbDiskAllocationSize = 50;
 
   ec2 = {
     credentials = {
