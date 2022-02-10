@@ -11,6 +11,18 @@
         "url": "https://github.com/turnkeylinux/aws-datacenters/archive/a7106906e60969e917e555fd770454f72c78bb75.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "aws-regions": {
+        "branch": "master",
+        "description": "AWS Regions and Availability Zones",
+        "homepage": "",
+        "owner": "jsonmaur",
+        "repo": "aws-regions",
+        "rev": "2b0706bf481b6c54e814ea03f9bfa4c3608ef738",
+        "sha256": "1bsg2bdlgdpsw5bdyhsqrcrpqa0m66ljr1b7p9riskdwb16f3nr0",
+        "type": "tarball",
+        "url": "https://github.com/jsonmaur/aws-regions/archive/2b0706bf481b6c54e814ea03f9bfa4c3608ef738.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-db-sync-12": {
         "branch": "refs/tags/12.0.2",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
@@ -156,15 +168,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-service": {
-        "branch": "p2p-master",
+        "branch": "ipv6/p2p-master-1.34.1",
         "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
         "homepage": "https://cardano.org",
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "f3dfc1d63ad184dca77331384cbc4d9d54311962",
-        "sha256": "0wir5ljxw608lp7r0mhvnk7xypb7s4i6id66ga30vcsr2v14nh6q",
+        "rev": "bfc2a20dfd83033995ce247435644074aa2257cf",
+        "sha256": "0xbjvgq34mddw61a10yfghdb05xyqwmfl5fid2s0h1k9czlzzxdr",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/f3dfc1d63ad184dca77331384cbc4d9d54311962.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/bfc2a20dfd83033995ce247435644074aa2257cf.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-rosetta-1.6": {
@@ -239,6 +251,30 @@
         "url": "https://github.com/NixOS/nix/archive/ffe155abd36366a870482625543f9bf924a58281.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "nixops-aws": {
+        "branch": "ipv6",
+        "description": "Nixops AWS Backend Plugin",
+        "homepage": null,
+        "owner": "input-output-hk",
+        "repo": "nixops-aws",
+        "rev": "eac7647187b70077b2e1a08dd6cc02f5f156b5a4",
+        "sha256": "1y9x15z3b8y1smv9c7rpsjmi3xs8abg3xk7r7ar4jj7njbarbfaf",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/nixops-aws/archive/eac7647187b70077b2e1a08dd6cc02f5f156b5a4.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "nixops-core": {
+        "branch": "nixops-core-pr-int",
+        "description": "NixOps, the NixOS-based cloud deployment tool",
+        "homepage": "http://nixos.org/",
+        "owner": "input-output-hk",
+        "repo": "nixops",
+        "rev": "e8499dbf13fe4c1d2a88f0f706104b25783673ef",
+        "sha256": "1adhwlinlakfidw5p5ah8my1v5r3ahjhxj2l89b8vn8spfddpdvx",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/nixops/archive/e8499dbf13fe4c1d2a88f0f706104b25783673ef.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "nixpkgs": {
         "branch": "nixos-21.11",
         "description": "Nix Packages collection",
@@ -293,10 +329,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "c12558d54c9306b6917821e3e594148e4bd1eac4",
-        "sha256": "1ic2i2jhnmyxg2fvh5wy4b3wmn9akc6xvzgzjblfxxhmksayfhzl",
+        "rev": "b882aa093d50e896ea7cd600456992278706a2a4",
+        "sha256": "1h9clg6044wk05xa7p8av2qdp8kh4s9j3r6jrmfahfi7xi7mswad",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/c12558d54c9306b6917821e3e594148e4bd1eac4.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/b882aa093d50e896ea7cd600456992278706a2a4.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

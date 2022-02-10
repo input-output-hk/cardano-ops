@@ -58,11 +58,12 @@ in {
 
   services.cardano-node = {
     inherit cardanoNodePkgs;
-    allProducers = if (globals.topology.relayNodes != [] || (globals.deploymentName != globals.environmentName))
-        then [ (topology-lib.envRegionalRelaysProducer config.deployment.ec2.region 2) ]
+    allProducers = let regionalEnvProducers = [ (topology-lib.envRegionalRelaysProducer (config.deployment.ec2.region or globals.defaultRegion) 2) ];
+      in if (globals.topology.relayNodes != [] || (globals.deploymentName != globals.environmentName))
+        then regionalEnvProducers
         else if (globals.topology.coreNodes != [])
         then (map (n: n.name) globals.topology.coreNodes)
-        else [ (topology-lib.envRegionalRelaysProducer config.deployment.ec2.region 2) ];
+        else regionalEnvProducers;
     totalMaxHeapSizeMbytes = 0.25 * config.node.memory * 1024;
   };
 

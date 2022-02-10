@@ -30,6 +30,7 @@ let
     addrs = map (n: {
       addr = let a = n.addr or n; in if (nodes ? ${a}) then hostName a else a;
       port = n.port or nodePort;
+    } // lib.optionalAttrs (!cfg.useNewTopology) {
       valency = n.valency or 1;
     }) producers;
     valency = length producers;
@@ -46,8 +47,8 @@ let
 
   instanceProducers = i: map toNormalizedProducerGroup (filter (g: length g != 0) [
       (concatMap (i: map (p: {
-        addr = cfg.ipv6HostAddr;
-        port = cfg.port + p;
+        addr = lib.elemAt config.deployment.ec2.ipv6Addresses p;
+        port = cfg.port;
       }) i.producers) (filter (x: x.name == i) intraInstancesTopologies))
       (producerShare i sameRegionRelays)
       (producerShare (cfg.instances - i - 1) otherRegionRelays)
@@ -119,7 +120,9 @@ in
       environment = globals.environmentName;
       cardanoNodePkgs = lib.mkDefault cardanoNodePkgs;
       inherit hostAddr nodeId instanceProducers instancePublicProducers;
-      ipv6HostAddr = mkIf (cfg.instances > 1) "::1";
+      ipv6HostAddr = mkIf (config.deployment.ec2.ipv6Addresses or [] != [])
+        (i: lib.elemAt config.deployment.ec2.ipv6Addresses i);
+      #additionalListenStream = mkIf (cfg.instances > 1) (i: ["[::1]:${toString (cfg.port + i)}"]);
       producers = mkDefault [];
       publicProducers = mkDefault [];
       port = nodePort;

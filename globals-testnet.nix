@@ -1,10 +1,13 @@
 pkgs: {
 
   deploymentName = "testnet";
+  environmentName = "testnet";
 
   dnsZone = "${pkgs.globals.domain}";
 
   domain = "cardano-testnet.iohkdev.io";
+
+  disabledAvailabilityZones = ["us-west-1b"];
 
   withSubmitApi = true;
   withFaucet = true;
@@ -16,10 +19,6 @@ pkgs: {
   faucetHostname = "faucet";
 
   initialPythonExplorerDBSyncDone = true;
-
-  environmentName = "testnet";
-
-  topology = import ./topologies/testnet.nix pkgs;
 
   ec2 = {
     credentials = {

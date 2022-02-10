@@ -21,7 +21,6 @@ let
 
   otherNodes = (lib.optionalAttrs globals.withMonitoring {
     monitoring = let def = (topology.monitoring or {}); in mkNode {
-      deployment.ec2.region = def.region or "eu-central-1";
       imports = [
         (def.instance or instances.monitoring)
         iohk-ops-lib.roles.monitor
@@ -46,9 +45,9 @@ let
     explorer = let def = (topology.explorer or {}); in mkNode {
       _file = ./cardano.nix;
       deployment.ec2 = {
-        region = def.region or "eu-central-1";
         ebsInitialRootDiskSize = lib.mkIf globals.explorerBackendsInContainers
           (if globals.withHighCapacityExplorer then 1000 else 100);
+        zone = def.zone or (lib.last (lib.subtractLists globals.disabledAvailabilityZones aws-regions.${def.region or globals.defaultRegion}.zones));
       };
       imports = [
         (def.instance or (if globals.explorerBackendsInContainers
@@ -71,8 +70,7 @@ let
       (let def = (topology."explorer-${z}" or {}); in mkNode {
         _file = ./cardano.nix;
         deployment.ec2 = rec {
-          region = def.region or "eu-central-1";
-          zone = "${region}${z}";
+          zone = def.zone or "${globals.defaultRegion}${z}";
           ebsInitialRootDiskSize = (if globals.withHighCapacityExplorer then 1000 else 100);
         };
         imports = [
@@ -94,7 +92,6 @@ let
     snapshots = let def = (topology.snapshots or {}); in mkNode {
       _file = ./cardano.nix;
       deployment.ec2 = {
-        region = def.region or "eu-central-1";
         ebsInitialRootDiskSize = if globals.withHighCapacityExplorer then 1000 else 100;
       };
       imports = [
@@ -113,9 +110,6 @@ let
     } def;
   }) // (lib.optionalAttrs globals.withFaucet {
     "${globals.faucetHostname}" = let def = (topology.${globals.faucetHostname} or {}); in mkNode {
-      deployment.ec2 = {
-        region = "eu-central-1";
-      };
       imports = [
         (def.instance or instances.faucet)
         cardano-ops.roles.faucet
@@ -131,9 +125,6 @@ let
     } def;
   }) // (lib.optionalAttrs globals.withMetadata {
     metadata = let def = (topology.metadata or {}); in mkNode {
-      deployment.ec2 = {
-        region = "eu-central-1";
-      };
       imports = [
         (def.instance or instances.metadata)
         cardano-ops.roles.metadata
@@ -164,7 +155,6 @@ let
           inherit isCardanoDensePool;
         };
       };
-      deployment.ec2.region = def.region;
       imports = [
         (def.instance or (if isCardanoDensePool
           then instances.dense-pool
@@ -189,7 +179,6 @@ let
         inherit (def) org nodeId;
       };
       services.cardano-node.allProducers = def.producers;
-      deployment.ec2.region = def.region;
       imports = [(def.instance or instances.relay-node)] ++ (
         if highLoad
         then [cardano-ops.roles.relay-high-load]
@@ -206,7 +195,6 @@ let
         inherit (def) org;
         roles.class = "test";
       };
-      deployment.ec2.region = def.region;
       imports = [
         (def.instance or instances.test-node)
         cardano-ops.roles.load-client
@@ -223,9 +211,6 @@ let
       org = def.org or "IOHK";
       nodeId = def.nodeId or 99;
     };
-    deployment.ec2 = {
-      region = def.region or "eu-central-1";
-    };
     imports = [(def.instance or instances.core-node)];
   } def;
 
@@ -233,6 +218,10 @@ let
     recursiveUpdate (
       recursiveUpdate {
         deployment.targetEnv = instances.targetEnv;
+        deployment.ec2 = rec {
+          region = def.region or globals.defaultRegion;
+          zone = def.zone or (lib.head (lib.subtractLists globals.disabledAvailabilityZones aws-regions.${region}.zones));
+        };
         nixpkgs.pkgs = pkgs;
       } (args // {
         imports = (args.imports or []) ++ (def.imports or []);
@@ -242,6 +231,7 @@ let
         "name"
         "org"
         "region"
+        "zone"
         "nodeId"
         "producers"
         "staticRoutes"

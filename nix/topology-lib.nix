@@ -303,6 +303,8 @@ pkgs: with pkgs; with lib; rec {
     relay2
   ];
 
+  stateAwsAffinityIndex = builtins.fromJSON (builtins.readFile (pkgs.aws-affinity-indexes + "/state-index.json"));
+
   thirdPartyRelaysByRegions = let regions' = mapAttrsToList (_: r: r.name) regions; in {
     # Regions were relays will be deployed (at least one if minRelays not defined), eg.:
     # ["eu-central-1" "us-east-2"];
@@ -310,8 +312,6 @@ pkgs: with pkgs; with lib; rec {
   }: let
 
     defaultRegion = head regions;
-
-    stateAwsAffinityIndex = builtins.fromJSON (builtins.readFile (pkgs.aws-affinity-indexes + "/state-index.json"));
 
     allocateRegion = bestRegion: if (builtins.elem bestRegion regions) then bestRegion else allocateRegion (regionsSubstitutes.${bestRegion} or
           (builtins.trace "WARNING: relay affected to unknown 'region': ${bestRegion} (to be added in 'regionsSubstitutes'). Using ${defaultRegion})" defaultRegion));
@@ -435,6 +435,27 @@ pkgs: with pkgs; with lib; rec {
           # Ensure every relay inside the region is as connected as possible within `maxInRegionPeers`:
          (connectNodesWithin maxInRegionPeers relaysForRegion)
       ) indexedRegions));
+
+  readAvailabilityZones = nixops-export-json:
+    let
+      inherit (lib.head (lib.attrValues (builtins.fromJSON (builtins.readFile nixops-export-json))))
+        resources;
+      nodes = filterAttrs (_: v: v ? "ec2.zone") resources;
+    in mapAttrs (n: v: v."ec2.zone") nodes;
+
+
+  withAvailabilityZone = overrides: nodes: let
+    byRegions = groupBy (n: n.region) nodes;
+    withZones = mapAttrs (region: imap0 (idx: node:
+      node // {
+        zone = node.zone or overrides.${node.name} or (
+          let zones = subtractLists globals.disabledAvailabilityZones aws-regions.${region}.zones;
+          in elemAt zones (lib.mod idx (lib.length zones)));
+      }
+    )) byRegions;
+    byName = groupBy (n: n.name) (concatLists (attrValues withZones));
+  in
+    map (n: head byName.${n.name}) nodes;
 
   /* Generate n batches (if possible) of relay nodes, as a list of lists of node names,
      in a way that minimize impact on connectivity within each regions.

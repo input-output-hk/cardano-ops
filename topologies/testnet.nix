@@ -32,9 +32,9 @@ let
     (mkStakingPool "a" 2 "" { nodeId = 7; })
   ];
 
-  coreNodes = stakingPoolNodes;
+  coreNodes = withAvailabilityZone {} stakingPoolNodes;
 
-  relayNodes = map (composeAll [
+  relayNodes = withAvailabilityZone {} (map (composeAll [
     (forNodes {
       services.cardano-node = {
         extraNodeInstanceConfig = i: optionalAttrs (i == 0) {
@@ -47,7 +47,7 @@ let
     autoscaling = false;
     maxProducersPerNode = 20;
     maxInRegionPeers = 5;
-  });
+  }));
 
 in {
   inherit coreNodes relayNodes regions;

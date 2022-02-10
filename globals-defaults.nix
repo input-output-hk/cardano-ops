@@ -14,6 +14,10 @@ in {
   deploymentName = "${builtins.baseNameOf ./.}";
   deploymentPath = "$HOME/${globals.deploymentName}";
 
+  defaultRegion = "eu-central-1";
+
+  disabledAvailabilityZones = [];
+
   relayUpdateArgs = "-m 1";
   relayUpdatePeriod = "weekly";
 
@@ -108,6 +112,7 @@ in {
       NB_BFT_NODES = toString (builtins.length bftNodes);
       POOL_NODES = toString (map (x: x.name) stkNodes);
       NB_POOL_NODES = toString (builtins.length stkNodes);
+      RELAY_NODES = toString (map (x: x.name) globals.topology.relayNodes);
 
       GENESIS_PATH = toString genesisFile;
       # Network parameters.
@@ -235,4 +240,6 @@ in {
       then large
       else medium;
   };
+
+  nixops-plugins = [ "nixops-aws" ];
 }

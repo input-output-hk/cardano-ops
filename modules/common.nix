@@ -12,6 +12,7 @@ in {
 
   config = {
     services.monitoring-exporters.logging = false;
+    networking.enableIPv6 = true;
   };
 
   options = {

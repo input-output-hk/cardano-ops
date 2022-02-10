@@ -25,7 +25,7 @@ let
   nixpkgs = if (sourcesOverride ? nixpkgs) then sourcesOverride.nixpkgs else defaultNixpkgs;
 
   # overlays from ops-lib (include ops-lib sourcePaths):
-  ops-lib-overlays = (import sourcePaths.ops-lib { withRustOverlays = false; }).overlays;
+  ops-lib-overlays = (import sourcePaths.ops-lib { withRustOverlays = false; sourcesOverride = sourcePaths; }).overlays;
   nginx-overlay = self: super: let
     acceptLanguage = {
       src = self.fetchFromGitHub {

@@ -1,4 +1,4 @@
-{ region, org, pkgs, nodes, lib, ... }:
+{ region, org, pkgs, nodes, lib, ... }@args:
 with lib;
 let
   inherit (pkgs.globals) cardanoNodePort topology;
@@ -21,6 +21,4 @@ let
     ++ (lib.optional (nodes ? explorer && relayNodes == []) "explorer");
 in
   pkgs.iohk-ops-lib.physical.aws.security-groups.allow-to-tcp-port
-    "cardano" cardanoNodePort peers {
-      inherit region org pkgs;
-    }
+    "cardano" cardanoNodePort peers args
