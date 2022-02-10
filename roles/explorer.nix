@@ -221,14 +221,15 @@ in {
 
   systemd.services.dump-registered-relays-topology = let
     excludedPools = lib.concatStringsSep ", " (map (hash: "'${hash}'") globals.static.poolsExcludeList);
+    excludeRegex = ''(localhost)|(^0\..*)|(^10\..*)|(^100\.6[4-9]\..*)|(^100\.[7-9]\d\..*)|(^100\.1[0-1]\d\..*)|(^100\.12[0-7]\..*)|(^127\..*)|(^169\.254\..*)|(^172\.1[6-9]\..*)|(^172\.2[0-9]\..*)|(^172\.3[0-1]\..*)|(^192\.0\.0\..*)|(^192\.0\.2\..*)|(^192\.88\.99\..*)|(^192\.168\..*)|(^198\.1[8-9]\..*)|(^198\.51\.100\..*)|(^203.0\.113\..*)|(^22[4-9]\..*)|(^23[0-9]\..*)|(^24[0-9]\..*)|(^25[0-5]\..*)|(^::1$)|(^[fF][cCdD].*)|(^[fF][eE]80.*)'';
     extract_relays_sql = writeText "extract_relays.sql" ''
       select array_to_json(array_agg(row_to_json(t))) from (
-        select COALESCE(ipv4, dns_name) as addr, port from (
-          select min(update_id) as update_id, ipv4, dns_name, port from pool_relay inner join pool_update ON pool_update.id = pool_relay.update_id inner join pool_hash ON pool_update.hash_id = pool_hash.id where ${lib.optionalString (globals.static.poolsExcludeList != []) "pool_hash.view not in (${excludedPools}) and "}(
-            (ipv4 is null and dns_name NOT LIKE '% %') or ipv4 !~ '(^0\.)|(^10\.)|(^100\.6[4-9]\.)|(^100\.[7-9]\d\.)|(^100\.1[0-1]\d\.)|(^100\.12[0-7]\.)|(^127\.)|(^169\.254\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.0\.0\.)|(^192\.0\.2\.)|(^192\.88\.99\.)|(^192\.168\.)|(^198\.1[8-9]\.)|(^198\.51\.100\.)|(^203.0\.113\.)|(^22[4-9]\.)|(^23[0-9]\.)|(^24[0-9]\.)|(^25[0-5]\.)')
-            group by ipv4, dns_name, port order by update_id
+        select COALESCE(NULLIF(regexp_replace("dns_name", '${excludeRegex}' , 'NULL'), 'NULL'), NULLIF(regexp_replace("ipv4", '${excludeRegex}', 'NULL'), 'NULL'), NULLIF(regexp_replace("ipv6", '${excludeRegex}', 'NULL'), 'NULL')) as addr, port from (
+          select min(update_id) as update_id, dns_name, ipv4, ipv6, port from pool_relay inner join pool_update ON pool_update.id = pool_relay.update_id inner join pool_hash ON pool_update.hash_id = pool_hash.id
+          ${lib.optionalString (globals.static.poolsExcludeList != []) "where pool_hash.view not in (${excludedPools})"}
+            group by dns_name, ipv4, ipv6, port order by update_id
         ) t
-      ) t;
+      ) t where addr is not null;
     '';
     relays_exclude_file = builtins.toFile "relays-exclude.txt" (lib.concatStringsSep "\n" globals.static.relaysExcludeList);
   in lib.mkIf config.services.nginx.enable {
@@ -243,9 +244,7 @@ in {
         addr=$2
         port=$3
         allAddresses=$(dig +nocookie +short -q "$addr" A || :)
-        if [ -z "$allAddresses" ]; then
-          allAddresses=$addr
-        elif [ "$allAddresses" = ";; connection timed out; no servers could be reached" ]; then
+        if [ -z "$allAddresses" ] || [ "$allAddresses" = ";; connection timed out; no servers could be reached" ]; then
           allAddresses=$addr
         fi
 
@@ -313,7 +312,7 @@ in {
         for r in $(psql -U ${cfg.postgres.user} -t < ${extract_relays_sql} | jq -c '.[]'); do
           addr=$(echo "$r" | jq -r '.addr')
           port=$(echo "$r" | jq -r '.port')
-          resolved=$(dig +nocookie +short -q "$addr" A || :)
+          resolved=$(dig +nocookie +short -q "$addr" A -q "$addr" AAAA || :)
           if [ "$resolved" = ";; connection timed out; no servers could be reached" ]; then
             sanitizedResolved=""
           else

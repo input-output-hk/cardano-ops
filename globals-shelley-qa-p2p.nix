@@ -4,7 +4,6 @@ pkgs: {
 
   environmentName = "shelley_qa";
 
-  relaysNew = "relays.${pkgs.globals.domain}";
   nbInstancesPerRelay = 1;
 
   withExplorer = false;

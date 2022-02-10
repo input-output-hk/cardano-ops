@@ -1,4 +1,4 @@
-{ region, org, pkgs, lib, ... }:
+{ region, org, pkgs, lib, ... }@args:
 with lib; {
   "allow-to-explorer-backends" = { resources, ... }: {
     inherit region;
@@ -11,5 +11,7 @@ with lib; {
       toPort = 81;
       sourceIp = resources.elasticIPs."explorer-ip";
     }];
+  } // optionalAttrs (args ? vpcId) {
+    vpcId = resources.vpc.${args.vpcId};
   };
 }

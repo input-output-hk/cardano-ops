@@ -16,11 +16,11 @@ let
     };
   };
 
-  nodes = with regions; map (composeAll [
+  nodes = with regions; withAvailabilityZone {} (map (composeAll [
     (withAutoRestartEvery 6)
     (withModule {
       services.cardano-node = {
-        asserts = true;
+        #asserts = true;
         systemdSocketActivation = mkForce false;
       };
     })
@@ -28,7 +28,7 @@ let
     (mkStakingPoolNodes "d" 1 "a" "P2P1" { org = "IOHK"; nodeId = 1; })
     (mkStakingPoolNodes "e" 2 "b" "P2P2" { org = "IOHK"; nodeId = 2; })
     (mkStakingPoolNodes "f" 3 "c" "P2P3" { org = "IOHK"; nodeId = 3; })
-  ]);
+  ]));
 
   relayNodes = filter (n: !(n ? stakePool)) nodes;
 

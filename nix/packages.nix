@@ -65,6 +65,11 @@ self: super: with self; {
     jq -s 'add' $out/countries-index.json $out/usa-index.json > $out/state-index.json
   '';
 
+  aws-regions = let
+    regions = builtins.fromJSON (builtins.readFile (sourcePaths.aws-regions + "/regions.json"));
+  in
+    lib.groupBy' (_: lib.id) {} (r: r.code) regions;
+
   topology-lib = import ./topology-lib.nix self;
 
   relayUpdateTimer =

@@ -14,9 +14,9 @@ let
     (mkStakingPool "c" 1 "IOHK3" { nodeId = 3; })
   ];
 
-  coreNodes = map (withAutoRestartEvery 6) stakingPoolNodes;
+  coreNodes = withAvailabilityZone {} (map (withAutoRestartEvery 6) stakingPoolNodes);
 
-  relayNodes = map (composeAll [
+  relayNodes = withAvailabilityZone {} (map (composeAll [
     (withAutoRestartEvery 6)
     #(withProfiling "time" ["rel-a-1"])
   ]) (mkRelayTopology {
@@ -24,7 +24,7 @@ let
     autoscaling = false;
     maxProducersPerNode = 20;
     maxInRegionPeers = 5;
-  });
+  }));
 
 in {
 

@@ -4,6 +4,7 @@ pkgs: with pkgs; {
   environmentName = "shelley_qa";
 
   relaysNew = globals.environmentConfig.relaysNew;
+  disabledAvailabilityZones = ["ap-northeast-1b" "us-west-1a" "ap-northeast-1c"];
 
   withFaucet = true;
   withExplorer = true;
