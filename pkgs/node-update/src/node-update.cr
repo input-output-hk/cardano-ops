@@ -77,7 +77,7 @@ class RelayUpdate
       updateAbort("Unable to process the deployment name from the globals file.")
     end
 
-    if runCmdVerbose("nix eval --raw '(with import ./#{PATH_MOD}/nix {}; \"https://${globals.explorerHostName}/relays/topology.json\")'").success?
+    if runCmdVerbose("nix eval --impure --raw --expr '(with import ./#{PATH_MOD}/nix {}; \"https://${globals.explorerHostName}/relays/topology.json\")'").success?
       @explorerUrl = IO_CMD_OUT.to_s
     else
       updateAbort("Unable to process the explorer fqdn name from the globals file.")
@@ -289,25 +289,25 @@ class RelayUpdate
       end
     end
 
-    if runCmdVerbose("nix eval --json '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix))'").success?
+    if runCmdVerbose("nix eval --impure --json --expr '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix))'").success?
       network = Array(String).from_json(IO_CMD_OUT.to_s)
     else
       updateAbort("Unable to process the attribute names from the deployment.")
     end
 
-    if runCmdVerbose("nix eval --json '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix).resources.ec2SecurityGroups)'").success?
+    if runCmdVerbose("nix eval --impure --json --expr '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix).resources.ec2SecurityGroups)'").success?
       securityGroups = Array(String).from_json(IO_CMD_OUT.to_s)
     else
       updateAbort("Unable to process the ec2SecurityGroups attribute names from the deployment.")
     end
 
-    if runCmdVerbose("nix eval --json '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix).resources.elasticIPs)'").success?
+    if runCmdVerbose("nix eval --impure --json --expr '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix).resources.elasticIPs)'").success?
       elasticIps = Array(String).from_json(IO_CMD_OUT.to_s)
     else
       updateAbort("Unable to process the elasticIPs attribute names from the deployment.")
     end
 
-    if runCmdVerbose("nix eval --json '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix).resources.route53RecordSets)'").success?
+    if runCmdVerbose("nix eval --impure --json --expr '(__attrNames (import #{PATH_MOD}/deployments/cardano-aws.nix).resources.route53RecordSets)'").success?
       route53RecordSets = Array(String).from_json(IO_CMD_OUT.to_s)
     else
       updateAbort("Unable to process the route53RecordSets attribute names from the deployment.")
@@ -344,7 +344,7 @@ class RelayUpdate
 
     if (@deployOnlyOpt.empty?)
 
-      if runCmdVerbose("nix eval --json \"(((import ./nix {}).topology-lib.nbBatches #{@maxNodesOpt}))\"").success?
+      if runCmdVerbose("nix eval --impure --json --expr \"(((import ./nix {}).topology-lib.nbBatches #{@maxNodesOpt}))\"").success?
         nbBatchWithSizeConstraint = IO_CMD_OUT.to_s.to_i
       else
         updateAbort("Unable to process the min number of batches.")
@@ -352,7 +352,7 @@ class RelayUpdate
 
       nbBatches = Math.max(nbBatchWithSizeConstraint, @minBatchesOpt)
 
-      if runCmdVerbose("nix eval --json \"(((import ./nix {}).topology-lib.genRelayBatches #{nbBatches}))\"").success?
+      if runCmdVerbose("nix eval --impure --json --expr \"(((import ./nix {}).topology-lib.genRelayBatches #{nbBatches}))\"").success?
         deployBatches = Array(Array(String)).from_json(IO_CMD_OUT.to_s)
       else
         updateAbort("Unable to process the relays deploy batches from the deployment.")
