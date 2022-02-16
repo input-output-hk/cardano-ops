@@ -170,8 +170,7 @@ deploy_resources() {
 }
 
 op_stop() {
-        nixops ssh-for-each --parallel "systemctl stop cardano-node 2>/dev/null || true" &
-        nixops ssh-for-each --parallel "systemctl stop systemd-journald 2>/dev/null || true" &
+        nixops ssh-for-each --parallel 'systemctl stop cardano-node 2>/dev/null || true; systemctl stop systemd-journald 2>/dev/null || true' &
         wait
 }
 

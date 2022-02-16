@@ -420,9 +420,9 @@ op_bench_start() {
 
         oprint_ne "waiting until local node socket is up:  "
         while ! { nixops ssh explorer -- journalctl -u cardano-node |
-                      grep "LocalSocketUp" >/dev/null; }
+                      grep "LocalHandshakeTrace" >/dev/null; }
         do sleep 1; echo -ne "."; done
-        echo "LocalSocketUp seen"
+        echo "LocalHandshakeTrace seen"
 
         if nixops ssh "$canary" -- journalctl -u cardano-node |
            grep "TraceNoLedgerView" >/dev/null
@@ -444,7 +444,6 @@ op_bench_start() {
                ret=$?
              }
         op_fetch_utxo
-        op_stop
 
         return $ret
 }
