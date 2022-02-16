@@ -174,66 +174,45 @@ def profile_name($compo; $gsis; $gtor; $node; $gsis_defs):
   + if $alzoHFAt != null and $alzoHFAt != 0
     then [ "alzo@\($alzoHFAt)" ]
     else [] end
-  + if $gtor.scriptMode
-    then if $gtor.plutusMode
-        then [ ($gtor.plutusScript | rtrimstr(".plutus"))
-             , ($gtor.plutusData | tostring)
-             ]
-        else ["scr"] end
-    else ["cli"] end
+  + if $gtor.plutusMode
+    then [ ($gtor.plutusScript | rtrimstr(".plutus"))
+         , ($gtor.plutusData | tostring)
+         ]
+    else [] end
   + if $node.rts_flags_override == [] then []
     else ["RTS", ($node.rts_flags_override | join(""))] end
   | join("-");
 
 def utxo_delegators_density_profiles:
-  [ { desc: "regression, October 2021 data set sizes"
-    , generator: { scriptMode: false } }
-
-  , { desc: "regression, October 2021 data set sizes"
-    , generator: { scriptMode: true } }
+  [ { desc: "regression, October 2021 data set sizes" }
 
     , { desc: "rtsflags: batch1, best CPU/mem"
-    , generator: { scriptMode: true }
     , node: { rts_flags_override: ["-H4G", "-M6553M", "-c70"] } }
 
   , { desc: "rtsflags: batch1, better mem, costlier CPU"
-    , generator: { scriptMode: true }
     , node: { rts_flags_override: ["-H4G", "-M6553M"] } }
 
   , { desc: "rtsflags: suggestion from PR 3399"
-    , generator: { scriptMode: true }
     , node: { rts_flags_override: ["-C0", "-A32m", "-n1m", "-AL512M"] } }
 
   , { desc: "rtsflags: cache fitting extreme"
-    , generator: { scriptMode: true }
     , node: { rts_flags_override: ["-A1m"] } }
   , { desc: "rtsflags: cache fitting extreme + parallelism"
-    , generator: { scriptMode: true }
     , node: { rts_flags_override: ["-A1m", "-N4"] } }
   , { desc: "rtsflags: cache fitting hard"
-    , generator: { scriptMode: true }
     , node: { rts_flags_override: ["-A2m"] } }
   , { desc: "rtsflags: cache fitting hard + parallelism"
-    , generator: { scriptMode: true }
     , node: { rts_flags_override: ["-A2m", "-N4"] } }
   , { desc: "rtsflags: cache fitting"
-    , generator: { scriptMode: true }
     , node: { rts_flags_override: ["-A4m"] } }
   , { desc: "rtsflags: cache fitting + higher parallelism"
-    , generator: { scriptMode: true }
     , node: { rts_flags_override: ["-A4m", "-N4"] } }
 
   , { desc: "regression, March 2022 data set sizes"
-    , genesis: { utxo: 6000000, delegators: 1500000 }
-    , generator: { scriptMode: false } }
-
-  , { desc: "regression, March 2022 data set sizes"
-    , genesis: { utxo: 6000000, delegators: 1500000 }
-    , generator: { scriptMode: true } }
+    , genesis: { utxo: 6000000, delegators: 1500000 } }
 
   , { desc: "Plutus return-success"
-    , generator: { scriptMode: true
-                 , plutusMode: true
+    , generator: { plutusMode: true
                  , plutusScript: "always-succeeds-spending.plutus"
 		 , plutusData: 0
 		 , plutusRedeemer: 0
@@ -244,7 +223,6 @@ def utxo_delegators_density_profiles:
     , generator: { inputs_per_tx:           1
                  , outputs_per_tx:          1
 		 , tx_count:             7500
-                 , scriptMode: true
                  , plutusMode: true
                  , plutusScript: "sum.plutus"
                  , plutusData: 1144
@@ -258,7 +236,6 @@ def utxo_delegators_density_profiles:
     , generator: { inputs_per_tx:           1
                  , outputs_per_tx:          1
                  , tx_count:               80
-                 , scriptMode: true
                  , plutusMode: true
                  , plutusScript: "sum.plutus"
                  , plutusData: 3304
@@ -271,7 +248,6 @@ def utxo_delegators_density_profiles:
     , generator: { inputs_per_tx:           1
                  , outputs_per_tx:          1
 		 , tx_count:             7500
-                 , scriptMode: true
                  , plutusMode: true
                  , plutusScript: "sum.plutus"
                  , plutusData: 3304
@@ -284,7 +260,6 @@ def utxo_delegators_density_profiles:
     , generator: { inputs_per_tx:           1
                  , outputs_per_tx:          1
 		 , tx_count:              100
-                 , scriptMode:           true
                  , plutusMode:           true
                  , plutusAutoMode:       true
                  }
@@ -295,7 +270,6 @@ def utxo_delegators_density_profiles:
         , outputs_per_tx:          1
         , epochs:                  7
         , tx_count:            14000 # 8000eplen * 7eps / 20blockfreq * 5tx/block
-        , scriptMode:           true
         , plutusMode:           true
         , plutusAutoMode:       true
         }
@@ -306,7 +280,6 @@ def utxo_delegators_density_profiles:
         , outputs_per_tx:          1
         , epochs:                  7
         , tx_count:            14000 # 8000eplen * 7eps / 20blockfreq * 5tx/block
-        , scriptMode:           true
         , plutusMode:           true
         , plutusAutoMode:       true
         }
@@ -325,7 +298,6 @@ def utxo_delegators_density_profiles:
         , outputs_per_tx:          1
         , epochs:                  7
         , tx_count:            14000 # 8000eplen * 7eps / 20blockfreq * 5tx/block
-        , scriptMode:           true
         , plutusMode:           true
         , plutusAutoMode:       true
         }
@@ -381,7 +353,6 @@ def aux_profiles($compo):
     }
   , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1
                , init_cooldown: 25, finish_patience: 4
-               , scriptMode: true
                }
   }
 , { name: "smoke-epoch"
@@ -395,7 +366,6 @@ def aux_profiles($compo):
     }
   , generator: { tx_count:   (9 * 6000)
                , init_cooldown: 25, finish_patience: 1000
-               , scriptMode: true
                }
   }
 , { name: "smoke-dense-large"
