@@ -3,7 +3,6 @@ with pkgs;
 let
 
   chainDensityLow = globals.alertChainDensityLow;
-  memPoolHigh = globals.alertMemPoolHigh;
   tcpHigh = toString globals.alertTcpHigh;
   tcpCrit = toString globals.alertTcpCrit;
   MbpsHigh = toString globals.alertMbpsHigh;
@@ -28,14 +27,14 @@ in {
     }
     {
       alert = "High cardano ping latency";
-      expr = "quantile_over_time(0.95, cardano_ping_latency_ms[100m:1m]) > 100";
+      expr = "quantile_over_time(0.95, cardano_ping_latency_ms[100m:1m]) > 200";
       for = "20m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "{{$labels.alias}}: Cardano ping P95 latency has been above 100 milliseconds";
-        description = "{{$labels.alias}}: Cardano ping P95 latency has been above 100 milliseconds for the last 2 hours.";
+        summary = "{{$labels.alias}}: Cardano ping P95 latency has been above 200 milliseconds";
+        description = "{{$labels.alias}}: Cardano ping P95 latency has been above 200 milliseconds for the last 2 hours.";
       };
     }
     {
@@ -72,18 +71,6 @@ in {
       annotations = {
         summary = "Blocks utilization above ${highBlockUtilization}% - follow process in description.";
         description = "Blocks utilization has been above ${highBlockUtilization}% on average for more than 6h. Follow process at https://docs.google.com/document/d/1H42XpVp5YKUfKTcfyV_YJP5nM2N5D9eU_0MvFbXXp0E";
-      };
-    }
-    {
-      alert = "mempoolsize_tx_count_too_large";
-      expr = "quantile(0.5, max_over_time(cardano_node_metrics_txsInMempool_int[5m])) > ${memPoolHigh}";
-      for = "10m";
-      labels = {
-        severity = "page";
-      };
-      annotations = {
-        summary = "MemPoolSize tx count is larger than expected (>${memPoolHigh}) for more than 50% of nodes.";
-        description = "When a node's MemPoolSize grows larger than the system can handle, transactions will be dropped. The actual thresholds for that in mainnet are unknown, but [based on benchmarks done beforehand](https://input-output-rnd.slack.com/archives/C2VJ41WDP/p1506563332000201) transactions started getting dropped when the MemPoolSize was ~200 txs.";
       };
     }
     {
