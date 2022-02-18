@@ -161,22 +161,22 @@
         "homepage": null,
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "573095944e7c1d58d30fc679c81af63668b54056",
-        "sha256": "07s5cwhskqvy82b4rld9b14ljc0013pig23i3jx3l3f957rk95pg",
+        "rev": "b3d86c56c786ad9530f1400adbd4dfac3c42877b",
+        "sha256": "09nslcjdgwwb6j9alxrsnq1wvhifq1nmzl2w02l305j0wsmgdial",
         "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/573095944e7c1d58d30fc679c81af63668b54056.tar.gz",
+        "url": "https://github.com/NixOS/nixpkgs/archive/b3d86c56c786ad9530f1400adbd4dfac3c42877b.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "offchain-metadata-tools": {
-        "branch": "jbgi/better-readBatch",
+        "branch": "deps-bump",
         "description": "Tools for creating, submitting, and managing off-chain metadata such as multi-asset token metadata",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "offchain-metadata-tools",
-        "rev": "279b1f1f1162745995cc25d83d860e69ace748e6",
-        "sha256": "1lf1qrzqkhdbsdcmq58zh8j43f3h29lhq0gfklrj3n5xnzg5lzba",
+        "rev": "5ed1b19f1d1329a60bafeb12c31edc3e42669a99",
+        "sha256": "12gm3rwd1diadhvc7djwf9n891b5kknbid8zayjaslf82pb327gp",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/offchain-metadata-tools/archive/279b1f1f1162745995cc25d83d860e69ace748e6.tar.gz",
+        "url": "https://github.com/input-output-hk/offchain-metadata-tools/archive/5ed1b19f1d1329a60bafeb12c31edc3e42669a99.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ogmios": {
@@ -209,10 +209,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "36634f57504660e57d3ba5d943611565101ff3bf",
-        "sha256": "0m1dx4yvcxc3c3gazbz6xfn4gh812wh229rcx630qrv8s0jldbpk",
+        "rev": "c12558d54c9306b6917821e3e594148e4bd1eac4",
+        "sha256": "1ic2i2jhnmyxg2fvh5wy4b3wmn9akc6xvzgzjblfxxhmksayfhzl",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/36634f57504660e57d3ba5d943611565101ff3bf.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/c12558d54c9306b6917821e3e594148e4bd1eac4.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

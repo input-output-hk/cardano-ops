@@ -28,14 +28,14 @@ in {
     }
     {
       alert = "High cardano ping latency";
-      expr = "quantile_over_time(0.95, cardano_ping_latency_ms[1h:1m]) > 50";
-      for = "15m";
+      expr = "quantile_over_time(0.95, cardano_ping_latency_ms[100m:1m]) > 100";
+      for = "20m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "{{$labels.alias}}: Cardano ping P95 latency has been above 50 milliseconds";
-        description = "{{$labels.alias}}: Cardano ping P95 latency has been above 50 milliseconds for the last 15 minutes.";
+        summary = "{{$labels.alias}}: Cardano ping P95 latency has been above 100 milliseconds";
+        description = "{{$labels.alias}}: Cardano ping P95 latency has been above 100 milliseconds for the last 2 hours.";
       };
     }
     {
@@ -51,15 +51,27 @@ in {
       };
     }
     {
+      alert = "blocks adoption delay too high";
+      expr = "avg(quantile_over_time(0.95, cardano_node_metrics_blockadoption_forgeDelay_real[6h])) >= 4.5";
+      for = "1m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "Blocks adoption delay have been above 4.5s for more than 5% of blocks";
+        description = "Node average of blocks adoption delay have been above 4.5s for more than 5% of blocks for more than 6 hours";
+      };
+    }
+    {
       alert = "blocks_utilization_too_high";
-      expr = "100 * avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize[4h]) / on(alias) (cardano_node_protocol_maxBlockBodySize + cardano_node_protocol_maxBlockHeaderSize)) > ${highBlockUtilization}";
+      expr = "100 * avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize[6h]) / on(alias) (cardano_node_protocol_maxBlockBodySize + cardano_node_protocol_maxBlockHeaderSize)) > ${highBlockUtilization}";
       for = "5m";
       labels = {
         severity = "page";
       };
       annotations = {
         summary = "Blocks utilization above ${highBlockUtilization}% - follow process in description.";
-        description = "Blocks utilization has been above ${highBlockUtilization}% on average for more than 4h. Follow process at https://docs.google.com/document/d/1H42XpVp5YKUfKTcfyV_YJP5nM2N5D9eU_0MvFbXXp0E";
+        description = "Blocks utilization has been above ${highBlockUtilization}% on average for more than 6h. Follow process at https://docs.google.com/document/d/1H42XpVp5YKUfKTcfyV_YJP5nM2N5D9eU_0MvFbXXp0E";
       };
     }
     {

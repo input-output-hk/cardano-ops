@@ -152,7 +152,7 @@ in {
   alertTcpCrit = 500 * pkgs.globals.nbInstancesPerRelay;
   alertMbpsHigh = 150 * pkgs.globals.nbInstancesPerRelay;
   alertMbpsCrit = 200 * pkgs.globals.nbInstancesPerRelay;
-  alertHighBlockUtilization = 85; # Alert if blocks are above that % full.
+  alertHighBlockUtilization = 95; # Alert if blocks are above that % full.
 
 
   # Minimal memory and cpu requirements for cardano-node:
@@ -195,7 +195,7 @@ in {
       metadata = r5-2xlarge;
       explorer = if globals.withHighCapacityExplorer
                  then c5-9xlarge
-                 else t3a-xlarge;
+                 else t3a-2xlarge;
       explorer-gw = if globals.withHighCapacityExplorer
                     then c5-4xlarge
                     else t3a-xlarge;

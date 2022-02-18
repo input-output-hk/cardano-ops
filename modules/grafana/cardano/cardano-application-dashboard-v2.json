@@ -1372,19 +1372,6 @@
             "type": "prometheus",
             "uid": "P1809F7CD0C75ACF3"
           },
-          "exemplar": true,
-          "expr": "avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize[15m]) / on(alias,cpus) (cardano_node_protocol_maxBlockBodySize + cardano_node_protocol_maxBlockHeaderSize))",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "15 min average",
-          "queryType": "randomWalk",
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "P1809F7CD0C75ACF3"
-          },
           "exemplar": false,
           "expr": "quantile(0.5, cardano_node_metrics_blockfetchclient_blocksize / on(alias,cpus) (cardano_node_protocol_maxBlockBodySize + cardano_node_protocol_maxBlockHeaderSize))",
           "format": "time_series",
@@ -1400,11 +1387,51 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "exemplar": true,
-          "expr": "avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize[4h]) / on(alias,cpus) (cardano_node_protocol_maxBlockBodySize + cardano_node_protocol_maxBlockHeaderSize))",
+          "expr": "avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize{alias=~\"rel-.?-[1..2]\"}[15m]) / on(alias,cpus) (cardano_node_protocol_maxBlockBodySize{alias=~\"rel-.?-[1..2]\"} + cardano_node_protocol_maxBlockHeaderSize{alias=~\"rel-.?-[1..2]\"}))",
           "hide": false,
           "interval": "",
+          "legendFormat": "15 min average",
+          "queryType": "randomWalk",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "exemplar": true,
+          "expr": "avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize{alias=~\"rel-.?-[1..2]\"}[4h]) / on(alias,cpus) (cardano_node_protocol_maxBlockBodySize{alias=~\"rel-.?-[1..2]\"} + cardano_node_protocol_maxBlockHeaderSize{alias=~\"rel-.?-[1..2]\"}))",
+          "hide": false,
+          "interval": "",
+          "intervalFactor": 2,
           "legendFormat": "4h average",
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "exemplar": true,
+          "expr": "avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize{alias=~\"rel-.?-[1..2]\"}[24h]) / on(alias,cpus) (cardano_node_protocol_maxBlockBodySize{alias=~\"rel-.?-[1..2]\"} + cardano_node_protocol_maxBlockHeaderSize{alias=~\"rel-.?-[1..2]\"}))",
+          "hide": false,
+          "interval": "",
+          "intervalFactor": 3,
+          "legendFormat": "24h average",
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "exemplar": true,
+          "expr": "avg(avg_over_time(cardano_node_metrics_blockfetchclient_blocksize{alias=~\"rel-.?-[1..2]\"}[7d]) / on(alias,cpus) (cardano_node_protocol_maxBlockBodySize{alias=~\"rel-.?-[1..2]\"} + cardano_node_protocol_maxBlockHeaderSize{alias=~\"rel-.?-[1..2]\"}))",
+          "hide": false,
+          "interval": "",
+          "intervalFactor": 10,
+          "legendFormat": "7 days average",
+          "refId": "E"
         }
       ],
       "title": "Block utilization (%)",
@@ -1489,8 +1516,12 @@
       "pluginVersion": "8.3.1",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
           "exemplar": true,
-          "expr": "avg(avg_over_time(cardano_node_metrics_txsInMempool_int[30m]))",
+          "expr": "avg(avg_over_time(cardano_node_metrics_txsInMempool_int{alias=~\"rel-.?-[1..2]\"}[30m]))",
           "hide": false,
           "interval": "",
           "legendFormat": "30 min average",
@@ -3224,7 +3255,7 @@
     "list": []
   },
   "time": {
-    "from": "now-12h",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {
