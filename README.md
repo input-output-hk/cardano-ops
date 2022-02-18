@@ -148,4 +148,4 @@ Choose the one that corresponds to the required query and then copy as
 to use this in a programming language such as Python.
 
 # DB Sync Best Practices
-The database used in Cardano DB Sync is a PostgreSQL database. Like all databases, it needs to be set up in the best way for the intended environment. For more information, see the [recommendation from the developers](https://docs.google.com/document/d/1dzINT5a-FSF4apgx8-VXSaqPTHMZmtJ1rPvY0MKS6Ak/edit?usp=sharing).
+The database used in Cardano DB Sync is a PostgreSQL database. Like all databases, it needs to be set up in the best way for the intended environment. For best performance, the `db-sync` process needs to run on the same machine as the PostgreSQL server and the PostgreSQL database. For more information, see the [recommendation from the developers](https://docs.google.com/document/d/1dzINT5a-FSF4apgx8-VXSaqPTHMZmtJ1rPvY0MKS6Ak/edit?usp=sharing).
