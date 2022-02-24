@@ -58,7 +58,9 @@ in {
     package = cardano-node;
     allProducers = if (globals.topology.relayNodes != [])
         then [ globals.relaysNew ]
-        else (map (n: n.name) globals.topology.coreNodes);
+        else if (globals.topology.coreNodes != [])
+        then (map (n: n.name) globals.topology.coreNodes)
+        else [ globals.environmentConfig.relaysNew ];
     totalMaxHeapSizeMbytes = 0.25 * config.node.memory * 1024;
   };
 

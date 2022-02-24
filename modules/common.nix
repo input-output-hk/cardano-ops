@@ -30,6 +30,7 @@ in {
         isCardanoLegacyRelay = boolOption;
         isCardanoRelay = boolOption;
         isSnapshots = boolOption;
+        isCustom = boolOption;
         isExplorer = boolOption;
         isExplorerBackend = boolOption;
         isFaucet = boolOption;
