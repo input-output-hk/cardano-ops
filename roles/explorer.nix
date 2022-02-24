@@ -11,9 +11,12 @@ let
   cardanoNodeConfigPath = builtins.toFile "cardano-node-config.json" (builtins.toJSON nodeCfg.nodeConfig);
 
   dbSyncPkgs = let s = getSrc "cardano-db-sync"; in import (s + "/nix") { gitrev = s.rev; };
+
+  ogmiosFlake = (flake-compat { src = (getSrc "ogmios");}).defaultNix;
+  nodeFlake = (flake-compat { inherit (ogmiosFlake.legacyPackages.x86_64-linux.hsPkgs.cardano-api) src; }).defaultNix;
   inherit (dbSyncPkgs) cardanoDbSyncHaskellPackages;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-sync-extended.components.exes) cardano-db-sync-extended;
-  inherit (cardanoDbSyncHaskellPackages.cardano-node.components.exes) cardano-node;
+  inherit (nodeFlake.packages.${system}) cardano-node cardano-cli;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-tool.components.exes) cardano-db-tool;
 
   cardano-explorer-app-pkgs = import (getSrc "cardano-explorer-app");
@@ -22,7 +25,7 @@ in {
     cardano-ops.modules.cardano-postgres
     cardano-ops.modules.base-service
     ((sourcePaths.cardano-db-sync-service or (getSrc "cardano-db-sync")) + "/nix/nixos")
-    ((getSrc "ogmios") + "/nix/nixos")
+    ogmiosFlake.nixosModule
     ((getSrc "cardano-graphql") + "/nix/nixos")
     ((getSrc "cardano-rosetta") + "/nix/nixos")
   ];
@@ -156,7 +159,7 @@ in {
   services.cardano-ogmios = {
     enable = true;
     nodeConfig = cardanoNodeConfigPath;
-    nodeSocketPath = nodeCfg.socketPath;
+    nodeSocket = nodeCfg.socketPath;
     hostAddr = "127.0.0.1";
   };
 
