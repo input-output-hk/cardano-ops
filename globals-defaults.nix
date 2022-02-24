@@ -42,7 +42,7 @@ in {
   };
   explorerActiveBackends = attrNames globals.explorerBackends;
   explorerRosettaActiveBackends = globals.explorerActiveBackends;
-  explorerDbSnapshots = globals.explorer12;
+  snapshots = globals.explorer12;
   explorer12 = {
     cardano-explorer-app = sourcePaths."cardano-explorer-app-1.6";
     cardano-db-sync = sourcePaths.cardano-db-sync-12;
@@ -58,6 +58,7 @@ in {
 
   withMonitoring = true;
   withExplorer = true;
+  withSnapshots = false;
   withSubmitApi = false;
   withFaucet = false;
   faucetHostname = "faucet";
@@ -123,8 +124,8 @@ in {
 
   cardanoNodePrometheusExporterPort = 12798;
   cardanoExplorerPrometheusExporterPort = 12698;
-  # DB-sync on explorer gw is restarting regularly to take snapshot:
-  intermittentMonitoringTargets = [ "explorer-exporter" ];
+  # DB-sync on snapshots is restarting regularly to take snapshot:
+  intermittentMonitoringTargets = [ "snapshots" ];
   cardanoExplorerGwPrometheusExporterPort = 12699;
   netdataExporterPort = 19999;
 
@@ -206,6 +207,9 @@ in {
                    then t3-2xlargeMonitor
                    else t3a-xlargeMonitor;
       dense-pool = c5-2xlarge;
+      snapshots = if globals.withHighCapacityExplorer
+                 then r5-2xlarge
+                 else t3a-2xlarge;
     };
 
   libvirtd.instances = with iohk-ops-lib.physical.libvirtd; {

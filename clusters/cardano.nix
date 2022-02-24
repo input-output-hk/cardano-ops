@@ -87,7 +87,28 @@ let
         };
       } def)
     ) globals.explorerBackends)
-  ))) // (lib.optionalAttrs globals.withFaucet {
+  ))) // (lib.optionalAttrs globals.withSnapshots ({
+    snapshots = let def = (topology.snapshots or {}); in mkNode {
+      _file = ./cardano.nix;
+      deployment.ec2 = {
+        region = def.region or "eu-central-1";
+        ebsInitialRootDiskSize = if globals.withHighCapacityExplorer then 1000 else 100;
+      };
+      imports = [
+        (def.instance or instances.snapshots)
+        cardano-ops.roles.snapshots
+      ];
+
+      node = {
+        roles = {
+          isSnapshots = true;
+          class = "snapshots";
+        };
+        org = def.org or "IOHK";
+        nodeId = def.nodeId or 99;
+      };
+    } def;
+  })) // (lib.optionalAttrs globals.withFaucet {
     "${globals.faucetHostname}" = let def = (topology.${globals.faucetHostname} or {}); in mkNode {
       deployment.ec2 = {
         region = "eu-central-1";
