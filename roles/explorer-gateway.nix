@@ -102,6 +102,9 @@ in {
     };
   };
 
+  # Reduce default interval to allow for more restarts (5 in 1 min) before it fails
+  systemd.services.traefik.startLimitIntervalSec = lib.mkForce 60;
+
   services.monitoring-exporters.extraPrometheusExporters = [
     {
       job_name = "explorer-gateway-exporter";
