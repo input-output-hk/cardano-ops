@@ -5,13 +5,13 @@ let
   getSrc = name: globals.snapshots.${name} or sourcePaths.${name};
 
   dbSyncPkgs = let s = getSrc "cardano-db-sync"; in import (s + "/nix") { gitrev = s.rev; };
-  nodeFlake = (flake-compat { src = (getSrc "cardano-node"); }).defaultNix;
+  cardanoNodePkgs = getCardanoNodePackages (getSrc "cardano-node");
   inherit (nodeFlake.packages.${system}) cardano-node cardano-cli;
 
 in {
   imports = [
     (cardano-ops.modules.db-sync {
-      inherit dbSyncPkgs cardano-node cardano-cli;
+      inherit dbSyncPkgs cardanoNodePkgs;
     })
   ];
 

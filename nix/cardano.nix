@@ -1,19 +1,66 @@
-self: super: with self; {
-  cardanoNodePkgs = import (sourcePaths.cardano-node + "/nix") { gitrev = self.sourcePaths.cardano-node.rev; };
-  cardanoNodeServicePkgs = import (sourcePaths.cardano-node-service + "/nix") { gitrev = self.sourcePaths.cardano-node-service.rev; };
+self: super: with self; let
 
+  getCardanoNodePackages = src: let
+    inherit (import (src + "/nix") { gitrev = src.rev; }) cardanoNodeProject;
+    cardanoNodeHaskellPackages = lib.mapAttrsRecursiveCond (v: !(lib.isDerivation v))
+      (path: value:
+        if (lib.isAttrs value) then
+          lib.recursiveUpdate value
+            {
+              passthru = {
+                profiled = lib.getAttrFromPath path profiledProject.hsPkgs;
+                asserted = lib.getAttrFromPath path assertedProject.hsPkgs;
+                eventlogged = lib.getAttrFromPath path eventloggedProject.hsPkgs;
+              };
+            } else value)
+      cardanoNodeProject.hsPkgs;
+    profiledProject = cardanoNodeProject.appendModule {
+      modules = [{
+        enableLibraryProfiling = true;
+        packages.cardano-node.components.exes.cardano-node.enableProfiling = true;
+        packages.tx-generator.components.exes.tx-generator.enableProfiling = true;
+        packages.locli.components.exes.locli.enableProfiling = true;
+      }];
+    };
+    assertedProject = cardanoNodeProject.appendModule {
+      modules = [{
+        packages = lib.genAttrs [
+          "ouroboros-consensus"
+          "ouroboros-consensus-cardano"
+          "ouroboros-consensus-byron"
+          "ouroboros-consensus-shelley"
+          "ouroboros-network"
+          "network-mux"
+        ]
+          (name: { flags.asserts = true; });
+      }];
+    };
+    eventloggedProject = cardanoNodeProject.appendModule
+      {
+        modules = [{
+          packages = lib.genAttrs [ "cardano-node" ]
+            (name: { configureFlags = [ "--ghc-option=-eventlog" ]; });
+        }];
+      };
+
+    in {
+      inherit cardanoNodeHaskellPackages;
+      inherit (cardanoNodeHaskellPackages.cardano-cli.components.exes) cardano-cli;
+      inherit (cardanoNodeHaskellPackages.cardano-submit-api.components.exes) cardano-submit-api;
+      inherit (cardanoNodeHaskellPackages.cardano-node.components.exes) cardano-node;
+      inherit (cardanoNodeHaskellPackages.network-mux.components.exes) cardano-ping;
+      inherit (cardanoNodeHaskellPackages.locli.components.exes) locli;
+      inherit (cardanoNodeHaskellPackages.tx-generator.components.exes) tx-generator;
+
+      cardano-node-profiled = cardano-node.profiled;
+      cardano-node-eventlogged = cardano-node.evenlogged;
+      cardano-node-asserted = cardano-node.asserted;
+    };
+
+    cardanoNodePkgs = getCardanoNodePackages sourcePaths.cardano-node;
+
+in cardanoNodePkgs // {
+  inherit getCardanoNodePackages cardanoNodePkgs;
   inherit (import (sourcePaths.cardano-db-sync + "/nix") {}) cardanoDbSyncHaskellPackages;
-
-  inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.cardano-cli.components.exes) cardano-cli;
-  inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.cardano-submit-api.components.exes) cardano-submit-api;
-  inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.cardano-node.components.exes) cardano-node;
-  inherit ((if (sourcePaths ? ouroboros-network)
-    then (import (sourcePaths.ouroboros-network + "/nix") {}).ouroborosNetworkHaskellPackages
-    else cardanoNodePkgs.cardanoNodeHaskellPackages).network-mux.components.exes) cardano-ping;
-  inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.locli.components.exes) locli;
-  inherit (cardanoNodePkgs.cardanoNodeHaskellPackages.tx-generator.components.exes) tx-generator;
-
-  cardano-node-eventlogged = cardanoNodePkgs.cardanoNodeEventlogHaskellPackages.cardano-node.components.exes.cardano-node;
-
   cardano-node-services-def = (sourcePaths.cardano-node-service or sourcePaths.cardano-node) + "/nix/nixos";
 }

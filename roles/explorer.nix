@@ -13,17 +13,17 @@ let
   dbSyncPkgs = let s = getSrc "cardano-db-sync"; in import (s + "/nix") { gitrev = s.rev; };
 
   ogmiosFlake = (flake-compat { src = (getSrc "ogmios");}).defaultNix;
-  nodeFlake = (flake-compat { inherit (ogmiosFlake.legacyPackages.x86_64-linux.hsPkgs.cardano-api) src; }).defaultNix;
+  cardanoNodePkgs = getCardanoNodePackages ogmiosFlake.legacyPackages.x86_64-linux.hsPkgs.cardano-api.src;
   inherit (dbSyncPkgs) cardanoDbSyncHaskellPackages;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-sync-extended.components.exes) cardano-db-sync-extended;
-  inherit (nodeFlake.packages.${system}) cardano-node cardano-cli;
+  inherit (cardanoNodePkgs) cardano-node cardano-cli;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-tool.components.exes) cardano-db-tool;
 
   cardano-explorer-app-pkgs = import (getSrc "cardano-explorer-app");
 in {
   imports = [
     (cardano-ops.modules.db-sync {
-      inherit dbSyncPkgs cardano-node cardano-cli;
+      inherit dbSyncPkgs cardanoNodePkgs;
       additionalDbUsers = [
         "cardano-graphql"
         "smash"
@@ -214,6 +214,7 @@ in {
     enable = true;
     port = 8101;
     environment = pkgs.globals.environmentConfig;
+    config = pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig;
     socketPath = config.services.cardano-node.socketPath;
     inherit cardanoNodePkgs;
   };

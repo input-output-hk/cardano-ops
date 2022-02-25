@@ -1,6 +1,6 @@
 pkgs: {
   dbSyncPkgs,
-  cardano-node, cardano-cli,
+  cardanoNodePkgs,
   additionalDbUsers ? []
 } : { name, config, options, ... }:
 with pkgs;
@@ -22,7 +22,7 @@ in {
     (sourcePaths.cardano-db-sync-service + "/nix/nixos")
   ];
 
-  environment.systemPackages = with pkgs; [
+  environment.systemPackages = with pkgs; with cardanoNodePkgs; [
     bat fd lsof netcat ncdu ripgrep tree vim dnsutils cardano-cli
     cardano-db-tool
   ];
@@ -55,7 +55,7 @@ in {
   };
 
   services.cardano-node = {
-    package = cardano-node;
+    inherit cardanoNodePkgs;
     allProducers = if (globals.topology.relayNodes != [])
         then [ globals.relaysNew ]
         else if (globals.topology.coreNodes != [])
