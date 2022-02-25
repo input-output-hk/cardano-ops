@@ -290,11 +290,6 @@ in {
     };
   };
 
-  smash = {
-    #TODO: use nginx caching directive instead of upscaling:
-    deployment.ec2.instanceType = lib.mkForce "t3a.2xlarge";
-  };
-
   metadata = {
     node = {
       org = "CF";
