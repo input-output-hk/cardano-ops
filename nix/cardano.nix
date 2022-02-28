@@ -52,9 +52,9 @@ self: super: with self; let
       inherit (cardanoNodeHaskellPackages.locli.components.exes) locli;
       inherit (cardanoNodeHaskellPackages.tx-generator.components.exes) tx-generator;
 
-      cardano-node-profiled = cardano-node.profiled;
-      cardano-node-eventlogged = cardano-node.evenlogged;
-      cardano-node-asserted = cardano-node.asserted;
+      cardano-node-profiled = cardano-node.passthru.profiled;
+      cardano-node-eventlogged = cardano-node.passthru.eventlogged;
+      cardano-node-asserted = cardano-node.passthru.asserted;
     };
 
     cardanoNodePkgs = getCardanoNodePackages sourcePaths.cardano-node;
