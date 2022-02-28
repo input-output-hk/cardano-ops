@@ -117,7 +117,8 @@ in
       # https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html
       rtsArgs = [ "-N2" "-A16m" "-qg" "-qb" "-M${toString (cfg.totalMaxHeapSizeMbytes / cfg.instances)}M" ];
       environment = globals.environmentName;
-      inherit cardanoNodePkgs hostAddr nodeId instanceProducers instancePublicProducers;
+      cardanoNodePkgs = lib.mkDefault cardanoNodePkgs;
+      inherit hostAddr nodeId instanceProducers instancePublicProducers;
       ipv6HostAddr = mkIf (cfg.instances > 1) "::1";
       producers = mkDefault [];
       publicProducers = mkDefault [];

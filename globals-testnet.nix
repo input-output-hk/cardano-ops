@@ -11,6 +11,7 @@ pkgs: {
   withSmash = true;
   withMetadata = true;
   withHighLoadRelays = true;
+  withSnapshots = true;
 
   faucetHostname = "faucet";
 

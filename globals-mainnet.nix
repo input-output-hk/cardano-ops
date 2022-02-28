@@ -14,12 +14,13 @@ pkgs: {
     b = pkgs.globals.explorer12;
   };
   explorerActiveBackends = [ "a" "b" ];
-  explorerDbSnapshots = pkgs.globals.explorer12;
+  snapshots = pkgs.globals.explorer12;
 
   withHighCapacityMonitoring = true;
   withHighCapacityExplorer = true;
   withHighLoadRelays = true;
   withSmash = true;
+  withSnapshots = true;
 
   withMetadata = true;
   metadataHostName = "tokens.cardano.org";

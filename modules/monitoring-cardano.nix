@@ -27,14 +27,14 @@ in {
     }
     {
       alert = "High cardano ping latency";
-      expr = "quantile_over_time(0.95, cardano_ping_latency_ms[100m:1m]) > 200";
-      for = "20m";
+      expr = "avg_over_time(cardano_ping_latency_ms[5m]) > 250";
+      for = "30m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "{{$labels.alias}}: Cardano ping P95 latency has been above 200 milliseconds";
-        description = "{{$labels.alias}}: Cardano ping P95 latency has been above 200 milliseconds for the last 2 hours.";
+        summary =  "{{$labels.alias}}: Cardano average ping latency over 5 minutes has been above 250 milliseconds for the last 30 minutes";
+        description = "{{$labels.alias}}: Cardano average ping latency over 5 minutes has been above 250 milliseconds for the last 30 minutes.";
       };
     }
     {

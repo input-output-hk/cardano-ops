@@ -119,6 +119,18 @@
         "url": "https://github.com/input-output-hk/cardano-node/archive/30e16fa136321e7cce73906cc891344df364558a.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "cardano-node-next": {
+        "branch": "refs/tags/1.34.0-rc3",
+        "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
+        "homepage": "https://cardano.org",
+        "owner": "input-output-hk",
+        "repo": "cardano-node",
+        "rev": "54155a28dbdb9a17e4ffe52b68f6c58af54ff83b",
+        "sha256": "1ff0h1zwm79a6kxv4dvghka54vlv8yy7iyphddb1qqmfny07gddi",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/54155a28dbdb9a17e4ffe52b68f6c58af54ff83b.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-node-service": {
         "branch": "p2p-master",
         "description": "The core component that is used to participate in a Cardano decentralised blockchain.",

@@ -10,6 +10,9 @@ let
   privateRelayNodes = topology.privateRelayNodes or [];
   inherit (lib) recursiveUpdate mapAttrs listToAttrs imap1 concatLists;
 
+  customNodes = mapAttrs mkCustomNode
+    (builtins.removeAttrs topology ["privateRelayNodes" "relayNodes" "coreNodes" "regions" "testNodes"]);
+
   cardanoNodes = listToAttrs (concatLists [
     (map mkCoreNode coreNodes)
     (map mkRelayNode (relayNodes ++ privateRelayNodes))
@@ -87,7 +90,28 @@ let
         };
       } def)
     ) globals.explorerBackends)
-  ))) // (lib.optionalAttrs globals.withFaucet {
+  ))) // (lib.optionalAttrs globals.withSnapshots {
+    snapshots = let def = (topology.snapshots or {}); in mkNode {
+      _file = ./cardano.nix;
+      deployment.ec2 = {
+        region = def.region or "eu-central-1";
+        ebsInitialRootDiskSize = if globals.withHighCapacityExplorer then 1000 else 100;
+      };
+      imports = [
+        (def.instance or instances.snapshots)
+        cardano-ops.roles.snapshots
+      ];
+
+      node = {
+        roles = {
+          isSnapshots = true;
+          class = "snapshots";
+        };
+        org = def.org or "IOHK";
+        nodeId = def.nodeId or 99;
+      };
+    } def;
+  }) // (lib.optionalAttrs globals.withFaucet {
     "${globals.faucetHostname}" = let def = (topology.${globals.faucetHostname} or {}); in mkNode {
       deployment.ec2 = {
         region = "eu-central-1";
@@ -124,7 +148,7 @@ let
     } def;
   });
 
-  nodes = cardanoNodes // otherNodes;
+  nodes = customNodes // cardanoNodes // otherNodes;
 
   mkCoreNode =  def: let
     isCardanoDensePool = def.pools or null != null && def.pools > 1;
@@ -190,13 +214,28 @@ let
     } def;
   };
 
+  mkCustomNode = name: def: mkNode {
+    node = {
+      roles = {
+        isCustom = true;
+        class = "custom";
+      };
+      org = def.org or "IOHK";
+      nodeId = def.nodeId or 99;
+    };
+    deployment.ec2 = {
+      region = def.region or "eu-central-1";
+    };
+    imports = [(def.instance or instances.core-node)];
+  } def;
+
   mkNode = args: def:
     recursiveUpdate (
       recursiveUpdate {
         deployment.targetEnv = instances.targetEnv;
         nixpkgs.pkgs = pkgs;
       } (args // {
-        imports = args.imports ++ (def.imports or []);
+        imports = (args.imports or []) ++ (def.imports or []);
       }))
       (builtins.removeAttrs def [
         "imports"

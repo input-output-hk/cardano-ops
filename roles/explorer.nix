@@ -13,59 +13,28 @@ let
   dbSyncPkgs = let s = getSrc "cardano-db-sync"; in import (s + "/nix") { gitrev = s.rev; };
 
   ogmiosFlake = (flake-compat { src = (getSrc "ogmios");}).defaultNix;
-  nodeFlake = (flake-compat { inherit (ogmiosFlake.legacyPackages.x86_64-linux.hsPkgs.cardano-api) src; }).defaultNix;
+  cardanoNodePkgs = getCardanoNodePackages ogmiosFlake.legacyPackages.x86_64-linux.hsPkgs.cardano-api.src;
   inherit (dbSyncPkgs) cardanoDbSyncHaskellPackages;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-sync-extended.components.exes) cardano-db-sync-extended;
-  inherit (nodeFlake.packages.${system}) cardano-node cardano-cli;
+  inherit (cardanoNodePkgs) cardano-node cardano-cli;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-tool.components.exes) cardano-db-tool;
 
   cardano-explorer-app-pkgs = import (getSrc "cardano-explorer-app");
 in {
   imports = [
-    cardano-ops.modules.cardano-postgres
-    cardano-ops.modules.base-service
-    ((sourcePaths.cardano-db-sync-service or (getSrc "cardano-db-sync")) + "/nix/nixos")
+    (cardano-ops.modules.db-sync {
+      inherit dbSyncPkgs cardanoNodePkgs;
+      additionalDbUsers = [
+        "cardano-graphql"
+        "smash"
+        "cardano-rosetta-server"
+        "dump-registered-relays-topology"
+      ];
+    })
     ogmiosFlake.nixosModule
     ((getSrc "cardano-graphql") + "/nix/nixos")
     ((getSrc "cardano-rosetta") + "/nix/nixos")
   ];
-
-  environment.systemPackages = with pkgs; [
-    bat fd lsof netcat ncdu ripgrep tree vim dnsutils cardano-cli
-    cardano-db-tool
-  ];
-
-  services.cardano-postgres.enable = true;
-  services.postgresql = {
-    ensureDatabases = [ "cexplorer" ];
-    initialScript = builtins.toFile "enable-pgcrypto.sql" ''
-      \connect template1
-      CREATE EXTENSION IF NOT EXISTS pgcrypto SCHEMA pg_catalog;
-    '';
-    ensureUsers = [
-      {
-        name = "cexplorer";
-        ensurePermissions = {
-          "DATABASE cexplorer" = "ALL PRIVILEGES";
-          "ALL TABLES IN SCHEMA information_schema" = "SELECT";
-          "ALL TABLES IN SCHEMA pg_catalog" = "SELECT";
-        };
-      }
-    ];
-    identMap = ''
-      explorer-users root cexplorer
-      explorer-users cardano-db-sync cexplorer
-      explorer-users cardano-graphql cexplorer
-      explorer-users smash cexplorer
-      explorer-users cardano-rosetta-server cexplorer
-      explorer-users dump-registered-relays-topology cexplorer
-      explorer-users postgres postgres
-    '';
-    authentication = ''
-      local all all ident map=explorer-users
-    '';
-  };
-
 
   services.varnish = {
     enable = globals.withSmash;
@@ -193,27 +162,6 @@ in {
     dbConnectionString = "socket://${cfg.postgres.user}:*@${cfg.postgres.socketdir}?db=${cfg.postgres.database}";
   };
 
-  services.cardano-node = {
-    package = cardano-node;
-    allProducers = if (globals.topology.relayNodes != [])
-        then [ globals.relaysNew ]
-        else (map (n: n.name) globals.topology.coreNodes);
-    totalMaxHeapSizeMbytes = 0.25 * config.node.memory * 1024;
-  };
-
-  services.cardano-db-sync = {
-    enable = true;
-    package = cardano-db-sync-extended;
-    cluster = globals.environmentName;
-    environment = globals.environmentConfig;
-    socketPath = nodeCfg.socketPath;
-    logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { PrometheusPort = globals.cardanoExplorerPrometheusExporterPort; };
-    inherit dbSyncPkgs;
-    postgres = {
-      database = "cexplorer";
-    };
-  };
-
   services.smash = {
     enable = globals.withSmash && (dbSyncPkgs.cardanoDbSyncProject.hsPkgs ? cardano-smash-server);
     inherit (globals) environmentName;
@@ -226,12 +174,6 @@ in {
     ]).hsPkgs.cardano-smash-server.components.exes.cardano-smash-server;
     postgres = { inherit (cfg.postgres) port database user socketdir; };
     delistedPools = globals.smashDelistedPools;
-  };
-
-  systemd.services.cardano-db-sync.serviceConfig = {
-    # FIXME: https://github.com/input-output-hk/cardano-db-sync/issues/102
-    Restart = "always";
-    RestartSec = "30s";
   };
 
   systemd.services.cardano-ogmios.serviceConfig = {
@@ -272,6 +214,7 @@ in {
     enable = true;
     port = 8101;
     environment = pkgs.globals.environmentConfig;
+    config = pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig;
     socketPath = config.services.cardano-node.socketPath;
     inherit cardanoNodePkgs;
   };
@@ -685,16 +628,7 @@ in {
     SupplementaryGroups = "dump-registered-relays-topology";
   };
 
-  services.monitoring-exporters.extraPrometheusExporters = [
-    # TODO: remove once explorer exports metrics at path `/metrics`
-    {
-      job_name = "explorer-exporter";
-      scrape_interval = "10s";
-      port = globals.cardanoExplorerPrometheusExporterPort;
-      metrics_path = "/";
-      labels = { alias = "${name}-exporter"; };
-    }
-  ] ++ lib.optional config.services.cardano-graphql.enable
+  services.monitoring-exporters.extraPrometheusExporters = lib.optional config.services.cardano-graphql.enable
     {
       job_name = "cardano-graphql-exporter";
       scrape_interval = "10s";

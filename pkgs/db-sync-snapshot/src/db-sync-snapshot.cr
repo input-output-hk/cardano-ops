@@ -136,16 +136,16 @@ class DbSyncSnapshot
 
   def retrieveSnapshot()
 
-    if runCmdVerbose("nixops ssh explorer 'systemctl restart cardano-db-sync && cd /var/lib/cexplorer && ls -tr db-sync-snapshot*.tgz | tail -n 1'").success?
+    if runCmdVerbose("nixops ssh snapshots 'systemctl restart cardano-db-sync && cd /var/lib/cexplorer && ls -tr db-sync-snapshot*.tgz | tail -n 1'").success?
       snapshotFile = IO_CMD_OUT.to_s.chomp
 
       if !runCmdVerbose("mkdir -p #{SNAPSHOT_WORK_DIR} "\
-        "&& nixops scp --from explorer /var/lib/cexplorer/#{snapshotFile} #{SNAPSHOT_WORK_DIR}/").success?
-        updateAbort("Could not retrieve db-sync snasphot from explorer.")
+        "&& nixops scp --from snapshots /var/lib/cexplorer/#{snapshotFile} #{SNAPSHOT_WORK_DIR}/").success?
+        updateAbort("Could not retrieve db-sync snasphot from snapshots.")
       end
       snapshotFile
     else
-      updateAbort("Unable to find a snapshot file in explorer /var/lib/cexplorer directory.")
+      updateAbort("Unable to find a snapshot file in snapshots /var/lib/cexplorer directory.")
     end
 
   end
