@@ -27,13 +27,14 @@ cd "$(dirname "$0")/.."
 
 export NB_CORE_NODES=$(($NB_BFT_NODES + $NB_POOL_NODES))
 DELAY="${DELAY:-30}"
-UTXO_KEYS="${UTXO_KEYS:-3}"
+UTXO_KEYS="${UTXO_KEYS:-1}"
 DPARAM="${DPARAM:-$(awk "BEGIN{print 1.0 - 1.0 * $NB_POOL_NODES / $NB_CORE_NODES}")}"
 
 echo "Generating new genesis and keys using following environments variables:
 
  NB_BFT_NODES=$NB_BFT_NODES (number of bft core nodes)
  NB_POOL_NODES=$NB_POOL_NODES (number of staking pool nodes)
+ UTXO_KEYS=$UTXO_KEYS (number of rich keys)
  K=$K (Security parameter)
  F=$F (Active slots coefficient)
  MAX_SUPPLY=$MAX_SUPPLY (Max Lovelace supply)
@@ -93,6 +94,9 @@ cardano-cli genesis create-staked \
             --testnet-magic $NETWORK_MAGIC
 
 sed -Ei "s/^([[:blank:]]*\"maxLovelaceSupply\":)([[:blank:]]*[^,]*,)$/\1 $MAX_SUPPLY,/" genesis.json
+
+jq '.initialFunds = {} | del(.staking)' genesis.json > genesis.json.new
+mv genesis.json.new genesis.json
 
 cardano-cli genesis hash --genesis genesis.json > GENHASH
 cardano-cli genesis hash --genesis genesis.alonzo.json > ALONZOGENHASH
@@ -196,12 +200,12 @@ if [ -f $BYRON_GENESIS_PATH ]; then
       --testnet-magic $NETWORK_MAGIC \
       --secret byron/genesis-keys.00$((${N} - 1)).key > byron/genesis-address-00$((${N} - 1))
 
-    rm -f tx$N.tx
+    rm -f tx-convert-byron-funds-$N.tx
 
     cardano-cli byron transaction issue-genesis-utxo-expenditure \
       --genesis-json byron/genesis.json \
       --testnet-magic $NETWORK_MAGIC \
-      --tx tx$N.tx \
+      --tx tx-convert-byron-funds-$N.tx \
       --wallet-key byron/delegate-keys.00$((${N} - 1)).key \
       --rich-addr-from "$(head -n 1 byron/genesis-address-00$((${N} - 1)))" \
       --txout "(\"$(head -n 1 byron/rich.addr)\", $(($MAX_SUPPLY * 2 / ($NB_BFT_NODES * 3))))"
@@ -210,12 +214,12 @@ if [ -f $BYRON_GENESIS_PATH ]; then
 cardano-cli transaction build-raw \
   --shelley-era \
   --ttl 10000000000 \
-  --fee $((100000 * $NB_POOL_NODES)) \
+  --fee $((100000 + 100000 * $NB_POOL_NODES)) \
   $(for i in `seq 1 $NB_BFT_NODES`; do
-    echo " --tx-in $(cardano-cli byron transaction txid --tx tx$i.tx)#0"
+    echo " --tx-in $(cardano-cli byron transaction txid --tx tx-convert-byron-funds-$i.tx)#0"
   done) \
   $(for i in `seq 1 $UTXO_KEYS`; do
-    echo " --tx-out $(cat utxo-keys/utxo$i.addr)+$((((2 * $MAX_SUPPLY) / 3  - (100000 + 504000000 + $MAX_SUPPLY / 500) * $NB_POOL_NODES) / $UTXO_KEYS))"
+    echo " --tx-out $(cat utxo-keys/utxo$i.addr)+$((((2 * $MAX_SUPPLY) / 3  - (100000 + 504000000 + $MAX_SUPPLY / 500) * $NB_POOL_NODES - 100000) / $UTXO_KEYS))"
   done) \
   $(for i in `seq 1 $NB_POOL_NODES`; do
     echo " --tx-out $(cat stake-delegator-keys/staking$i.addr)+$(($MAX_SUPPLY / 500))"
@@ -224,7 +228,7 @@ cardano-cli transaction build-raw \
     echo " --certificate-file stake-delegator-keys/staking$i.reg.cert"
     echo " --certificate-file stake-delegator-keys/staking$i.deleg.cert"
   done) \
-  --out-file tx2.txbody
+  --out-file tx-setup-pools-utxos.txbody
 
 
 cardano-cli transaction sign \
@@ -236,10 +240,13 @@ cardano-cli transaction sign \
     echo " --signing-key-file pools/cold$i.skey"
   done) \
   --testnet-magic $NETWORK_MAGIC \
-  --tx-body-file  tx2.txbody \
-  --out-file      tx2.tx
+  --tx-body-file  tx-setup-pools-utxos.txbody \
+  --out-file      tx-setup-pools-utxos.tx
 fi
 
+echo
+echo 'Make sure to submit keys/tx-convert-byron-funds-*.tx transactions during byron era (epoch 0).'
+echo 'Then submit keys/tx-setup-pools-utxos.tx during shelley era. (use `TestShelleyHardForkAtEpoch = 1;`)'
 
 
 mkdir -p node-keys
