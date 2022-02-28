@@ -35,7 +35,9 @@ UTXO=$(cardano-cli query utxo --address $ADDR --testnet-magic $NETWORK_MAGIC | a
 
 cardano-cli governance create-update-proposal --epoch $EPOCH --protocol-major-version $MAJOR --protocol-minor-version $MINOR $( for g in keys/genesis-keys/genesis?.vkey; do echo  " --genesis-verification-key-file $g"; done) --out-file keys/update-proposal-protocol-v$MAJOR
 
-cardano-cli transaction build-raw --tx-in $UTXO --tx-out $ADDR+$(( $ADDR_AMOUNT - $FEE )) --update-proposal-file keys/update-proposal-protocol-v$MAJOR --out-file keys/update-proposal-protocol-v$MAJOR.txbody --fee $FEE
+ERA=$(cardano-cli query tip --testnet-magic $NETWORK_MAGIC | jq -r '.era | ascii_downcase')
+
+cardano-cli transaction build-raw --$ERA-era --ttl 100000000 --tx-in $UTXO --tx-out $ADDR+$(( $ADDR_AMOUNT - $FEE )) --update-proposal-file keys/update-proposal-protocol-v$MAJOR --out-file keys/update-proposal-protocol-v$MAJOR.txbody --fee $FEE
 
 cardano-cli transaction sign --tx-body-file keys/update-proposal-protocol-v$MAJOR.txbody --out-file keys/update-proposal-protocol-v$MAJOR.tx  --signing-key-file $PAYMENT_KEY_PREFIX.skey $( for d in keys/delegate-keys/delegate?.skey; do echo  " --signing-key-file $d"; done)
 
