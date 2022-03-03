@@ -49,6 +49,7 @@ in {
     cardano-graphql = sourcePaths."cardano-graphql-6.1";
     cardano-rosetta = sourcePaths."cardano-rosetta-1.6";
     ogmios = sourcePaths."ogmios-5.1";
+    cardano-node = sourcePaths."cardano-node-1.33";
   };
   explorer12-2 = globals.explorer12 // {
     cardano-graphql = sourcePaths."cardano-graphql-6.2";
