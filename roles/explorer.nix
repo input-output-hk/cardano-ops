@@ -102,17 +102,19 @@ in {
         set resp.http.x-cache = req.http.x-cache;
       }
 
-      # Smash set "Cache-Control: no-store", so we override this subroutine to  still cache;
-      # https://github.com/input-output-hk/cardano-db-sync/issues/1075
-      sub vcl_beresp_control {
-        # ie. ignoring Cache-Control.
-      }
-
       sub vcl_backend_response {
+        if (bereq.uncacheable) {
+          return (deliver);
+        }
         if (beresp.status == 404) {
           set beresp.ttl = 1h;
         }
-        call vcl_builtin_backend_response;
+        call vcl_beresp_stale;
+        call vcl_beresp_cookie;
+        # Smash set "Cache-Control: no-store", so we skip this subroutine to still cache;
+        # https://github.com/input-output-hk/cardano-db-sync/issues/1075
+        # call vcl_beresp_control;
+        call vcl_beresp_vary;
         return (deliver);
       }
     '';
