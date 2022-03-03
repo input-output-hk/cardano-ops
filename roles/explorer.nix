@@ -38,7 +38,7 @@ in {
 
   services.varnish = {
     enable = globals.withSmash;
-    extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 4)}M";
+    extraCommandLine = "-t ${toString (30 * 24 * 3600)} -s malloc,${toString (config.node.memory * 1024 / 4)}M";
     config = ''
       vcl 4.1;
 
@@ -102,24 +102,17 @@ in {
         set resp.http.x-cache = req.http.x-cache;
       }
 
+      # Smash set "Cache-Control: no-store", so we override this subroutine to  still cache;
+      # https://github.com/input-output-hk/cardano-db-sync/issues/1075
+      sub vcl_beresp_control {
+        # ie. ignoring Cache-Control.
+      }
+
       sub vcl_backend_response {
-        set beresp.ttl = 30d;
         if (beresp.status == 404) {
           set beresp.ttl = 1h;
         }
-        # Default vcl_backend_response (without no-store):
-        if (beresp.ttl <= 0s ||
-            beresp.http.Set-Cookie ||
-            beresp.http.Surrogate-control ~ "no-store" ||
-            (!beresp.http.Surrogate-Control &&
-            beresp.http.Cache-Control ~ "no-cache|private") ||
-            beresp.http.Vary == "*") {
-            /*
-            * Mark as "Hit-For-Pass" for the next 2 minutes
-            */
-            set beresp.ttl = 120s;
-            set beresp.uncacheable = true;
-        }
+        call vcl_builtin_backend_response;
         return (deliver);
       }
     '';

@@ -122,7 +122,7 @@ in {
   services.varnish = {
     enable = true;
     extraModules = [ pkgs.varnishPackages.modules ];
-    extraCommandLine = "-s malloc,${toString (config.node.memory * 1024 / 3)}M";
+    extraCommandLine = "-t ${toString (globals.metadataVarnishTtl * 60)} -s malloc,${toString (config.node.memory * 1024 / 3)}M";
     config = ''
       vcl 4.1;
 
@@ -221,10 +221,11 @@ in {
       }
 
       sub vcl_backend_response {
-        set beresp.ttl = ${toString globals.metadataVarnishTtl}m;
         if (beresp.status == 404) {
           set beresp.ttl = ${toString (2 * globals.metadataVarnishTtl / 3)}m;
         }
+        call vcl_builtin_backend_response;
+        return (deliver);
       }
     '';
   };
