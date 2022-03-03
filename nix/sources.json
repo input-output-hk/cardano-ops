@@ -60,27 +60,27 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql-6.1": {
-        "branch": "6-1-stable",
+        "branch": "6.1.0-systemd-exec",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "a54423a765a78780861af3d3ef1eb0b45a92b5de",
-        "sha256": "0gljjq9lg4r04a9x99xlxqas3f7ac6i08avfxasgnwf98l3xn1qa",
+        "rev": "38eb52b24d3ce977f78fe8ad9682e5c9adfe7633",
+        "sha256": "1rz0hi0mzhlwkkz2njzxx7ip2rmrajcxgyj9w90wcfbn4alz3gj7",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/a54423a765a78780861af3d3ef1eb0b45a92b5de.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/38eb52b24d3ce977f78fe8ad9682e5c9adfe7633.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql-6.2": {
-        "branch": "refs/tags/6.2.0",
+        "branch": "6.2.0-systemd-exec",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "376835e8ca420680d759db748ba437d9b6f1629b",
-        "sha256": "1l1r19cp77dx2fm9asiyml4ykw3426m32ymkmvpkfggs21f2rn6w",
+        "rev": "7e17365d625a152bf97e71225348538b65cbce37",
+        "sha256": "0pypvcihrss76cwv4c25c1xcxf5lqfdq0i3n3b0blv1ajxllnjd4",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/376835e8ca420680d759db748ba437d9b6f1629b.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/7e17365d625a152bf97e71225348538b65cbce37.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
