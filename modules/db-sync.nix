@@ -22,8 +22,8 @@ in {
     (sourcePaths.cardano-db-sync-service + "/nix/nixos")
   ];
 
-  environment.systemPackages = with pkgs; with cardanoNodePkgs; [
-    bat fd lsof netcat ncdu ripgrep tree vim dnsutils cardano-cli
+  environment.systemPackages = with pkgs; [
+    bat fd lsof netcat ncdu ripgrep tree vim dnsutils
     cardano-db-tool
   ];
 
@@ -94,3 +94,4 @@ in {
     }
   ];
 }
+²
