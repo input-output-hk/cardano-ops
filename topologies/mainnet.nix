@@ -159,6 +159,7 @@ in {
         rtsArgs = [ "-c" ];
         instances = mkForce 1;
       };
+      services.monitoring-exporters.metrics = false;
     }
   ] ++ (map (r: recursiveUpdate r {
     services.monitoring-exporters.metrics = false;
@@ -282,6 +283,9 @@ in {
     #  };
     #}
   ]);
+
+  explorer-b.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/12/db-sync-snapshot-schema-12-block-6943858-x86_64.tgz";
+  explorer-a.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/12/db-sync-snapshot-schema-12-block-6943858-x86_64.tgz";
 
   monitoring = {
     services.monitoring-services = {

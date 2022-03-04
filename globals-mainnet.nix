@@ -10,11 +10,10 @@ pkgs: {
   explorerForceSSL = true;
   explorerAliases = [ "explorer.mainnet.cardano.org" "explorer.${pkgs.globals.domain}" ];
   explorerBackends = {
-    a = pkgs.globals.explorer12;
-    b = pkgs.globals.explorer12;
+    a = pkgs.globals.explorer12-2;
+    b = pkgs.globals.explorer12-2;
   };
   explorerActiveBackends = [ "a" "b" ];
-  snapshots = pkgs.globals.explorer12;
 
   withHighCapacityMonitoring = true;
   withHighCapacityExplorer = true;
