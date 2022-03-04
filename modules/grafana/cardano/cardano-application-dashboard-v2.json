@@ -80,7 +80,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.1",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -88,7 +88,7 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "exemplar": false,
-          "expr": "min(cardano_node_cli_version_major{alias!~\".*-dr-.*\"})",
+          "expr": "min(cardano_node_cli_version_major{alias!~\"snapshots|explorer-.*|.*Test.*\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "Node Major Version:",
@@ -100,7 +100,7 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "exemplar": false,
-          "expr": "min(cardano_node_cli_version_minor{alias!~\".*-dr-.*\"})",
+          "expr": "min(cardano_node_cli_version_minor{alias!~\"snapshots|explorer-.*|.*Test.*\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "Node Minor Version:",
@@ -112,7 +112,7 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "exemplar": false,
-          "expr": "min(cardano_node_cli_version_patch{alias!~\".*-dr-.*\"})",
+          "expr": "min(cardano_node_cli_version_patch{alias!~\"snapshots|explorer-.*|.*Test.*\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "Node Patch Version:",
@@ -207,7 +207,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.1",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "expr": "min(cardano_node_config_isCardano{alias!~\".*-dr-.*\"})",
@@ -280,9 +280,14 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.1",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "exemplar": false,
           "expr": "min(cardano_node_protocol_protocolVersion_major)",
           "instant": true,
           "interval": "",
@@ -290,6 +295,11 @@
           "refId": "A"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "exemplar": false,
           "expr": "min(cardano_node_protocol_protocolVersion_minor)",
           "instant": true,
           "interval": "",
@@ -1688,7 +1698,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.1",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "expr": "avg(cardano_node_Forge_metrics_currentKESPeriod_int)",
@@ -2403,7 +2413,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.1",
+      "pluginVersion": "8.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -2491,7 +2501,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.1",
+      "pluginVersion": "8.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -2579,7 +2589,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.1",
+      "pluginVersion": "8.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -3248,7 +3258,7 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 33,
+  "schemaVersion": 34,
   "style": "dark",
   "tags": [],
   "templating": {
