@@ -87,7 +87,7 @@ in
 
   config = {
 
-    environment.systemPackages = [ pkgs.cardano-cli pkgs.cardano-ping ];
+    environment.systemPackages = with cfg.cardanoNodePkgs; [ cardano-cli cardano-ping ];
     environment.variables = globals.environmentVariables // {
       CARDANO_NODE_SOCKET_PATH = cfg.socketPath;
     };
