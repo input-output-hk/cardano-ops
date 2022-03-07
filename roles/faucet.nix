@@ -4,7 +4,7 @@ let
   faucetPkgs = (import (sourcePaths.cardano-faucet + "/nix") {});
   walletPackages = import sourcePaths.cardano-wallet { gitrev = sourcePaths.cardano-wallet.rev; };
   inherit (walletPackages) cardano-wallet;
-  cardanoNodePkgs = getCardanoNodePackages private.project.hsPkgs.cardano-node.src;
+  cardanoNodePkgs = getCardanoNodePackages walletPackages.private.project.hsPkgs.cardano-node.src;
   inherit (pkgs.lib) mkIf;
 in {
 
