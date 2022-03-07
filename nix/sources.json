@@ -53,10 +53,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "cd00d79764792a095ae653aa29f0601028a650be",
-        "sha256": "0jz1aka16klfwwzgvh88q1a3c7gcp5ms5xvjnmkw6cwcd6bm5m1a",
+        "rev": "968ec11a29af861969a6413d53cbac5d1666320a",
+        "sha256": "0x6id4b1jhlnagjj9svda2z66h8cng9vpqwdzvz6rc74i8yza51x",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/cd00d79764792a095ae653aa29f0601028a650be.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/968ec11a29af861969a6413d53cbac5d1666320a.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql-6.1": {
@@ -180,15 +180,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-wallet": {
-        "branch": "refs/tags/v2021-09-29",
+        "branch": "refs/tags/v2022-01-18",
         "description": "HTTP server & command-line for managing UTxOs and HD wallets in Cardano.",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-wallet",
-        "rev": "6626489542ce442a8451fb46fb5339346e62b4ee",
-        "sha256": "0n1vgbz3m73v33462ifg3qas9djwlpcvi1m0qxc7j15l3w5qhlw5",
+        "rev": "a5085acbd2670c24251cf8d76a4e83c77a2679ba",
+        "sha256": "1apzfy7qdgf6l0lb3icqz3rvaq2w3a53xq6wvhqnbfi8i7cacy03",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-wallet/archive/6626489542ce442a8451fb46fb5339346e62b4ee.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-wallet/archive/a5085acbd2670c24251cf8d76a4e83c77a2679ba.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "flake-compat": {
