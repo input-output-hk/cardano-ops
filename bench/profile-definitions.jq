@@ -78,6 +78,7 @@ def generator_defaults($era):
   , tx_fee:                  1000000
   , epochs:                  5
   , tps:                     9
+  , highLevelConfig:         true
   }
 } | (.common + (.[$era] // {}));
 
