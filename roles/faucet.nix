@@ -3,7 +3,8 @@ with pkgs;
 let
   faucetPkgs = (import (sourcePaths.cardano-faucet + "/nix") {});
   walletPackages = import sourcePaths.cardano-wallet { gitrev = sourcePaths.cardano-wallet.rev; };
-  inherit (walletPackages) cardano-wallet cardano-node;
+  inherit (walletPackages) cardano-wallet;
+  cardanoNodePkgs = getCardanoNodePackages private.project.hsPkgs.cardano-node.src;
   inherit (pkgs.lib) mkIf;
 in {
 
@@ -32,7 +33,7 @@ in {
   };
 
   services.cardano-node = {
-    package = cardano-node;
+    inherit cardanoNodePkgs;
     allProducers = if (globals.topology.relayNodes != [])
         then [ globals.relaysNew ]
         else (map (n: n.name) globals.topology.coreNodes);
