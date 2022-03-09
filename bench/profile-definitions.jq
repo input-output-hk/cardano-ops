@@ -210,7 +210,13 @@ def utxo_delegators_density_profiles:
     , node: { rts_flags_override: ["-A4m", "-N4"] } }
 
   , { desc: "regression, March 2022 data set sizes"
-    , genesis: { utxo: 6000000, delegators: 1500000 } }
+    , genesis: { utxo:           7000000
+               , delegators:     1250000
+               , max_block_size: 80000
+               }
+    , generator: { tps:          11
+                 }
+    }
 
   , { desc: "Plutus return-success"
     , generator: { plutusMode: true
