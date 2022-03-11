@@ -77,10 +77,10 @@
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "7e17365d625a152bf97e71225348538b65cbce37",
-        "sha256": "0pypvcihrss76cwv4c25c1xcxf5lqfdq0i3n3b0blv1ajxllnjd4",
+        "rev": "6217ddbf22a77cc6f758f5d5d4e923e08b6f2559",
+        "sha256": "1bbflzp2006l9d9gh2vagaib43xpcdll519vzl1pxkmmmx2c7s7z",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/7e17365d625a152bf97e71225348538b65cbce37.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/6217ddbf22a77cc6f758f5d5d4e923e08b6f2559.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
