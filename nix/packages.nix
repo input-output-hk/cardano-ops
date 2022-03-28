@@ -198,4 +198,15 @@ self: super: with self; {
   }));
 
   flake-compat = import sourcePaths.flake-compat;
+
+  inherit ((flake-compat {
+    src = sourcePaths.nix;
+    override-inputs = {
+      nixpkgs = (flake-compat { src = sourcePaths.nixpkgs; inherit system; }).defaultNix;
+    };
+    inherit system;
+  }).defaultNix.packages.${system}) nix;
+
+  nixUnstable = nix;
+  nixFlake = nix;
 }

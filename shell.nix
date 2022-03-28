@@ -25,7 +25,7 @@ in  mkShell (globals.environmentVariables // {
     niv
     locli
     nivOverrides
-    nixUnstable
+    nix
     nix-diff
     nixops
     pandoc
