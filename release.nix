@@ -9,8 +9,9 @@ in pkgs.lib.fix (self: {
     nginxExplorer
     node-update
     prometheus-varnish-exporter
-    varnish
-    varnish-modules;
+    varnishPackages;
+
+  shell = import ./shell.nix { inherit pkgs; }
 
   forceNewEval = pkgs.writeText "forceNewEval" cardano-ops.rev;
 
@@ -22,7 +23,9 @@ in pkgs.lib.fix (self: {
       nginxExplorer
       node-update
       prometheus-varnish-exporter
+      varnishPackages.varnish
       varnishPackages.modules
+      shell
     ];
   };
 })
