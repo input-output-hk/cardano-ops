@@ -196,8 +196,8 @@ in {
       HASURA_GRAPHQL_LOG_LEVEL = "warn";
     };
     serviceConfig = {
-      # Force regular restart due to https://github.com/hasura/graphql-engine/issues/3388
-      RuntimeMaxSec = 4 * 60 * 60;
+      # Force regular restart (every hour) due to https://github.com/hasura/graphql-engine/issues/3388
+      RuntimeMaxSec = 60 * 60;
       # TODO: run under dynamic user (remove sudo use)
     };
   };
