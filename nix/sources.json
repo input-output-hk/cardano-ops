@@ -72,15 +72,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql-6.2": {
-        "branch": "6.2.0-systemd-exec",
+        "branch": "6-2-stable",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "04ab18a71d9767a3c53702fe5e91934adbc63c7f",
-        "sha256": "0ljbdj27r6pwznisympsbixfd2424r5gici6n0rqivv1m2ygh0aa",
+        "rev": "5dfc0156bd1ecf119282a480a7aa8061cfbbea86",
+        "sha256": "1m1h1fj7cp0swz3mm3s1n3385naibzw2r850z8p64ihq7gd96rp8",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/04ab18a71d9767a3c53702fe5e91934adbc63c7f.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/5dfc0156bd1ecf119282a480a7aa8061cfbbea86.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
