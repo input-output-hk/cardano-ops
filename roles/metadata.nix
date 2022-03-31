@@ -304,6 +304,10 @@ in {
              limit_req zone=metadataQueryPerIP burst=20 nodelay;
              ${corsConfig}
            '';
+           "/metadata/healthcheck".extraConfig = ''
+              add_header Content-Type text/plain;
+              return 200 'OK';
+           '';
           }) // (lib.genAttrs webhookEndpoints (p: {
             proxyPass = "http://127.0.0.1:${toString metadataWebhookPort}${p}";
             extraConfig = corsConfig;
