@@ -195,8 +195,11 @@ in {
     environment = {
       HASURA_GRAPHQL_LOG_LEVEL = "warn";
     };
-    # FIXME: run under cexplorer (remove sudo use)
-    #serviceConfig.User = "cexplorer";
+    serviceConfig = {
+      # Force regular restart due to https://github.com/hasura/graphql-engine/issues/3388
+      RuntimeMaxSec = 4 * 60 * 60;
+      # TODO: run under dynamic user (remove sudo use)
+    };
   };
 
   systemd.services.cardano-submit-api.serviceConfig = lib.mkIf globals.withSubmitApi {
