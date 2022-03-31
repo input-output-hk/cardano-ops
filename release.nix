@@ -11,7 +11,7 @@ in pkgs.lib.fix (self: {
     prometheus-varnish-exporter
     varnish;
 
-  varnish-modules = varnishPackages.modules;
+  varnish-modules = pkgs.varnishPackages.modules;
 
   shell = import ./shell.nix { inherit pkgs; };
 
