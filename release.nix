@@ -9,7 +9,9 @@ in pkgs.lib.fix (self: {
     nginxExplorer
     node-update
     prometheus-varnish-exporter
-    varnishPackages;
+    varnish;
+
+  varnish-modules = varnishPackages.modules;
 
   shell = import ./shell.nix { inherit pkgs; };
 
@@ -23,8 +25,8 @@ in pkgs.lib.fix (self: {
       nginxExplorer
       node-update
       prometheus-varnish-exporter
-      varnishPackages.varnish
-      varnishPackages.modules
+      varnish
+      varnish-modules
       shell
     ];
   };
