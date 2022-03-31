@@ -11,7 +11,7 @@ in pkgs.lib.fix (self: {
     prometheus-varnish-exporter
     varnishPackages;
 
-  shell = import ./shell.nix { inherit pkgs; }
+  shell = import ./shell.nix { inherit pkgs; };
 
   forceNewEval = pkgs.writeText "forceNewEval" cardano-ops.rev;
 
