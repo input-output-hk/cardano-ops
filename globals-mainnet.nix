@@ -12,6 +12,7 @@ pkgs: {
   explorerBackends = {
     a = pkgs.globals.explorer12-2;
     b = pkgs.globals.explorer12-2;
+    c = pkgs.globals.explorer12-2;
   };
   explorerActiveBackends = [ "a" "b" ];
 
