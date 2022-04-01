@@ -18,16 +18,16 @@ let
     hasSuffix ".nix" baseName
   );
 in {
-  db-sync-snapshot = crystal.buildCrystalPackage {
-    pname = "db-sync-snapshot";
+  snapshot-states = crystal.buildCrystalPackage {
+    pname = "snapshot-states";
     version = "0.1.0";
     src = cleanSourceWith {
       inherit filter;
       src = ./.;
-      name = "db-sync-snapshot";
+      name = "snapshot-states";
     };
     format = "shards";
-    crystalBinaries.db-sync-snapshot.src = "src/db-sync-snapshot.cr";
+    crystalBinaries.snapshot-states.src = "src/snapshot-states.cr";
     shardsFile = ./shards.nix;
     buildInputs = [ openssl pkg-config ];
     doCheck = true;

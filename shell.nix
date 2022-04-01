@@ -38,12 +38,12 @@ in  mkShell (globals.environmentVariables // {
     nix-direnv
     lorri
     relayUpdateTimer
-    dbSyncSnapshotTimer
+    snapshotStatesTimer
     s3cmd
   ] ++ (lib.optionals pkgs.stdenv.hostPlatform.isLinux ([
     # Those fail to compile under macOS:
     node-update
-    db-sync-snapshot
+    snapshot-states
     # script NOT for use on mainnet:
   ] ++ lib.optional (globals.environmentName != "mainnet") kes-rotation));
 

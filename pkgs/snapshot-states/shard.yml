@@ -1,4 +1,4 @@
-name: db-sync-snapshot
+name: snapshot-states
 version: 0.1.0
 
 authors:
@@ -8,8 +8,8 @@ description: |
   Upload db-sync snapshot, to be schedule on a X epochs period.
 
 targets:
-  db-sync-snapshot:
-    main: src/db-sync-snapshot.cr
+  snapshot-states:
+    main: src/snapshot-states.cr
 
 dependencies:
   email:

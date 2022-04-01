@@ -52,7 +52,7 @@ self: super: with self; {
 
   inherit (callPackage ../pkgs/kes-rotation {}) kes-rotation;
   inherit (callPackage ../pkgs/node-update {}) node-update;
-  inherit (callPackage ../pkgs/db-sync-snapshot {}) db-sync-snapshot;
+  inherit (callPackage ../pkgs/snapshot-states {}) snapshot-states;
 
   aws-affinity-indexes = runCommand "aws-affinity-indexes" {
     nativeBuildInputs = with self; [ csvkit jq ];
@@ -133,7 +133,7 @@ self: super: with self; {
     '';
 
 
-  dbSyncSnapshotTimer =
+  snapshotStatesTimer =
     let
       writeIni = filename: cfg: writeTextFile {
         name = filename;
@@ -141,55 +141,55 @@ self: super: with self; {
         destination = "/${filename}";
       } + "/${filename}";
 
-      runDbSyncSnapshot = writeShellScript "run-db-sync-snapshot" ''
+      runSnapshotStates = writeShellScript "run-snapshot-states" ''
         set -eu -o pipefail
         cd ${globals.deploymentPath}
-        mkdir -p db-sync-snapshot/logs
-        nix-shell --run 'db-sync-snapshot ${globals.dbSyncSnapshotArgs}' &> db-sync-snapshot/logs/db-sync-snapshot-$(date -u +"%F_%H-%M-%S").log
+        mkdir -p snapshot-states/logs
+        nix-shell --run 'if [ $(./scripts/hours-since-last-epoch.sh) -le 1 ]; then [ -f upload-done ] ||  snapshot-states ${globals.snapshotStatesArgs} &> snapshot-states/logs/snapshot-states-$(date -u +"%F_%H-%M-%S").log && touch upload-done; else rm -f upload-done; fi'
       '';
 
-      service = writeIni "db-sync-snapshot-${globals.deploymentName}.service" {
+      service = writeIni "snapshot-states-${globals.deploymentName}.service" {
         Unit = {};
         Service = {
-           ExecStart = "${runDbSyncSnapshot}";
+           ExecStart = "${runSnapshotStates}";
            Environment = "PATH=${lib.makeBinPath [ nix coreutils git gnutar ]}";
         };
       };
 
-      timer = writeIni "db-sync-snapshot-${globals.deploymentName}.timer" {
+      timer = writeIni "snapshot-states-${globals.deploymentName}.timer" {
         Unit = {};
         Timer = {
-          OnCalendar = globals.relayUpdatePeriod;
-          Unit = "db-sync-snapshot-${globals.deploymentName}.service";
+          OnCalendar = "hourly";
+          Unit = "snapshot-states-${globals.deploymentName}.service";
         };
         Install = {
           WantedBy = "default.target";
         };
       };
 
-    in writeShellScriptBin "db-sync-snapshot-timer" ''
+    in writeShellScriptBin "snapshot-states-timer" ''
       set -eu -o pipefail
       cd ${globals.deploymentPath}
       MODE=''${1:-""}
       if [ "$MODE" = "--install" ]; then
-        nix-store --indirect --add-root .nix-gc-roots/db-sync-snapshot-service --realise ${service}
-        nix-store --indirect --add-root .nix-gc-roots/db-sync-snapshot-timer  --realise ${timer}
+        nix-store --indirect --add-root .nix-gc-roots/snapshot-states-service --realise ${service}
+        nix-store --indirect --add-root .nix-gc-roots/snapshot-states-timer  --realise ${timer}
         mkdir -p ~/.config/systemd/user/
         ln -sf ${service} ~/.config/systemd/user/
         ln -sf ${timer} ~/.config/systemd/user/
-        systemctl --user enable db-sync-snapshot-${globals.deploymentName}.timer
-        systemctl --user start db-sync-snapshot-${globals.deploymentName}.timer
-        systemctl --user status db-sync-snapshot-${globals.deploymentName}.timer
+        systemctl --user enable snapshot-states-${globals.deploymentName}.timer
+        systemctl --user start snapshot-states-${globals.deploymentName}.timer
+        systemctl --user status snapshot-states-${globals.deploymentName}.timer
       elif [ "$MODE" = "--uninstall" ]; then
-        rm -f .nix-gc-roots/db-sync-snapshot-*
-        systemctl --user disable db-sync-snapshot-${globals.deploymentName}.timer
-        systemctl --user disable db-sync-snapshot-${globals.deploymentName}.service
+        rm -f .nix-gc-roots/snapshot-states-*
+        systemctl --user disable snapshot-states-${globals.deploymentName}.timer
+        systemctl --user disable snapshot-states-${globals.deploymentName}.service
       else
-        echo "usage: db-sync-snapshot-timer --(un)install"
+        echo "usage: snapshot-states-timer --(un)install"
         echo ""
         echo "after install, check status with:"
-        echo "  systemctl --user status db-sync-snapshot-${globals.deploymentName}.timer"
-        echo "  systemctl --user status db-sync-snapshot-${globals.deploymentName}.service"
+        echo "  systemctl --user status snapshot-states-${globals.deploymentName}.timer"
+        echo "  systemctl --user status snapshot-states-${globals.deploymentName}.service"
       fi
     '';
 

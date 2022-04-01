@@ -59,11 +59,11 @@ pkgs: {
   # Trigger relay topology refresh 12 hours before next epoch
   relayUpdateHoursBeforeNextEpoch = 12;
 
-  dbSyncSnapshotArgs = "-e devops@iohk.io";
+  snapshotStatesArgs = "-e devops@iohk.io";
 
   alertChainDensityLow = "85";
 
-  dbSyncSnapshotS3Bucket = "update-cardano-mainnet.iohk.io";
+  snapshotStatesS3Bucket = "update-cardano-mainnet.iohk.io";
 
   smashDelistedPools = [
     "ce2e5bbae0caa514670d63cfdad3123a5d32cf7c37df87add5a0f75f"

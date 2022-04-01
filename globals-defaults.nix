@@ -17,9 +17,7 @@ in {
   relayUpdateArgs = "-m 1";
   relayUpdatePeriod = "weekly";
 
-  dbSyncSnapshotArgs = "";
-
-  dbSyncSnapshotPeriod = "10d";
+  snapshotStatesArgs = "";
 
   environmentName = globals.deploymentName;
 

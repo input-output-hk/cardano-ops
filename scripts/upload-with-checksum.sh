@@ -28,6 +28,6 @@ for f in "$FILE.sha256sum" "$FILE"; do
 done
 
 echo "Uploaded files:"
-for f in "$FILE.sha256sum" "$FILE"; do
+for f in "$FILE" "$FILE.sha256sum"; do
   echo " - https://$HOST/$PATH_PREFIX$f"
 done
