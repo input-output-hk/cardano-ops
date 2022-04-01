@@ -189,6 +189,9 @@ in {
       RuntimeDirectory = "cardano-graphql";
       DynamicUser = true;
     };
+    environment = {
+      NODE_OPTIONS="--unhandled-rejections=strict";
+    };
   };
 
   systemd.services.graphql-engine = {
@@ -196,8 +199,8 @@ in {
       HASURA_GRAPHQL_LOG_LEVEL = "warn";
     };
     serviceConfig = {
-      # Force regular restart (every hour) due to https://github.com/hasura/graphql-engine/issues/3388
-      RuntimeMaxSec = 60 * 60;
+      # Force regular restart (every 3 hours) due to https://github.com/hasura/graphql-engine/issues/3388
+      RuntimeMaxSec = 3 * 60 * 60;
       # TODO: run under dynamic user (remove sudo use)
     };
   };
