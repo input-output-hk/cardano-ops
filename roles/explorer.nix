@@ -189,9 +189,6 @@ in {
       RuntimeDirectory = "cardano-graphql";
       DynamicUser = true;
     };
-    environment = {
-      NODE_OPTIONS="--unhandled-rejections=strict";
-    };
   };
 
   systemd.services.graphql-engine = {
