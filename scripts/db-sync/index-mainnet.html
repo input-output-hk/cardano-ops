@@ -316,6 +316,10 @@
             if(this.continuationToken){
               bucketListApiUrl += `&continuation-token=${encodeURIComponent(this.continuationToken)}`
             }
+
+            // force cache refresh every hour:
+            bucketListApiUrl += `&cachestamp=${Math.round((new Date()).getTime() / 3600000)}`
+
             let listBucketResultResponse = await fetch(bucketListApiUrl)
             let listBucketResultXml = await listBucketResultResponse.text()
 
