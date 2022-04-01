@@ -126,8 +126,8 @@ in {
 
   cardanoNodePrometheusExporterPort = 12798;
   cardanoExplorerPrometheusExporterPort = 12698;
-  # DB-sync on snapshots is restarting regularly to take snapshot:
-  intermittentMonitoringTargets = [ "snapshots-exporter" ];
+  # DB-sync and cardano-node on snapshots is restarting regularly to take snapshots:
+  intermittentMonitoringTargets = [ "snapshots-exporter" "snapshots" ];
   cardanoExplorerGwPrometheusExporterPort = 12699;
   netdataExporterPort = 19999;
 
