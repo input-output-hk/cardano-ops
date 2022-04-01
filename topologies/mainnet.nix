@@ -285,6 +285,7 @@ in {
 
   explorer-b.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/12/db-sync-snapshot-schema-12-block-6943858-x86_64.tgz";
   explorer-a.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/12/db-sync-snapshot-schema-12-block-7050499-x86_64.tgz";
+  explorer-c.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/12/db-sync-snapshot-schema-12-block-7050499-x86_64.tgz";
 
   monitoring = {
     services.monitoring-services = {
