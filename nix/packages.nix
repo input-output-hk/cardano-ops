@@ -144,8 +144,8 @@ self: super: with self; {
       runSnapshotStates = writeShellScript "run-snapshot-states" ''
         set -eu -o pipefail
         cd ${globals.deploymentPath}
-        mkdir -p snapshot-states/logs
-        nix-shell --run 'if [ $(./scripts/hours-since-last-epoch.sh) -le 1 ]; then [ -f upload-done ] ||  snapshot-states ${globals.snapshotStatesArgs} &> snapshot-states/logs/snapshot-states-$(date -u +"%F_%H-%M-%S").log && touch upload-done; else rm -f upload-done; fi'
+        mkdir -p state-snapshots/logs
+        nix-shell --run 'if [ $(./scripts/hours-since-last-epoch.sh) -le 1 ]; then [ -f state-snapshots/upload-done ] ||  snapshot-states ${globals.snapshotStatesArgs} &> state-snapshots/logs/snapshot-states-$(date -u +"%F_%H-%M-%S").log && touch state-snapshots/upload-done; else rm -f state-snapshots/upload-done; fi'
       '';
 
       service = writeIni "snapshot-states-${globals.deploymentName}.service" {
