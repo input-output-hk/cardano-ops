@@ -148,7 +148,7 @@ class SnapshotStates
 
   def retrieveNodeStateUpgradeSnapshot()
 
-    if runCmdVerbose("nixops ssh snapshots 'systemctl stop cardano-node && cd /var/lib/cardano-node && find db-testnet/immutable/ -maxdepth 1 -type f | sort | tail -n 30 | xargs tar czf db-#{@cluster}-upgrade.tar.gz db-#{@cluster}/clean db-#{@cluster}/protocolMagicId db-#{@cluster}/volatile db-#{@cluster}/ledger'").success?
+    if runCmdVerbose("nixops ssh snapshots 'systemctl stop cardano-node && cd /var/lib/cardano-node && find db-#{@cluster}/immutable/ -maxdepth 1 -type f | sort | tail -n 30 | xargs tar czf db-#{@cluster}-upgrade.tar.gz db-#{@cluster}/clean db-#{@cluster}/protocolMagicId db-#{@cluster}/volatile db-#{@cluster}/ledger'").success?
       if !runCmdVerbose("mkdir -p #{SNAPSHOTS_WORK_DIR} "\
         "&& nixops scp --from snapshots /var/lib/cardano-node/db-#{@cluster}-upgrade.tar.gz #{SNAPSHOTS_WORK_DIR}/").success?
         updateAbort("Could not retrieve cardano-node state upgrade snasphot from snapshots.")
