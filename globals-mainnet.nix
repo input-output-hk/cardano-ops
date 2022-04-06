@@ -14,7 +14,11 @@ pkgs: {
     b = pkgs.globals.explorer12-2;
     c = pkgs.globals.explorer12-2;
   };
-  explorerActiveBackends = [ "a" "b" ];
+  explorerActiveBackends = [
+    "a"
+    "b"
+    "c"
+  ];
 
   withHighCapacityMonitoring = true;
   withHighCapacityExplorer = true;
@@ -40,7 +44,7 @@ pkgs: {
   minMemoryPerInstance = 10;
 
   # GB per node instance
-  nodeDbDiskAllocationSize = 50;
+  nodeDbDiskAllocationSize = 60;
 
   ec2 = {
     credentials = {
