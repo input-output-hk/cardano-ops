@@ -23,6 +23,18 @@
         "url": "https://github.com/input-output-hk/cardano-db-sync/archive/935e1fe5d5d11d694e9b6c54030a592b85742671.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "cardano-db-sync-13": {
+        "branch": "tag-hf-memory",
+        "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "cardano-db-sync",
+        "rev": "c59164c88b6f7e1d4d389c3f66de2d3157e3c29e",
+        "sha256": "1ajy0h7lj1814hcfiq5nlq5kwmxn0m9lp3qhw7jx9xsplai81rmz",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/c59164c88b6f7e1d4d389c3f66de2d3157e3c29e.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-db-sync-service": {
         "branch": "master",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",

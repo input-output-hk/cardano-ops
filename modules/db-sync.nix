@@ -12,7 +12,9 @@ let
   cardanoNodeConfigPath = builtins.toFile "cardano-node-config.json" (builtins.toJSON nodeCfg.nodeConfig);
 
   inherit (dbSyncPkgs) cardanoDbSyncHaskellPackages;
-  inherit (cardanoDbSyncHaskellPackages.cardano-db-sync-extended.components.exes) cardano-db-sync-extended;
+  package = cardanoDbSyncHaskellPackages.cardano-db-sync-extended.components.exes.cardano-db-sync-extended
+    # No more extended from 13.x onward:
+    or cardanoDbSyncHaskellPackages.cardano-db-sync.components.exes.cardano-db-sync;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-tool.components.exes) cardano-db-tool;
 in {
 
@@ -66,7 +68,7 @@ in {
 
   services.cardano-db-sync = {
     enable = true;
-    package = cardano-db-sync-extended;
+    inherit package;
     cluster = globals.environmentName;
     environment = globals.environmentConfig;
     socketPath = nodeCfg.socketPath;

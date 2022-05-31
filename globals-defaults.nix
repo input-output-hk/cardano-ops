@@ -40,7 +40,7 @@ in {
   };
   explorerActiveBackends = attrNames globals.explorerBackends;
   explorerRosettaActiveBackends = globals.explorerActiveBackends;
-  snapshots = globals.explorer12 // {
+  snapshots = globals.explorer13 // {
     # use same node version as normal nodes so that node db snapshot can be useful:
     inherit (sourcePaths) cardano-node;
   };
@@ -55,6 +55,9 @@ in {
   explorer12-2 = globals.explorer12 // {
     cardano-graphql = sourcePaths."cardano-graphql-6.2";
     cardano-rosetta = sourcePaths."cardano-rosetta-1.7";
+  };
+  explorer13 = globals.explorer12-2 // {
+    cardano-db-sync = sourcePaths.cardano-db-sync-13;
   };
   explorerBackendsInContainers = false;
 
