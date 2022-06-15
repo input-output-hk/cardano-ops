@@ -60,6 +60,7 @@ in {
     cardano-db-sync = sourcePaths.cardano-db-sync-13;
     cardano-graphql = sourcePaths.cardano-graphql-vasil;
     ogmios = sourcePaths.ogmios-vasil;
+    cardano-rosetta = sourcePaths.cardano-rosetta-vasil;
     inherit (sourcePaths) cardano-node;
   };
   explorerBackendsInContainers = false;

@@ -203,6 +203,18 @@
         "url": "https://github.com/input-output-hk/cardano-rosetta/archive/2a40528f26ab3f2a217be98cd0299c29f270fde2.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "cardano-rosetta-vasil": {
+        "branch": "master",
+        "description": "An implementation of Rosetta for Cardano ",
+        "homepage": "https://www.rosetta-api.org",
+        "owner": "input-output-hk",
+        "repo": "cardano-rosetta",
+        "rev": "8ee4ad5a4628c6995ae6626cf67a6ab64b61181c",
+        "sha256": "1rysglq4hvc8cbg9hnx9lnz9812bgvn0vq6igqr1r7l5326qgn0x",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/8ee4ad5a4628c6995ae6626cf67a6ab64b61181c.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-wallet": {
         "branch": "refs/tags/v2022-01-18",
         "description": "HTTP server & command-line for managing UTxOs and HD wallets in Cardano.",
