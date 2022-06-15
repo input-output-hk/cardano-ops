@@ -107,16 +107,28 @@
         "url": "https://github.com/input-output-hk/cardano-graphql/archive/5dfc0156bd1ecf119282a480a7aa8061cfbbea86.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "cardano-graphql-vasil": {
+        "branch": "chore/vasil-support",
+        "description": "GraphQL API for Cardano",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "cardano-graphql",
+        "rev": "c24a66f2fd64021f3f012b8b65eef7b42317392a",
+        "sha256": "1i5yw7c3057p8zkniiiydwyq2q9fygn1cak72l1ci3b6nv8clbak",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/c24a66f2fd64021f3f012b8b65eef7b42317392a.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-node": {
-        "branch": "refs/tags/1.34.1",
+        "branch": "refs/tags/1.35.0-rc2",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "73f9a746362695dc2cb63ba757fbcabb81733d23",
-        "sha256": "1hh53whcj5y9kw4qpkiza7rmkniz18r493vv4dzl1a8r5fy3b2bv",
+        "rev": "95c3692cfbd4cdb82071495d771b23e51840fb0e",
+        "sha256": "1s4jjksz185dg4lp36ldha7vccxh0rk8zlvqms00zhg8kla21kr5",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/73f9a746362695dc2cb63ba757fbcabb81733d23.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/95c3692cfbd4cdb82071495d771b23e51840fb0e.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-1-33-0rc3": {
@@ -233,10 +245,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "8e65ca078e00b2138c77f1a2739d394ccfe4a5e7",
-        "sha256": "084abfng9maldqqlr7bvrvqz1blblcnxkrx415jhwf7y5zfk5v8q",
+        "rev": "edb2d2df2ebe42bbdf03a0711115cf6213c9d366",
+        "sha256": "1yjm5bk26vak25j9ws5lv2jw80kjdfn1a7b003kzs1r0zds87xy2",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/8e65ca078e00b2138c77f1a2739d394ccfe4a5e7.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/edb2d2df2ebe42bbdf03a0711115cf6213c9d366.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nix": {
@@ -321,6 +333,18 @@
         "sha256": "1vphgb71bzl8dy5b039502xb0n93pcx2srysr4qv5q9rgg4ww6ay",
         "type": "tarball",
         "url": "https://github.com/input-output-hk/cardano-ogmios/archive/101de744a9a29534cbf078b7b54fc122b4609b9e.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "ogmios-vasil": {
+        "branch": "vasil",
+        "description": " ❇️ A JSON-WSP WebSocket bridge for cardano-node",
+        "homepage": "https://ogmios.dev",
+        "owner": "input-output-hk",
+        "repo": "cardano-ogmios",
+        "rev": "dcd07f9d680faad07cb2f388b7b860ccb4e4e872",
+        "sha256": "164clakad4d90kk1nyv2zz9ksvlpnjfcl94gjz75xk8izlwv2dpb",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-ogmios/archive/dcd07f9d680faad07cb2f388b7b860ccb4e4e872.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {

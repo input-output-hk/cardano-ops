@@ -9,6 +9,7 @@ pkgs: with pkgs; {
   withFaucet = true;
   withExplorer = true;
   explorerBackendsInContainers = true;
+  explorerBackends.a = globals.explorer13;
   withSmash = true;
   withSubmitApi = true;
   faucetHostname = "faucet";

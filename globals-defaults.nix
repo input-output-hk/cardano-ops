@@ -62,6 +62,9 @@ in {
   };
   explorer13 = globals.explorer12-2 // {
     cardano-db-sync = sourcePaths.cardano-db-sync-13;
+    cardano-graphql = sourcePaths.cardano-graphql-vasil;
+    ogmios = sourcePaths.ogmios-vasil;
+    inherit (sourcePaths) cardano-node;
   };
   explorerBackendsInContainers = false;
 
