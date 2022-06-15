@@ -13,7 +13,7 @@ let
   dbSyncPkgs = let s = getSrc "cardano-db-sync"; in import (s + "/nix") { gitrev = s.rev; };
 
   ogmiosFlake = (flake-compat { src = (getSrc "ogmios");}).defaultNix;
-  cardanoNodePkgs = getCardanoNodePackages ogmiosFlake.legacyPackages.x86_64-linux.hsPkgs.cardano-api.src;
+  cardanoNodePkgs = getCardanoNodePackages (variant.cardano-node or ogmiosFlake.legacyPackages.x86_64-linux.hsPkgs.cardano-api.src);
   inherit (dbSyncPkgs) cardanoDbSyncHaskellPackages;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-sync-extended.components.exes) cardano-db-sync-extended;
   inherit (cardanoNodePkgs) cardano-node cardano-cli;
