@@ -63,7 +63,7 @@ in {
     cardano-graphql = sourcePaths.cardano-graphql-vasil;
     ogmios = sourcePaths."ogmios-5.5";
     cardano-rosetta = sourcePaths."cardano-rosetta-1.8";
-    cardano-node = sourcePaths.cardano-node-next;
+    cardano-node = sourcePaths.cardano-node;
   };
   explorerBackendsInContainers = false;
 
