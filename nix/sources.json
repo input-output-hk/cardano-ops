@@ -24,15 +24,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync-13": {
-        "branch": "refs/tags/13.0.0-rc2",
+        "branch": "refs/tags/13.0.0-rc4",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "21d83644a3904df39696d94a508727bb42741c67",
-        "sha256": "0lgknr7ch369qf3q72bafrc2vjwqwm3kvj5rq31ii7k8xkmyb5c5",
+        "rev": "a494e5e660f76a4b9fe2dd6cd9368f1429978d6f",
+        "sha256": "119yh0fxildpb9dxvyfanwqg1y1l1qw2xmg7cayqdh1ry2j99qa0",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/21d83644a3904df39696d94a508727bb42741c67.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/a494e5e660f76a4b9fe2dd6cd9368f1429978d6f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync-service": {
@@ -60,15 +60,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-faucet": {
-        "branch": "alonzo-wallet",
+        "branch": "babbage-wallet",
         "description": "Faucet for Cardano",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "968ec11a29af861969a6413d53cbac5d1666320a",
-        "sha256": "0x6id4b1jhlnagjj9svda2z66h8cng9vpqwdzvz6rc74i8yza51x",
+        "rev": "09cb07f96e3b612620e5227846e1d6382c611769",
+        "sha256": "1i76fvypb36sml4b3ba3z3ab21jmyx3yngf25kfdh9j536v841k1",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/968ec11a29af861969a6413d53cbac5d1666320a.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/09cb07f96e3b612620e5227846e1d6382c611769.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql-6.1": {
@@ -101,22 +101,22 @@
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "c24a66f2fd64021f3f012b8b65eef7b42317392a",
-        "sha256": "1i5yw7c3057p8zkniiiydwyq2q9fygn1cak72l1ci3b6nv8clbak",
+        "rev": "b608eeaf588fa17453807a4cf8f47aa9511760b3",
+        "sha256": "1cz603pg97jpnrxaavhgcfgghsdayza12sn62xa06yzkmcsc1gv9",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/c24a66f2fd64021f3f012b8b65eef7b42317392a.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/b608eeaf588fa17453807a4cf8f47aa9511760b3.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
-        "branch": "refs/tags/1.35.0-rc2",
+        "branch": "refs/tags/1.35.0",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "95c3692cfbd4cdb82071495d771b23e51840fb0e",
-        "sha256": "1s4jjksz185dg4lp36ldha7vccxh0rk8zlvqms00zhg8kla21kr5",
+        "rev": "9f1d7dc163ee66410d912e48509d6a2300cfa68a",
+        "sha256": "06arx9hv7dn3qxfy83f0b6018rxbsvh841nvfyg5w6qclm1hddj7",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/95c3692cfbd4cdb82071495d771b23e51840fb0e.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/9f1d7dc163ee66410d912e48509d6a2300cfa68a.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-1-33-0rc3": {
@@ -216,15 +216,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-wallet": {
-        "branch": "refs/tags/v2022-01-18",
+        "branch": "master",
         "description": "HTTP server & command-line for managing UTxOs and HD wallets in Cardano.",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-wallet",
-        "rev": "a5085acbd2670c24251cf8d76a4e83c77a2679ba",
-        "sha256": "1apzfy7qdgf6l0lb3icqz3rvaq2w3a53xq6wvhqnbfi8i7cacy03",
+        "rev": "4c1f2a2c8f105fc20c227e5522090a6483b5d3ad",
+        "sha256": "10516zbzrrhxdzy81r1wq33z78d8fphsnkl4kr8sy9lck06bbvgw",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-wallet/archive/a5085acbd2670c24251cf8d76a4e83c77a2679ba.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-wallet/archive/4c1f2a2c8f105fc20c227e5522090a6483b5d3ad.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "flake-compat": {
@@ -317,10 +317,10 @@
         "homepage": "https://ogmios.dev",
         "owner": "input-output-hk",
         "repo": "cardano-ogmios",
-        "rev": "dcd07f9d680faad07cb2f388b7b860ccb4e4e872",
-        "sha256": "164clakad4d90kk1nyv2zz9ksvlpnjfcl94gjz75xk8izlwv2dpb",
+        "rev": "3296a81ecdb35b4bd1014830969449c7ef4ceed8",
+        "sha256": "03pbkqfb3fx1r5brc342v125p8fsmfq1ryx223h32ahn80b4vfjj",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-ogmios/archive/dcd07f9d680faad07cb2f388b7b860ccb4e4e872.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-ogmios/archive/3296a81ecdb35b4bd1014830969449c7ef4ceed8.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
