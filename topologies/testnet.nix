@@ -78,4 +78,8 @@ in {
     services.nginx.virtualHosts.explorer.locations."/p" = lib.mkIf (__pathExists ../static/pool-metadata) {
       root = ../static/pool-metadata;
     };
+    services.cardano-db-sync.restoreSnapshot = {
+      a = "https://updates-cardano-testnet.s3.amazonaws.com/cardano-db-sync/13/db-sync-snapshot-schema-13-block-3673999-x86_64.tgz";
+      b = "https://updates-cardano-testnet.s3.amazonaws.com/cardano-db-sync/13/db-sync-snapshot-schema-13-block-3673999-x86_64.tgz";
+    }.${b};
   }) globals.explorerBackends)

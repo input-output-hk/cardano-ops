@@ -24,15 +24,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync-13": {
-        "branch": "refs/tags/13.0.0-rc4",
+        "branch": "refs/tags/13.0.0",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "a494e5e660f76a4b9fe2dd6cd9368f1429978d6f",
-        "sha256": "119yh0fxildpb9dxvyfanwqg1y1l1qw2xmg7cayqdh1ry2j99qa0",
+        "rev": "67367b5ae317b2915de94dc3be43c29d796d876e",
+        "sha256": "1c4825d0178h53w2aifslpfx14z5ggx9arlc7dnwdhzbi55a8g5c",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/a494e5e660f76a4b9fe2dd6cd9368f1429978d6f.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/67367b5ae317b2915de94dc3be43c29d796d876e.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync-service": {
@@ -65,10 +65,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-faucet",
-        "rev": "09cb07f96e3b612620e5227846e1d6382c611769",
-        "sha256": "1i76fvypb36sml4b3ba3z3ab21jmyx3yngf25kfdh9j536v841k1",
+        "rev": "adc7261c609497de71b0683a78a11e8ea737fc3f",
+        "sha256": "0g81lvhj7rb1sbjxyk4byyqj7bihnx2a0744di7s9jyz63ygi9m2",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-faucet/archive/09cb07f96e3b612620e5227846e1d6382c611769.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-faucet/archive/adc7261c609497de71b0683a78a11e8ea737fc3f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql-6.1": {
@@ -96,27 +96,27 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql-vasil": {
-        "branch": "chore/vasil-support",
+        "branch": "master",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "b608eeaf588fa17453807a4cf8f47aa9511760b3",
-        "sha256": "1cz603pg97jpnrxaavhgcfgghsdayza12sn62xa06yzkmcsc1gv9",
+        "rev": "ffb40028f51e23983c2ae27693bbdcd152208d9d",
+        "sha256": "008mjkmlcr2i73zc1ax2si008xw4g0q09v01g5f755p5j5xhy7wk",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/b608eeaf588fa17453807a4cf8f47aa9511760b3.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/ffb40028f51e23983c2ae27693bbdcd152208d9d.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
-        "branch": "refs/tags/1.35.0",
+        "branch": "refs/tags/1.35.1",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "9f1d7dc163ee66410d912e48509d6a2300cfa68a",
-        "sha256": "06arx9hv7dn3qxfy83f0b6018rxbsvh841nvfyg5w6qclm1hddj7",
+        "rev": "c75451f0ffd7a60b5ad6c4263891e6c8acac105a",
+        "sha256": "1z0zv1i58ikmbqg878f9z573jkwp4lzhmmswshm6c96rq6lprzh8",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/9f1d7dc163ee66410d912e48509d6a2300cfa68a.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/c75451f0ffd7a60b5ad6c4263891e6c8acac105a.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-1-33-0rc3": {
@@ -203,28 +203,28 @@
         "url": "https://github.com/input-output-hk/cardano-rosetta/archive/2a40528f26ab3f2a217be98cd0299c29f270fde2.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-rosetta-vasil": {
-        "branch": "master",
+    "cardano-rosetta-1.8": {
+        "branch": "1-8-stable",
         "description": "An implementation of Rosetta for Cardano ",
         "homepage": "https://www.rosetta-api.org",
         "owner": "input-output-hk",
         "repo": "cardano-rosetta",
-        "rev": "8ee4ad5a4628c6995ae6626cf67a6ab64b61181c",
-        "sha256": "1rysglq4hvc8cbg9hnx9lnz9812bgvn0vq6igqr1r7l5326qgn0x",
+        "rev": "147304d4e104114d3bb50761450d97f289bff632",
+        "sha256": "08aww9zwdbw2kp9yach510ipgryghj4xg6zbv79xl499307k76li",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/8ee4ad5a4628c6995ae6626cf67a6ab64b61181c.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-rosetta/archive/147304d4e104114d3bb50761450d97f289bff632.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-wallet": {
-        "branch": "master",
+        "branch": "refs/tags/v2022-07-01",
         "description": "HTTP server & command-line for managing UTxOs and HD wallets in Cardano.",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-wallet",
-        "rev": "4c1f2a2c8f105fc20c227e5522090a6483b5d3ad",
-        "sha256": "10516zbzrrhxdzy81r1wq33z78d8fphsnkl4kr8sy9lck06bbvgw",
+        "rev": "c0ece6ad1868682b074708ffb810bdc2ea96934f",
+        "sha256": "0ii631ak757kjzs7jm625zfv2g28ffjrfkmgslxbbgvwpqxkdbaj",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-wallet/archive/4c1f2a2c8f105fc20c227e5522090a6483b5d3ad.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-wallet/archive/c0ece6ad1868682b074708ffb810bdc2ea96934f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "flake-compat": {
@@ -311,16 +311,16 @@
         "url": "https://github.com/input-output-hk/cardano-ogmios/archive/101de744a9a29534cbf078b7b54fc122b4609b9e.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "ogmios-vasil": {
-        "branch": "vasil",
+    "ogmios-5.5": {
+        "branch": "main",
         "description": " ❇️ A JSON-WSP WebSocket bridge for cardano-node",
         "homepage": "https://ogmios.dev",
         "owner": "input-output-hk",
         "repo": "cardano-ogmios",
-        "rev": "3296a81ecdb35b4bd1014830969449c7ef4ceed8",
-        "sha256": "03pbkqfb3fx1r5brc342v125p8fsmfq1ryx223h32ahn80b4vfjj",
+        "rev": "2253ef350822f3d18bf6ac579c5abc2a99c2ac4c",
+        "sha256": "1n6fi53qia1qc4hm6niz7s3jm07kz0lri1z519py1hkwjm7na8sb",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-ogmios/archive/3296a81ecdb35b4bd1014830969449c7ef4ceed8.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-ogmios/archive/2253ef350822f3d18bf6ac579c5abc2a99c2ac4c.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
