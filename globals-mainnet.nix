@@ -60,7 +60,7 @@ pkgs: {
     };
   };
 
-  relayUpdateArgs = "-m 3400 --maxNodes 12 -s -e devops@iohk.io";
+  relayUpdateArgs = "-m 3200 --maxNodes 11 -s -e devops@iohk.io";
   # Trigger relay topology refresh 12 hours before next epoch
   relayUpdateHoursBeforeNextEpoch = 12;
 
