@@ -69,36 +69,6 @@ let
     (mkStakingPool "b" 1 "IOGP2" { nodeId = 28; })
     (mkStakingPool "c" 1 "IOGP3" { nodeId = 29; })
     (mkStakingPool "d" 1 "IOGP4" { nodeId = 30; })
-    #(mkStakingPool "e" 1 "IOGP5" { nodeId = 31; })
-    #(mkStakingPool "f" 1 "IOGP6" { nodeId = 32; })
-    #(mkStakingPool "a" 2 "IOGP7" { nodeId = 33; })
-    #(mkStakingPool "b" 2 "IOGP8" { nodeId = 34; })
-    #(mkStakingPool "c" 2 "IOGP9" { nodeId = 35; })
-    #(mkStakingPool "d" 2 "IOGP10" { nodeId = 36; })
-    #(mkStakingPool "e" 2 "IOGP11" { nodeId = 37; })
-    #(mkStakingPool "f" 2 "IOGP12" { nodeId = 38; })
-    #(mkStakingPool "a" 3 "IOGP13" { nodeId = 39; })
-    #(mkStakingPool "b" 3 "IOGP14" { nodeId = 40; })
-    #(mkStakingPool "c" 3 "IOGP15" { nodeId = 41; })
-    #(mkStakingPool "d" 3 "IOGP16" { nodeId = 42; })
-    #(mkStakingPool "e" 3 "IOGP17" { nodeId = 43; })
-    #(mkStakingPool "f" 3 "IOGP18" { nodeId = 44; })
-    #(mkStakingPool "a" 4 "IOGP19" { nodeId = 45; })
-    #(mkStakingPool "b" 4 "IOGP20" { nodeId = 46; })
-    #(mkStakingPool "c" 4 "IOGP21" { nodeId = 47; })
-    #(mkStakingPool "d" 4 "IOGP22" { nodeId = 48; })
-    #(mkStakingPool "e" 4 "IOGP23" { nodeId = 49; })
-    #(mkStakingPool "f" 4 "IOGP24" { nodeId = 50; })
-    #(mkStakingPool "a" 5 "IOGP25" { nodeId = 51; })
-    #(mkStakingPool "b" 5 "IOGP26" { nodeId = 52; })
-    #(mkStakingPool "c" 5 "IOGP27" { nodeId = 53; })
-    #(mkStakingPool "d" 5 "IOGP28" { nodeId = 54; })
-    #(mkStakingPool "e" 5 "IOGP29" { nodeId = 55; })
-    #(mkStakingPool "f" 5 "IOGP30" { nodeId = 56; })
-    #(mkStakingPool "a" 6 "IOGP31" { nodeId = 57; })
-    #(mkStakingPool "b" 6 "IOGP32" { nodeId = 58; })
-    #(mkStakingPool "c" 6 "IOGP33" { nodeId = 59; })
-    #(mkStakingPool "d" 6 "LEO1"   { nodeId = 60; })
   ];
 
   coreNodes = bftCoreNodes ++ stakingPoolNodes;
@@ -120,10 +90,13 @@ let
     } [ "rel-a-2" "rel-b-2" "rel-c-2" "rel-d-2" "rel-e-2" "rel-f-2" ])
     (forNodes {
       services.cardano-node = {
-        cardanoNodePkgs = cardanoNodeAdoptionMetricsPkgs;
+        cardanoNodePkgs = cardanoNodeNextPkgs;
+        extraNodeInstanceConfig = i: optionalAttrs (i == 0) {
+          TraceBlockFetchClient = true;
+          TraceMempool = true;
+        };
       };
     } [ "rel-a-3" "rel-b-3" "rel-c-3" "rel-d-3" "rel-e-3" "rel-f-3" ])
-    # Uncomment for early release testing
     (forNodes {
       services.cardano-node = {
         cardanoNodePkgs = cardanoNodeNextPkgs;
@@ -176,111 +149,6 @@ in {
         instances = mkForce 1;
       };
     }
-    # Initial test node
-    #{
-    #  name = "memTestNode";
-    #  region = regions.a.name;
-    #  producers = [
-    #    "memTestRelay"
-    #  ];
-    #  org = "IOHK";
-    #  nodeId = 501;
-    #  services.cardano-node = {
-    #    cardanoNodePkgs = mkForce cardanoNodeTestNodes1290Pkgs;
-    #    instances = mkForce 1;
-    #    # profiling = "space-cost";
-    #  };
-    #}
-    # Parallel test node for 1.30.0 testing
-    #{
-    #  name = "memTestNode30";
-    #  region = regions.a.name;
-    #  producers = [
-    #    "memTestRelay"
-    #  ];
-    #  org = "IOHK";
-    #  nodeId = 502;
-    #  services.cardano-node = {
-    #    cardanoNodePkgs = mkForce cardanoNodeTestNodes1300Pkgs;
-    #    instances = mkForce 1;
-    #    profiling = "space-heap";
-    #  };
-    #}
-    # Parallel test node for 1.30.0-min testing
-    #{
-    #  name = "memTestNode30min";
-    #  region = regions.a.name;
-    #  producers = [
-    #    "memTestRelay"
-    #  ];
-    #  org = "IOHK";
-    #  nodeId = 503;
-    #  services.cardano-node = {
-    #    cardanoNodePkgs = mkForce cardanoNodeTestNodes1300Min2Pkgs;
-    #    instances = mkForce 1;
-    #    profiling = "space-heap";
-    #  };
-    #}
-    # Parallel test node for 1.29.0 testing
-    #{
-    #  name = "memTestNode29";
-    #  region = regions.a.name;
-    #  producers = [
-    #    "memTestRelay"
-    #  ];
-    #  org = "IOHK";
-    #  nodeId = 504;
-    #  services.cardano-node = {
-    #    cardanoNodePkgs = mkForce cardanoNodeTestNodes1290Pkgs;
-    #    instances = mkForce 1;
-    #    profiling = "space-heap";
-    #  };
-    #}
-    # Parallel test node for 1.30.0 testing with space profiling
-    #{
-    #  name = "memTestNode30ProfHT";
-    #  region = regions.a.name;
-    #  producers = [
-    #    "memTestRelay"
-    #  ];
-    #  org = "IOHK";
-    #  nodeId = 506;
-    #  # Default niv pin is at 1.30.0, so no cardanoNodePkgs change required
-    #  services.cardano-node = {
-    #    instances = mkForce 1;
-    #    profiling = "space-cost";
-    #  };
-    #}
-    # Parallel test node for 1.30.0-min testing with space profiling
-    #{
-    #  name = "memTestNode30minProfHT";
-    #  region = regions.a.name;
-    #  producers = [
-    #    "memTestRelay"
-    #  ];
-    #  org = "IOHK";
-    #  nodeId = 507;
-    #  services.cardano-node = {
-    #    cardanoNodePkgs = mkForce cardanoNodeTestNodes1300Min2Pkgs;
-    #    instances = mkForce 1;
-    #    profiling = "space-cost";
-    #  };
-    #}
-    # Parallel test node for 1.29.0 testing with space profiling
-    #{
-    #  name = "memTestNode29ProfHT";
-    #  region = regions.a.name;
-    #  producers = [
-    #    "memTestRelay"
-    #  ];
-    #  org = "IOHK";
-    #  nodeId = 508;
-    #  services.cardano-node = {
-    #    cardanoNodePkgs = mkForce cardanoNodeTestNodes1290Pkgs;
-    #    instances = mkForce 1;
-    #    profiling = "space-cost";
-    #  };
-    #}
   ]);
 
   explorer-b.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/12/db-sync-snapshot-schema-12-block-6943858-x86_64.tgz";
