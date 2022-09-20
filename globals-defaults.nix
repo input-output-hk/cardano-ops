@@ -159,10 +159,10 @@ in {
   };
 
   alertChainDensityLow = "99";
-  alertTcpHigh = 333 * pkgs.globals.nbInstancesPerRelay;
-  alertTcpCrit = 500 * pkgs.globals.nbInstancesPerRelay;
-  alertMbpsHigh = 150 * pkgs.globals.nbInstancesPerRelay;
-  alertMbpsCrit = 200 * pkgs.globals.nbInstancesPerRelay;
+  alertTcpHigh = 165 * globals.ec2.instances.relay-node.node.cpus;
+  alertTcpCrit = 250 * globals.ec2.instances.relay-node.node.cpus;
+  alertMbpsHigh = 75 * globals.ec2.instances.relay-node.node.cpus;
+  alertMbpsCrit = 100 * globals.ec2.instances.relay-node.node.cpus;
   alertHighBlockUtilization = 95; # Alert if blocks are above that % full.
 
 

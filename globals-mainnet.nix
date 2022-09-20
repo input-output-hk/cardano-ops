@@ -41,7 +41,7 @@ pkgs: {
     CF = 36;
   };
 
-  minMemoryPerInstance = 10;
+  minMemoryPerInstance = 15;
 
   # GB per node instance
   nodeDbDiskAllocationSize = 140;
@@ -59,8 +59,6 @@ pkgs: {
       core-node = r5-large;
     };
   };
-
-  nbInstancesPerRelay = 2;
 
   relayUpdateArgs = "-m 3200 --maxNodes 11 -s -e devops@iohk.io";
   # Trigger relay topology refresh 12 hours before next epoch

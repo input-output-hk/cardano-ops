@@ -78,6 +78,10 @@ in
         type = types.float;
         default = config.node.memory * 1024 * 0.875;
       };
+      totalCpuCores = mkOption {
+        type = types.int;
+        default = min config.node.cpus (2 * cfg.instances);
+      };
       maxIntraInstancesPeers = mkOption {
         type = types.int;
         default = 5;
@@ -115,7 +119,7 @@ in
       enable = true;
       systemdSocketActivation = true;
       # https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html
-      rtsArgs = [ "-N2" "-A16m" "-qg" "-qb" "-M${toString (cfg.totalMaxHeapSizeMbytes / cfg.instances)}M" ];
+      rtsArgs = [ "-N${toString (cfg.totalCpuCores / cfg.instances)}" "-A16m" "-qg" "-qb" "-M${toString (cfg.totalMaxHeapSizeMbytes / cfg.instances)}M" ];
       environment = globals.environmentName;
       cardanoNodePkgs = lib.mkDefault cardanoNodePkgs;
       inherit hostAddr nodeId instanceProducers instancePublicProducers;
