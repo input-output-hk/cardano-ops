@@ -10,6 +10,7 @@ pkgs: with pkgs; {config, ...}: {
 
   services.cardano-node = {
     instances = lib.mkDefault globals.nbInstancesPerRelay;
+    totalCpuCores = lib.mkDefault config.node.cpus;
     extraServiceConfig = _: {
       # Since multiple node instances might monopolize CPU, preventing ssh access, lower nice priority:
       serviceConfig.Nice = 5;

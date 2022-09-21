@@ -41,7 +41,7 @@ pkgs: {
     CF = 36;
   };
 
-  minMemoryPerInstance = 10;
+  minMemoryPerInstance = 15;
 
   # GB per node instance
   nodeDbDiskAllocationSize = 140;
