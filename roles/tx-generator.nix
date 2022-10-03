@@ -45,7 +45,7 @@ in {
 
     ## nodeConfig of the locally running observer node.
     localNodeConf = node-cfg;
-    localNodeSocketPath = node-cfg.socketPath;
+    localNodeSocketPath = node-cfg.socketPath 0;
     sigKey = "/var/lib/keys/cardano-node-signing";
 
     ## The nodeConfig of the Tx generator itself.
