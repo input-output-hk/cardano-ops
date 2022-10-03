@@ -19,6 +19,7 @@ keys
 last-deploy.log
 static
 
+/.bench_history
 /*.json
 /*.split
 /*.tar.xz

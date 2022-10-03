@@ -1,4 +1,4 @@
-def genesis_protocol_params($p; $composition):
+def genesis_protocol_params($p; $systemStart):
 { activeSlotsCoeff:           $p.active_slots_coeff
 , epochLength:                $p.epoch_length
 , securityParam:              $p.parameter_k
@@ -8,7 +8,12 @@ def genesis_protocol_params($p; $composition):
   { "decentralisationParam":  $p.decentralisation_param
   , "maxBlockBodySize":       $p.max_block_size
   , "nOpt":                   $p.n_pools
+  , "protocolVersion": {
+      "major": 5,
+      "minor": 0
+    },
   }
+, systemStart:                $systemStart
 };
 
 def genesis_cli_args($p; $composition; $cmd):

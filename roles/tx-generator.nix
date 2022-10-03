@@ -89,7 +89,8 @@ in {
           "TestShelleyHardForkAtEpoch"
           "TestAllegraHardForkAtEpoch"
           "TestMaryHardForkAtEpoch"
-          "TestAlonzoHardForkAtEpoch" ]);
+          "TestAlonzoHardForkAtEpoch"
+          "TestBabbageHardForkAtEpoch" ]);
     nodeConfigFile = __toFile "generator-config.json" (__toJSON nodeConfig);
 
     dsmPassthrough = {
@@ -175,6 +176,19 @@ in {
         { TestShelleyHardForkAtEpoch = 0;
           TestAllegraHardForkAtEpoch = 0;
           TestMaryHardForkAtEpoch = 0;
+        };
+      alonzo =
+        { TestShelleyHardForkAtEpoch = 0;
+          TestAllegraHardForkAtEpoch = 0;
+          TestMaryHardForkAtEpoch = 0;
+          TestAlonzoHardForkAtEpoch = 0;
+        };
+      babbage =
+        { TestShelleyHardForkAtEpoch = 0;
+          TestAllegraHardForkAtEpoch = 0;
+          TestMaryHardForkAtEpoch = 0;
+          TestAlonzoHardForkAtEpoch = 0;
+          TestBabbageHardForkAtEpoch = 0;
         };
     }).${globals.environmentConfig.generatorConfig.era}
     // (globals.benchmarkingProfile.node.extra_config or {}));

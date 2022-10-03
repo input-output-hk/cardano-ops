@@ -7,7 +7,7 @@ logs_of_nodes() {
         local machines=("$@")
 
         for mach in ${machines[*]}
-        do ls -- "$dir"/analysis/logs-"$mach"/node-*.json; done
+        do ls -- "$dir"/analysis/$mach/node-*.json; done
 }
 
 collect_jsonlog_inventory() {
@@ -15,9 +15,9 @@ collect_jsonlog_inventory() {
         local constituents=("$@")
 
         for mach in ${constituents[*]}
-        do jsons=($(ls -- "$dir"/logs-"$mach"/node-*.json))
+        do jsons=($(ls -- "$dir"/$mach/node-*.json))
            jsonlog_inventory "$mach" "${jsons[@]}"; done
-        jsonlog_inventory "generator" "$dir"/logs-explorer/generator-*.json
+        jsonlog_inventory "generator" "$dir"/explorer/generator-*.json
 }
 
 analysis_append() {
@@ -45,58 +45,8 @@ analysis_prepend() {
 ###
 ###
 
-analyse_run() {
-        while test $# -ge 1
-        do case "$1" in
-           --list ) echo ${analysis_list[*]}; return;;
-           * ) break;; esac; shift; done
-
-        local dir=${1:-.} tag meta
-        dir=$(realpath "$dir")
-
-        if test ! -d "$dir"
-        then fail "run directory doesn't exist: $dir"; fi
-        if test ! -f "$dir/meta.json"
-        then fail "run directory doesn't has no metafile: $dir"; fi
-
-        machines=($(jq '.machine_info | keys | join(" ")
-                       ' --raw-output <"$dir/deployment-explorer.json"))
-        meta=$(jq .meta "$dir/meta.json")
-        tag=$(jq .tag <<<$meta --raw-output)
-
-        echo "--( processing logs in:  $(basename "$dir")"
-
-        for a in "${analysis_list[@]}"
-        do echo -n " $a" | sed 's/analysis_//'
-           $a "$dir" "${machines[@]}"; done
-
-        # patch_run "$dir"
-
-        # rm -rf "$dir"/analysis/{analysis,logs-node-*,logs-explorer,startup}
-
-        oprint "analysed tag:  ${tag}"
-}
-
 runs_in() {
         local dir=${1:-.}
         dir=$(realpath $dir)
         find "$dir" -maxdepth 2 -mindepth 2 -name meta.json -type f | cut -d/ -f$(($(tr -cd /  <<<$dir | wc -c) + 2))
-}
-
-mass_analyse() {
-        local parallel=
-        while test $# -ge 1
-        do case "$1" in
-           --parallel ) parallel=t;;
-           * ) break;; esac; shift; done
-
-        local dir=${1:-.} runs
-        runs=($(runs_in "$dir"))
-
-        oprint "analysing runs:  ${runs[*]}"
-
-        for run in "${runs[@]}"
-        do if test -n "$parallel"
-           then analyse_run "$dir/$run" &
-           else analyse_run "$dir/$run"; fi; done
 }

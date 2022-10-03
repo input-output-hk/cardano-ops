@@ -13,26 +13,3 @@ patch_run() {
                  "$dir"/analysis/timetoblock.csv
         fi
 }
-
-package_run() {
-        local tag report_name package
-        dir=${1:-.}
-        tag=$(run_tag "$dir")
-        report_name=$(run_report_name "$dir")
-
-        local dirgood dirbad
-        dirgood=$(realpath ../bench-results-bad)
-        dirbad=$(realpath ../bench-results)
-        mkdir -p "$dirgood"
-        mkdir -p "$dirbad"
-        if is_run_broken "$dir"
-        then resultroot=$dir
-        else resultroot=$dirbad; fi
-
-        package=${resultroot}/$report_name.tar.xz
-
-        oprint "Packaging $tag as:  $package"
-        ln -sf "./runs/$tag" "$report_name"
-        tar cf "$package"    "$report_name" --xz --dereference || true
-        rm -f                "$report_name"
-}

@@ -59,9 +59,9 @@ id_pool_map_composition() {
 ##      - count and the names of producer nodes
 ##      - genesis parameters
 params_init() {
-        local node_count="${1?USAGE:  init-cluster NODECOUNT [PROTOCOL-ERA=shelley] [TOPOLOGY=distrib|eu-central-1]}"
+        local node_count="${1?USAGE:  init-cluster NODECOUNT [PROTOCOL-ERA=shelley] [TOPOLOGY=dense|eu-central-1]}"
         local era="${2:-shelley}"
-        local topology="${3:-distrib}"
+        local topology="${3:-dense}"
         if test $((node_count + 0)) -ne $node_count
         then fail "this operation requires a node count as an integer argument."
         fi
@@ -73,33 +73,40 @@ params_init() {
         id_pool_map=$(topology_id_pool_density_map "$topology_file")
         composition=$(id_pool_map_composition "$id_pool_map")
 
-        local args=(--argjson compo       "$composition"
-                    --arg     topology    "$topology"
-                    --arg     era         "$era")
+        local args=(--argjson   compo        "$composition"
+                    --slurpfile def_byron    'bench/genesis-byron-mainnet.json'
+                    --slurpfile def_shelley  'bench/genesis-shelley-mainnet.json'
+                    --slurpfile def_alonzo   'bench/genesis-alonzo-mainnet.json'
+                    --arg       topology     "$topology"
+                    --arg       era          "$era")
         jq "${args[@]}" '
 include "profile-definitions" { search: "bench" };
 
-  genesis_defaults($era; $compo)         as $genesis_defaults
-| generator_defaults($era)               as $generator_defaults
-| node_defaults($era)                    as $node_defaults
+  { byron:    $def_byron[0]
+  , shelley:  $def_shelley[0]
+  , alonzo:   $def_alonzo[0]
+  } as $defaults_ext
+| genesis_defaults($era; $compo; $defaults_ext) as $genesis_defaults
+| generator_defaults($era)                      as $generator_defaults
+| node_defaults($era)                           as $node_defaults
 
-| (aux_profiles | map(.name | {key: ., value: null}) | from_entries)
+| (aux_profiles($compo) | map(.name | {key: ., value: null}) | from_entries)
                                          as $aux_names
 
 ## For all IO arities and block sizes:
 | profiles
 | . +
-  ( aux_profiles
+  ( aux_profiles($compo)
   | map ({ name:      .name
          , genesis:   ($genesis_defaults   * ( .genesis   // {} ))
          , generator: ($generator_defaults * ( .generator // {} ))
          , node:      ($node_defaults      * ( .node      // {} ))
          }))
 | map
-  ( ($genesis_defaults    * .genesis)    as $gsis
-  | ($generator_defaults  * .generator)  as $gtor
-  | ($node_defaults       * .node)       as $node
-  | era_tolerances($era; $gsis)          as $tolr
+  ( ($genesis_defaults    * ( .genesis   // {} ))  as $gsis
+  | ($generator_defaults  * ( .generator // {} ))  as $gtor
+  | ($node_defaults       * ( .node      // {} ))  as $node
+  | era_tolerances($era; $gsis)                    as $tolr
   | { description:
         (.desc // .description // "")
     , genesis:
@@ -112,7 +119,8 @@ include "profile-definitions" { search: "bench" };
         ($tolr * derived_tolerances($era; $compo; $gtor; $gsis; $node; $tolr))
     }                                    as $prof
   | { "\(.name //
-         profile_name($compo; $prof.genesis; $prof.generator; $prof.node))":
+         profile_name($compo; $prof.genesis; $prof.generator; $prof.node;
+                      $genesis_defaults))":
       ($prof
        | delpaths ([ ["generator", "epochs"]
                    , ["generator", "finish_patience"]]))
@@ -130,7 +138,7 @@ include "profile-definitions" { search: "bench" };
 
     ## The first entry is the defprof defprof.
     , default_profile:     (.[0] | (. | keys) | .[0])
-    , aux_profiles:        (aux_profiles | map(.name))
+    , aux_profiles:        (aux_profiles($compo) | map(.name))
     , composition:         $compo
     }}
   + (. | add)
@@ -174,8 +182,9 @@ list_profiles() {
     rparmjq 'del(.meta)
             | to_entries
             | sort_by(.value.description)
+            | (map (.key | length) | max | . + 1) as $maxlen
             | map("\(.key
-                    | " " * (40 - length))\(.key): \(.value.description)")
+                    | " " * ($maxlen - length))\(.key): \(.value.description)")
             | .[]'
 }
 

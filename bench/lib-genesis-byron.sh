@@ -69,11 +69,14 @@ profile_genesis_byron() {
         rm -f "$byron_params_tmpfile"
 }
 
-genesis_update_starttime_byron() {
+byron_genesis_update() {
         local start_timestamp=$1 genesis_dir=${2:-./keys/byron}
 
         json_file_append "$genesis_dir"/genesis.json "
           { startTime: $start_timestamp }" <<<0
+
+        local hash_byron=$(genesis_hash_byron             "$dir/byron")
+        echo -n "$hash_byron"                           > "$dir/byron"/GENHASH
 }
 
 genesis_hash_byron() {

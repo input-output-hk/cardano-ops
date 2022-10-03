@@ -17,41 +17,35 @@ profgenjq()
 }
 
 profile_deploy() {
-        local batch=$1 prof=${2:-default} include=()
+        local batch=$1 prof=$2 nodesrc=$3 nodesrcspec=$4
         prof=$(params resolve-profile "$prof")
 
+        ## 0. Allocate deployment log
         mkdir -p runs/deploy-logs
-        deploylog=runs/deploy-logs/$(timestamp).$batch.$prof.log
-
+        local deploylog=runs/deploy-logs/$(timestamp).$batch.$prof.log
         mkdir -p "$(dirname "$deploylog")"
         echo >"$deploylog"
         ln -sf "$deploylog" 'last-deploy.log'
 
-        watcher_pid=
-        if test -n "${watch_deploy}"
-        then { sleep 0.3; tail -f "$deploylog"; } &
-             watcher_pid=$!; fi
-
-        if test -n "$watcher_pid"
-        then kill "$watcher_pid" >/dev/null 2>&1 || true; fi
-
-        local genesis_timestamp=$(timestamp)
-
+        ## 1. Prebuild
         if test -z "$no_prebuild"
-        then oprint "prebuilding:"
-             ## 0. Prebuild:
-             ensure_genesis "$prof" "$genesis_timestamp"
-             time deploy_build_only "$prof" "$deploylog" "$watcher_pid"; fi
+        then oprint "prebuilding profile:  $prof"
+             ensure_genesis "$prof"
+             local nodesrcnix=$(nix-instantiate \
+                                    --eval \
+                                    -E "{ json }: __fromJSON json" \
+                                    --argstr json "$nodesrc")
+             time deploy_build_only "$prof" "$nodesrcnix" "$deploylog"
+             oprint "profile prebuild done"
+             fi
 
-        ensure_genesis "$prof" "$genesis_timestamp"
+        ## 2. Prepare final genesis
+        ensure_genesis "$prof" 'verbose-please'
+        oprint "final deployment genesis ready"
 
-        include="explorer $(params producers)"
-
-        if test -z "$no_deploy"
-        then deploystate_deploy_profile "$prof" "$include" "$deploylog"
-        else oprint "skippin' deploy, because:  CLI override"
-             ln -sf "$deploylog" 'last-deploy.log'
-        fi
+        ## 3. Actually deploy
+        deploystate_deploy_profile \
+            "$prof" "explorer $(params producers)" "$deploylog" "$nodesrc" "$nodesrcspec"
 }
 
 ###

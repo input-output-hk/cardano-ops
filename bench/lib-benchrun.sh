@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 generate_run_tag() {
-        local batch=$1 prof=$2
+        local batch=$1 prof=$2 node_commit=$3
 
-        echo "$(date +'%Y'-'%m'-'%d'-'%H.%M').$batch.$prof"
+        echo "$(date +'%Y'-'%m'-'%d'-'%H.%M').$batch.$(echo $node_commit | cut -c1-4).$prof"
 }
 
 run_report_name() {
@@ -49,7 +49,6 @@ process_broken_run() {
 
         op_stop
         fetch_run      "$dir"
-        analyse_run    "$dir"
         package_run    "$dir" "$(realpath ../bench-results-bad)"
 }
 
