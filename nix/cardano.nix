@@ -51,6 +51,7 @@ self: super: with self; let
       inherit (cardanoNodeHaskellPackages.network-mux.components.exes) cardano-ping;
       inherit (cardanoNodeHaskellPackages.locli.components.exes) locli;
       inherit (cardanoNodeHaskellPackages.tx-generator.components.exes) tx-generator;
+      inherit (cardanoNodeHaskellPackages.cardano-tracer.components.exes) cardano-tracer;
 
       inherit plutus-scripts;
 

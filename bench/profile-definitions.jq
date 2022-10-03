@@ -86,6 +86,7 @@ def generator_defaults($era):
 def node_defaults($era):
 { common:
   { rts_flags_override:            []
+  , withNewTracing:                false
   }
 } | (.common + (.[$era] // {}));
 
@@ -192,6 +193,10 @@ def utxo_delegators_density_profiles:
     , name: "k51-5ep-360kTx-4000kU-1000kD-64kbs-p2p-no-lp"
     , node: { p2p:            true
             , useLedgerPeers: false } }
+
+  , { desc: "regression, October 2021 data set sizes, New tracing"
+    , name: "k51-5ep-360kTx-4000kU-1000kD-64kbs-new-tracing"
+    , node: { withNewTracing: true } }
 
   , { desc: "rtsflags: batch1, best CPU/mem"
     , node: { rts_flags_override: ["-H4G", "-M6553M", "-c70"] } }
@@ -367,6 +372,18 @@ def aux_profiles($compo):
   , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1
                , init_cooldown: 25, finish_patience: 4
                }
+  }
+, { name: "smoke-new-tracing"
+  , desc: "A quick smoke test, new tracing"
+  , genesis:
+    { utxo:                  3
+    , delegators:            $compo.n_dense_hosts
+    , dense_pool_density:    10
+    }
+  , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1
+               , init_cooldown: 25, finish_patience: 4
+               }
+  , node: { withNewTracing: true }
   }
 , { name: "smoke-epoch"
   , desc: "Smoke test for epoch transitions"
