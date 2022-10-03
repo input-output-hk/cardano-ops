@@ -90,7 +90,7 @@ let
     } [ "rel-a-2" "rel-b-2" "rel-c-2" "rel-d-2" "rel-e-2" "rel-f-2" ])
     (forNodes {
       services.cardano-node = {
-        cardanoNodePkgs = cardanoNodeNextPkgs;
+        cardanoNodePackages = cardanoNodeNextPkgs;
         extraNodeInstanceConfig = i: optionalAttrs (i == 0) {
           TraceBlockFetchClient = true;
           TraceMempool = true;
@@ -99,7 +99,7 @@ let
     } [ "rel-a-3" "rel-b-3" "rel-c-3" "rel-d-3" "rel-e-3" "rel-f-3" ])
     (forNodes {
       services.cardano-node = {
-        cardanoNodePkgs = cardanoNodeNextPkgs;
+        cardanoNodePackages = cardanoNodeNextPkgs;
       };
     } [ "rel-a-4" "rel-b-4" "rel-c-4" "rel-d-4" "rel-e-4" "rel-f-4" ])
     (forNodes {

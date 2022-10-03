@@ -103,7 +103,7 @@ in with pkgs; {
       };
     };
     systemd.services.custom-metrics = {
-      path = with pkgs; with cfgNode.cardanoNodePkgs; [ cardano-cli cardano-ping coreutils gawk gnugrep gnused jq nmap procps ];
+      path = with pkgs; with cfgNode.cardanoNodePackages; [ cardano-cli cardano-ping coreutils gawk gnugrep gnused jq nmap procps ];
       environment = config.environment.variables;
       script = ''
         STATSD_HOST="localhost"
