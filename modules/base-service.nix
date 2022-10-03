@@ -64,6 +64,11 @@ in
     cardano-ops.modules.common
     cardano-ops.modules.custom-metrics
     cardano-node-services-def
+    (import (cardano-node-services-def + "/cardano-tracer-service.nix")
+      ## XXX: ugly -- svclib should really move to iohk-nix.
+      (pkgs
+       //
+       { commonLib = import ((sourcePaths.cardano-node-service or sourcePaths.cardano-node) + "/nix/svclib.nix") { inherit pkgs; }; }))
   ];
 
   options = {
