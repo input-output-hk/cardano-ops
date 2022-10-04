@@ -180,6 +180,12 @@ in
       };
     };
 
+    services.cardano-tracer = mkIf cfg.withCardanoTracer {
+      enable = true;
+      acceptingSocket = (cfg.stateDir 0) + "/tracer.socket";
+      logRoot = cfg.stateDir 0;
+    };
+
     users.users.cardano-node.isSystemUser = true;
 
     services.dnsmasq.enable = true;
