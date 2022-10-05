@@ -49,7 +49,10 @@ in {
     sigKey = "/var/lib/keys/cardano-node-signing";
 
     ## The nodeConfig of the Tx generator itself.
-    nodeConfig = {
+    nodeConfig =
+      finaliseNodeConfig
+        globals.benchmarkingProfile.node.withNewTracing
+    {
       TurnOnLogging    = true;
       TurnOnLogMetrics = false;
       minSeverity = "Debug";
@@ -98,100 +101,113 @@ in {
     };
   } // globals.environmentConfig.generatorConfig;
 
+  services.cardano-tracer = {
+    enable = true;
+    acceptingSocket = (node-cfg.stateDir 0) + "/tracer.socket";
+    logRoot = node-cfg.stateDir 0;
+  };
+  systemd.services.cardano-tracer.serviceConfig.Environment = [("HOME=" + node-cfg.stateDir 0)];
+
   services.cardano-node = {
     instances = 1;
 
     socketPath = "/var/lib/cardano-node/node.socket";
     systemdSocketActivation = mkForce false;
 
-    nodeConfig = mkForce (globals.environmentConfig.nodeConfig // {
-      defaultScribes = [
-        [ "StdoutSK" "stdout" ]
-        [ "FileSK"   "logs/node.json" ]
-      ];
-      setupScribes = [
-        { scKind = "StdoutSK"; scName = "stdout"; scFormat = "ScJson"; }
-        { scKind = "FileSK"; scName = "logs/node.json"; scFormat = "ScJson";
-          scRotation = {
-            rpLogLimitBytes = 300000000;
-            rpMaxAgeHours   = 24;
-            rpKeepFilesNum  = 20;
-          }; }
-      ];
-      minSeverity = "Debug";
-      TracingVerbosity = "NormalVerbosity";
+    nodeConfig =
+      finaliseNodeConfig
+        globals.benchmarkingProfile.node.withNewTracing
+        (mkForce
+          (globals.environmentConfig.nodeConfig //
+           {
+             defaultScribes = [
+               [ "StdoutSK" "stdout" ]
+               [ "FileSK"   "logs/node.json" ]
+             ];
+             setupScribes = [
+               { scKind = "StdoutSK"; scName = "stdout"; scFormat = "ScJson"; }
+               { scKind = "FileSK"; scName = "logs/node.json"; scFormat = "ScJson";
+                 scRotation = {
+                   rpLogLimitBytes = 300000000;
+                   rpMaxAgeHours   = 24;
+                   rpKeepFilesNum  = 20;
+                 }; }
+             ];
+             minSeverity = "Debug";
+             TracingVerbosity = "NormalVerbosity";
 
-      TestEnableDevelopmentHardForkEras = true;
-      TestEnableDevelopmentNetworkProtocols = true;
+             TestEnableDevelopmentHardForkEras = true;
+             TestEnableDevelopmentNetworkProtocols = true;
 
-      TraceAcceptPolicy                 = false;
-      TraceBlockFetchClient             = true;
-      TraceBlockFetchDecisions          = false;
-      TraceBlockFetchProtocol           = true;
-      TraceBlockFetchProtocolSerialised = false;
-      TraceBlockFetchServer             = false;
-      TraceBlockchainTime               = false;
-      TraceChainDB                      = true;
-      TraceChainSyncBlockServer         = false;
-      TraceChainSyncClient              = true;
-      TraceChainSyncHeaderServer        = false;
-      TraceChainSyncProtocol            = false;
-      TraceDiffusionInitialization      = false;
-      TraceDnsResolver                  = false;
-      TraceDnsSubscription              = false;
-      TraceErrorPolicy                  = true;
-      TraceForge                        = false;
-      TraceForgeStateInfo               = false;
-      TraceHandshake                    = false;
-      TraceIpSubscription               = false;
-      TraceKeepAliveClient              = false;
-      TraceLocalChainSyncProtocol       = false;
-      TraceLocalErrorPolicy             = false;
-      TraceLocalHandshake               = false;
-      TraceLocalStateQueryProtocol      = false;
-      TraceLocalTxSubmissionProtocol    = true;
-      TraceLocalTxSubmissionServer      = true;
-      TraceMempool                      = true;
-      TraceTxInbound                    = true;
-      TraceTxOutbound                   = true;
-      TraceTxSubmissionProtocol         = true;
-      TraceTxSubmission2Protocol        = true;
+             TraceAcceptPolicy                 = false;
+             TraceBlockFetchClient             = true;
+             TraceBlockFetchDecisions          = false;
+             TraceBlockFetchProtocol           = true;
+             TraceBlockFetchProtocolSerialised = false;
+             TraceBlockFetchServer             = false;
+             TraceBlockchainTime               = false;
+             TraceChainDB                      = true;
+             TraceChainSyncBlockServer         = false;
+             TraceChainSyncClient              = true;
+             TraceChainSyncHeaderServer        = false;
+             TraceChainSyncProtocol            = false;
+             TraceDiffusionInitialization      = false;
+             TraceDnsResolver                  = false;
+             TraceDnsSubscription              = false;
+             TraceErrorPolicy                  = true;
+             TraceForge                        = false;
+             TraceForgeStateInfo               = false;
+             TraceHandshake                    = false;
+             TraceIpSubscription               = false;
+             TraceKeepAliveClient              = false;
+             TraceLocalChainSyncProtocol       = false;
+             TraceLocalErrorPolicy             = false;
+             TraceLocalHandshake               = false;
+             TraceLocalStateQueryProtocol      = false;
+             TraceLocalTxSubmissionProtocol    = true;
+             TraceLocalTxSubmissionServer      = true;
+             TraceMempool                      = true;
+             TraceTxInbound                    = true;
+             TraceTxOutbound                   = true;
+             TraceTxSubmissionProtocol         = true;
+             TraceTxSubmission2Protocol        = true;
 
-      TurnOnLogMetrics = true;
-      options = {
-        mapBackends = {
-          "cardano.node.resources" = [ "KatipBK" ];
-        };
-      };
-    } //
-    ({
-      shelley =
-        { TestShelleyHardForkAtEpoch = 0;
-        };
-      allegra =
-        { TestShelleyHardForkAtEpoch = 0;
-          TestAllegraHardForkAtEpoch = 0;
-        };
-      mary =
-        { TestShelleyHardForkAtEpoch = 0;
-          TestAllegraHardForkAtEpoch = 0;
-          TestMaryHardForkAtEpoch = 0;
-        };
-      alonzo =
-        { TestShelleyHardForkAtEpoch = 0;
-          TestAllegraHardForkAtEpoch = 0;
-          TestMaryHardForkAtEpoch = 0;
-          TestAlonzoHardForkAtEpoch = 0;
-        };
-      babbage =
-        { TestShelleyHardForkAtEpoch = 0;
-          TestAllegraHardForkAtEpoch = 0;
-          TestMaryHardForkAtEpoch = 0;
-          TestAlonzoHardForkAtEpoch = 0;
-          TestBabbageHardForkAtEpoch = 0;
-        };
-    }).${globals.environmentConfig.generatorConfig.era}
-    // (globals.benchmarkingProfile.node.extra_config or {}));
+             TurnOnLogMetrics = true;
+             options = {
+               mapBackends = {
+                 "cardano.node.resources" = [ "KatipBK" ];
+               };
+             };
+           } //
+          ({
+            shelley =
+              { TestShelleyHardForkAtEpoch = 0;
+              };
+            allegra =
+              { TestShelleyHardForkAtEpoch = 0;
+                TestAllegraHardForkAtEpoch = 0;
+              };
+            mary =
+              { TestShelleyHardForkAtEpoch = 0;
+                TestAllegraHardForkAtEpoch = 0;
+                TestMaryHardForkAtEpoch = 0;
+              };
+            alonzo =
+              { TestShelleyHardForkAtEpoch = 0;
+                TestAllegraHardForkAtEpoch = 0;
+                TestMaryHardForkAtEpoch = 0;
+                TestAlonzoHardForkAtEpoch = 0;
+              };
+            babbage =
+              { TestShelleyHardForkAtEpoch = 0;
+                TestAllegraHardForkAtEpoch = 0;
+                TestMaryHardForkAtEpoch = 0;
+                TestAlonzoHardForkAtEpoch = 0;
+                TestBabbageHardForkAtEpoch = 0;
+              };
+          }).${globals.environmentConfig.generatorConfig.era}
+          // (globals.benchmarkingProfile.node.extra_config or {})
+          ));
   };
 
   deployment.keys = {

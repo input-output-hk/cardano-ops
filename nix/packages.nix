@@ -67,6 +67,97 @@ self: super: with self; {
 
   topology-lib = import ./topology-lib.nix self;
 
+  ##
+  ## removeLegacyTracingOptions :: NodeConfig -> NodeConfig
+  ##
+  removeLegacyTracingOptions = cfg:
+    builtins.removeAttrs cfg
+    [
+      "TraceAcceptPolicy"
+      "TraceBlockchainTime"
+      "TraceBlockFetchClient"
+      "TraceBlockFetchDecisions"
+      "TraceBlockFetchProtocol"
+      "TraceBlockFetchProtocolSerialised"
+      "TraceBlockFetchServer"
+      "TraceChainDB"
+      "TraceChainSyncClient"
+      "TraceChainSyncBlockServer"
+      "TraceChainSyncHeaderServer"
+      "TraceChainSyncProtocol"
+      "TraceConnectionManager"
+      "TraceConnectionManagerCounters"
+      "TraceConnectionManagerTransitions"
+      "DebugPeerSelectionInitiator"
+      "DebugPeerSelectionInitiatorResponder"
+      "TraceDiffusionInitialization"
+      "TraceDnsResolver"
+      "TraceDnsSubscription"
+      "TraceErrorPolicy"
+      "TraceForge"
+      "TraceForgeStateInfo"
+      "TraceHandshake"
+      "TraceIpSubscription"
+      "TraceKeepAliveClient"
+      "TraceLedgerPeers"
+      "TraceLocalChainSyncProtocol"
+      "TraceLocalConnectionManager"
+      "TraceLocalErrorPolicy"
+      "TraceLocalHandshake"
+      "TraceLocalInboundGovernor"
+      "TraceLocalRootPeers"
+      "TraceLocalServer"
+      "TraceLocalStateQueryProtocol"
+      "TraceLocalTxMonitorProtocol"
+      "TraceLocalTxSubmissionProtocol"
+      "TraceLocalTxSubmissionServer"
+      "TraceMempool"
+      "TraceMux"
+      "TraceLocalMux"
+      "TracePeerSelection"
+      "TracePeerSelectionCounters"
+      "TracePeerSelectionActions"
+      "TracePublicRootPeers"
+      "TraceServer"
+      "TraceInboundGovernor"
+      "TraceInboundGovernorCounters"
+      "TraceInboundGovernorTransitions"
+      "TraceTxInbound"
+      "TraceTxOutbound"
+      "TraceTxSubmissionProtocol"
+      "TraceTxSubmission2Protocol"
+      "TracingVerbosity"
+      "defaultBackends"
+      "defaultScribes"
+      "hasEKG"
+      "hasPrometheus"
+      "minSeverity"
+      "options"
+      "rotation"
+      "setupBackends"
+      "setupScribes"
+    ];
+
+  finaliseNodeConfig = withNewTracing: xs:
+    if !withNewTracing then xs
+    else removeLegacyTracingOptions xs //
+         { UseTraceDispatcher = true;
+           TraceOptions  = {
+             "" =
+               { severity = "Notice";
+                 backends = [
+                   "Stdout MachineFormat"
+                   "EKGBackend"
+                   "Forwarder"
+                 ];
+               };
+             BlockFetch.severity = "Info";
+             ChainSync.severity = "Info";
+             "Forge.Loop".severity = "Debug";
+             Startup.severity = "Debug";
+           };
+         };
+
   relayUpdateTimer =
     let
       writeIni = filename: cfg: writeTextFile {

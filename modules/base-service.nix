@@ -135,8 +135,13 @@ in
       environments = {
         "${globals.environmentName}" = globals.environmentConfig;
       };
-      nodeConfig = globals.environmentConfig.nodeConfig;
-      extraNodeConfig = {
+      nodeConfig = finaliseNodeConfig
+                     globals.benchmarkingProfile.node.withNewTracing
+                     globals.environmentConfig.nodeConfig;
+      extraNodeConfig =
+        finaliseNodeConfig
+          globals.benchmarkingProfile.node.withNewTracing
+      {
         hasPrometheus = [ cfg.hostAddr globals.cardanoNodePrometheusExporterPort ];
         # The maximum number of used peers when fetching newly forged blocks:
         MaxConcurrencyDeadline = 4;
@@ -180,11 +185,12 @@ in
       };
     };
 
-    services.cardano-tracer = mkIf cfg.withCardanoTracer {
+    services.cardano-tracer = {
       enable = true;
       acceptingSocket = (cfg.stateDir 0) + "/tracer.socket";
       logRoot = cfg.stateDir 0;
     };
+    systemd.services.cardano-tracer.serviceConfig.Environment = [("HOME=" + cfg.stateDir 0)];
 
     users.users.cardano-node.isSystemUser = true;
 
