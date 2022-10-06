@@ -189,6 +189,7 @@ in
       enable = true;
       acceptingSocket = (cfg.stateDir 0) + "/tracer.socket";
       logRoot = cfg.stateDir 0;
+      rotation.rpLogLimitBytes = 1000 * 1000 * 1000;
     };
     systemd.services.cardano-tracer.serviceConfig.Environment = [("HOME=" + cfg.stateDir 0)];
 
