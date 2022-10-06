@@ -393,10 +393,11 @@ op_bench_start() {
         op_stop
 
         oprint "resetting node states: node DBs & logs.."
-        nixops ssh-for-each --parallel "rm -rf /var/log/journal/* /var/lib/cardano-node/{db*,logs,node-*,explorer,*.log,utxo}"
+        nixops ssh-for-each --parallel "rm -rf /var/log/journal/* /var/lib/cardano-node/{db*,logs,node-*,*:*,explorer,generator,*.log,utxo}"
 
         oprint "$(date), restarting journald & nodes.."
         nixops ssh-for-each --parallel "systemctl start systemd-journald"
+        nixops ssh-for-each --parallel "systemctl start cardano-tracer"
         sleep 3s
         nixops ssh-for-each --parallel "systemctl start cardano-node"
 
@@ -560,13 +561,14 @@ op_wait_for_nonempty_block() {
 
         echo -n "--( waiting for a non-empty block on explorer (patience until $patience_start_pretty + ${patience}s).  Seen empty: 00"
         while now=$(date +%s); test "${now}" -lt ${patience_until}
-        do r=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | head -n 20 | jq --compact-output \"select(.data.msg.\\\"txIds\\\" != [])\" | wc -l'")
+        do r=$(nixops ssh explorer -- \
+               sh -c "'tac /var/lib/cardano-node/{logs/node,*:*/*}.json 2>/dev/null | grep -F MsgBlock | head -n 20 | jq --compact-output \"select(.data.msg.\\\"txIds\\\" != [])\" | wc -l'")
            if test "$r" -ne 0
-           then l=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | head -n 20 | jq \".data.msg.\\\"txIds\\\" | select(. != []) | length\" | jq . --slurp --compact-output'")
+           then l=$(nixops ssh explorer -- sh -c "'tac /var/lib/cardano-node/{logs/node,*:*/*}.json 2>/dev/null | grep -F MsgBlock | head -n 20 | jq \".data.msg.\\\"txIds\\\" | select(. != []) | length\" | jq . --slurp --compact-output'")
                 echo ", got $l, after $((now - since)) seconds"
                 return 0; fi
            e=$(nixops ssh explorer -- sh -c \
-                   "'tac /var/lib/cardano-node/logs/node.json | grep -F MsgBlock | head -n 20 | jq --slurp \"map (.data.msg.\\\"txIds\\\" | select(. == [])) | length\"'")
+                   "'tac /var/lib/cardano-node/{logs/node,*:*/*}.json 2>/dev/null | grep -F MsgBlock | head -n 20 | jq --slurp \"map (.data.msg.\\\"txIds\\\" | select(. == [])) | length\"'")
            echo -ne "\b\b"; printf "%02d" "$e"
            sleep 5; done
 
@@ -589,7 +591,7 @@ op_wait_for_empty_blocks() {
         local last_blkid='absolut4ly_n=wher'
         local news=
         while test $patience -gt 1 -a $anyblock_patience -gt 1
-        do while news=$(nixops ssh explorer -- sh -c "'set -euo pipefail; { echo \"{ data: { msg: { blkid: 0, txIds: [] }}}\"; tac /var/lib/cardano-node/logs/node.json; } | grep -F MsgBlock | jq --compact-output \".data.msg | { blkid: (.blockHash | ltrimstr(\\\"\\\\\\\"\\\") | rtrimstr(\\\"\\\\\\\"\\\")), tx_count: (.txIds | length) } \"'" |
+        do while news=$(nixops ssh explorer -- sh -c "'set -euo pipefail; { echo \"{ data: { msg: { blkid: 0, txIds: [] }}}\"; tac /var/lib/cardano-node/{logs/node,*:*/*}.json 2>/dev/null; } | grep -F MsgBlock | jq --compact-output \".data.msg | { blkid: (.blockHash | ltrimstr(\\\"\\\\\\\"\\\") | rtrimstr(\\\"\\\\\\\"\\\")), tx_count: (.txIds | length) } \"'" |
                         sed -n '0,/'$last_blkid'/ p' |
                         head -n-1 |
                         jq --slurp 'reverse | ## undo order inversion..
@@ -644,22 +646,22 @@ fetch_logs() {
         for mach in 'explorer' ${producers[*]}
         do nixops ssh "${mach}" -- \
              "cd /var/lib/cardano-node &&
-              { find logs -type l | xargs rm -f; }          &&
-              rm -f                      ${mach}            &&
-              ln -sf logs                ${mach}            &&
+              { { find logs -type l 2>/dev/null || true; } | xargs rm -f; }   &&
+              rm -f                            ${mach}            &&
+              ln -sf \$(ls -d {*:*,logs} 2>/dev/null) ${mach}     &&
               (test ! -f cardano-node.prof     ||
-               mv cardano-node.prof      ${mach}.prof)      &&
+               mv cardano-node.prof            ${mach}.prof)      &&
               (test ! -f cardano-node.eventlog ||
-               mv cardano-node.eventlog  ${mach}.eventlog)  &&
+               mv cardano-node.eventlog        ${mach}.eventlog)  &&
               (test ! -f cardano-node.gcstats  ||
-               mv cardano-node.gcstats   ${mach}.gcstats)   &&
+               mv cardano-node.gcstats         ${mach}.gcstats)   &&
               (journalctl --boot 0 --quiet   -u tx-generator |
                head -n 100        > ${mach}.tx-generator.unit-startup.log &&
                  test \$(stat -c %s ${mach}.tx-generator.unit-startup.log) != 0 ||
                    rm -f            ${mach}.tx-generator.unit-startup.log) &&
               (journalctl --boot 0 --quiet -u cardano-node |
                head -n 100        > ${mach}.cardano-node.unit-startup.log) &&
-              tar c --zstd --dereference \$(ls | grep '^db-\|^logs$' -v)
+              tar c --zstd --dereference \$(ls | grep '^db-\|^logs$\|^.*:.*$\|^.*.socket$' -v)
            " |
                 tee "$dir"/compressed/logs-$mach.tar.zst |
                 tar x --zstd -C "$dir" &&

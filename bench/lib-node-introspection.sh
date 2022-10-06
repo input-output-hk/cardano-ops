@@ -36,7 +36,7 @@ function node_runtime_genesis_systemstart() {
 function node_runtime_apparent_systemstart() {
     nixops ssh $1 -- sh -c '"journalctl -u cardano-node | grep TraceStartLeadershipCheck | head -n2 | tail -n1"' |
         cut -d':' -f4- |
-        jq '[ (.at | "\(.[:19])Z" | fromdateiso8601)
+        jq '[ (.at | "\(.[:19])Z" | sub(" ";"T") | fromdateiso8601)
             , .data.slot
             ] | .[0] - .[1] | todateiso8601' -r
 }
@@ -62,15 +62,11 @@ function node_effective_service_config() {
     local mach=$1 svc=$2
 
     local svcfilename execstart configfilename
-    svcfilename=$(nixops ssh "$mach" -- \
-                         sh -c "'systemctl status $svc || true'" 2>&1 |
-                      grep "/nix/store/.*/$svc\.service" |
-                      cut -d'(' -f2 | cut -d';' -f1 ||
-                      fail "Failed to fetch & parse status of '$svc' on '$mach'")
     execstart=$(nixops ssh "$mach" -- \
-                       grep ExecStart= "$svcfilename" |
+                    systemctl cat $svc |
+                    grep ExecStart= |
                     cut -d= -f2 ||
-                    fail "Failed to extract ExecStart from service file '$svcfilename' on '$mach'")
+                    fail "Failed to extract ExecStart from '$svc.service' on '$mach'")
     test -n "$execstart" || \
                 fail "Couldn't determine ExecStart for '$svc' on '$mach'"
     configfilename=$(nixops ssh "$mach" -- \

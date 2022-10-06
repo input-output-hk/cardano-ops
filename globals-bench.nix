@@ -139,6 +139,10 @@ in (rec {
               # })
             ];
             systemd.services.dump-registered-relays-topology.enable = mkForce false;
+            services.cardano-node.tracerSocketPathConnect =
+              if !benchmarkingProfile.node.withNewTracing then null
+              else "/var/lib/cardano-node/tracer.socket";
+            services.cardano-tracer.networkMagic = benchmarkingProfile.genesis.protocol_magic;
           }
           ## 2. cardano-node service config overlay
           {
@@ -152,6 +156,10 @@ in (rec {
           ## 1. nixos machine overlay
           {
             stakePool = true;
+            services.cardano-node.tracerSocketPathConnect =
+              if !benchmarkingProfile.node.withNewTracing then null
+              else "/var/lib/cardano-node/tracer.socket";
+            services.cardano-tracer.networkMagic = benchmarkingProfile.genesis.protocol_magic;
           }
           ## 2. cardano-node service config overlay
           {
