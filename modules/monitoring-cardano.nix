@@ -99,7 +99,7 @@ in {
     }
     {
       alert = "cardano_new_node_forge_not_adopted_error";
-      expr = "cardano_node_metrics_Forge_didnt_adopt_int > 0";
+      expr = "cardano_node_metrics_Forge_didnt_adopt_int > 5";
       for = "5m";
       labels = {
         severity = "page";
