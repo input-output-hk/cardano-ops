@@ -99,14 +99,16 @@ in {
     }
     {
       alert = "cardano_new_node_forge_not_adopted_error";
-      expr = "cardano_node_metrics_Forge_didnt_adopt_int > 5";
-      for = "5m";
+      expr = "increase(cardano_node_metrics_Forge_didnt_adopt_int[1h]) > 5";
+      for = "1m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary = "{{$labels.alias}}: cardano-node failed to adopt forged block";
-        description = "{{$labels.alias}}: restart of node is needed to resolve this alert";
+        summary = "{{$labels.alias}}: cardano-node is failing to adopt a significant amount of recent forged blocks";
+        description = ''
+          {{$labels.alias}}: cardano-node failed to adopt more than 5 forged blocks in the past hour.
+          A restart of node on the affected machine(s) may be required.'';
       };
     }
     {
