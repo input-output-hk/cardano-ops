@@ -9,7 +9,7 @@ let
 
   regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
-      minRelays = 35;
+      minRelays = 40;
     };
     b = { name = "us-east-2";      # US East (Ohio)
       minRelays = 25;
@@ -151,9 +151,9 @@ in {
     }
   ]);
 
-  explorer-b.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/12/db-sync-snapshot-schema-12-block-6943858-x86_64.tgz";
-  explorer-a.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/12/db-sync-snapshot-schema-12-block-7050499-x86_64.tgz";
-  explorer-c.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/12/db-sync-snapshot-schema-12-block-7050499-x86_64.tgz";
+  explorer-a.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/13/db-sync-snapshot-schema-13-block-7685639-x86_64.tgz";
+  explorer-b.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/13/db-sync-snapshot-schema-13-block-7685639-x86_64.tgz";
+  explorer-c.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/13/db-sync-snapshot-schema-13-block-7685639-x86_64.tgz";
 
   monitoring = {
     services.monitoring-services = {
