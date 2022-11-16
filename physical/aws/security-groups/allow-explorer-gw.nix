@@ -10,6 +10,12 @@ with lib; {
       fromPort = 80;
       toPort = 81;
       sourceIp = resources.elasticIPs."explorer-ip";
+    }
+    {
+      protocol = "tcp";
+      fromPort = 8080;
+      toPort = 8080;
+      sourceIp = resources.elasticIPs."explorer-ip";
     }];
   };
 }

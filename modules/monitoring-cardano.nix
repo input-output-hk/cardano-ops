@@ -14,15 +14,42 @@ in {
   services.monitoring-services.applicationDashboards = ./grafana/cardano;
   services.monitoring-services.applicationRules = [
     {
+      alert = "cardano_graphql_down";
+      expr = ''up{alias="cardano-graphql-exporter"} == 0'';
+      for = "60m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary = "{{$labels.alias}}: Cardano-graphql is down.";
+        description = "{{$labels.alias}} cardano-graphql has been down for more than 60 minutes.";
+      };
+    }
+    {
+      alert = "http_high_internal_error_rate_explorer";
+      expr = ''
+        rate(nginx_vts_server_requests_total{code="5xx",alias=~"explorer-.*"}[5m]) * 50 > on(alias, host) rate(nginx_vts_server_requests_total{code="2xx",alias=~"explorer-.*"}[5m])'';
+      for = "60m";
+      labels = {
+        severity = "page";
+      };
+      annotations = {
+        summary =
+          "{{$labels.alias}}: High explorer http internal error (code 5xx) rate";
+        description =
+          "{{$labels.alias}}  number of correctly served requests is less than 50 times the number of requests aborted due to an internal server error for more than 1 hr";
+      };
+    }
+    {
       alert = "blackbox_probe_down";
       expr = "probe_success == 0";
-      for = "5m";
+      for = "10m";
       labels = {
         severity = "page";
       };
       annotations = {
         summary = "{{$labels.job}}: Blackbox probe is down for {{$labels.instance}}.";
-        description = "{{$labels.job}}: Blackbox probe has been down for at least 5 minutes for {{$labels.instance}}.";
+        description = "{{$labels.job}}: Blackbox probe has been down for at least 10 minutes for {{$labels.instance}}.";
       };
     }
     {

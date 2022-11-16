@@ -10,10 +10,11 @@ pkgs: {
   explorerForceSSL = true;
   explorerAliases = [ "explorer.mainnet.cardano.org" "explorer.${pkgs.globals.domain}" ];
   explorerBackends = {
-    a = pkgs.globals.explorer12-2;
-    b = pkgs.globals.explorer12-2;
-    c = pkgs.globals.explorer12-2;
+    a = pkgs.globals.explorer13;
+    b = pkgs.globals.explorer13;
+    c = pkgs.globals.explorer13;
   };
+
   explorerActiveBackends = [
     "a"
     "b"
@@ -60,7 +61,7 @@ pkgs: {
     };
   };
 
-  relayUpdateArgs = "-m 3200 --maxNodes 11 -s -e devops@iohk.io";
+  relayUpdateArgs = "-m 3100 --maxNodes 11 -s -e devops@iohk.io";
   # Trigger relay topology refresh 12 hours before next epoch
   relayUpdateHoursBeforeNextEpoch = 12;
 

@@ -33,4 +33,4 @@ for r in $TARGET_NODES; do
     aws --region $REGION ec2 modify-volume --size $TARGET_SIZE --volume-id $VOL_ID
  done
 
-nixops ssh-for-each -p --include $TARGET_NODES -- 'nix-shell -p cloud-utils --run "growpart /dev/nvme0n1 1 && resize2fs /dev/disk/by-label/nixos"'
+nixops ssh-for-each -p --include $TARGET_NODES -- 'nix-shell -p cloud-utils --run "growpart /dev/xvda 1 && resize2fs /dev/disk/by-label/nixos"'

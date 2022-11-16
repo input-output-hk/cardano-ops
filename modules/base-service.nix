@@ -76,7 +76,7 @@ in
       };
       totalMaxHeapSizeMbytes = mkOption {
         type = types.float;
-        default = config.node.memory * 1024 * 0.875;
+        default = config.node.memory * 1024 * 0.790;
       };
       totalCpuCores = mkOption {
         type = types.int;

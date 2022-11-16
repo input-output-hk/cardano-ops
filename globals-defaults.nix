@@ -53,6 +53,10 @@ in {
     cardano-graphql = sourcePaths."cardano-graphql-6.2";
     cardano-rosetta = sourcePaths."cardano-rosetta-1.7";
   };
+  explorer12-3 = globals.explorer12-2 // {
+    cardano-rosetta = sourcePaths."cardano-rosetta-1.8";
+    cardano-db-sync = sourcePaths.cardano-db-sync-12;
+  };
   explorer13 = {
     cardano-explorer-app = sourcePaths."cardano-explorer-app-1.6";
     cardano-db-sync = sourcePaths.cardano-db-sync-13;
@@ -131,8 +135,12 @@ in {
 
   cardanoNodePrometheusExporterPort = 12798;
   cardanoExplorerPrometheusExporterPort = 12698;
-  # DB-sync and cardano-node on snapshots is restarting regularly to take snapshots:
-  intermittentMonitoringTargets = [ "snapshots-exporter" "snapshots" ];
+
+  # Service monitoring exclusions:
+  # 1)  db-sync and cardano-node on snapshots is restarting regularly to take snapshots
+  # 2a) cardano-graphql on explorers are restarting regularly due to graphql-engine required restarts
+  #  b) A higher time threshold cardano-graphql alert will be declared in this repos alert module 
+  intermittentMonitoringTargets = [ "snapshots-exporter" "snapshots" "cardano-graphql-exporter" ];
   cardanoExplorerGwPrometheusExporterPort = 12699;
   netdataExporterPort = 19999;
 

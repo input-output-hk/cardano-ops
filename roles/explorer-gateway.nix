@@ -19,11 +19,13 @@ in {
     bat fd lsof netcat ncdu ripgrep tree vim dnsutils
   ];
 
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
+  networking.firewall.allowedTCPPorts = [ 80 443 8080 ];
 
   services.traefik = {
     enable = true;
+
     staticConfigOptions = {
+      api.dashboard = false;
       metrics.prometheus = {
         entryPoint = "metrics";
       };
@@ -57,6 +59,12 @@ in {
     dynamicConfigOptions = {
       http = {
         routers = {
+          #traefik = {
+          #  rule = (lib.concatStringsSep " || "
+          #    (map (a: "Host(`${a}`)") ([globals.explorerHostName] ++ globals.explorerAliases))) + " && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))";
+          #  service = "api@internal";
+          #  tls.certResolver = "default";
+          #};
           rosetta = {
             rule = (lib.concatStringsSep " || "
               (map (a: "Host(`${a}`)") ([globals.explorerHostName] ++ globals.explorerAliases))) + " && PathPrefix(`/rosetta`)";

@@ -137,6 +137,7 @@ in {
     metadataServerUri = globals.environmentConfig.metadataUrl or null;
     ogmiosHost = ogmiosCfg.hostAddr;
     ogmiosPort = ogmiosCfg.port;
+    #loggerMinSeverity = "trace";
   } // lib.optionalAttrs (options.services.cardano-graphql ? genesisByron) {
     genesisByron = nodeCfg.nodeConfig.ByronGenesisFile;
     genesisShelley = nodeCfg.nodeConfig.ShelleyGenesisFile;
@@ -188,6 +189,10 @@ in {
     serviceConfig = {
       RuntimeDirectory = "cardano-graphql";
       DynamicUser = true;
+
+      # Required due to graphql-engine RuntimeMaxSec restarts for issue noted below
+      Restart = "always";
+      RestartSec = "30s";
     };
   };
 
@@ -197,7 +202,8 @@ in {
     };
     serviceConfig = {
       # Force regular restart (every 3 hours) due to https://github.com/hasura/graphql-engine/issues/3388
-      RuntimeMaxSec = 3 * 60 * 60;
+      RuntimeMaxSec = 12 * 60 * 60;
+      #MemoryMax = "20G";
       # TODO: run under dynamic user (remove sudo use)
     };
   };

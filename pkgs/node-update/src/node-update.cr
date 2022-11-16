@@ -388,6 +388,17 @@ class RelayUpdate
         end
 
         if @mockOpt
+          updateCmd = "echo \"MOCK STOPPING CARDANO-NODE SERVICES on target nodes #{batchTargetNodes.join(" ")}\""
+        else
+          updateCmd = "nixops ssh-for-each -p #{@extraDeployFlagsOpt} --include #{batchTargetNodes.join(" ")} -- 'systemctl stop cardano-node'"
+        end
+
+        IO_TEE_OUT.puts "Stopping cardano-node services on target nodes: #{batchTargetNodes.join(" ")}"
+        if !runCmd(updateCmd).success?
+          updateAbort("Failed to stop cardano-node services on target nodes: #{batchTargetNodes.join(" ")} (#{updateCmd})")
+        end
+
+        if @mockOpt
           updateCmd = "echo \"MOCK UPDATING TOPOLOGY to target nodes #{batchTargetNodes.join(" ")}\""
         else
           updateCmd = "nixops deploy #{@extraDeployFlagsOpt} --include #{batchTargetNodes.join(" ")}"
