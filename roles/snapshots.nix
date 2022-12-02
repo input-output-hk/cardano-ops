@@ -15,7 +15,6 @@ in {
     })
   ];
 
-n
   # Create a new snapshot every 24h (if not exist alreay):
   services.cardano-db-sync.takeSnapshot = "always";
 
