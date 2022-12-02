@@ -324,15 +324,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "ops-lib": {
-        "branch": "master",
+        "branch": "no-ipv6",
         "description": "NixOps deployment configuration library for IOHK devops ",
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "c12558d54c9306b6917821e3e594148e4bd1eac4",
-        "sha256": "1ic2i2jhnmyxg2fvh5wy4b3wmn9akc6xvzgzjblfxxhmksayfhzl",
+        "rev": "524a72e4369072ad4a97b8bdc99ecf7a709b5c5f",
+        "sha256": "0vq6n0bmx37phykjs04rvqf62acs20ksyihklyzpsl4rxmq5wbrh",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/c12558d54c9306b6917821e3e594148e4bd1eac4.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/524a72e4369072ad4a97b8bdc99ecf7a709b5c5f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

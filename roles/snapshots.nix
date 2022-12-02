@@ -15,7 +15,10 @@ in {
     })
   ];
 
-
+n
   # Create a new snapshot every 24h (if not exist alreay):
   services.cardano-db-sync.takeSnapshot = "always";
+
+  # Increase stop timeout to 3h, to allow for snapshot creation on mainnet
+  systemd.services.cardano-db-sync.serviceConfig.TimeoutStopSec = lib.mkForce "3h";
 }
