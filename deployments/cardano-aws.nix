@@ -151,6 +151,7 @@ let
 
     };
     defaults = { name, resources, config, ... }: {
+      deployment.hasFastConnection = true;
       deployment.ec2 = {
         keyPair = resources.ec2KeyPairs."cardano-keypair-${config.node.org}-${config.deployment.ec2.region}";
         securityGroups = map (sgName: resources.ec2SecurityGroups.${sgName})
