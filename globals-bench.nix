@@ -144,6 +144,9 @@ in (rec {
               if !benchmarkingProfile.node.withNewTracing then null
               else "/var/lib/cardano-node/tracer.socket";
             services.cardano-tracer.networkMagic = benchmarkingProfile.genesis.protocol_magic;
+            ## Generator can only use new tracing:
+            services.tx-generator.tracerSocketPath =
+              "/var/lib/cardano-node/tracer.socket";
           }
           ## 2. cardano-node service config overlay
           {
