@@ -108,15 +108,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-graphql-vasil": {
-        "branch": "master",
+        "branch": "fixes/incl-test",
         "description": "GraphQL API for Cardano",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-graphql",
-        "rev": "ffb40028f51e23983c2ae27693bbdcd152208d9d",
-        "sha256": "008mjkmlcr2i73zc1ax2si008xw4g0q09v01g5f755p5j5xhy7wk",
+        "rev": "402a13e4a6a9d6fe1972cb9507aa145fff13d413",
+        "sha256": "0qfb3p0wv95pb22iqv47lr1f1hwddkvpp07yv5qy50im6jzl6rd1",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-graphql/archive/ffb40028f51e23983c2ae27693bbdcd152208d9d.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-graphql/archive/402a13e4a6a9d6fe1972cb9507aa145fff13d413.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
@@ -252,15 +252,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nix": {
-        "branch": "refs/tags/2.7.0",
+        "branch": "refs/tags/2.11.1",
         "description": "Nix, the purely functional package manager",
         "homepage": "https://nixos.org/",
         "owner": "NixOS",
         "repo": "nix",
-        "rev": "ffe155abd36366a870482625543f9bf924a58281",
-        "sha256": "0vn30r91gppvpxzfh7dcgzs2p6n976x4likyla1zf7mf5q4nmjwv",
+        "rev": "eb9ce5f27bd83afff63f151406b497eab6e90a1a",
+        "sha256": "1sbl3fm3xcwcdf80xlfp743iw6pdx8rq8p272az03x1l9kk7l9d8",
         "type": "tarball",
-        "url": "https://github.com/NixOS/nix/archive/ffe155abd36366a870482625543f9bf924a58281.tar.gz",
+        "url": "https://github.com/NixOS/nix/archive/eb9ce5f27bd83afff63f151406b497eab6e90a1a.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixops-aws": {
@@ -297,6 +297,18 @@
         "sha256": "1rivmfg6pi5ciqfbsjfw0zy1lqh0q98p19zwaxr400sk4n9dkd89",
         "type": "tarball",
         "url": "https://github.com/NixOS/nixpkgs/archive/d89f18a17e51532ed5f4d45297b0ddf11e46b9c8.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "nixpkgs-2211": {
+        "branch": "nixos-22.11",
+        "description": "Nix Packages collection",
+        "homepage": "",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "9d692a724e74d2a49f7c985132972f991d144254",
+        "sha256": "1byh49p3kwi6adb1izaalj2ab9disfzq1cx526gwgv20ilmphvnr",
+        "type": "tarball",
+        "url": "https://github.com/NixOS/nixpkgs/archive/9d692a724e74d2a49f7c985132972f991d144254.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "offchain-metadata-tools": {

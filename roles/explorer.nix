@@ -130,16 +130,24 @@ in {
   services.graphql-engine = {
     enable = true;
   };
+
   services.cardano-graphql = {
     enable = true;
     inherit cardanoNodeConfigPath;
     allowListPath = cardano-explorer-app-pkgs.allowList;
-    metadataServerUri = globals.environmentConfig.metadataUrl or null;
     ogmiosHost = ogmiosCfg.hostAddr;
     ogmiosPort = ogmiosCfg.port;
   } // lib.optionalAttrs (options.services.cardano-graphql ? genesisByron) {
     genesisByron = nodeCfg.nodeConfig.ByronGenesisFile;
     genesisShelley = nodeCfg.nodeConfig.ShelleyGenesisFile;
+  };
+
+  services.cardano-graphql-background = {
+    enable = true;
+    metadataServerUri = globals.environmentConfig.metadataUrl or null;
+    ogmiosHost = ogmiosCfg.hostAddr;
+    ogmiosPort = ogmiosCfg.port;
+    loggerMinSeverity = "debug";
   };
 
   services.cardano-rosetta-server = {
