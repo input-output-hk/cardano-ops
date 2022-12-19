@@ -232,6 +232,8 @@ let
   mkNode = args: def:
     recursiveUpdate (
       recursiveUpdate {
+        # TODO: review machine deployments successful post hydra shutdown and remove this line
+        deployment.hasFastConnection = true;
         deployment.targetEnv = instances.targetEnv;
         nixpkgs.pkgs = pkgs;
       } (args // {

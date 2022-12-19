@@ -202,7 +202,7 @@ in {
     };
     serviceConfig = {
       # Force regular restart (every 3 hours) due to https://github.com/hasura/graphql-engine/issues/3388
-      RuntimeMaxSec = 12 * 60 * 60;
+      # RuntimeMaxSec = 12 * 60 * 60;
       #MemoryMax = "20G";
       # TODO: run under dynamic user (remove sudo use)
     };
