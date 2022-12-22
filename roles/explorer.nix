@@ -195,12 +195,18 @@ in {
       HOME = "/run/${config.systemd.services.cardano-graphql.serviceConfig.RuntimeDirectory}";
     };
     serviceConfig = {
+      LimitNOFILE = 65535;
       RuntimeDirectory = "cardano-graphql";
       DynamicUser = true;
-
-      # Required due to graphql-engine RuntimeMaxSec restarts for issue noted below
       Restart = "always";
-      RestartSec = "30s";
+      RestartSec = "5";
+    };
+  };
+
+  systemd.services.cardano-graphql-background = {
+    serviceConfig = {
+      Restart = "always";
+      RestartSec = "5";
     };
   };
 
@@ -209,10 +215,9 @@ in {
       HASURA_GRAPHQL_LOG_LEVEL = "warn";
     };
     serviceConfig = {
-      # Force regular restart (every 3 hours) due to https://github.com/hasura/graphql-engine/issues/3388
-      # RuntimeMaxSec = 12 * 60 * 60;
-      #MemoryMax = "20G";
-      # TODO: run under dynamic user (remove sudo use)
+      LimitNOFILE = 65535;
+      Restart = "always";
+      RestartSec = "5";
     };
   };
 
@@ -231,7 +236,8 @@ in {
     inherit cardanoNodePkgs;
   };
 
-  networking.firewall.allowedTCPPorts = [ 80 81 ];
+  # Port 9999 opened to allow graphql-engine health check, accessible only to monitoring via sg.
+  networking.firewall.allowedTCPPorts = [ 80 81 9999 ];
 
   systemd.services.dump-registered-relays-topology = let
     excludedPools = lib.concatStringsSep ", " (map (hash: "'${hash}'") globals.static.poolsExcludeList);
