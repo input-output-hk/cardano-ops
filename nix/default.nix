@@ -11,7 +11,7 @@ let
     then defaultSourcePaths.nixpkgs
     else (import defaultSourcePaths.iohk-nix {}).nixpkgs;
 
-  inherit (import defaultNixpkgs { overlays = [globalsOverlay]; }) globals;
+  inherit (import defaultNixpkgs { inherit system; overlays = [globalsOverlay]; }) globals;
 
   sourcesOverride = let sourcesFile = globals.sourcesJsonOverride; in
     if (builtins.pathExists sourcesFile)
