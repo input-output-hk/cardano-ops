@@ -174,12 +174,12 @@ class SnapshotStates
   end
 
   def uploadDbSyncSnapshot(snapshotFile)
-    matchMajorVersion = /-schema-(\d+)-/.match(snapshotFile)
-    if matchMajorVersion == nil
+    matchSchemaVersion = /-schema-(\d+(.\d+)*)-/.match(snapshotFile)
+    if matchSchemaVersion == nil
       updateAbort("Could not deduce db-sync major version from snapshot file name: #{snapshotFile}")
     else
-      majorVersion = matchMajorVersion.try &.[1]
-      if !runCmdVerbose("./scripts/upload-with-checksum.sh #{SNAPSHOTS_WORK_DIR}/#{snapshotFile} #{@s3Bucket} cardano-db-sync/#{majorVersion}").success?
+      schemaVersion = matchSchemaVersion.try &.[1]
+      if !runCmdVerbose("./scripts/upload-with-checksum.sh #{SNAPSHOTS_WORK_DIR}/#{snapshotFile} #{@s3Bucket} cardano-db-sync/#{schemaVersion}").success?
         updateAbort("Error while upload db-sync snasphot.")
       end
       uploadLog = IO_CMD_OUT.to_s
