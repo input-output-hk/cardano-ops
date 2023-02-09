@@ -72,6 +72,7 @@ pkgs: {
   snapshotStatesS3Bucket = "update-cardano-mainnet.iohk.io";
 
   smashDelistedPools = [
+    "413b0496a93ff4ef5d7436828e9764d37778d74d60a62451cfbed057"
     "ce2e5bbae0caa514670d63cfdad3123a5d32cf7c37df87add5a0f75f"
     "2b830258888a09e846b63474c642ad4e18aecd08dafb1f2a4d653e80"
     "027a08f49ad5ece08e3a1575fb9cd8e8d7cf3b7815807a20b1a715f1"
