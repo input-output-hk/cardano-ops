@@ -25,14 +25,12 @@ in  mkShell (globals.environmentVariables // {
     niv
     locli
     nivOverrides
-    nix
     nix-diff
     nixops
     pandoc
     perl
     pstree
     telnet
-    cardano-ping
     git
     direnv
     nix-direnv
