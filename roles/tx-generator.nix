@@ -83,6 +83,7 @@ in {
         [ "ByronGenesisFile"
           "ShelleyGenesisFile"
           "AlonzoGenesisFile"
+          "ConwayGenesisFile"
           "Protocol"
           "LastKnownBlockVersion-Major"
           "LastKnownBlockVersion-Minor"
@@ -93,7 +94,8 @@ in {
           "TestAllegraHardForkAtEpoch"
           "TestMaryHardForkAtEpoch"
           "TestAlonzoHardForkAtEpoch"
-          "TestBabbageHardForkAtEpoch" ]);
+          "TestBabbageHardForkAtEpoch"
+          "TestConwayHardForkAtEpoch" ]);
     nodeConfigFile = __toFile "generator-config.json" (__toJSON nodeConfig);
 
     dsmPassthrough = {

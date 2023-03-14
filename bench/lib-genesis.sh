@@ -29,7 +29,8 @@ genesis_params_cache_params()
             del(.decentralisation_param) |
             del(.byron) |
             del(.shelley) |
-            del(.alonzo)
+            del(.alonzo) |
+            del(.conway)
             ' --sort-keys <<<$1
 }
 
@@ -94,6 +95,9 @@ profile_genesis_update() {
            ' --slurpfile mainnet 'bench/genesis-alonzo-mainnet.json' \
              --slurpfile overlay 'bench/genesis-alonzo-benchmarking.json' \
              > "$dir"/alonzo-genesis.json
+
+        jq --null-input '{ genDelegs: {} }' \
+             > "$dir"/conway-genesis.json
 
         local genesis_future_offset=$(profile_genesis_future_offset "$profile")
         local start_timestamp=$(date +%s --date="now + $genesis_future_offset")
@@ -243,6 +247,9 @@ profile_genesis_singleshot() {
            ' --slurpfile mainnet 'bench/genesis-alonzo-mainnet.json' \
              --slurpfile overlay 'bench/genesis-alonzo-benchmarking.json' \
              > "$target_dir"/genesis.alonzo.spec.json
+
+        jq --null-input '{ genDelegs: {} }' \
+             > "$target_dir"/genesis.conway.spec.json
 
         params=(--genesis-dir      "$target_dir"
                 --gen-utxo-keys    1

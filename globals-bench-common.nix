@@ -31,7 +31,8 @@ rec {
       (removeAttrs pkgs.globals.environmentConfig.nodeConfig
         ["ByronGenesisHash"
          "ShelleyGenesisHash"
-         "AlonzoGenesisHash"])
+         "AlonzoGenesisHash"
+         "ConwayGenesisHash"])
       (recursiveUpdate
         (benchmarkingLogConfig "node")
         ({

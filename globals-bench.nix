@@ -20,10 +20,9 @@ let
         benchmarkingProfile)
     else abort "Benchmarking topology file implied by configured node count ${toString (__length benchmarkingParams.meta.node_names)} does not exist: ${benchmarkingTopologyFile}";
   AlonzoGenesisFile  = ./keys/alonzo-genesis.json;
+  ConwayGenesisFile  = ./keys/conway-genesis.json;
   ShelleyGenesisFile = ./keys/genesis.json;
-  ShelleyGenesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/GENHASH);
-  ByronGenesisFile = ./keys/byron/genesis.json;
-  ByronGenesisHash = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./keys/byron/GENHASH);
+  ByronGenesisFile   = ./keys/byron/genesis.json;
   envConfigBase = pkgs.iohkNix.cardanoLib.environments.testnet;
 
   ### Benchmarking profiles are, currently, essentially name-tagger
@@ -73,22 +72,27 @@ in (rec {
 
   relaysNew = "relays-new.${pkgs.globals.domain}";
 
-  environmentConfig = rec {
+  environmentConfig =
+    let genHashAttrNames =
+          [ "ConwayGenesisHash" "AlonzoGenesisHash" "ShelleyGenesisHash" "ByronGenesisHash" ];
+    in rec {
     relays = "relays.${pkgs.globals.domain}";
 
     edgePort = pkgs.globals.cardanoNodePort;
     private = true;
-    networkConfig = (removeAttrs envConfigBase.networkConfig ["AlonzoGenesisHash"]) // {
+    networkConfig = (removeAttrs envConfigBase.networkConfig genHashAttrNames) // {
       Protocol = "Cardano";
+      inherit  ConwayGenesisFile;
       inherit  AlonzoGenesisFile;
-      inherit ShelleyGenesisFile ShelleyGenesisHash;
-      inherit   ByronGenesisFile   ByronGenesisHash;
+      inherit ShelleyGenesisFile;
+      inherit   ByronGenesisFile;
     };
-    nodeConfig = (removeAttrs envConfigBase.nodeConfig ["AlonzoGenesisHash"]) // {
+    nodeConfig = (removeAttrs envConfigBase.nodeConfig genHashAttrNames) // {
       Protocol = "Cardano";
+      inherit  ConwayGenesisFile;
       inherit  AlonzoGenesisFile;
-      inherit ShelleyGenesisFile ShelleyGenesisHash;
-      inherit   ByronGenesisFile   ByronGenesisHash;
+      inherit ShelleyGenesisFile;
+      inherit   ByronGenesisFile;
     } // {
       shelley =
         { TestShelleyHardForkAtEpoch = 0;
@@ -111,14 +115,22 @@ in (rec {
       babbage =
         { TestShelleyHardForkAtEpoch = 0;
           TestAllegraHardForkAtEpoch = 0;
-          TestMaryHardForkAtEpoch = 0;
-          TestAlonzoHardForkAtEpoch = 0;
+          TestMaryHardForkAtEpoch    = 0;
+          TestAlonzoHardForkAtEpoch  = 0;
           TestBabbageHardForkAtEpoch = 0;
+        };
+      conway =
+        { TestShelleyHardForkAtEpoch = 0;
+          TestAllegraHardForkAtEpoch = 0;
+          TestMaryHardForkAtEpoch    = 0;
+          TestAlonzoHardForkAtEpoch  = 0;
+          TestBabbageHardForkAtEpoch = 0;
+          TestConwayHardForkAtEpoch  = 0;
         };
     }.${pkgs.globals.environmentConfig.generatorConfig.era};
     txSubmitConfig = {
       inherit (networkConfig) RequiresNetworkMagic;
-      inherit AlonzoGenesisFile ShelleyGenesisFile ByronGenesisFile;
+      inherit AlonzoGenesisFile ShelleyGenesisFile ByronGenesisFile ConwayGenesisFile;
     } // pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig;
 
     ## This is overlaid atop the defaults in the tx-generator service,
