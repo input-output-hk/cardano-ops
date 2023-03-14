@@ -180,6 +180,7 @@ in (rec {
           }
           ## 2. cardano-node service config overlay
           {
+            SnapshotInterval = 1100;
           }
         )) (benchmarkingTopology.coreNodes or []);
   };
