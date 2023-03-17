@@ -96,6 +96,7 @@ in {
 
   environmentVariables = optionalAttrs (builtins.pathExists ./globals.nix) (
     let
+      configFile = builtins.toFile "cardano-node-config.json" (builtins.toJSON globals.environmentConfig.nodeConfig);
       genesisFile = globals.environmentConfig.nodeConfig.ShelleyGenesisFile;
       genesis =  builtins.fromJSON (builtins.readFile (if (builtins.pathExists genesisFile)
        then genesisFile
@@ -116,6 +117,7 @@ in {
       NB_POOL_NODES = toString (builtins.length stkNodes);
       RELAY_NODES = toString (map (x: x.name) globals.topology.relayNodes);
 
+      NODE_CONFIG_PATH = toString configFile;
       GENESIS_PATH = toString genesisFile;
       # Network parameters.
       NETWORK_MAGIC = toString genesis.networkMagic;

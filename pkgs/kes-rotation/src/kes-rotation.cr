@@ -34,7 +34,7 @@ IO_NO_TEE_OUT = IO::MultiWriter.new(IO_CMD_OUT, IO_TEE_FULL)
 IO_NO_TEE_ERR = IO::MultiWriter.new(IO_CMD_ERR, IO_TEE_FULL)
 
 class KesRotate
-  setter allOpt, coreOpt, bftOpt, stkOpt, ignoreOpt
+  setter nodeConfigOpt, allOpt, coreOpt, bftOpt, stkOpt, ignoreOpt
 
   @sesUsername : String
   @sesSecret : String
@@ -43,6 +43,7 @@ class KesRotate
 
   def initialize
 
+    @nodeConfigOpt = ""
     @allOpt = false
     @coreOpt = false
     @bftOpt = false
@@ -136,6 +137,7 @@ class KesRotate
   def doRotation
 
     IO_TEE_OUT.puts "Script options selected:"
+    IO_TEE_OUT.puts "nodeConfigOpt = #{@nodeConfigOpt}"
     IO_TEE_OUT.puts "allOpt = #{@allOpt}"
     IO_TEE_OUT.puts "coreOpt = #{@coreOpt}"
     IO_TEE_OUT.puts "bftOpt = #{@bftOpt}"
@@ -173,43 +175,22 @@ class KesRotate
     #p! monitoringNodes
     #p! networkAttrs
 
-    if scriptCmdPrivate("curl -sL #{LATEST_CARDANO_URL} | grep https | grep download | grep -m1 -oP '=\"\\K[^\"]+'").success?
-      latestReportUrl = IO_CMD_OUT.to_s.strip
-      IO_TEE_OUT.puts "latestReportUrl: #{latestReportUrl}"
-    else
-      kesAbort("Failed to obtain latest report URL")
-    end
 
-    latestConfigUrl = "#{latestReportUrl.to_s.rstrip("index.html")}#{@cluster}-config.json"
-    IO_TEE_OUT.puts "latestConfigUrl: #{latestConfigUrl}"
-
-    if scriptCmdPrivate("curl -sL #{latestConfigUrl}").success?
-      latestConfig = IO_CMD_OUT.to_s
-    else
-      kesAbort("Unable to obtain the latest config file")
-    end
-
-    config = JSON.parse(latestConfig.to_s)
+    config = JSON.parse(File.read(@nodeConfigOpt))
     protocol = config["Protocol"]
     IO_TEE_OUT.puts "Protocol: #{protocol}"
 
     case protocol
     when "RealPBFT" then kesAbort("KES rotation does not need to happen in the byron era")
-    when "TPraos"   then eraName = "shelley"
-    when "Cardano"  then eraName = "shelley"
+    when "TPraos"   then eraName = "Shelley"
+    when "Cardano"  then eraName = "Shelley"
     else kesAbort("Unrecognized protocol in the latest config file")
     end
 
-    latestGenesisUrl = "#{latestReportUrl.to_s.rstrip("index.html")}#{@cluster}-#{eraName}-genesis.json"
-    IO_TEE_OUT.puts "latestGenesisUrl: #{latestGenesisUrl}"
+    genesisPath = config["#{eraName}GenesisFile"]
+    IO_TEE_OUT.puts "genesisPath: #{genesisPath}"
 
-    if scriptCmdPrivate("curl -sL #{latestGenesisUrl}").success?
-      latestGenesis = IO_CMD_OUT.to_s
-    else
-      kesAbort("Unable to obtain the latest genesis file")
-    end
-
-    genesis = JSON.parse(latestGenesis.to_s)
+    genesis = JSON.parse(File.read(genesisPath.to_s))
 
     slotsPerKesPeriod = genesis["slotsPerKESPeriod"]
     slotsPerKesPeriodInt = slotsPerKesPeriod.to_s.to_i64? || 0_i64
@@ -311,6 +292,7 @@ class KesRotate
   end
 end
 
+nodeConfigOpt = ENV.fetch("NODE_CONFIG_PATH", "")
 proceed = false
 allOpt = false
 coreOpt = false
@@ -319,6 +301,8 @@ stkOpt = false
 ignoreOpt = false
 OptionParser.parse do |parser|
   parser.banner = "Usage: kes-rotate [arguments]"
+  parser.on("-c NODE_CONFIG_PATH", "--config NODE_CONFIG_PATH", "Path to a cardano node config for the network") { |config| nodeConfigOpt = config }
+  parser.on("-a", "--all", "Updates and deploys all KES nodes") { allOpt = true }
   parser.on("-r", "--rotate", "Updates and deploy the KES keys (required option)") { proceed = true }
   parser.on("-a", "--all", "Updates and deploys all KES nodes") { allOpt = true }
   parser.on("--core", "Updates and deploys KES core nodes (c-X-Y)") { coreOpt = true }
@@ -338,6 +322,7 @@ end
 
 if proceed
   kesRotate=KesRotate.new
+  kesRotate.nodeConfigOpt = nodeConfigOpt
   kesRotate.allOpt = allOpt
   kesRotate.coreOpt = coreOpt
   kesRotate.bftOpt = bftOpt
