@@ -207,17 +207,29 @@ def utxo_delegators_density_profiles:
   , { desc: "rtsflags: suggestion from PR 3399"
     , node: { rts_flags_override: ["-C0", "-A32m", "-n1m", "-AL512M"] } }
 
-  , { desc: "rtsflags: cache fitting extreme"
+  , { desc: "rtsflags: A1m"
     , node: { rts_flags_override: ["-A1m"] } }
-  , { desc: "rtsflags: cache fitting extreme + parallelism"
-    , node: { rts_flags_override: ["-A1m", "-N4"] } }
-  , { desc: "rtsflags: cache fitting hard"
+  , { desc: "rtsflags: A2m"
     , node: { rts_flags_override: ["-A2m"] } }
-  , { desc: "rtsflags: cache fitting hard + parallelism"
-    , node: { rts_flags_override: ["-A2m", "-N4"] } }
-  , { desc: "rtsflags: cache fitting"
+  , { desc: "rtsflags: A4m"
     , node: { rts_flags_override: ["-A4m"] } }
-  , { desc: "rtsflags: cache fitting + higher parallelism"
+
+  , { desc: "rtsflags: N3"
+    , node: { rts_flags_override: ["-N3"] } }
+  , { desc: "rtsflags: A1m + N3"
+    , node: { rts_flags_override: ["-A1m", "-N3"] } }
+  , { desc: "rtsflags: A2m + N3"
+    , node: { rts_flags_override: ["-A2m", "-N3"] } }
+  , { desc: "rtsflags: A4m + N3"
+    , node: { rts_flags_override: ["-A4m", "-N3"] } }
+
+  , { desc: "rtsflags: A1m"
+    , node: { rts_flags_override: ["-N4"] } }
+  , { desc: "rtsflags: A1m + N4"
+    , node: { rts_flags_override: ["-A1m", "-N4"] } }
+  , { desc: "rtsflags: A2m + N4"
+    , node: { rts_flags_override: ["-A2m", "-N4"] } }
+  , { desc: "rtsflags: A4m + N4"
     , node: { rts_flags_override: ["-A4m", "-N4"] } }
 
   , { desc: "regression, March 2022 data set sizes"
