@@ -171,6 +171,7 @@ in {
     inherit (globals) environmentName;
     port = 3200;
     inherit dbSyncPkgs;
+    # inherit (cfg.environment) explorerConfig;
     # TODO: remove after https://github.com/input-output-hk/cardano-db-sync/pull/950 is tagged
     package = (dbSyncPkgs.cardanoDbSyncProject.projectFunction dbSyncPkgs.haskell-nix [
       dbSyncPkgs.cardanoDbSyncProject.projectModule

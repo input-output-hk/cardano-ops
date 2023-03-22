@@ -72,7 +72,7 @@ in {
     inherit package;
     cluster = globals.environmentName;
     environment = globals.environmentConfig;
-    inherit (cfg.environment) explorerConfig;
+    # inherit (cfg.environment) explorerConfig;
     socketPath = nodeCfg.socketPath;
     logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { PrometheusPort = globals.cardanoExplorerPrometheusExporterPort; };
     inherit dbSyncPkgs;
