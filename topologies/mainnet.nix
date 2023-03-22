@@ -80,6 +80,10 @@ let
           TraceMempool = true;
         };
       };
+      services.tcpdump = {
+        enable = true;
+        bucketName = "mainnet-pcap";
+      };
     } [ "rel-a-1" "rel-b-1" "rel-c-1" "rel-d-1" "rel-e-1" "rel-f-1" ])
     (forNodes {
       services.cardano-node = {
