@@ -6,6 +6,8 @@ pkgs: {
 
   domain = "cardano-mainnet.iohk.io";
 
+  # Explorer gateway and backends have moved to ci-world
+  withExplorer = false;
   explorerHostName = "explorer.cardano.org";
   explorerForceSSL = true;
   explorerAliases = [ "explorer.mainnet.cardano.org" "explorer.${pkgs.globals.domain}" ];
