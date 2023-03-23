@@ -155,10 +155,6 @@ in {
     }
   ]);
 
-  explorer-a.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/13/db-sync-snapshot-schema-13-block-7685639-x86_64.tgz";
-  explorer-b.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/13/db-sync-snapshot-schema-13-block-7685639-x86_64.tgz";
-  explorer-c.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/13/db-sync-snapshot-schema-13-block-7685639-x86_64.tgz";
-
   monitoring = {
     services.monitoring-services = {
       publicGrafana = false;
