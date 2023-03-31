@@ -189,7 +189,7 @@ in (rec {
     {
       instances = {
         core-node = c5-2xlarge;
-        relay-node = c5-2xlarge;
+        relay-node = c5-4xlarge;
       };
       credentials = {
         accessKeyIds = {
