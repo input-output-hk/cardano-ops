@@ -40,8 +40,10 @@ rec {
            minSeverity = "Debug";
            TurnOnLogMetrics = true;
 
-           TestEnableDevelopmentHardForkEras = true;
-           TestEnableDevelopmentNetworkProtocols = true;
+           ExperimentalHardForksEnabled = true;
+           # ExperimentalProtocolsEnabled = true;
+           # TestEnableDevelopmentHardForkEras = true;
+           # TestEnableDevelopmentNetworkProtocols = true;
 
            inherit TraceBlockFetchProtocol;
 

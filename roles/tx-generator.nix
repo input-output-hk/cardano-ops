@@ -88,8 +88,8 @@ in {
           "LastKnownBlockVersion-Major"
           "LastKnownBlockVersion-Minor"
           "LastKnownBlockVersion-Alt"
-          "TestEnableDevelopmentHardForkEras"
-          "TestEnableDevelopmentNetworkProtocols"
+          "ExperimentalHardForksEnabled"
+          "ExperimentalProtocolsEnabled"
           "TestShelleyHardForkAtEpoch"
           "TestAllegraHardForkAtEpoch"
           "TestMaryHardForkAtEpoch"
@@ -138,8 +138,10 @@ in {
              minSeverity = "Debug";
              TracingVerbosity = "NormalVerbosity";
 
-             TestEnableDevelopmentHardForkEras = true;
-             TestEnableDevelopmentNetworkProtocols = true;
+             ExperimentalHardForksEnabled = true;
+             # ExperimentalProtocolsEnabled = true;
+             # TestEnableDevelopmentHardForkEras = true;
+             # TestEnableDevelopmentNetworkProtocols = true;
 
              TraceAcceptPolicy                 = false;
              TraceBlockFetchClient             = true;
