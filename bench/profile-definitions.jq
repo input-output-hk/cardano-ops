@@ -241,95 +241,21 @@ def utxo_delegators_density_profiles:
                  }
     }
 
-  , { desc: "Plutus return-success"
-    , generator: { plutusMode: true
-                 , plutusScript: "always-succeeds-spending.plutus"
-		 , plutusData: 0
-		 , plutusRedeemer: 0
-                 , executionMemory: 125000
-		 , executionSteps: 100000000
-                 } }
-  , { desc: "Plutus, 1e7-mem"
-    , generator: { inputs_per_tx:           1
-                 , outputs_per_tx:          1
-		 , tx_count:             7500
-                 , plutusMode: true
-                 , plutusScript: "sum.plutus"
-                 , plutusData: 1144
-                 , plutusRedeemer: 654940
-                 , executionMemory:    9998814   #  452138   + estimate
-                 # true costs:  executionSteps:  3640582981   # 163807162 + estimate
-                 , executionSteps: 10000000000 # set costs to 1e10 to limit plutus to 4 Tx per block
-                 , debugMode: false
-                 } }
-  , { desc: "Plutus, 1e10-cpu smoke"
-    , generator: { inputs_per_tx:           1
-                 , outputs_per_tx:          1
-                 , tx_count:               80
-                 , plutusMode: true
-                 , plutusScript: "sum.plutus"
-                 , plutusData: 3304
-                 , plutusRedeemer: 5459860
-                 , executionMemory:   27507774
-                 , executionSteps:  9999406981
-                 , debugMode: true
-                 } }
-  , { desc: "Plutus, 1e10-cpu"
-    , generator: { inputs_per_tx:           1
-                 , outputs_per_tx:          1
-		 , tx_count:             7500
-                 , plutusMode: true
-                 , plutusScript: "sum.plutus"
-                 , plutusData: 3304
-                 , plutusRedeemer: 5459860
-                 , executionMemory:   27507774    #    460244 + estimate
-                 , executionSteps:  9999406981    # 166751062 + estimate
-                 , debugMode: false
-                 } }
-  , { desc: "Plutus, auto-mode-smoke-test"
-    , generator: { inputs_per_tx:           1
-                 , outputs_per_tx:          1
-		 , tx_count:              100
-                 , plutusMode:           true
-                 , plutusAutoMode:       true
-                 }
-    }
-  , { desc: "Plutus, baseline"
-    , generator:
-        { inputs_per_tx:           1
-        , outputs_per_tx:          1
-        , epochs:                  7
-        , tx_count:            14000 # 8000eplen * 7eps / 20blockfreq * 5tx/block
-        , plutusMode:           true
-        , plutusAutoMode:       true
-        }
-    }
-  , { desc: "Plutus, bump 1, Dec 2 2021"
-    , generator:
-        { inputs_per_tx:           1
-        , outputs_per_tx:          1
-        , epochs:                  7
-        , tx_count:            14000 # 8000eplen * 7eps / 20blockfreq * 5tx/block
-        , plutusMode:           true
-        , plutusAutoMode:       true
-        }
-    , genesis:
-        { max_block_size:            73728
-        , alonzo:
-            { maxTxExUnits:
-                { exUnitsMem:     11250000
-                }
-            }
-        }
-    }
   , { desc: "Plutus, bump 2, 2022"
     , generator:
         { inputs_per_tx:           1
         , outputs_per_tx:          1
         , epochs:                  7
         , tx_count:            14000 # 8000eplen * 7eps / 20blockfreq * 5tx/block
-        , plutusMode:           true
-        , plutusAutoMode:       true
+        , plutus:
+          {
+            datum: null,
+            limitExecutionMem: null,
+            limitExecutionSteps: null,
+            redeemer: { "int": 1000000 },
+            script: "Loop",
+            type: "LimitSaturationLoop"
+          }
         }
     , genesis:
         { max_block_size:            73728
