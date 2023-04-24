@@ -247,6 +247,7 @@ def utxo_delegators_density_profiles:
         , outputs_per_tx:          1
         , epochs:                  7
         , tx_count:            14000 # 8000eplen * 7eps / 20blockfreq * 5tx/block
+        , tx_fee:            1071280 # higher fee required due to cost model changes
         , plutus:
           {
             datum: null,
