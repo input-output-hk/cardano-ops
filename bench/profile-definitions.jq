@@ -43,7 +43,7 @@ def genesis_defaults($era; $compo; $defaults_external):
   , slot_duration:           1
 
   ## Block size & contents
-  , max_block_size:          64000
+  , max_block_size:          88000
   , max_tx_size:             16384
 
   ## Cluster composition
@@ -190,12 +190,12 @@ def utxo_delegators_density_profiles:
   [ { desc: "regression, October 2021 data set sizes" }
 
   , { desc: "regression, October 2021 data set sizes, P2P"
-    , name: "k51-5ep-360kTx-4000kU-1000kD-64kbs-p2p-no-lp"
+    , name: "k51-5ep-360kTx-4000kU-1000kD-88kbs-p2p-no-lp"
     , node: { p2p:            true
             , useLedgerPeers: false } }
 
   , { desc: "regression, October 2021 data set sizes, New tracing"
-    , name: "k51-5ep-360kTx-4000kU-1000kD-64kbs-new-tracing"
+    , name: "k51-5ep-360kTx-4000kU-1000kD-88kbs-new-tracing"
     , node: { withNewTracing: true } }
 
   , { desc: "rtsflags: batch1, best CPU/mem"
@@ -242,7 +242,7 @@ def utxo_delegators_density_profiles:
     }
 
   , { desc: "regression, May 2023 data set sizes"
-    , name: "k51-5ep-360kTx-14MU-1500kD-64kbs"
+    , name: "k51-5ep-360kTx-14MU-1500kD-88kbs"
     , genesis: { utxo:           14000000
                , delegators:     1500000
                }
