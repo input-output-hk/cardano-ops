@@ -241,6 +241,13 @@ def utxo_delegators_density_profiles:
                  }
     }
 
+  , { desc: "regression, May 2023 data set sizes"
+    , name: "k51-5ep-360kTx-14MU-1500kD-64kbs"
+    , genesis: { utxo:           14000000
+               , delegators:     1500000
+               }
+    }
+
   , { desc: "Plutus, bump 2, 2022"
     , generator:
         { inputs_per_tx:           1
