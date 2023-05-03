@@ -26,7 +26,7 @@ rec {
 
   mkExtraNodeConfig =
     { TraceBlockFetchProtocol ? false
-    , ... }:
+    , ... }@cfgOverlay:
     recursiveUpdate
       (removeAttrs pkgs.globals.environmentConfig.nodeConfig
         ["ByronGenesisHash"
@@ -54,7 +54,8 @@ rec {
            TraceChainSyncHeaderServer = true;
            TraceChainSyncClient       = true;
         } //
-        (benchmarkingProfile.node.extra_config or {})));
+        (benchmarkingProfile.node.extra_config or {})
+        // cfgOverlay));
 
   benchmarkingLogConfig = name: {
     defaultScribes = [
