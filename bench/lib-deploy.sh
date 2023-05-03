@@ -89,7 +89,7 @@ EOF
         local host_resources other_resources
         host_resources=($hosts)
         host_resources_real=($(nixops info --plain 2>/dev/null | sed 's/^\([a-zA-Z0-9-]*\).*/\1/' | grep -ve '-ip$\|cardano-keypair-\|allow-\|relays-'))
-        other_resources=($(nixops info --plain 2>/dev/null | sed 's/^\([a-zA-Z0-9-]*\).*/\1/' | grep  -e '-ip$\|cardano-keypair-\|allow-\|relays-'))
+        other_resources=($(nixops info --plain 2>/dev/null | sed 's/^\([a-zA-Z0-9-]*\).*/\1/' | grep  -e '-ip$\|cardano-keypair-\|allow-\|relays-' | grep -v 'relays-new-'))
         set -o pipefail
 
         test "${host_resources[*]}" = "${host_resources_real[*]}" ||
