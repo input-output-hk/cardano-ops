@@ -248,6 +248,13 @@ def utxo_delegators_density_profiles:
                }
     }
 
+  , { desc: "regression, May 2023, mainnet - 4MU"
+    , name: "k51-5ep-360kTx-6MU-1000kD-88kbs"
+    , genesis: { utxo:           6000000
+               , delegators:     1000000
+               }
+    }
+
   , { desc: "Plutus, bump 2, 2022"
     , generator:
         { inputs_per_tx:           1
