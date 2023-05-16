@@ -103,7 +103,7 @@ in with pkgs; {
       };
     };
     systemd.services.custom-metrics = {
-      path = with pkgs; with cfgNode.cardanoNodePkgs; [ cardano-cli cardano-ping coreutils gawk gnugrep gnused jq nmap procps ];
+      path = with pkgs; with cfgNode.cardanoNodePkgs; [ cardano-cli coreutils gawk gnugrep gnused jq nmap procps ];
       environment = config.environment.variables;
       script = ''
         STATSD_HOST="localhost"
@@ -159,7 +159,7 @@ in with pkgs; {
         CARDANO_CLI_VERSION_MINOR="-1"
         CARDANO_CLI_VERSION_PATCH="-1"
 
-        # Default cardano-ping metrics
+        # Default cardano-cli ping metrics
         CARDANO_PING_LATENCY="-1"
 
         statsd() {
@@ -260,7 +260,7 @@ in with pkgs; {
           TAU=$(jq '.tau' <<< "$PROTOCOL_CONFIG")
         fi
 
-        if CARDANO_PING_OUPUT=$(cardano-ping --count=1 --host=${cfgNode.hostAddr} --port=${toString cfgNode.port} --magic=$NETWORK_MAGIC --quiet --json); then
+        if CARDANO_PING_OUPUT=$(cardano-cli ping --count=1 --host=${cfgNode.hostAddr} --port=${toString cfgNode.port} --magic=$NETWORK_MAGIC --quiet --json); then
           CARDANO_PING_LATENCY=$(jq '.pongs[-1].sample * 1000' <<< "$CARDANO_PING_OUPUT")
         fi
 

@@ -272,7 +272,7 @@ in {
 
         while IFS= read -r ip; do
           set +e
-          PING="$(timeout 7s cardano-ping -h "$ip" -p "$port" -m $NETWORK_MAGIC -c 1 -q --json)"
+          PING="$(timeout 7s cardano-cli ping -h "$ip" -p "$port" -m $NETWORK_MAGIC -c 1 -q --json)"
           res=$?
           if [ $res -eq 0 ]; then
             echo $PING | jq -c > /dev/null 2>&1
@@ -313,7 +313,7 @@ in {
               exit $res
             fi
           else
-            >&2 echo "failed to cardano-ping $addr:$port (on ip: $ip)"
+            >&2 echo "failed to cardano-cli ping $addr:$port (on ip: $ip)"
           fi
         done <<< "$allAddresses"
       }

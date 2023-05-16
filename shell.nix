@@ -32,7 +32,6 @@ in  mkShell (globals.environmentVariables // {
     perl
     pstree
     telnet
-    cardano-ping
     git
     direnv
     nix-direnv
