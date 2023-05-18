@@ -48,7 +48,6 @@ self: super: with self; let
       inherit (cardanoNodeHaskellPackages.cardano-cli.components.exes) cardano-cli;
       inherit (cardanoNodeHaskellPackages.cardano-submit-api.components.exes) cardano-submit-api;
       inherit (cardanoNodeHaskellPackages.cardano-node.components.exes) cardano-node;
-      inherit (cardanoNodeHaskellPackages.network-mux.components.exes) cardano-ping;
       inherit (cardanoNodeHaskellPackages.locli.components.exes) locli;
       inherit (cardanoNodeHaskellPackages.tx-generator.components.exes) tx-generator;
 

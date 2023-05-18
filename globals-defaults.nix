@@ -40,7 +40,7 @@ in {
   };
   explorerActiveBackends = attrNames globals.explorerBackends;
   explorerRosettaActiveBackends = globals.explorerActiveBackends;
-  snapshots = globals.explorer13;
+  snapshots = globals.explorer13-1;
   explorer12 = {
     cardano-explorer-app = sourcePaths."cardano-explorer-app-1.6";
     cardano-db-sync = sourcePaths.cardano-db-sync-12;
@@ -63,8 +63,12 @@ in {
     cardano-graphql = sourcePaths.cardano-graphql-vasil;
     ogmios = sourcePaths."ogmios-5.5";
     cardano-rosetta = sourcePaths."cardano-rosetta-1.8";
-    cardano-node = sourcePaths.cardano-node-next;
+    cardano-node = sourcePaths.cardano-node;
   };
+  explorer13-1 = globals.explorer13 // {
+    cardano-db-sync = sourcePaths."cardano-db-sync-13-1";
+  };
+
   explorerBackendsInContainers = false;
 
   withMonitoring = true;

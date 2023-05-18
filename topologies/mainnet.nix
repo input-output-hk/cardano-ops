@@ -80,6 +80,10 @@ let
           TraceMempool = true;
         };
       };
+      services.tcpdump = {
+        enable = true;
+        bucketName = "mainnet-pcap";
+      };
     } [ "rel-a-1" "rel-b-1" "rel-c-1" "rel-d-1" "rel-e-1" "rel-f-1" ])
     (forNodes {
       services.cardano-node = {
@@ -150,10 +154,6 @@ in {
       };
     }
   ]);
-
-  explorer-a.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/13/db-sync-snapshot-schema-13-block-7685639-x86_64.tgz";
-  explorer-b.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/13/db-sync-snapshot-schema-13-block-7685639-x86_64.tgz";
-  explorer-c.services.cardano-db-sync.restoreSnapshot = "https://update-cardano-mainnet.iohk.io/cardano-db-sync/13/db-sync-snapshot-schema-13-block-7685639-x86_64.tgz";
 
   monitoring = {
     services.monitoring-services = {

@@ -38,6 +38,7 @@ let
       services.prometheus.scrapeConfigs = lib.optionals globals.withExplorer [
         (mkBlackboxScrapeConfig "blackbox_explorer_graphql" [ "https_explorer_post_2xx" ] [ "https://${globals.explorerHostName}/graphql" ])
         (mkBlackboxScrapeConfig "blackbox_explorer_frontend" [ "https_2xx" ] [ "https://${globals.explorerHostName}" ])
+        (mkBlackboxScrapeConfig "blackbox_explorer_graphql_healthcheck" [ "htts_2xx" ] (map (member: "http://explorer-${member}-ip:9999/healthz") (builtins.attrNames globals.explorerBackends)))
       ];
       # TODO: activate for 21.05
       #services.grafana.declarativePlugins = with pkgs.grafanaPlugins; [ grafana-piechart-panel ];

@@ -130,17 +130,25 @@ in {
   services.graphql-engine = {
     enable = true;
   };
+
   services.cardano-graphql = {
     enable = true;
     inherit cardanoNodeConfigPath;
     allowListPath = cardano-explorer-app-pkgs.allowList;
-    metadataServerUri = globals.environmentConfig.metadataUrl or null;
     ogmiosHost = ogmiosCfg.hostAddr;
     ogmiosPort = ogmiosCfg.port;
     #loggerMinSeverity = "trace";
   } // lib.optionalAttrs (options.services.cardano-graphql ? genesisByron) {
     genesisByron = nodeCfg.nodeConfig.ByronGenesisFile;
     genesisShelley = nodeCfg.nodeConfig.ShelleyGenesisFile;
+  };
+
+  services.cardano-graphql-background = {
+    enable = true;
+    metadataServerUri = globals.environmentConfig.metadataUrl or null;
+    ogmiosHost = ogmiosCfg.hostAddr;
+    ogmiosPort = ogmiosCfg.port;
+    loggerMinSeverity = "debug";
   };
 
   services.cardano-rosetta-server = {
@@ -163,6 +171,7 @@ in {
     inherit (globals) environmentName;
     port = 3200;
     inherit dbSyncPkgs;
+    # inherit (cfg.environment) explorerConfig;
     # TODO: remove after https://github.com/input-output-hk/cardano-db-sync/pull/950 is tagged
     package = (dbSyncPkgs.cardanoDbSyncProject.projectFunction dbSyncPkgs.haskell-nix [
       dbSyncPkgs.cardanoDbSyncProject.projectModule
@@ -187,12 +196,18 @@ in {
       HOME = "/run/${config.systemd.services.cardano-graphql.serviceConfig.RuntimeDirectory}";
     };
     serviceConfig = {
+      LimitNOFILE = 65535;
       RuntimeDirectory = "cardano-graphql";
       DynamicUser = true;
-
-      # Required due to graphql-engine RuntimeMaxSec restarts for issue noted below
       Restart = "always";
-      RestartSec = "30s";
+      RestartSec = "5";
+    };
+  };
+
+  systemd.services.cardano-graphql-background = {
+    serviceConfig = {
+      Restart = "always";
+      RestartSec = "5";
     };
   };
 
@@ -201,10 +216,9 @@ in {
       HASURA_GRAPHQL_LOG_LEVEL = "warn";
     };
     serviceConfig = {
-      # Force regular restart (every 3 hours) due to https://github.com/hasura/graphql-engine/issues/3388
-      # RuntimeMaxSec = 12 * 60 * 60;
-      #MemoryMax = "20G";
-      # TODO: run under dynamic user (remove sudo use)
+      LimitNOFILE = 65535;
+      Restart = "always";
+      RestartSec = "5";
     };
   };
 
@@ -223,7 +237,8 @@ in {
     inherit cardanoNodePkgs;
   };
 
-  networking.firewall.allowedTCPPorts = [ 80 81 ];
+  # Port 9999 opened to allow graphql-engine health check, accessible only to monitoring via sg.
+  networking.firewall.allowedTCPPorts = [ 80 81 9999 ];
 
   systemd.services.dump-registered-relays-topology = let
     excludedPools = lib.concatStringsSep ", " (map (hash: "'${hash}'") globals.static.poolsExcludeList);
@@ -257,7 +272,7 @@ in {
 
         while IFS= read -r ip; do
           set +e
-          PING="$(timeout 7s cardano-ping -h "$ip" -p "$port" -m $NETWORK_MAGIC -c 1 -q --json)"
+          PING="$(timeout 7s cardano-cli ping -h "$ip" -p "$port" -m $NETWORK_MAGIC -c 1 -q --json)"
           res=$?
           if [ $res -eq 0 ]; then
             echo $PING | jq -c > /dev/null 2>&1
@@ -298,7 +313,7 @@ in {
               exit $res
             fi
           else
-            >&2 echo "failed to cardano-ping $addr:$port (on ip: $ip)"
+            >&2 echo "failed to cardano-cli ping $addr:$port (on ip: $ip)"
           fi
         done <<< "$allAddresses"
       }

@@ -6,6 +6,8 @@ pkgs: {
 
   domain = "cardano-mainnet.iohk.io";
 
+  # Explorer gateway and backends have moved to ci-world
+  withExplorer = false;
   explorerHostName = "explorer.cardano.org";
   explorerForceSSL = true;
   explorerAliases = [ "explorer.mainnet.cardano.org" "explorer.${pkgs.globals.domain}" ];
@@ -61,7 +63,7 @@ pkgs: {
     };
   };
 
-  relayUpdateArgs = "-m 3100 --maxNodes 11 -s -e devops@iohk.io";
+  relayUpdateArgs = "-m 2500 --maxNodes 11 -s -e devops@iohk.io";
   # Trigger relay topology refresh 12 hours before next epoch
   relayUpdateHoursBeforeNextEpoch = 12;
 

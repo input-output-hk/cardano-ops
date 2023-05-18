@@ -49,14 +49,14 @@ class RelayUpdate
     @deployOnlyOpt : Array(Array(String)), @snapshotDbOpt : String)
 
     if (@emailOpt != "")
-      if runCmdSecret("nix-instantiate --eval -E --json '(import #{PATH_MOD}/static/ses.nix).sesSmtp.username'").success?
-        @sesUsername = IO_CMD_OUT.to_s.strip('"')
+      if runCmdSecret("nix eval --impure --raw --expr '(import #{PATH_MOD}/static/ses.nix).sesSmtp.username'").success?
+        @sesUsername = IO_CMD_OUT.to_s
       else
         abort("Unable to process the ses username.")
       end
 
-      if runCmdSecret("nix-instantiate --eval -E --json '(import #{PATH_MOD}/static/ses.nix).sesSmtp.secret'").success?
-        @sesSecret = IO_CMD_OUT.to_s.strip('"')
+      if runCmdSecret("nix eval --impure --raw --expr '(import #{PATH_MOD}/static/ses.nix).sesSmtp.secret'").success?
+        @sesSecret = IO_CMD_OUT.to_s
       else
         abort("Unable to process the ses secret.")
       end
@@ -65,14 +65,14 @@ class RelayUpdate
       @sesSecret = ""
     end
 
-    if runCmdVerbose("nix-instantiate --eval -E --json '(import #{PATH_MOD}/nix {}).globals.environmentName'").success?
-      @cluster = IO_CMD_OUT.to_s.strip('"')
+    if runCmdVerbose("nix eval --impure --raw --expr '(import #{PATH_MOD}/nix {}).globals.environmentName'").success?
+      @cluster = IO_CMD_OUT.to_s
     else
       updateAbort("Unable to process the environment name from the globals file.")
     end
 
-    if runCmdVerbose("nix-instantiate --eval -E --json '(import #{PATH_MOD}/nix {}).globals.deploymentName'").success?
-      @deployment = IO_CMD_OUT.to_s.strip('"')
+    if runCmdVerbose("nix eval --impure --raw --expr '(import #{PATH_MOD}/nix {}).globals.deploymentName'").success?
+      @deployment = IO_CMD_OUT.to_s
     else
       updateAbort("Unable to process the deployment name from the globals file.")
     end
