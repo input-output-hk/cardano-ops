@@ -22,25 +22,26 @@ in mkShell (globals.environmentVariables // {
   nativeBuildInputs = [
     awscli2
     bashInteractive
+    bc
     cardano-cli
+    direnv
     dnsutils
-    niv
+    git
+    icdiff
     locli
+    lorri
+    niv
     nivOverrides
     nix
     nix-diff
+    nix-direnv
     pandoc
     perl
     pstree
-    telnet
-    git
-    direnv
-    nix-direnv
-    lorri
     relayUpdateTimer
-    snapshotStatesTimer
     s3cmd
-    icdiff
+    snapshotStatesTimer
+    telnet
   ] ++ (if (globals.withNixopsExperimental && isLinux) then [
     # Required for libvirtd usage -- the ops-lib nixops overlay has an incompat embedded qemu version
     nixopsFlake.legacyPackages.${builtins.currentSystem}.nixops_1_8-nixos-unstable
