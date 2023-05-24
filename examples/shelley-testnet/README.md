@@ -144,7 +144,7 @@ Prior to running the testnet the genesis file and several keys for the nodes
 need to be created. This is done by running from a nix shell:
 
 ```sh
-create-shelley-genesis-and-keys
+scripts/create-shelley-genesis-and-keys
 ```
 
 This script uses `cardano-cli` to generate a genesis file and the different
@@ -397,12 +397,12 @@ examples below:
 ## References
 
 - [nix.dev](https://nix.dev/)
-- [Making a Shelley blockchain from scratch](https://github.com/input-output-hk/cardano-node/blob/62485960494d914f8efd06ed0d8357d41a8f9d26/doc/reference/shelley-genesis.md)
-- [Cardano node documentation](https://docs.cardano.org/projects/cardano-node/en/latest/)
-- [Documentation about multisig](https://github.com/input-output-hk/cardano-node/blob/72987eb866346d141cfd76d73065c440307651aa/doc/reference/multisig.md#example-of-using-multi-signature-scripts)
+- [Making a Shelley blockchain from scratch](https://github.com/input-output-hk/cardano-node/blob/master/doc/reference/shelley-genesis.md)
+- [Cardano documentation](https://docs.cardano.org/new-to-cardano/introduction)
+- [Documentation about multisig](https://github.com/input-output-hk/cardano-node/blob/master/doc/reference/simple-scripts.md#multi-signature-scripts)
 
 [`nix`]: https://nixos.org/download.html "nix installation instructions"
 [`nixops`]: https://github.com/NixOS/nixops
 [AWS-EC2]: https://aws.amazon.com/ec2/
 [libvirt]: https://libvirt.org/manpages/libvirtd.html "libvirt site"
-[cardano-docs]: https://docs.cardano.org/projects/cardano-node/en/latest/getting-started/understanding-config-files.html#tracing
+[cardano-docs]: https://github.com/input-output-hk/cardano-node/blob/master/doc/getting-started/understanding-config-files.md
