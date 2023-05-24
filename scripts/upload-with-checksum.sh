@@ -2,11 +2,11 @@
 
 set -euo pipefail
 
-cd $(dirname "$1")
+cd "$(dirname "$1")"
 FILE="$(basename "$1")"
 BUCKET=$2
 PREFIX=${3:-}
-if [ $PREFIX = "" ]; then
+if [ "$PREFIX" = "" ]; then
   PATH_PREFIX=""
 else
   PATH_PREFIX="$PREFIX/"
@@ -24,7 +24,7 @@ export PYTHONPATH=
 for f in "$FILE.sha256sum" "$FILE"; do
   >&2 echo "Uploading $f"
 
-  >&2 s3cmd put --acl-public --multipart-chunk-size-mb=512 $f s3://$BUCKET/$PATH_PREFIX
+  >&2 s3cmd put --acl-public --multipart-chunk-size-mb=512 "$f" "s3://$BUCKET/$PATH_PREFIX"
 done
 
 echo "Uploaded files:"

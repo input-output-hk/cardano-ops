@@ -20,37 +20,57 @@ Environnement variables: \n
 "
 
 if [ $# -eq 1 ]; then
-	UPDATE_PROPOSAL=$1
+  UPDATE_PROPOSAL=$1
 else
-	if [ $# -lt 2 ]; then
-		echo -e "$USAGE"
-		exit 1
-	else
-		MAJOR=$1
-		MINOR=$2
-		EPOCH=${3:-$(cardano-cli query tip --testnet-magic $NETWORK_MAGIC | jq .epoch)}
-		UPDATE_PROPOSAL=""
-	fi
+  if [ $# -lt 2 ]; then
+    echo -e "$USAGE"
+    exit 1
+  else
+    MAJOR=$1
+    MINOR=$2
+    EPOCH=${3:-$(cardano-cli query tip --testnet-magic "$NETWORK_MAGIC" | jq .epoch)}
+    UPDATE_PROPOSAL=""
+  fi
 fi
 
 set -x
 
-ADDR=$(cat $PAYMENT_KEY_PREFIX.addr)
-ADDR_AMOUNT=$(cardano-cli query utxo --address $ADDR --testnet-magic $NETWORK_MAGIC | awk '{if(NR==3) print $3}')
-UTXO=$(cardano-cli query utxo --address $ADDR --testnet-magic $NETWORK_MAGIC | awk '{if(NR==3) print $1 "#" $2}')
+ADDR=$(cat "$PAYMENT_KEY_PREFIX.addr")
+ADDR_AMOUNT=$(cardano-cli query utxo --address "$ADDR" --testnet-magic "$NETWORK_MAGIC" | awk '{if(NR==3) print $3}')
+UTXO=$(cardano-cli query utxo --address "$ADDR" --testnet-magic "$NETWORK_MAGIC" | awk '{if(NR==3) print $1 "#" $2}')
 
-if [ -z $UPDATE_PROPOSAL ]; then
-	UPDATE_PROPOSAL="keys/update-to-protocol-v$MAJOR.$MINOR.proposal"
-  cardano-cli governance create-update-proposal --epoch $EPOCH --protocol-major-version $MAJOR --protocol-minor-version $MINOR $( for g in keys/genesis-keys/genesis?.vkey; do echo  " --genesis-verification-key-file $g"; done) --out-file "$UPDATE_PROPOSAL"
+if [ -z "$UPDATE_PROPOSAL" ]; then
+  UPDATE_PROPOSAL="keys/update-to-protocol-v$MAJOR.$MINOR.proposal"
+  # shellcheck disable=SC2046
+  cardano-cli governance create-update-proposal \
+    --epoch "$EPOCH" \
+    --protocol-major-version "$MAJOR" \
+    --protocol-minor-version "$MINOR" \
+    $(for g in keys/genesis-keys/genesis?.vkey; do echo " --genesis-verification-key-file $g"; done) \
+    --out-file "$UPDATE_PROPOSAL"
 fi
 
-ERA=$(cardano-cli query tip --testnet-magic $NETWORK_MAGIC | jq -r '.era | ascii_downcase')
+ERA=$(cardano-cli query tip --testnet-magic "$NETWORK_MAGIC" | jq -r '.era | ascii_downcase')
 
-cardano-cli transaction build-raw --$ERA-era --ttl 100000000 --tx-in $UTXO --tx-out $ADDR+$(( $ADDR_AMOUNT - $FEE )) --update-proposal-file $UPDATE_PROPOSAL --out-file $UPDATE_PROPOSAL.txbody --fee $FEE
+cardano-cli transaction build-raw \
+  "--$ERA-era" \
+  --ttl 100000000 \
+  --tx-in "$UTXO" \
+  --tx-out "$ADDR+$((ADDR_AMOUNT - FEE))" \
+  --update-proposal-file "$UPDATE_PROPOSAL" \
+  --out-file "$UPDATE_PROPOSAL.txbody" \
+  --fee "$FEE"
 
-cardano-cli transaction sign --tx-body-file $UPDATE_PROPOSAL.txbody --out-file $UPDATE_PROPOSAL.tx  --signing-key-file $PAYMENT_KEY_PREFIX.skey $( for d in keys/delegate-keys/delegate?.skey; do echo  " --signing-key-file $d"; done)
+# shellcheck disable=SC2046
+cardano-cli transaction sign \
+  --tx-body-file "$UPDATE_PROPOSAL.txbody" \
+  --out-file "$UPDATE_PROPOSAL.tx" \
+  --signing-key-file "$PAYMENT_KEY_PREFIX.skey" \
+  $(for d in keys/delegate-keys/delegate?.skey; do echo " --signing-key-file $d"; done)
 
 echo "Press enter to submit update proposal"
-read -n 1
+read -r -n 1
 
-cardano-cli transaction submit --tx-file $UPDATE_PROPOSAL.tx --testnet-magic $NETWORK_MAGIC
+cardano-cli transaction submit \
+  --tx-file "$UPDATE_PROPOSAL.tx" \
+  --testnet-magic "$NETWORK_MAGIC"
