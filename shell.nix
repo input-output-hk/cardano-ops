@@ -12,11 +12,13 @@
 }:
 with pkgs; with lib;
 let
+  isLinux = pkgs.stdenv.hostPlatform.isLinux;
+  nixopsFlake = builtins.getFlake "github:input-output-hk/nixops-flake/be0a1add8655c138f2251c42c421f271844bdb09";
   nivOverrides = writeShellScriptBin "niv-overrides" ''
     niv --sources-file ${toString globals.sourcesJsonOverride} $@
   '';
 
-in  mkShell (globals.environmentVariables // {
+in mkShell (globals.environmentVariables // {
   nativeBuildInputs = [
     awscli2
     bashInteractive
@@ -27,7 +29,6 @@ in  mkShell (globals.environmentVariables // {
     nivOverrides
     nix
     nix-diff
-    nixops
     pandoc
     perl
     pstree
@@ -40,7 +41,12 @@ in  mkShell (globals.environmentVariables // {
     snapshotStatesTimer
     s3cmd
     icdiff
-  ] ++ (lib.optionals pkgs.stdenv.hostPlatform.isLinux ([
+  ] ++ (if (globals.withNixopsExperimental && isLinux) then [
+    # Required for libvirtd usage -- the ops-lib nixops overlay has an incompat embedded qemu version
+    nixopsFlake.legacyPackages.${builtins.currentSystem}.nixops_1_8-nixos-unstable
+  ] else [
+    nixops
+  ]) ++ (lib.optionals isLinux ([
     # Those fail to compile under macOS:
     node-update
     snapshot-states

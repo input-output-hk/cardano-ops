@@ -143,7 +143,7 @@ in {
   # Service monitoring exclusions:
   # 1)  db-sync and cardano-node on snapshots is restarting regularly to take snapshots
   # 2a) cardano-graphql on explorers are restarting regularly due to graphql-engine required restarts
-  #  b) A higher time threshold cardano-graphql alert will be declared in this repos alert module 
+  #  b) A higher time threshold cardano-graphql alert will be declared in this repos alert module
   intermittentMonitoringTargets = [ "snapshots-exporter" "snapshots" "cardano-graphql-exporter" ];
   cardanoExplorerGwPrometheusExporterPort = 12699;
   netdataExporterPort = 19999;
@@ -244,9 +244,11 @@ in {
     explorer = if globals.withHighCapacityExplorer
       then large
       else medium;
-    explorer-gw = small;
+    explorer-gw = tiny;
     monitoring = if globals.withHighCapacityMonitoring
       then large
       else medium;
   };
+
+  withNixopsExperimental = false;
 }
