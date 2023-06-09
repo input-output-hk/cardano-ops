@@ -16,6 +16,8 @@ pkgs: with pkgs.iohkNix.cardanoLib; rec {
   minCpuPerInstance = 1;
   minMemoryPerInstance = 4;
 
+  nbInstancesPerRelay = 2;
+
   environmentConfig = let
     readHash = file: builtins.replaceStrings ["\n"] [""] (builtins.readFile file);
   in rec {
@@ -26,6 +28,7 @@ pkgs: with pkgs.iohkNix.cardanoLib; rec {
       environments.private.nodeConfig
       {
         EnableP2P = false;
+        ExperimentalProtocolsEnabled = false;
         ByronGenesisFile = ./keys/byron-genesis.json;
         ByronGenesisHash = readHash ./keys/byron-genesis.hash;
         ShelleyGenesisFile = ./keys/shelley-genesis.json;

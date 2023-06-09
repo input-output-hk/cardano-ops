@@ -14,10 +14,22 @@
 pkgs: with pkgs; with lib; with topology-lib;
 let
   regions = {
-    a = { name = "eu-central-1";   /* Europe (Frankfurt)       */ };
-    b = { name = "us-east-2";      /* US East (Ohio)           */ };
-    c = { name = "ap-southeast-1"; /* Asia Pacific (Singapore) */ };
-    d = { name = "eu-west-2";      /* Europe (London)          */ };
+    a = {
+      name = "eu-central-1";
+      minRelays = 1;
+    };
+
+    b = {
+      name = "us-east-2";
+      minRelays = 1;
+    };
+
+    c = {
+      name = "ap-southeast-1";
+      minRelays = 1;
+    };
+
+    # d = { name = "eu-west-2";      /* Europe (London)          */ };
   };
   bftCoreNodes =
     let
@@ -39,9 +51,18 @@ let
         ) bftNodeSpecs);
       in bftNodes;
 
-  relayNodes = [];
+  relayNodes = map (withModule {
+    services.cardano-node.shareIpv6port = false;
+  }) (
+    mkRelayTopology {
+    inherit regions;
+    coreNodes = stakingPoolNodes;
+    autoscaling = false;
+    maxProducersPerNode = 20;
+    maxInRegionPeers = 5;
+  });
 
-  stakePoolNodes =
+  stakingPoolNodes =
     let
       # The region names determine the number of stake pools. These names
       # should belong to `attrNames regions`.
@@ -62,7 +83,7 @@ let
     in
       pools;
 
-  coreNodes = bftCoreNodes ++ stakePoolNodes;
+  coreNodes = bftCoreNodes ++ stakingPoolNodes;
 in {
   inherit coreNodes relayNodes regions;
 
