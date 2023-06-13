@@ -51,7 +51,14 @@ let
         ) bftNodeSpecs);
       in bftNodes;
 
-  relayNodes = map (withModule {
+  relayNodes = map (composeAll [
+    (forNodes {
+      services.cardano-node = {
+        useNewTopology = true;
+        usePeersFromLedgerAfterSlot = -1;
+      };
+    } ["rel-a-1"])
+  ]) (map (withModule {
     services.cardano-node.shareIpv6port = false;
   }) (
     mkRelayTopology {
@@ -60,7 +67,7 @@ let
     autoscaling = false;
     maxProducersPerNode = 20;
     maxInRegionPeers = 5;
-  });
+  }));
 
   stakingPoolNodes =
     let
