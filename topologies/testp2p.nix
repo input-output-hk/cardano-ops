@@ -55,6 +55,8 @@ let
     (forNodes {
       services.cardano-node = {
         useNewTopology = true;
+        useSingleMemberAccessPoints = true;
+        useInstancePublicProducersAsProducers = true;
         usePeersFromLedgerAfterSlot = -1;
       };
     } ["rel-a-1"])
