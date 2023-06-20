@@ -13,17 +13,17 @@ let
   dbSyncPkgs = let s = getSrc "cardano-db-sync"; in import (s + "/nix") { gitrev = s.rev; };
 
   ogmiosFlake = (flake-compat { src = (getSrc "ogmios");}).defaultNix;
-  cardanoNodePkgs = getCardanoNodePackages (variant.cardano-node or ogmiosFlake.legacyPackages.x86_64-linux.hsPkgs.cardano-api.src);
+  cardanoNodePackages = getCardanoNodePackages (variant.cardano-node or ogmiosFlake.legacyPackages.x86_64-linux.hsPkgs.cardano-api.src);
   inherit (dbSyncPkgs) cardanoDbSyncHaskellPackages;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-sync-extended.components.exes) cardano-db-sync-extended;
-  inherit (cardanoNodePkgs) cardano-node cardano-cli;
+  inherit (cardanoNodePackages) cardano-node cardano-cli;
   inherit (cardanoDbSyncHaskellPackages.cardano-db-tool.components.exes) cardano-db-tool;
 
   cardano-explorer-app-pkgs = import (getSrc "cardano-explorer-app");
 in {
   imports = [
     (cardano-ops.modules.db-sync {
-      inherit dbSyncPkgs cardanoNodePkgs;
+      inherit dbSyncPkgs cardanoNodePackages;
       additionalDbUsers = [
         "cardano-graphql"
         "smash"
@@ -123,7 +123,7 @@ in {
   services.cardano-ogmios = {
     enable = true;
     nodeConfig = cardanoNodeConfigPath;
-    nodeSocket = nodeCfg.socketPath;
+    nodeSocket = nodeCfg.socketPath 0;
     hostAddr = "127.0.0.1";
   };
 
@@ -160,7 +160,7 @@ in {
     cardanoCliPath = cardano-cli + /bin/cardano-cli;
     genesisPath = nodeCfg.nodeConfig.ShelleyGenesisFile;
     cardanoNodePath = cardano-node + /bin/cardano-node;
-    cardanoNodeSocketPath = nodeCfg.socketPath;
+    cardanoNodeSocketPath = nodeCfg.socketPath 0;
     bindAddress = "127.0.0.1";
     port = 8082;
     dbConnectionString = "socket://${cfg.postgres.user}:*@${cfg.postgres.socketdir}?db=${cfg.postgres.database}";
@@ -233,8 +233,8 @@ in {
     port = 8101;
     environment = pkgs.globals.environmentConfig;
     config = pkgs.iohkNix.cardanoLib.defaultExplorerLogConfig;
-    socketPath = config.services.cardano-node.socketPath;
-    inherit cardanoNodePkgs;
+    socketPath = config.services.cardano-node.socketPath 0;
+    inherit cardanoNodePackages;
   };
 
   # Port 9999 opened to allow graphql-engine health check, accessible only to monitoring via sg.
