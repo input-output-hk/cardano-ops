@@ -39,6 +39,7 @@ in  mkShell (globals.environmentVariables // {
     relayUpdateTimer
     snapshotStatesTimer
     s3cmd
+    icdiff
   ] ++ (lib.optionals pkgs.stdenv.hostPlatform.isLinux ([
     # Those fail to compile under macOS:
     node-update

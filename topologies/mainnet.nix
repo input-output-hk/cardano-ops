@@ -106,13 +106,19 @@ let
     (forNodes {
       boot.kernel.sysctl."net.ipv4.tcp_slow_start_after_idle" = 0;
     } [ "rel-a-5" "rel-b-5" "rel-c-5" "rel-d-5" "rel-e-5" "rel-f-5" ])
-  ]) (mkRelayTopology {
-      inherit regions;
-      coreNodes = stakingPoolNodes;
-      autoscaling = false;
-      maxProducersPerNode = 20;
-      maxInRegionPeers = 5;
-    });
+  ]) (
+    map (withModule {
+      # Legacy topology uses systemd socket activation with shared ipv6 address but
+      # differing ipv6 ports for intra-machine peer producers on multi-instance relays.
+      services.cardano-node.shareIpv6port = false;
+    }
+  ) (mkRelayTopology {
+    inherit regions;
+    coreNodes = stakingPoolNodes;
+    autoscaling = false;
+    maxProducersPerNode = 20;
+    maxInRegionPeers = 5;
+  }));
 
 in {
 
