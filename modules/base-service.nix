@@ -27,9 +27,10 @@ let
   }) deployedProducers;
 
   toNormalizedProducerGroup = producers: {
-    addrs = map (n: {
-      addr = let a = n.addr or n; in if (nodes ? ${a}) then hostName a else a;
+    accessPoints = map (n: {
+      address = let a = n.addr or n; in if (nodes ? ${a}) then hostName a else a;
       port = n.port or nodePort;
+    } // lib.optionalAttrs (!cfg.useNewTopology) {
       valency = n.valency or 1;
     }) producers;
     valency = length producers;
@@ -46,7 +47,7 @@ let
 
   instanceProducers = i: map toNormalizedProducerGroup (filter (g: length g != 0) [
       (concatMap (i: map (p: {
-        addr = cfg.ipv6HostAddr;
+        addr = cfg.ipv6HostAddr p;
         port = cfg.port + p;
       }) i.producers) (filter (x: x.name == i) intraInstancesTopologies))
       (producerShare i sameRegionRelays)
@@ -91,9 +92,9 @@ in
 
   config = {
 
-    environment.systemPackages = with cfg.cardanoNodePkgs; [ cardano-cli ];
+    environment.systemPackages = with cfg.cardanoNodePackages; [ cardano-cli ];
     environment.variables = globals.environmentVariables // {
-      CARDANO_NODE_SOCKET_PATH = cfg.socketPath;
+      CARDANO_NODE_SOCKET_PATH = cfg.socketPath 0;
     };
     services.monitoring-exporters.extraPrometheusExporters = genList (i: {
       job_name = "cardano-node";
@@ -121,7 +122,7 @@ in
       # https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/runtime_control.html
       rtsArgs = [ "-N${toString (cfg.totalCpuCores / cfg.instances)}" "-A16m" "-qg" "-qb" "-M${toString (cfg.totalMaxHeapSizeMbytes / cfg.instances)}M" ];
       environment = globals.environmentName;
-      cardanoNodePkgs = lib.mkDefault cardanoNodePkgs;
+      cardanoNodePackages = lib.mkDefault cardanoNodePackages;
       inherit hostAddr nodeId instanceProducers instancePublicProducers;
       ipv6HostAddr = mkIf (cfg.instances > 1) "::1";
       producers = mkDefault [];

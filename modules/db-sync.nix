@@ -1,6 +1,6 @@
 pkgs: {
   dbSyncPkgs,
-  cardanoNodePkgs,
+  cardanoNodePackages,
   additionalDbUsers ? []
 } : { name, config, options, ... }:
 with pkgs;
@@ -58,7 +58,7 @@ in {
   };
 
   services.cardano-node = {
-    inherit cardanoNodePkgs;
+    inherit cardanoNodePackages;
     allProducers = if (globals.topology.relayNodes != [] || (globals.deploymentName != globals.environmentName))
         then [ (topology-lib.envRegionalRelaysProducer config.deployment.ec2.region 2) ]
         else if (globals.topology.coreNodes != [])
@@ -73,7 +73,7 @@ in {
     cluster = globals.environmentName;
     environment = globals.environmentConfig;
     # inherit (cfg.environment) explorerConfig;
-    socketPath = nodeCfg.socketPath;
+    socketPath = nodeCfg.socketPath 0;
     logConfig = iohkNix.cardanoLib.defaultExplorerLogConfig // { PrometheusPort = globals.cardanoExplorerPrometheusExporterPort; };
     inherit dbSyncPkgs;
     postgres = {

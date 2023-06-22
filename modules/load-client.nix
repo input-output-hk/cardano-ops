@@ -22,7 +22,7 @@ in
 
   services.cardano-node = {
     enable = true;
-    inherit cardanoNodePkgs;
+    inherit cardanoNodePackages;
     rtsArgs = [ "-N2" "-A10m" "-qg" "-qb" "-M3G"];
     environment = globals.environmentName;
     port = nodePort;

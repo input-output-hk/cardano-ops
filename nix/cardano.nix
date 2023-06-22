@@ -56,10 +56,10 @@ self: super: with self; let
       cardano-node-asserted = cardano-node.passthru.asserted;
     };
 
-    cardanoNodePkgs = getCardanoNodePackages sourcePaths.cardano-node;
+    cardanoNodePackages = getCardanoNodePackages sourcePaths.cardano-node;
 
-in cardanoNodePkgs // {
-  inherit getCardanoNodePackages cardanoNodePkgs;
+in cardanoNodePackages // {
+  inherit getCardanoNodePackages cardanoNodePackages;
   inherit (import (sourcePaths.cardano-db-sync + "/nix") {}) cardanoDbSyncHaskellPackages;
   cardano-node-services-def = (sourcePaths.cardano-node-service or sourcePaths.cardano-node) + "/nix/nixos";
 }

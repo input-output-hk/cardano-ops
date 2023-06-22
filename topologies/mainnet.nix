@@ -2,9 +2,9 @@ pkgs: with pkgs; with lib; with topology-lib ;
 let
 
   # Update for early release testing
-  cardanoNodeNextPkgs = getCardanoNodePackages sourcePaths.cardano-node-next;
+  cardanoNodeNextPackages = getCardanoNodePackages sourcePaths.cardano-node-next;
 
-  cardanoNodeAdoptionMetricsPkgs = import (sourcePaths.cardano-node-adopt-metrics + "/nix")
+  cardanoNodeAdoptionMetricsPackages = import (sourcePaths.cardano-node-adopt-metrics + "/nix")
     { gitrev = sourcePaths.cardano-node-adopt-metrics.rev; };
 
   regions = {
@@ -94,7 +94,6 @@ let
     } [ "rel-a-2" "rel-b-2" "rel-c-2" "rel-d-2" "rel-e-2" "rel-f-2" ])
     (forNodes {
       services.cardano-node = {
-        cardanoNodePkgs = cardanoNodeNextPkgs;
         extraNodeInstanceConfig = i: optionalAttrs (i == 0) {
           TraceBlockFetchClient = true;
           TraceMempool = true;
@@ -102,20 +101,24 @@ let
       };
     } [ "rel-a-3" "rel-b-3" "rel-c-3" "rel-d-3" "rel-e-3" "rel-f-3" ])
     (forNodes {
-      services.cardano-node = {
-        cardanoNodePkgs = cardanoNodeNextPkgs;
-      };
+      services.cardano-node.cardanoNodePackages = cardanoNodeNextPackages;
     } [ "rel-a-4" "rel-b-4" "rel-c-4" "rel-d-4" "rel-e-4" "rel-f-4" ])
     (forNodes {
       boot.kernel.sysctl."net.ipv4.tcp_slow_start_after_idle" = 0;
     } [ "rel-a-5" "rel-b-5" "rel-c-5" "rel-d-5" "rel-e-5" "rel-f-5" ])
-  ]) (mkRelayTopology {
-      inherit regions;
-      coreNodes = stakingPoolNodes;
-      autoscaling = false;
-      maxProducersPerNode = 20;
-      maxInRegionPeers = 5;
-    });
+  ]) (
+    map (withModule {
+      # Legacy topology uses systemd socket activation with shared ipv6 address but
+      # differing ipv6 ports for intra-machine peer producers on multi-instance relays.
+      services.cardano-node.shareIpv6port = false;
+    }
+  ) (mkRelayTopology {
+    inherit regions;
+    coreNodes = stakingPoolNodes;
+    autoscaling = false;
+    maxProducersPerNode = 20;
+    maxInRegionPeers = 5;
+  }));
 
 in {
 
