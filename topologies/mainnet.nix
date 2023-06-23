@@ -1,11 +1,13 @@
 pkgs: with pkgs; with lib; with topology-lib ;
 let
-
   # Update for early release testing
   cardanoNodeNextPackages = getCardanoNodePackages sourcePaths.cardano-node-next;
 
   cardanoNodeAdoptionMetricsPackages = import (sourcePaths.cardano-node-adopt-metrics + "/nix")
     { gitrev = sourcePaths.cardano-node-adopt-metrics.rev; };
+
+  # For legacy and p2p topology relay configuration
+  maxProducersPerNode = 20;
 
   regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
@@ -106,6 +108,57 @@ let
     (forNodes {
       boot.kernel.sysctl."net.ipv4.tcp_slow_start_after_idle" = 0;
     } [ "rel-a-5" "rel-b-5" "rel-c-5" "rel-d-5" "rel-e-5" "rel-f-5" ])
+
+    # Begin transitioning relays to p2p.
+    # All node instances on each relay listed below will utilize p2p.
+    (forNodes {
+      networking.localCommands = ''
+        # Use a loopback interface for out of band intra-machine multi-node-instance comms.
+        # The ipv6 assignment is similar to ipv4 loopback for recognizability and the traffic
+        # for which will not be externally routed.
+        for i in $(seq 1 ${toString pkgs.globals.nbInstancesPerRelay}); do
+          ip -6 address add ::127.0.0.$i/96 dev lo || true
+        done
+      '';
+
+      services.cardano-node = {
+        # Options to enable p2p relays in mixed topology cluster:
+
+        # To ensure non-systemd socket activated instances bind the same port on the machine, ie: 3001,
+        # This ensures they all receive incoming traffic.
+        # Since systemd sockets are not used, there is no so_reuseport socket UID conflict.
+        # For non-mingw32 hosts, node enables so_reuseport for socket configuration by default.
+        shareIpv4port = true;
+
+        # The typical cardano-ops ipv4 legacy cluster topology uses systemd socket activation with an ipv6
+        # localhost listener of ::1 with different port binding to enable intra-machine node peering.
+        # Without systemd socket activation, node cli only parameterizes a single port option that is used for both ipv4 and ipv6.
+        # Enabling this option will ensure topology port declaration for intra-machine peering uses the same port.
+        # This means, though, that the ipv6 addresses for each instance on a machine will need to be different.
+        shareIpv6port = lib.mkForce true;
+
+        # Per above, we wish to increment the ipv6 address for each instance to create a unique intra-machine node listener.
+        shareIpv6Address = false;
+
+        # Turn systemd socket activation off due to an so_reuseport UID kernel conflict when binding sockets for re-use as non-root user.
+        systemdSocketActivation = lib.mkForce false;
+
+        # Use p2p
+        useNewTopology = true;
+
+        # Transform any p2p multi-member accessPoints groups into single member accessPoints.
+        useSingleMemberAccessPoints = true;
+
+        # Make 3rd party producers localRoots rather than publicRoots for a 1:1 equivalency with legacy topology.
+        useInstancePublicProducersAsProducers = true;
+
+        # Don't use any chain source outside of declared localRoots until after slot correlating with ~2023-06-17 00:00Z:
+        usePeersFromLedgerAfterSlot = 95393681;
+
+        # Ensure p2p relay node instances utilize the same number of producers as legacy relays as best as possible
+        extraNodeConfig.TargetNumberOfActivePeers = maxProducersPerNode;
+      };
+    } [ "rel-a-40" "rel-b-25" "rel-c-10" "rel-d-15" "rel-e-15" "rel-f-10" ])
   ]) (
     map (withModule {
       # Legacy topology uses systemd socket activation with shared ipv6 address but
@@ -113,10 +166,9 @@ let
       services.cardano-node.shareIpv6port = false;
     }
   ) (mkRelayTopology {
-    inherit regions;
+    inherit maxProducersPerNode regions;
     coreNodes = stakingPoolNodes;
     autoscaling = false;
-    maxProducersPerNode = 20;
     maxInRegionPeers = 5;
   }));
 
