@@ -9,6 +9,20 @@ let
   # For legacy and p2p topology relay configuration
   maxProducersPerNode = 20;
 
+  # For generating lists of relays, by region, to use p2p format. For a given region and count
+  # start with the last relay index in a region and working back to the first.
+  # Do it from last to first as the first several relay index series tend to be more heavily used,
+  # including for other customizations.
+  p2pRelayRegionList = region: count: let
+    regionMinRelays = regions.${region}.minRelays;
+    p2pPercent = (count + 0.0) / regionMinRelays * 100;
+    p2pTrace = exp: builtins.trace ''region "${region}" now has ${toString count} of ${toString regionMinRelays} relays using p2p, or ${toString p2pPercent}%'' exp;
+  in if count <= regions.${region}.minRelays
+    then
+      p2pTrace (lib.genList (index: "rel-${region}-${toString (regionMinRelays - index)}") count)
+    else
+      abort ''p2pRelayRegionList generation must use count (${toString count}) less than the region "${region}" minRelays (${toString regionMinRelays}).'';
+
   regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
       minRelays = 40;
@@ -152,13 +166,21 @@ let
         # Make 3rd party producers localRoots rather than publicRoots for a 1:1 equivalency with legacy topology.
         useInstancePublicProducersAsProducers = true;
 
-        # Don't use any chain source outside of declared localRoots until after slot correlating with ~2023-06-17 00:00Z:
-        usePeersFromLedgerAfterSlot = 95393681;
+        # Don't use any chain source outside of declared localRoots until after slot correlating with ~2023-06-24 21:44Z:
+        usePeersFromLedgerAfterSlot = 96076788;
 
         # Ensure p2p relay node instances utilize the same number of producers as legacy relays as best as possible
         extraNodeConfig.TargetNumberOfActivePeers = maxProducersPerNode;
       };
-    } [ "rel-a-40" "rel-b-25" "rel-c-10" "rel-d-15" "rel-e-15" "rel-f-10" ])
+    } (lib.flatten [
+      # See the nixops deploy [--build-only] [--include ...] trace for calculated p2p percentages per region.
+      (p2pRelayRegionList "a" 4) # Currently 40 total region a relays, each represents 2.5% of region total
+      (p2pRelayRegionList "b" 3) # Currently 25 total region b relays, each represents 4.0% of region total
+      (p2pRelayRegionList "c" 1) # Currently 10 total region c relays, each represents 10.0% of region total
+      (p2pRelayRegionList "d" 2) # Currently 15 total region d relays, each represents 6.67% of region total
+      (p2pRelayRegionList "e" 2) # Currently 15 total region e relays, each represents 6.67% of region total
+      (p2pRelayRegionList "f" 1) # Currently 10 total region f relays, each represents 10.0% of region total
+    ]))
   ]) (
     map (withModule {
       # Legacy topology uses systemd socket activation with shared ipv6 address but
