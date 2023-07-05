@@ -15,6 +15,20 @@ in {
     })
   ];
 
+  # Use sigint for a clean stop signal
+  #
+  # This will result in success status on the next release after 8.1.1 for SIGINT,
+  # whereas SIGTERM will still return 1 despite otherwise clean exit.
+  #
+  # Until then, temporarily force recognition of RC 1 as success for snapshots automation,
+  # as clean service stoppage is expected to return 1.
+  #
+  # Refs:
+  #  https://github.com/input-output-hk/cardano-node/issues/5312
+  #  https://github.com/input-output-hk/cardano-node/pull/5356
+  systemd.services.cardano-node.serviceConfig.KillSignal = "SIGINT";
+  systemd.services.cardano-node.serviceConfig.SuccessExitStatus = "FAILURE";
+
   # Create a new snapshot every 24h (if not exist alreay):
   services.cardano-db-sync.takeSnapshot = "always";
 
