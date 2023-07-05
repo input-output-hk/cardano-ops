@@ -17,15 +17,22 @@ cd "$(dirname "$0")/.."
 DEPLOY_JSON=$(nixops export -d "$NIXOPS_DEPLOYMENT")
 
 for r in "${TARGET_NODES[@]}"; do
-    AWS_PROFILE=$(jq -r ".[].resources.\"$r\".\"ec2.accessKeyId\"" <<< "$DEPLOY_JSON")
-    REGION=$(jq -r ".[].resources.\"$r\".\"ec2.region\"" <<< "$DEPLOY_JSON")
-    VOL_ID=$( (jq -r ".[].resources.\"$r\".\"ec2.blockDeviceMapping\"" | jq -r ".\"/dev/xvda\".volumeId") <<< "$DEPLOY_JSON")
-    echo "resizing root volume for $r (profile: $AWS_PROFILE region: $REGION volume: $VOL_ID)"
-    export AWS_PROFILE
-    aws --region "$REGION" ec2 modify-volume --size "$TARGET_SIZE" --volume-id "$VOL_ID"
- done
+  AWS_PROFILE=$(jq -r ".[].resources.\"$r\".\"ec2.accessKeyId\"" <<< "$DEPLOY_JSON")
+  REGION=$(jq -r ".[].resources.\"$r\".\"ec2.region\"" <<< "$DEPLOY_JSON")
+  VOL_ID=$( (jq -r ".[].resources.\"$r\".\"ec2.blockDeviceMapping\"" | jq -r ".\"/dev/xvda\".volumeId") <<< "$DEPLOY_JSON")
+  echo "resizing root volume for $r (profile: $AWS_PROFILE region: $REGION volume: $VOL_ID)"
+  export AWS_PROFILE
+  aws --region "$REGION" ec2 modify-volume --size "$TARGET_SIZE" --volume-id "$VOL_ID"
+done
 
+echo "Waiting 30 seconds for the new block device size to be recognized on the targets..."
+sleep 30
+
+# Grow the partition, grow the fs, and symlink /dev/xvda if not present to satisfy legacy nixops
 nixops ssh-for-each -p --include "${TARGET_NODES[@]}" -- '
-  nix-shell -p cloud-utils --run "
-    (growpart /dev/xvda 1 || growpart /dev/nvme0n1 2) && resize2fs /dev/disk/by-label/nixos"
+  nix-shell -p cloud-utils --run " \
+    { growpart /dev/xvda 1 || growpart /dev/nvme0n1 2; } \
+    && resize2fs /dev/disk/by-label/nixos \
+    && { [ -e /dev/xvda ] || ln -s /dev/nvme0n1 /dev/xvda; } \
+  "
 '
