@@ -12,6 +12,7 @@ self: super: with self; {
       if (nodes.${nodeName}.options.networking.publicIPv4.isDefined && publicIp != null) then publicIp
       else (builtins.trace "No public IP found for node: ${nodeName}" "")
     );
+
   getStaticRouteIp = resources: nodes: nodeName: resources.elasticIPs."${nodeName}-ip".address
     or (let
       publicIp = nodes.${nodeName}.config.networking.publicIPv4;
