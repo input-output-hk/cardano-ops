@@ -13,10 +13,13 @@
 #
 pkgs: with pkgs; with lib; with topology-lib;
 let
+  maxProducersPerNode = 20;
+
   regions = {
     a = {
       name = "eu-central-1";
-      minRelays = 1;
+      minRelays = 2;
+      nbRelaysExcludingThirdParty = 1;
     };
 
     b = {
@@ -91,16 +94,17 @@ let
 
         # Don't use any chain source outside of declared localRoots
         usePeersFromLedgerAfterSlot = -1;
+
+        extraNodeConfig.TargetNumberOfActivePeers = maxProducersPerNode;
       };
-    } ["rel-a-1"])
+    } ["rel-a-1" "rel-a-2" "rel-b-1" "rel-c-1"])
   ]) (map (withModule {
     services.cardano-node.shareIpv6port = false;
   }) (
     mkRelayTopology {
-    inherit regions;
+    inherit maxProducersPerNode regions;
     coreNodes = stakingPoolNodes;
     autoscaling = false;
-    maxProducersPerNode = 20;
     maxInRegionPeers = 5;
   }));
 
