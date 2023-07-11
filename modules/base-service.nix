@@ -13,7 +13,7 @@ let
 
   splitProducers = partition (n: nodes ? ${n.addr or n}) cfg.allProducers;
   deployedProducers = splitProducers.right;
-  thirdParyProducers = splitProducers.wrong;
+  thirdPartyProducers = splitProducers.wrong;
   splitDeployed = partition (n: nodes.${n}.config.node.roles.isCardanoCore) deployedProducers;
   coreNodeProducers = splitDeployed.right;
   relayNodeProducers = splitDeployed.wrong;
@@ -69,13 +69,13 @@ let
       (producerShare i coreNodeProducers)
     ]))) ++ lib.optionals cfg.useInstancePublicProducersAsProducers (
       lib.flatten (map toNormalizedProducerGroup (filter (g: length g != 0) [
-        (producerShare (cfg.instances - i - 1) thirdParyProducers)
+        (producerShare (cfg.instances - i - 1) thirdPartyProducers)
       ]))
     );
 
   instancePublicProducers = i: lib.optionals (!cfg.useInstancePublicProducersAsProducers)
     (lib.flatten (map toNormalizedProducerGroup (filter (g: length g != 0) [
-      (producerShare (cfg.instances - i - 1) thirdParyProducers)
+      (producerShare (cfg.instances - i - 1) thirdPartyProducers)
     ])));
 
 in
