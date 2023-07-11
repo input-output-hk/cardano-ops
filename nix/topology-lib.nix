@@ -380,28 +380,47 @@ pkgs: with pkgs; with lib; rec {
 
       indexedThirdPartyRelays = thirdPartyRelaysByRegions { regions = inUseRegions; };
 
-      nbRelaysPerRegions = mapAttrs (_: {minRelays ? 1, name, ...}:
-        # we scale so that relays have less than `maxRelaysPerNode` producer relays per node, with a given minimum of relays:
+      nbRelaysPerRegions = mapAttrs (_: {
+        minRelays ? 1,
+        # Number of relays per region which will not have third party producers automatically assigned.
+        # Useful for p2p relays which require non-assigned producer slots for ledger peer connections.
+        # These relays will appear at the end of the relay region series, ie:
+        # `lib.genList (x: "rel-X-${toString (minRelays - x)}") nbRelaysExcludingThirdParty`
+        nbRelaysExcludingThirdParty ? 0,
+        name,
+        ...
+      }:
+        # We scale so that relays have less than `maxRelaysPerNode` producer relays per node, with a given minimum of relays:
         let
           nbThirdPartyRelays = length (indexedThirdPartyRelays.${name} or []);
           intraInstancesProducers = nbPeersWithin maxInRegionPeers globals.nbInstancesPerRelay;
           nbProducersToShare = nbCoreNodes + nbThirdPartyRelays + (nbRegions - 1);
           autoScale = nbRelaysInput:
-            # producer slots available, excluding local region peers:
-            let availableProducersSlots = globals.nbInstancesPerRelay * (maxProducersPerNode - intraInstancesProducers)
-              - (nbPeersWithin maxInRegionPeers nbRelaysInput);
-            nbRelays = nbProducersToShare / availableProducersSlots + # round up the division:
-              (if (mod nbProducersToShare availableProducersSlots == 0) then 0 else 1);
+            # Producer slots available, excluding local region peers:
+            let
+              availableProducersSlots = globals.nbInstancesPerRelay * (maxProducersPerNode - intraInstancesProducers)
+                - (nbPeersWithin maxInRegionPeers nbRelaysInput);
+              nbRelays = nbProducersToShare / availableProducersSlots + # round up the division:
+                (if (mod nbProducersToShare availableProducersSlots == 0) then 0 else 1);
             in max nbRelaysInput nbRelays; # 'max' is used to ensure convergence (this can oversize a bit, but also allows some growth without re-scaling)
           nbRelaysAutoScale = converge autoScale 1;
         in
-          if (!autoscaling) then
-            builtins.trace (if (minRelays < nbRelaysAutoScale) then  "Warning: only ${toString minRelays} relays in ${name} but ${toString nbRelaysAutoScale} would be necessary to handle the ${toString nbThirdPartyRelays} third-party relays."
-              else "Using given ${toString minRelays} min relays for ${name} (autoscaling would use ${toString nbRelaysAutoScale} to handle the ${toString nbThirdPartyRelays} third-party relays).")
-            minRelays
-          else builtins.trace (if (minRelays > nbRelaysAutoScale) then "Using given ${toString minRelays} min relays for ${name} (autoscaling would use ${toString nbRelaysAutoScale} to handle the ${toString nbThirdPartyRelays} third-party relays)."
-            else "Autoscaling for region ${name}: using ${toString nbRelaysAutoScale} relays to handle the ${toString nbThirdPartyRelays} third-party relays.")
-            (max minRelays nbRelaysAutoScale)
+          if (!autoscaling) then builtins.trace (
+            if (minRelays - nbRelaysExcludingThirdParty < nbRelaysAutoScale) then
+              "Warning: only ${toString (minRelays - nbRelaysExcludingThirdParty)} relays in ${name} but ${toString nbRelaysAutoScale} would be necessary"
+              + " to handle the ${toString nbThirdPartyRelays} third-party relays (${toString nbRelaysExcludingThirdParty} relays excluded)."
+            else
+              "Using given ${toString (minRelays - nbRelaysExcludingThirdParty)} min relays for ${name} (autoscaling would use ${toString nbRelaysAutoScale}"
+              + " to handle the ${toString nbThirdPartyRelays} third-party relays; ${toString nbRelaysExcludingThirdParty} relays excluded)."
+          ) minRelays
+          else builtins.trace (
+            if (minRelays - nbRelaysExcludingThirdParty > nbRelaysAutoScale) then
+              "Using given ${toString (minRelays - nbRelaysExcludingThirdParty)} min relays for ${name} (autoscaling would use ${toString nbRelaysAutoScale}"
+              + " to handle the ${toString nbThirdPartyRelays} third-party relays; ${toString nbRelaysExcludingThirdParty} relays excluded)."
+            else
+              "Autoscaling for region ${name}: using ${toString nbRelaysAutoScale + nbRelaysExcludingThirdParty} relays to"
+              + " handle the ${toString nbThirdPartyRelays} third-party relays (${toString nbRelaysExcludingThirdParty} relays excluded)."
+          ) (max minRelays (nbRelaysAutoScale + nbRelaysExcludingThirdParty))
       ) regions;
     in
       imap1 (i: r:
@@ -409,18 +428,24 @@ pkgs: with pkgs; with lib; rec {
       ) (sort (r1: r2: r1.nodeIndex < r2.nodeIndex) (concatMap ({rLetter, rIndex, region}:
         let
           nbRelays = nbRelaysPerRegions.${rLetter};
+          nbExcluded = regions.${rLetter}.nbRelaysExcludingThirdParty or 0;
           relayIndexesInRegion = genList (i: i + 1) nbRelays;
           relaysForRegion = map (nodeIndex:
             let
               name = "${relayPrefix}-${rLetter}-${toString nodeIndex}";
             in {
               inherit region name nodeIndex;
-              producers = # one relay in each other regions, using a scale factor to spread accross all relays of other regions:
-                map (r: let scaleFactor = (nbRelaysPerRegions.${r} + 0.0) / nbRelays; in
-                 "${relayPrefix}-${r}-${toString (roundToInt ((nodeIndex - 1) * scaleFactor) + 1)}")
-                  (filter (r: r != rLetter) regionLetters)
-                # a share of the third-party relays:
-                ++ (filter (p: mod p.index nbRelays == (nodeIndex - 1)) (indexedThirdPartyRelays.${region} or []));
+
+              # One relay in each other regions, using a scale factor to spread across all relays of other regions:
+              producers = map (r:
+                let
+                  scaleFactor = (nbRelaysPerRegions.${r} + 0.0) / nbRelays;
+                in "${relayPrefix}-${r}-${toString (roundToInt ((nodeIndex - 1) * scaleFactor) + 1)}")
+                (filter (r: r != rLetter) regionLetters)
+
+                # Also add a share of the third-party relays:
+                ++ (filter (p: mod p.index (nbRelays - nbExcluded) == (nodeIndex - 1)) (indexedThirdPartyRelays.${region} or []));
+
               org = "IOHK";
               services.cardano-node.maxIntraInstancesPeers = maxInRegionPeers;
             }
