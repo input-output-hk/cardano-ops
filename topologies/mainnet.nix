@@ -174,12 +174,12 @@ let
       };
     } (lib.flatten [
       # See the nixops deploy [--build-only] [--include ...] trace for calculated p2p percentages per region.
-      (p2pRelayRegionList "a" 12) # Currently 40 total region a relays, each represents 2.5% of region total
-      (p2pRelayRegionList "b" 8) # Currently 25 total region b relays, each represents 4.0% of region total
-      (p2pRelayRegionList "c" 3) # Currently 10 total region c relays, each represents 10.0% of region total
-      (p2pRelayRegionList "d" 5) # Currently 15 total region d relays, each represents 6.67% of region total
-      (p2pRelayRegionList "e" 5) # Currently 15 total region e relays, each represents 6.67% of region total
-      (p2pRelayRegionList "f" 3) # Currently 10 total region f relays, each represents 10.0% of region total
+      (p2pRelayRegionList "a" 16) # Currently 40 total region a relays, each represents 2.5% of region total
+      (p2pRelayRegionList "b" 10) # Currently 25 total region b relays, each represents 4.0% of region total
+      (p2pRelayRegionList "c" 4) # Currently 10 total region c relays, each represents 10.0% of region total
+      (p2pRelayRegionList "d" 6) # Currently 15 total region d relays, each represents 6.67% of region total
+      (p2pRelayRegionList "e" 6) # Currently 15 total region e relays, each represents 6.67% of region total
+      (p2pRelayRegionList "f" 4) # Currently 10 total region f relays, each represents 10.0% of region total
     ]))
   ]) (
     map (withModule {
