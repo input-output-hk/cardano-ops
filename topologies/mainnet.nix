@@ -26,21 +26,27 @@ let
   regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
       minRelays = 40;
+      nbRelaysExcludingThirdParty = 1;
     };
     b = { name = "us-east-2";      # US East (Ohio)
       minRelays = 25;
+      nbRelaysExcludingThirdParty = 1;
     };
     c = { name = "ap-southeast-1"; # Asia Pacific (Singapore)
       minRelays = 10;
+      nbRelaysExcludingThirdParty = 1;
     };
     d = { name = "eu-west-2";      # Europe (London)
       minRelays = 15;
+      nbRelaysExcludingThirdParty = 1;
     };
     e = { name = "us-west-1";      # US West (N. California)
       minRelays = 15;
+      nbRelaysExcludingThirdParty = 1;
     };
     f = { name = "ap-northeast-1"; # Asia Pacific (Tokyo)
       minRelays = 10;
+      nbRelaysExcludingThirdParty = 1;
     };
   };
 
@@ -166,8 +172,8 @@ let
         # Make 3rd party producers localRoots rather than publicRoots for a 1:1 equivalency with legacy topology.
         useInstancePublicProducersAsProducers = true;
 
-        # Don't use any chain source outside of declared localRoots until after slot correlating with ~2023-07-04 21:44Z:
-        usePeersFromLedgerAfterSlot = 96940733;
+        # Don't use any chain source outside of declared localRoots until after slot correlating with ~2023-07-14 21:44:58Z:
+        usePeersFromLedgerAfterSlot = 97804807;
 
         # Ensure p2p relay node instances utilize the same number of producers as legacy relays as best as possible
         extraNodeConfig.TargetNumberOfActivePeers = maxProducersPerNode;
