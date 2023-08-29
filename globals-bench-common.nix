@@ -53,6 +53,7 @@ rec {
            TraceBlockFetchServer      = true;
            TraceChainSyncHeaderServer = true;
            TraceChainSyncClient       = true;
+           TraceBackingStore          = false;
         } //
         (benchmarkingProfile.node.extra_config or {})
         // cfgOverlay));

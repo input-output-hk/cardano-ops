@@ -74,6 +74,7 @@ self: super: with self; {
     builtins.removeAttrs cfg
     [
       "TraceAcceptPolicy"
+      "TraceBackingStore"
       "TraceBlockchainTime"
       "TraceBlockFetchClient"
       "TraceBlockFetchDecisions"
