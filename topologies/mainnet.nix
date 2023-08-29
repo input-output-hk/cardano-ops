@@ -172,20 +172,20 @@ let
         # Make 3rd party producers localRoots rather than publicRoots for a 1:1 equivalency with legacy topology.
         useInstancePublicProducersAsProducers = true;
 
-        # Don't use any chain source outside of declared localRoots until after slot correlating with ~2023-08-18 21:44:53Z:
-        usePeersFromLedgerAfterSlot = 100828802;
+        # Don't use any chain source outside of declared localRoots until after slot correlating with ~2023-08-23 21:44:52Z:
+        usePeersFromLedgerAfterSlot = 101260801;
 
         # Ensure p2p relay node instances utilize the same number of producers as legacy relays as best as possible
         extraNodeConfig.TargetNumberOfActivePeers = maxProducersPerNode;
       };
     } (lib.flatten [
       # See the nixops deploy [--build-only] [--include ...] trace for calculated p2p percentages per region.
-      (p2pRelayRegionList "a" 32) # Currently 40 total region a relays, each represents 2.5% of region total
-      (p2pRelayRegionList "b" 20) # Currently 25 total region b relays, each represents 4.0% of region total
-      (p2pRelayRegionList "c" 8) # Currently 10 total region c relays, each represents 10.0% of region total
-      (p2pRelayRegionList "d" 12) # Currently 15 total region d relays, each represents 6.67% of region total
-      (p2pRelayRegionList "e" 12) # Currently 15 total region e relays, each represents 6.67% of region total
-      (p2pRelayRegionList "f" 8) # Currently 10 total region f relays, each represents 10.0% of region total
+      (p2pRelayRegionList "a" 36) # Currently 40 total region a relays, each represents 2.5% of region total
+      (p2pRelayRegionList "b" 23) # Currently 25 total region b relays, each represents 4.0% of region total
+      (p2pRelayRegionList "c" 9) # Currently 10 total region c relays, each represents 10.0% of region total
+      (p2pRelayRegionList "d" 14) # Currently 15 total region d relays, each represents 6.67% of region total
+      (p2pRelayRegionList "e" 14) # Currently 15 total region e relays, each represents 6.67% of region total
+      (p2pRelayRegionList "f" 9) # Currently 10 total region f relays, each represents 10.0% of region total
     ]))
   ]) (
     map (withModule {
