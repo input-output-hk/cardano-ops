@@ -190,12 +190,12 @@ def utxo_delegators_density_profiles:
   [ { desc: "regression, October 2021 data set sizes" }
 
   , { desc: "regression, October 2021 data set sizes, P2P"
-    , name: "k51-5ep-360kTx-4000kU-1000kD-88kbs-p2p-no-lp"
+    , name: "k51-5ep-480kTx-4000kU-1000kD-88kbs-p2p-no-lp"
     , node: { p2p:            true
             , useLedgerPeers: false } }
 
   , { desc: "regression, October 2021 data set sizes, New tracing"
-    , name: "k51-5ep-360kTx-4000kU-1000kD-88kbs-new-tracing"
+    , name: "k51-5ep-480kTx-4000kU-1000kD-88kbs-new-tracing"
     , node: { withNewTracing: true } }
 
   , { desc: "rtsflags: batch1, best CPU/mem"
@@ -242,14 +242,14 @@ def utxo_delegators_density_profiles:
     }
 
   , { desc: "regression, May 2023 data set sizes"
-    , name: "k51-5ep-360kTx-14MU-1500kD-88kbs"
+    , name: "k51-5ep-480kTx-14MU-1500kD-88kbs"
     , genesis: { utxo:           14000000
                , delegators:     1500000
                }
     }
 
   , { desc: "regression, May 2023, mainnet - 4MU"
-    , name: "k51-5ep-360kTx-6MU-1000kD-88kbs"
+    , name: "k51-5ep-480kTx-6MU-1000kD-88kbs"
     , genesis: { utxo:           6000000
                , delegators:     1000000
                }
