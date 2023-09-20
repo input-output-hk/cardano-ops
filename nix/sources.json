@@ -353,10 +353,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "98f2d4f89ae3f6ced6f8188d0be4d3fde688701c",
-        "sha256": "08x5cjcpav063scgicc1g54067ybz3i26qb8mvxdgdjfdyccczxs",
+        "rev": "a53c592528bb1a4f7940e352fff4d43e786e0b6d",
+        "sha256": "1wvw6krl4mwrlm0d2j19ml02iqn7zd29gl5h4qac5j3iwi5j9mlg",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/98f2d4f89ae3f6ced6f8188d0be4d3fde688701c.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/a53c592528bb1a4f7940e352fff4d43e786e0b6d.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
