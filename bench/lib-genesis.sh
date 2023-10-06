@@ -96,8 +96,44 @@ profile_genesis_update() {
              --slurpfile overlay 'bench/genesis-alonzo-benchmarking.json' \
              > "$dir"/alonzo-genesis.json
 
-        jq --null-input '{ genDelegs: {} }' \
-             > "$dir"/conway-genesis.json
+        jq --null-input '{
+              "poolVotingThresholds": {
+                "pvtCommitteeNormal": 0.51,
+                "pvtCommitteeNoConfidence": 0.51,
+                "pvtHardForkInitiation": 0.51,
+                "pvtMotionNoConfidence": 0.51
+              },
+              "dRepVotingThresholds": {
+                "dvtMotionNoConfidence": 0.51,
+                "dvtCommitteeNormal": 0.51,
+                "dvtCommitteeNoConfidence": 0.51,
+                "dvtUpdateToConstitution": 0.51,
+                "dvtHardForkInitiation": 0.51,
+                "dvtPPNetworkGroup": 0.51,
+                "dvtPPEconomicGroup": 0.51,
+                "dvtPPTechnicalGroup": 0.51,
+                "dvtPPGovGroup": 0.51,
+                "dvtTreasuryWithdrawal": 0.51
+              },
+              "committeeMinSize": 0,
+              "committeeMaxTermLength": 60,
+              "govActionLifetime": 14,
+              "govActionDeposit": 0,
+              "dRepDeposit": 0,
+              "dRepActivity": 0,
+              "constitution": {
+                "anchor": {
+                  "url": "",
+                  "dataHash": "0000000000000000000000000000000000000000000000000000000000000000"
+                }
+              },
+              "committee": {
+                "members": {
+                },
+                "quorum": 0
+              }
+            }
+           ' > "$dir"/conway-genesis.json
 
         local genesis_future_offset=$(profile_genesis_future_offset "$profile")
         local start_timestamp=$(date +%s --date="now + $genesis_future_offset")
@@ -248,8 +284,44 @@ profile_genesis_singleshot() {
              --slurpfile overlay 'bench/genesis-alonzo-benchmarking.json' \
              > "$target_dir"/genesis.alonzo.spec.json
 
-        jq --null-input '{ genDelegs: {} }' \
-             > "$target_dir"/genesis.conway.spec.json
+        jq --null-input '{
+              "poolVotingThresholds": {
+                "pvtCommitteeNormal": 0.51,
+                "pvtCommitteeNoConfidence": 0.51,
+                "pvtHardForkInitiation": 0.51,
+                "pvtMotionNoConfidence": 0.51
+              },
+              "dRepVotingThresholds": {
+                "dvtMotionNoConfidence": 0.51,
+                "dvtCommitteeNormal": 0.51,
+                "dvtCommitteeNoConfidence": 0.51,
+                "dvtUpdateToConstitution": 0.51,
+                "dvtHardForkInitiation": 0.51,
+                "dvtPPNetworkGroup": 0.51,
+                "dvtPPEconomicGroup": 0.51,
+                "dvtPPTechnicalGroup": 0.51,
+                "dvtPPGovGroup": 0.51,
+                "dvtTreasuryWithdrawal": 0.51
+              },
+              "committeeMinSize": 0,
+              "committeeMaxTermLength": 60,
+              "govActionLifetime": 14,
+              "govActionDeposit": 0,
+              "dRepDeposit": 0,
+              "dRepActivity": 0,
+              "constitution": {
+                "anchor": {
+                  "url": "",
+                  "dataHash": "0000000000000000000000000000000000000000000000000000000000000000"
+                }
+              },
+              "committee": {
+                "members": {
+                },
+                "quorum": 0
+              }
+            }
+           ' > "$target_dir"/genesis.conway.spec.json
 
         params=(--genesis-dir      "$target_dir"
                 --gen-utxo-keys    1
