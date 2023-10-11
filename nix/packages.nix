@@ -143,6 +143,7 @@ self: super: with self; {
     if !withNewTracing then xs
     else removeLegacyTracingOptions xs //
          { UseTraceDispatcher = true;
+           TraceOptionResourceFrequency = 1000;
            TraceOptions  = {
              "" =
                { severity = "Notice";
@@ -153,7 +154,6 @@ self: super: with self; {
                  ];
                };
              "BlockFetch.Client".severity = "Debug";
-             "BlockFetch.Client.CompletedBlockFetch".maxFrequency = 0;
              "BlockFetch.Decision".severity = "Notice";
              "BlockFetch.Remote".severity = "Notice";
              "BlockFetch.Remote.Serialised".severity = "Notice";
@@ -162,7 +162,6 @@ self: super: with self; {
              "ChainDB".severity = "Debug";
              "ChainDB.ReplayBlock.LedgerReplay".severity = "Notice";
              "ChainSync.Client".severity = "Debug";
-             "ChainSync.Client.DownloadedHeader".maxFrequency = 0;
              "ChainSync.Local".severity = "Notice";
              "ChainSync.Remote".severity = "Notice";
              "ChainSync.Remote.Serialised".severity = "Notice";
