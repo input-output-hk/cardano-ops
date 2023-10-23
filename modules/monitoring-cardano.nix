@@ -55,13 +55,13 @@ in {
     {
       alert = "High cardano ping latency";
       expr = "avg_over_time(cardano_ping_latency_ms[5m]) > 250";
-      for = "30m";
+      for = "45m";
       labels = {
         severity = "page";
       };
       annotations = {
-        summary =  "{{$labels.alias}}: Cardano average ping latency over 5 minutes has been above 250 milliseconds for the last 30 minutes";
-        description = "{{$labels.alias}}: Cardano average ping latency over 5 minutes has been above 250 milliseconds for the last 30 minutes.";
+        summary =  "{{$labels.alias}}: Cardano average ping latency over 5 minutes has been above 250 milliseconds for the last 45 minutes";
+        description = "{{$labels.alias}}: Cardano average ping latency over 5 minutes has been above 250 milliseconds for the last 45 minutes.";
       };
     }
     {
