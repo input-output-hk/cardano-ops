@@ -182,6 +182,9 @@ def profile_name($compo; $gsis; $gtor; $node; $gsis_defs):
          , ($gtor.plutusData | tostring)
          ]
     else [] end
+  + if $node.p2p
+    then [ "p2p" ]
+    else [] end
   + if $node.rts_flags_override == [] then []
     else ["RTS", ($node.rts_flags_override | join(""))] end
   | join("-");
@@ -190,7 +193,6 @@ def utxo_delegators_density_profiles:
   [ { desc: "regression, October 2021 data set sizes" }
 
   , { desc: "regression, October 2021 data set sizes, P2P"
-    , name: "k51-5ep-480kTx-4000kU-1000kD-88kbs-p2p-no-lp"
     , node: { p2p:            true
             , useLedgerPeers: false } }
 
@@ -279,6 +281,36 @@ def utxo_delegators_density_profiles:
                 { exUnitsMem:     12500000
                 }
             }
+        }
+    }
+  , { desc: "Plutus, bump 2, 2022, P2P"
+    , generator:
+        { inputs_per_tx:           1
+        , outputs_per_tx:          1
+        , epochs:                  7
+        , tx_count:            14000 # 8000eplen * 7eps / 20blockfreq * 5tx/block
+        , tx_fee:            1071280 # higher fee required due to cost model changes
+        , plutus:
+          {
+            datum: null,
+            limitExecutionMem: null,
+            limitExecutionSteps: null,
+            redeemer: { "int": 1000000 },
+            script: "Loop",
+            type: "LimitSaturationLoop"
+          }
+        }
+    , genesis:
+        { max_block_size:            73728
+        , alonzo:
+            { maxTxExUnits:
+                { exUnitsMem:     12500000
+                }
+            }
+        }
+    , node:
+        { p2p:            true
+        , useLedgerPeers: false
         }
     }
 ];
