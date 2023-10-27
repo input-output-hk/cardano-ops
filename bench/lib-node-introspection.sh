@@ -61,7 +61,7 @@ function node_nixos_root_disk_usage_percent() {
 function node_effective_service_config() {
     local mach=$1 svc=$2
 
-    local svcfilename execstart configfilename
+    local execstart configfilename
     execstart=$(nixops ssh "$mach" -- \
                     systemctl cat $svc |
                     grep ExecStart= |
@@ -78,6 +78,31 @@ function node_effective_service_config() {
         fail "Couldn't determine config file name for '$svc' on '$mach'"
     nixops ssh "$mach" -- jq . "$configfilename" ||
         fail "Failed to fetch config file for '$svc' on '$mach'"
+}
+
+function node_build_compiler() {
+    local mach=$1 svc=$2
+    local execstart execname
+
+    execstart=$(nixops ssh "$mach" -- \
+                systemctl cat $svc |
+                grep ExecStart= |
+                cut -d= -f2 ||
+                fail "Failed to extract ExecStart from '$svc.service' on '$mach'")
+    test -n "$execstart" || \
+                fail "Couldn't determine ExecStart for '$svc' on '$mach'"
+
+    execname=$(nixops ssh "$mach" -- \
+                grep -e '/bin/cardano-node' "$execstart"  |
+                sed 's_^.*\(/nix/store/.*cardano-node\).*_\1_' |
+                head -n1 ||
+                fail "Failed to fetch & parse ExecStart of '$svc' on '$mach'")
+    test -n "$execname" || \
+                fail "Couldn't determine executable name for '$svc' on '$mach'"
+
+    nixops ssh "$mach" -- \
+                $execname +RTS --info | grep 'GHC version' | grep -E -o "([0-9]{1,2}[\.]){2}[0-9]{1,2}" ||
+                fail "Failed to get RTS info for '$svc' on '$mach'"
 }
 
 function cluster_machine_infos() {

@@ -484,6 +484,9 @@ op_register_new_run() {
 EOF
         cp "${deploylog}"     "${dir}"/logs/deploy.log
 
+        oprint "querying GHC version for node on explorer"
+        local ghc_version=$(node_build_compiler 'explorer' 'cardano-node')
+
         local sample_node=node-1
         oprint "streaming runtime genesis from $sample_node.."
         node_runtime_genesis $sample_node 'Shelley' > "$dir"/genesis-shelley.json &
@@ -515,6 +518,7 @@ EOF
   , profile:           \"${prof}\"
   , timestamp:         ${stamp}
   , date:              \"${date}\"
+  , node_ghc_version:  \"${ghc_version}\"
   , node_commit_spec:  \"$node_commit_spec\"
   , node_commit_desc:  \"$(git_local_repo_query_description \
                               'cardano-node' \
