@@ -234,6 +234,9 @@ def utxo_delegators_density_profiles:
   , { desc: "rtsflags: A4m + N4"
     , node: { rts_flags_override: ["-A4m", "-N4"] } }
 
+  , { desc: "rtsflags: nonmoving-gc"
+    , node: { rts_flags_override: ["-xn"] } }
+
   , { desc: "regression, March 2022 data set sizes"
     , genesis: { utxo:           7000000
                , delegators:     1250000
