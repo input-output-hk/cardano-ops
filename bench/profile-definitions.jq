@@ -185,6 +185,9 @@ def profile_name($compo; $gsis; $gtor; $node; $gsis_defs):
   + if $node.p2p
     then [ "p2p" ]
     else [] end
+  + if $node.withNewTracing
+    then [ "new-tracing" ]
+    else [] end
   + if $node.rts_flags_override == [] then []
     else ["RTS", ($node.rts_flags_override | join(""))] end
   | join("-");
@@ -197,7 +200,6 @@ def utxo_delegators_density_profiles:
             , useLedgerPeers: false } }
 
   , { desc: "regression, October 2021 data set sizes, New tracing"
-    , name: "k51-5ep-480kTx-4000kU-1000kD-88kbs-new-tracing"
     , node: { withNewTracing: true } }
 
   , { desc: "rtsflags: batch1, best CPU/mem"
@@ -314,6 +316,35 @@ def utxo_delegators_density_profiles:
     , node:
         { p2p:            true
         , useLedgerPeers: false
+        }
+    }
+  , { desc: "Plutus, bump 2, 2022, New tracing"
+    , generator:
+        { inputs_per_tx:           1
+        , outputs_per_tx:          1
+        , epochs:                  7
+        , tx_count:            14000 # 8000eplen * 7eps / 20blockfreq * 5tx/block
+        , tx_fee:            1071280 # higher fee required due to cost model changes
+        , plutus:
+          {
+            datum: null,
+            limitExecutionMem: null,
+            limitExecutionSteps: null,
+            redeemer: { "int": 1000000 },
+            script: "Loop",
+            type: "LimitSaturationLoop"
+          }
+        }
+    , genesis:
+        { max_block_size:            73728
+        , alonzo:
+            { maxTxExUnits:
+                { exUnitsMem:     12500000
+                }
+            }
+        }
+    , node:
+        { withNewTracing: true
         }
     }
 ];
