@@ -45,6 +45,8 @@ rec {
            # TestEnableDevelopmentHardForkEras = true;
            # TestEnableDevelopmentNetworkProtocols = true;
 
+           ChainSyncIdleTimeout = 0;
+
            inherit TraceBlockFetchProtocol;
 
            TraceMempool               = true;

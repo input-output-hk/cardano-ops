@@ -209,6 +209,14 @@ in {
                 TestAlonzoHardForkAtEpoch = 0;
                 TestBabbageHardForkAtEpoch = 0;
               };
+            conway =
+              { TestShelleyHardForkAtEpoch = 0;
+                TestAllegraHardForkAtEpoch = 0;
+                TestMaryHardForkAtEpoch = 0;
+                TestAlonzoHardForkAtEpoch = 0;
+                TestBabbageHardForkAtEpoch = 0;
+                TestConwayHardForkAtEpoch  = 0;
+              };
           }).${globals.environmentConfig.generatorConfig.era}
           // (globals.benchmarkingProfile.node.extra_config or {})
           ));
