@@ -41,7 +41,7 @@ rec {
            TurnOnLogMetrics = true;
 
            ExperimentalHardForksEnabled = true;
-           # ExperimentalProtocolsEnabled = true;
+           ExperimentalProtocolsEnabled = true;
            # TestEnableDevelopmentHardForkEras = true;
            # TestEnableDevelopmentNetworkProtocols = true;
 

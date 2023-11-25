@@ -9,7 +9,7 @@ def genesis_protocol_params($p; $systemStart):
   , "maxBlockBodySize":       $p.max_block_size
   , "nOpt":                   $p.n_pools
   , "protocolVersion": {
-      "major": 5,
+      "major": 6,
       "minor": 0
     },
   }
