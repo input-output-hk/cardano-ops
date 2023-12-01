@@ -392,6 +392,19 @@ def aux_profiles($compo):
                , init_cooldown: 25, finish_patience: 4
                }
   }
+, { name: "smoke-p2p"
+  , desc: "A quick smoke test, P2P"
+  , genesis:
+    { utxo:                  3
+    , delegators:            $compo.n_dense_hosts
+    , dense_pool_density:    10
+    }
+  , generator: { tx_count: 100,   inputs_per_tx: 1, outputs_per_tx: 1
+               , init_cooldown: 25, finish_patience: 4
+               }
+  , node: { p2p:            true
+          , useLedgerPeers: false }
+  }
 , { name: "smoke-new-tracing"
   , desc: "A quick smoke test, new tracing"
   , genesis:
