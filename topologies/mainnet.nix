@@ -91,6 +91,15 @@ let
 
   relayNodes = map (composeAll [
     (forNodes {
+      # Leave one legacy network topology canary
+      services.cardano-node = {
+        useNewTopology = false;
+        extraNodeInstanceConfig = i: {
+          EnableP2P = false;
+        };
+      };
+    } [ "rel-a-1" ])
+    (forNodes {
       services.cardano-node = {
         extraNodeInstanceConfig = i: optionalAttrs (i == 0) {
           TraceMempool = true;
