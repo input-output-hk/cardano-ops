@@ -125,9 +125,9 @@ let
         };
       };
     } [ "rel-a-3" "rel-b-3" "rel-c-3" "rel-d-3" "rel-e-3" "rel-f-3" ])
-    (forNodes {
-      services.cardano-node.cardanoNodePackages = cardanoNodeNextPackages;
-    } [ "rel-a-4" "rel-b-4" "rel-c-4" "rel-d-4" "rel-e-4" "rel-f-4" ])
+    # (forNodes {
+    #   services.cardano-node.cardanoNodePackages = cardanoNodeNextPackages;
+    # } [ "rel-a-4" "rel-b-4" "rel-c-4" "rel-d-4" "rel-e-4" "rel-f-4" ])
     (forNodes {
       boot.kernel.sysctl."net.ipv4.tcp_slow_start_after_idle" = 0;
     } [ "rel-a-5" "rel-b-5" "rel-c-5" "rel-d-5" "rel-e-5" "rel-f-5" ])
