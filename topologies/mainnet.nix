@@ -260,4 +260,24 @@ in {
     };
   };
 
+  # Correct the difference between the new iohk-nix for 8.7.2 and the legacy iohk-nix still required for dbsync on node 8.1.2
+  snapshots = let
+    iohkNix812 = import (import ../nix/sources.nix { inherit pkgs; })."iohk-nix-node-8.1.2" {};
+  in {
+    services.cardano-node = {
+      useNewTopology = false;
+      environments = {
+        "${globals.environmentName}" = iohkNix812.cardanoLib.environments.${globals.environmentName};
+      };
+      nodeConfig = iohkNix812.cardanoLib.environments.${globals.environmentName}.nodeConfig;
+      extraNodeConfig.EnableP2P = false;
+      producers = lib.mkForce [];
+      publicProducers = lib.mkForce [{accessPoints = [{address = "europe.relays-new.cardano-mainnet.iohk.io"; port = 3001; valency = 2;}];}];
+    };
+
+    services.cardano-db-sync = {
+      environment = iohkNix812.cardanoLib.environments.${globals.environmentName};
+      logConfig = iohkNix812.cardanoLib.defaultExplorerLogConfig // { PrometheusPort = globals.cardanoExplorerPrometheusExporterPort; };
+    };
+  };
 }
