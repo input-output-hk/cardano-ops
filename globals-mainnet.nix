@@ -6,6 +6,10 @@ pkgs: {
 
   domain = "cardano-mainnet.iohk.io";
 
+  # Override relaysNew with the legacy FQDN since the 8.7.2
+  # iohk-nix pin contains an updated backbone CNAME reference
+  relaysNew = "relays-new.cardano-mainnet.iohk.io";
+
   # Explorer gateway and backends have moved to ci-world
   withExplorer = false;
   explorerHostName = "explorer.cardano.org";
