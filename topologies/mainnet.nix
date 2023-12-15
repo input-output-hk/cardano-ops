@@ -80,11 +80,19 @@ let
   ];
 
   stakingPoolNodes = fullyConnectNodes [
+    # The following legacy defns of the stake pools will fail on a socket assertion now that mainnet is set EnableP2P by default.
+    # However, since these machines have been migrated, we don't want to be able to deploy these machines, so the assertion prevents us from doing so.
+    # Ideally, we would simply remove these machines from the topology, but the stack was written with the assumption that block producers must be defined.
     (mkStakingPool "a" 1 "IOG1" { nodeId = 8; })
-
     (mkStakingPool "b" 1 "IOGP2" { nodeId = 28; })
     (mkStakingPool "c" 1 "IOGP3" { nodeId = 29; })
     (mkStakingPool "d" 1 "IOGP4" { nodeId = 30; })
+
+    # If we did need to re-deploy the pools, the following service modification is one way we could do so
+    # (mkStakingPool "a" 1 "IOG1" { nodeId = 8; services.cardano-node = {useNewTopology = lib.mkForce false; extraNodeConfig = {EnableP2P = lib.mkForce false;};};})
+    # (mkStakingPool "b" 1 "IOGP2" { nodeId = 28; services.cardano-node = {useNewTopology = lib.mkForce false; extraNodeConfig = {EnableP2P = lib.mkForce false;};};})
+    # (mkStakingPool "c" 1 "IOGP3" { nodeId = 29; services.cardano-node = {useNewTopology = lib.mkForce false; extraNodeConfig = {EnableP2P = lib.mkForce false;};};})
+    # (mkStakingPool "d" 1 "IOGP4" { nodeId = 30; services.cardano-node = {useNewTopology = lib.mkForce false; extraNodeConfig = {EnableP2P = lib.mkForce false;};};})
   ];
 
   coreNodes = bftCoreNodes ++ stakingPoolNodes;
