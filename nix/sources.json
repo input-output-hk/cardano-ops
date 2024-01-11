@@ -132,15 +132,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
-        "branch": "refs/tags/8.7.2",
+        "branch": "refs/tags/8.7.3",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "30b6e447c7e4586f43e30a68fe47c8481b0ba205",
-        "sha256": "1inhb3siys4n5k9j4w2vl9mwbq1digq86hh45v6bbrmvp5fy2aqd",
+        "rev": "a4a8119b59b1fbb9a69c79e1e6900e91292161e7",
+        "sha256": "0mk8xbss27s8a4zsgvbf44g36w9jxdvk1m1i8s6bl2wn48sx533w",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/30b6e447c7e4586f43e30a68fe47c8481b0ba205.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/a4a8119b59b1fbb9a69c79e1e6900e91292161e7.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-1-33-0rc3": {
@@ -180,15 +180,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-next": {
-        "branch": "refs/tags/8.7.2",
+        "branch": "refs/tags/8.7.3",
         "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
         "homepage": "https://cardano.org",
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "30b6e447c7e4586f43e30a68fe47c8481b0ba205",
-        "sha256": "1inhb3siys4n5k9j4w2vl9mwbq1digq86hh45v6bbrmvp5fy2aqd",
+        "rev": "a4a8119b59b1fbb9a69c79e1e6900e91292161e7",
+        "sha256": "0mk8xbss27s8a4zsgvbf44g36w9jxdvk1m1i8s6bl2wn48sx533w",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/30b6e447c7e4586f43e30a68fe47c8481b0ba205.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/a4a8119b59b1fbb9a69c79e1e6900e91292161e7.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-service": {
