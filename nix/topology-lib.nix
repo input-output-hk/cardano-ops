@@ -350,6 +350,8 @@ pkgs: with pkgs; with lib; rec {
   # if true (default) the number of relays in each will computed so that it can handle all third party relays while
   # staying below 'maxProducersPerNode' constraint (but in all case above "minRelays" defined for region).
   , autoscaling ? true
+  # if true truncate third party producers lists to stay within maxProducersPerNode
+  , scaledown ? false
   }:
     let
 
@@ -417,6 +419,15 @@ pkgs: with pkgs; with lib; rec {
           relaysForRegion = map (nodeIndex:
             let
               name = "${relayPrefix}-${rLetter}-${toString nodeIndex}";
+              availableTPPSlots = (maxProducersPerNode - maxInRegionPeers - (globals.nbInstancesPerRelay - 1) - 1) * globals.nbInstancesPerRelay;
+              thirdPartyByRegion = filter (p: mod p.index (nbRelays - nbExcluded) == (nodeIndex - 1)) (indexedThirdPartyRelays.${region} or []);
+              takeThirdPartyRelaysByRegion =
+                if scaledown && ((length thirdPartyByRegion) > availableTPPSlots)
+                then
+                  lib.warn ("scaledown: truncating ${name} from ${toString (length thirdPartyByRegion)} third party producers"
+                    + " to ${toString availableTPPSlots} to maintain ${toString maxProducersPerNode} maxProducersPerNode")
+                  lib.take availableTPPSlots thirdPartyByRegion
+                else thirdPartyByRegion;
             in {
               inherit region name nodeIndex;
 
@@ -428,7 +439,7 @@ pkgs: with pkgs; with lib; rec {
                 (filter (r: r != rLetter) regionLetters)
 
                 # Also add a share of the third-party relays:
-                ++ (filter (p: mod p.index (nbRelays - nbExcluded) == (nodeIndex - 1)) (indexedThirdPartyRelays.${region} or []));
+                ++ takeThirdPartyRelaysByRegion;
 
               org = "IOHK";
               services.cardano-node.maxIntraInstancesPeers = maxInRegionPeers;

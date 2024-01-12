@@ -213,6 +213,7 @@ let
     inherit maxProducersPerNode regions;
     coreNodes = stakingPoolNodes;
     autoscaling = false;
+    scaledown = true;
     maxInRegionPeers = 5;
   }));
 
