@@ -24,23 +24,24 @@ let
       abort ''p2pRelayRegionList generation must use count (${toString count}) less than the region "${region}" minRelays (${toString regionMinRelays}).'';
 
   regions = {
+    # Scale down ~10% on 2024-01-12
     a = { name = "eu-central-1";   # Europe (Frankfurt);
-      minRelays = 40;
+      minRelays = 36;
     };
     b = { name = "us-east-2";      # US East (Ohio)
-      minRelays = 25;
+      minRelays = 23;
     };
     c = { name = "ap-southeast-1"; # Asia Pacific (Singapore)
-      minRelays = 10;
+      minRelays = 9;
     };
     d = { name = "eu-west-2";      # Europe (London)
-      minRelays = 15;
+      minRelays = 14;
     };
     e = { name = "us-west-1";      # US West (N. California)
-      minRelays = 15;
+      minRelays = 14;
     };
     f = { name = "ap-northeast-1"; # Asia Pacific (Tokyo)
-      minRelays = 10;
+      minRelays = 9;
     };
   };
 
@@ -187,8 +188,8 @@ let
         # Make 3rd party producers localRoots rather than publicRoots for a 1:1 equivalency with legacy topology.
         useInstancePublicProducersAsProducers = true;
 
-        # Don't use any chain source outside of declared localRoots until after slot correlating with ~2023-08-23 21:44:52Z:
-        usePeersFromLedgerAfterSlot = 101260801;
+        # Don't use any chain source outside of declared localRoots until after slot correlating with ~2024-01-10 21:45:09Z:
+        usePeersFromLedgerAfterSlot = 113356818;
 
         # Ensure p2p relay node instances utilize the same number of producers as legacy relays as best as possible
         extraNodeConfig.TargetNumberOfActivePeers = maxProducersPerNode;
@@ -196,12 +197,12 @@ let
     } (lib.flatten [
       # See the nixops deploy [--build-only] [--include ...] trace for calculated p2p percentages per region.
       # Leave one legacy topology relay as a canary, rel-a-1
-      (p2pRelayRegionList "a" 39) # Currently 40 total region a relays, each represents 2.5% of region total
-      (p2pRelayRegionList "b" 25) # Currently 25 total region b relays, each represents 4.0% of region total
-      (p2pRelayRegionList "c" 10) # Currently 10 total region c relays, each represents 10.0% of region total
-      (p2pRelayRegionList "d" 15) # Currently 15 total region d relays, each represents 6.67% of region total
-      (p2pRelayRegionList "e" 15) # Currently 15 total region e relays, each represents 6.67% of region total
-      (p2pRelayRegionList "f" 10) # Currently 10 total region f relays, each represents 10.0% of region total
+      (p2pRelayRegionList "a" 35) # Currently 36 total region a relays
+      (p2pRelayRegionList "b" 23) # Currently 23 total region b relays
+      (p2pRelayRegionList "c" 9) # Currently 9 total region c relays
+      (p2pRelayRegionList "d" 14) # Currently 14 total region d relays
+      (p2pRelayRegionList "e" 14) # Currently 14 total region e relays
+      (p2pRelayRegionList "f" 9) # Currently 9 total region f relays
     ]))
   ]) (
     map (withModule {
