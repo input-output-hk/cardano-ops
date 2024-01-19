@@ -36,15 +36,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync-13-1": {
-        "branch": "13.1.0.2-majorminor-schema-version",
+        "branch": "refs/tags/13.1.1.3",
         "description": "A component that follows the Cardano chain and stores blocks and transactions in PostgreSQL",
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "cardano-db-sync",
-        "rev": "b84ac995b2a2645d36f6dad8f45900b587b04dab",
-        "sha256": "0nziszqvrc19xj1hy0247iigadzgpckbi2qb3fgfk3rd0l225fzq",
+        "rev": "6e69a80797f2d68423b25ca7787e81533b367e42",
+        "sha256": "1pfraykscmbdl428ilc1cac91fbvscjjbdzf5z5wc2gkff5r6cax",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/b84ac995b2a2645d36f6dad8f45900b587b04dab.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-db-sync/archive/6e69a80797f2d68423b25ca7787e81533b367e42.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-db-sync-service": {
@@ -132,15 +132,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
-        "branch": "refs/tags/8.1.2",
+        "branch": "refs/tags/8.7.2",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "d2d90b48c5577b4412d5c9c9968b55f8ab4b9767",
-        "sha256": "1qpmlfxdfx2dg12109cyn75ybcwxjz0wk451pzcalfdzxhvpqibp",
+        "rev": "30b6e447c7e4586f43e30a68fe47c8481b0ba205",
+        "sha256": "1inhb3siys4n5k9j4w2vl9mwbq1digq86hh45v6bbrmvp5fy2aqd",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/d2d90b48c5577b4412d5c9c9968b55f8ab4b9767.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/30b6e447c7e4586f43e30a68fe47c8481b0ba205.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-1-33-0rc3": {
@@ -167,7 +167,7 @@
         "url": "https://github.com/input-output-hk/cardano-node/archive/814df2c146f5d56f8c35a681fe75e85b905aed5d.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "cardano-node-next": {
+    "cardano-node-8.1.2": {
         "branch": "refs/tags/8.1.2",
         "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
         "homepage": "https://cardano.org",
@@ -177,6 +177,18 @@
         "sha256": "1qpmlfxdfx2dg12109cyn75ybcwxjz0wk451pzcalfdzxhvpqibp",
         "type": "tarball",
         "url": "https://github.com/input-output-hk/cardano-node/archive/d2d90b48c5577b4412d5c9c9968b55f8ab4b9767.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "cardano-node-next": {
+        "branch": "refs/tags/8.7.2",
+        "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
+        "homepage": "https://cardano.org",
+        "owner": "input-output-hk",
+        "repo": "cardano-node",
+        "rev": "30b6e447c7e4586f43e30a68fe47c8481b0ba205",
+        "sha256": "1inhb3siys4n5k9j4w2vl9mwbq1digq86hh45v6bbrmvp5fy2aqd",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/30b6e447c7e4586f43e30a68fe47c8481b0ba205.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-service": {
@@ -252,6 +264,18 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "iohk-nix": {
+        "branch": "master",
+        "description": "nix scripts shared across projects",
+        "homepage": null,
+        "owner": "input-output-hk",
+        "repo": "iohk-nix",
+        "rev": "fbae4705ec10ed056146956f9ca94fac3a169c69",
+        "sha256": "0gskddlgx7s3gm5vvl72dmz862c2bx6yc8aqmjz9xdwfjpj4yi7v",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/fbae4705ec10ed056146956f9ca94fac3a169c69.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "iohk-nix-node-8.1.2": {
         "branch": "master",
         "description": "nix scripts shared across projects",
         "homepage": null,
@@ -353,10 +377,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "ops-lib",
-        "rev": "98f2d4f89ae3f6ced6f8188d0be4d3fde688701c",
-        "sha256": "08x5cjcpav063scgicc1g54067ybz3i26qb8mvxdgdjfdyccczxs",
+        "rev": "a53c592528bb1a4f7940e352fff4d43e786e0b6d",
+        "sha256": "1wvw6krl4mwrlm0d2j19ml02iqn7zd29gl5h4qac5j3iwi5j9mlg",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/ops-lib/archive/98f2d4f89ae3f6ced6f8188d0be4d3fde688701c.tar.gz",
+        "url": "https://github.com/input-output-hk/ops-lib/archive/a53c592528bb1a4f7940e352fff4d43e786e0b6d.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

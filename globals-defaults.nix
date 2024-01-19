@@ -67,6 +67,7 @@ in {
   };
   explorer13-1 = globals.explorer13 // {
     cardano-db-sync = sourcePaths."cardano-db-sync-13-1";
+    cardano-node = sourcePaths."cardano-node-8.1.2";
   };
 
   explorerBackendsInContainers = false;

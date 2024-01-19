@@ -26,27 +26,21 @@ let
   regions = {
     a = { name = "eu-central-1";   # Europe (Frankfurt);
       minRelays = 40;
-      nbRelaysExcludingThirdParty = 1;
     };
     b = { name = "us-east-2";      # US East (Ohio)
       minRelays = 25;
-      nbRelaysExcludingThirdParty = 1;
     };
     c = { name = "ap-southeast-1"; # Asia Pacific (Singapore)
       minRelays = 10;
-      nbRelaysExcludingThirdParty = 1;
     };
     d = { name = "eu-west-2";      # Europe (London)
       minRelays = 15;
-      nbRelaysExcludingThirdParty = 1;
     };
     e = { name = "us-west-1";      # US West (N. California)
       minRelays = 15;
-      nbRelaysExcludingThirdParty = 1;
     };
     f = { name = "ap-northeast-1"; # Asia Pacific (Tokyo)
       minRelays = 10;
-      nbRelaysExcludingThirdParty = 1;
     };
   };
 
@@ -86,16 +80,33 @@ let
   ];
 
   stakingPoolNodes = fullyConnectNodes [
+    # The following legacy defns of the stake pools will fail on a socket assertion now that mainnet is set EnableP2P by default.
+    # However, since these machines have been migrated, we don't want to be able to deploy these machines, so the assertion prevents us from doing so.
+    # Ideally, we would simply remove these machines from the topology, but the stack was written with the assumption that block producers must be defined.
     (mkStakingPool "a" 1 "IOG1" { nodeId = 8; })
-
     (mkStakingPool "b" 1 "IOGP2" { nodeId = 28; })
     (mkStakingPool "c" 1 "IOGP3" { nodeId = 29; })
     (mkStakingPool "d" 1 "IOGP4" { nodeId = 30; })
+
+    # If we did need to re-deploy the pools, the following service modification is one way we could do so
+    # (mkStakingPool "a" 1 "IOG1" { nodeId = 8; services.cardano-node = {useNewTopology = lib.mkForce false; extraNodeConfig = {EnableP2P = lib.mkForce false;};};})
+    # (mkStakingPool "b" 1 "IOGP2" { nodeId = 28; services.cardano-node = {useNewTopology = lib.mkForce false; extraNodeConfig = {EnableP2P = lib.mkForce false;};};})
+    # (mkStakingPool "c" 1 "IOGP3" { nodeId = 29; services.cardano-node = {useNewTopology = lib.mkForce false; extraNodeConfig = {EnableP2P = lib.mkForce false;};};})
+    # (mkStakingPool "d" 1 "IOGP4" { nodeId = 30; services.cardano-node = {useNewTopology = lib.mkForce false; extraNodeConfig = {EnableP2P = lib.mkForce false;};};})
   ];
 
   coreNodes = bftCoreNodes ++ stakingPoolNodes;
 
   relayNodes = map (composeAll [
+    (forNodes {
+      # Leave one legacy network topology canary
+      services.cardano-node = {
+        useNewTopology = false;
+        extraNodeInstanceConfig = i: {
+          EnableP2P = false;
+        };
+      };
+    } [ "rel-a-1" ])
     (forNodes {
       services.cardano-node = {
         extraNodeInstanceConfig = i: optionalAttrs (i == 0) {
@@ -122,12 +133,16 @@ let
         };
       };
     } [ "rel-a-3" "rel-b-3" "rel-c-3" "rel-d-3" "rel-e-3" "rel-f-3" ])
-    (forNodes {
-      services.cardano-node.cardanoNodePackages = cardanoNodeNextPackages;
-    } [ "rel-a-4" "rel-b-4" "rel-c-4" "rel-d-4" "rel-e-4" "rel-f-4" ])
+    # (forNodes {
+    #   services.cardano-node.cardanoNodePackages = cardanoNodeNextPackages;
+    # } [ "rel-a-4" "rel-b-4" "rel-c-4" "rel-d-4" "rel-e-4" "rel-f-4" ])
     (forNodes {
       boot.kernel.sysctl."net.ipv4.tcp_slow_start_after_idle" = 0;
     } [ "rel-a-5" "rel-b-5" "rel-c-5" "rel-d-5" "rel-e-5" "rel-f-5" ])
+    (forNodes {
+      systemd.services.cardano-node-0.serviceConfig.MemoryMax = lib.mkForce "13500M";
+      systemd.services.cardano-node-1.serviceConfig.MemoryMax = lib.mkForce "13000M";
+    } [ "rel-a-30" ])
 
     # Begin transitioning relays to p2p.
     # All node instances on each relay listed below will utilize p2p.
@@ -172,20 +187,21 @@ let
         # Make 3rd party producers localRoots rather than publicRoots for a 1:1 equivalency with legacy topology.
         useInstancePublicProducersAsProducers = true;
 
-        # Don't use any chain source outside of declared localRoots until after slot correlating with ~2023-07-14 21:44:58Z:
-        usePeersFromLedgerAfterSlot = 97804807;
+        # Don't use any chain source outside of declared localRoots until after slot correlating with ~2023-08-23 21:44:52Z:
+        usePeersFromLedgerAfterSlot = 101260801;
 
         # Ensure p2p relay node instances utilize the same number of producers as legacy relays as best as possible
         extraNodeConfig.TargetNumberOfActivePeers = maxProducersPerNode;
       };
     } (lib.flatten [
       # See the nixops deploy [--build-only] [--include ...] trace for calculated p2p percentages per region.
-      (p2pRelayRegionList "a" 20) # Currently 40 total region a relays, each represents 2.5% of region total
-      (p2pRelayRegionList "b" 13) # Currently 25 total region b relays, each represents 4.0% of region total
-      (p2pRelayRegionList "c" 5) # Currently 10 total region c relays, each represents 10.0% of region total
-      (p2pRelayRegionList "d" 8) # Currently 15 total region d relays, each represents 6.67% of region total
-      (p2pRelayRegionList "e" 8) # Currently 15 total region e relays, each represents 6.67% of region total
-      (p2pRelayRegionList "f" 5) # Currently 10 total region f relays, each represents 10.0% of region total
+      # Leave one legacy topology relay as a canary, rel-a-1
+      (p2pRelayRegionList "a" 39) # Currently 40 total region a relays, each represents 2.5% of region total
+      (p2pRelayRegionList "b" 25) # Currently 25 total region b relays, each represents 4.0% of region total
+      (p2pRelayRegionList "c" 10) # Currently 10 total region c relays, each represents 10.0% of region total
+      (p2pRelayRegionList "d" 15) # Currently 15 total region d relays, each represents 6.67% of region total
+      (p2pRelayRegionList "e" 15) # Currently 15 total region e relays, each represents 6.67% of region total
+      (p2pRelayRegionList "f" 10) # Currently 10 total region f relays, each represents 10.0% of region total
     ]))
   ]) (
     map (withModule {
@@ -252,4 +268,24 @@ in {
     };
   };
 
+  # Correct the difference between the new iohk-nix for 8.7.2 and the legacy iohk-nix still required for dbsync on node 8.1.2
+  snapshots = let
+    iohkNix812 = import (import ../nix/sources.nix { inherit pkgs; })."iohk-nix-node-8.1.2" {};
+  in {
+    services.cardano-node = {
+      useNewTopology = false;
+      environments = {
+        "${globals.environmentName}" = iohkNix812.cardanoLib.environments.${globals.environmentName};
+      };
+      nodeConfig = iohkNix812.cardanoLib.environments.${globals.environmentName}.nodeConfig;
+      extraNodeConfig.EnableP2P = false;
+      producers = lib.mkForce [];
+      publicProducers = lib.mkForce [{accessPoints = [{address = "europe.relays-new.cardano-mainnet.iohk.io"; port = 3001; valency = 2;}];}];
+    };
+
+    services.cardano-db-sync = {
+      environment = iohkNix812.cardanoLib.environments.${globals.environmentName};
+      logConfig = iohkNix812.cardanoLib.defaultExplorerLogConfig // { PrometheusPort = globals.cardanoExplorerPrometheusExporterPort; };
+    };
+  };
 }

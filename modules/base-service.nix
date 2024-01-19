@@ -149,7 +149,12 @@ in
     };
     services.monitoring-exporters.extraPrometheusExporters = genList (i: {
       job_name = "cardano-node";
-      scrape_interval = "10s";
+
+      # Longer interval and timeout required for node metrics which
+      # can be substantially delayed in response when under high load
+      scrape_interval = "60s";
+      scrape_timeout = "60s";
+
       port = monitoringPort + i;
       metrics_path = "/metrics";
       labels = optionalAttrs (i > 0) { alias = "${name}.${toString i}"; };

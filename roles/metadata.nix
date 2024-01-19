@@ -244,12 +244,12 @@ in {
     '';
     commonHttpConfig = ''
       log_format x-fwd '$remote_addr - $remote_user $sent_http_x_cache [$time_local] '
-                       '"$request" $status $body_bytes_sent '
+                       '"$request" $status $request_length $body_bytes_sent '
                        '"$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
 
       access_log syslog:server=unix:/dev/log x-fwd if=$loggable;
 
-      limit_req_zone $binary_remote_addr zone=metadataQueryPerIP:100m rate=10r/s;
+      limit_req_zone $binary_remote_addr zone=metadataQueryPerIP:100m rate=30r/s;
       limit_req_status 429;
       server_names_hash_bucket_size 128;
 
