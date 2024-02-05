@@ -419,7 +419,7 @@ pkgs: with pkgs; with lib; rec {
           relaysForRegion = map (nodeIndex:
             let
               name = "${relayPrefix}-${rLetter}-${toString nodeIndex}";
-              availableTPPSlots = (maxProducersPerNode - maxInRegionPeers - (globals.nbInstancesPerRelay - 1) - 1) * globals.nbInstancesPerRelay;
+              availableTPPSlots = (maxProducersPerNode - maxInRegionPeers - (globals.nbInstancesPerRelay - 1)) * globals.nbInstancesPerRelay;
               thirdPartyByRegion = filter (p: mod p.index (nbRelays - nbExcluded) == (nodeIndex - 1)) (indexedThirdPartyRelays.${region} or []);
               takeThirdPartyRelaysByRegion =
                 if scaledown && ((length thirdPartyByRegion) > availableTPPSlots)
