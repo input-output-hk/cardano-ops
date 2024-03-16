@@ -31,7 +31,7 @@ pkgs: {
   withHighCapacityExplorer = true;
   withHighLoadRelays = true;
   withSmash = true;
-  withSnapshots = true;
+  withSnapshots = false;
 
   withMetadata = true;
   metadataHostName = "tokens.cardano.org";
@@ -67,7 +67,7 @@ pkgs: {
     };
   };
 
-  relayUpdateArgs = "-m 2500 --maxNodes 11 -s -e devops@iohk.io";
+  relayUpdateArgs = "-m 2400 --maxNodes 11 -s -e devops@iohk.io";
   # Trigger relay topology refresh 12 hours before next epoch
   relayUpdateHoursBeforeNextEpoch = 12;
 
