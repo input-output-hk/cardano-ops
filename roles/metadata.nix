@@ -335,4 +335,24 @@ in {
     #  metrics_path = "/metrics/metadata";
     #}
   ];
+
+  # If nss-systemd stops resolving dynamic users properly, the services will stop; this will prevent that.
+  users = {
+    groups = {
+      metadata-server = {};
+      metadata-sync = {};
+      metadata-webhook = {};
+    };
+
+    users = let
+      mkUser = name: {
+        group = "metadata-${name}";
+        isSystemUser = true;
+      };
+    in {
+      metadata-server = mkUser "server";
+      metadata-sync = mkUser "sync";
+      metadata-webhook = mkUser "webhook";
+    };
+  };
 }
