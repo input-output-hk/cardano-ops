@@ -33,7 +33,7 @@ pkgs: {
   withSmash = true;
   withSnapshots = false;
 
-  withMetadata = true;
+  withMetadata = false;
   metadataHostName = "tokens.cardano.org";
 
   initialPythonExplorerDBSyncDone = true;

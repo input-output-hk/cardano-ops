@@ -262,11 +262,4 @@ in {
       prometheus.basicAuthFile = writeText "prometheus.htpasswd" globals.static.prometheusHtpasswd;
     };
   };
-
-  metadata = {
-    node = {
-      org = "CF";
-      roles.isPublicSsh = true;
-    };
-  };
 }
