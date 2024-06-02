@@ -101,7 +101,7 @@ features a setup with 1 OBFT node and 3 stakepools. The OBFT node is needed to
 bootstrap the network, and produce blocks. The 3 stakepools need to be
 registered and the decentralization parameter needs to be changed from 1 so
 that the pools can start producing blocks. We provide a
-[setup-stakepools-block-production.sh](examples/shelley-testnet/scripts/setup-stakepools-block-production.sh)
+[setup-stakepools-block-production.sh](https://github.com/input-output-hk/cardano-ops/blob/master/examples/shelley-testnet/scripts/setup-stakepools-block-production.sh)
 script which performs these tasks and illustrates how they can be done.
 
 Use this template to create the global topology files:
@@ -398,7 +398,7 @@ examples below:
 
 - [nix.dev](https://nix.dev/)
 - [Making a Shelley blockchain from scratch](https://github.com/input-output-hk/cardano-node/blob/62485960494d914f8efd06ed0d8357d41a8f9d26/doc/reference/shelley-genesis.md)
-- [Cardano node documentation](https://docs.cardano.org/projects/cardano-node/en/latest/)
+- [Cardano node documentation](https://docs.cardano.org/projects/cardano-node/)
 - [Documentation about multisig](https://github.com/input-output-hk/cardano-node/blob/72987eb866346d141cfd76d73065c440307651aa/doc/reference/multisig.md#example-of-using-multi-signature-scripts)
 
 [`nix`]: https://nixos.org/download.html "nix installation instructions"
