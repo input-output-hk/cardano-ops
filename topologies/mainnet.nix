@@ -191,8 +191,15 @@ let
         # Don't use any chain source outside of declared localRoots until after slot correlating with ~2024-01-10 21:45:09Z:
         usePeersFromLedgerAfterSlot = 113356818;
 
-        # Ensure p2p relay node instances utilize the same number of producers as legacy relays as best as possible
-        extraNodeConfig.TargetNumberOfActivePeers = maxProducersPerNode;
+        extraNodeConfig = {
+          PeerSharing = false;
+          TargetNumberOfRootPeers = 100;
+          TargetNumberOfKnownPeers = 100;
+
+
+          # Ensure p2p relay node instances utilize the same number of producers as legacy relays as best as possible
+          TargetNumberOfActivePeers = maxProducersPerNode;
+        };
       };
     } (lib.flatten [
       # See the nixops deploy [--build-only] [--include ...] trace for calculated p2p percentages per region.

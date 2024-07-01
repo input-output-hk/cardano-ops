@@ -132,15 +132,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node": {
-        "branch": "refs/tags/8.9.3",
+        "branch": "refs/tags/8.12.2",
         "description": null,
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "e7f5f3ac9e031b8ea12a16aee0bb37d94b5e1d11",
-        "sha256": "01842npajr3qd9rvqj7yiicv2yv57da2ppxi0vcv6i4m8yimc0av",
+        "rev": "71f8c71fada068097dc4e62e2f94756576df8135",
+        "sha256": "1gcbdpnn3khs68hyrwls6i7z42f80zh9mxr7j7v7frdcmj0x804g",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/e7f5f3ac9e031b8ea12a16aee0bb37d94b5e1d11.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/71f8c71fada068097dc4e62e2f94756576df8135.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-1-33-0rc3": {
@@ -180,15 +180,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-next": {
-        "branch": "refs/tags/8.9.3",
+        "branch": "refs/tags/8.12.2",
         "description": "The core component that is used to participate in a Cardano decentralised blockchain.",
         "homepage": "https://cardano.org",
         "owner": "input-output-hk",
         "repo": "cardano-node",
-        "rev": "e7f5f3ac9e031b8ea12a16aee0bb37d94b5e1d11",
-        "sha256": "01842npajr3qd9rvqj7yiicv2yv57da2ppxi0vcv6i4m8yimc0av",
+        "rev": "71f8c71fada068097dc4e62e2f94756576df8135",
+        "sha256": "1gcbdpnn3khs68hyrwls6i7z42f80zh9mxr7j7v7frdcmj0x804g",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/cardano-node/archive/e7f5f3ac9e031b8ea12a16aee0bb37d94b5e1d11.tar.gz",
+        "url": "https://github.com/input-output-hk/cardano-node/archive/71f8c71fada068097dc4e62e2f94756576df8135.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "cardano-node-service": {
@@ -269,10 +269,10 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "1c793a53ac0bd99b795c2180eb23d37e8389a74b",
-        "sha256": "1f72ni39m2a9jqg0k6dllimf60r7yqji6mssaxav9wkd9gv3qd78",
+        "rev": "b4025c38b609c6fb99762e2a6201e4e3488a39d3",
+        "sha256": "0r0knjxngnbjxw23dqv2z7y48qphawdrr7shjdf8xzlm558yxl14",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/1c793a53ac0bd99b795c2180eb23d37e8389a74b.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/b4025c38b609c6fb99762e2a6201e4e3488a39d3.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "iohk-nix-node-8.1.2": {
