@@ -16,6 +16,16 @@ in {
   services.monitoring-services.applicationDashboards = ./grafana/cardano;
   services.monitoring-services.applicationRules = [
     {
+      alert = "node_oom_detected";
+      expr = ''increase(node_vmstat_oom_kill[1h]) > 0'';
+      for = "5m";
+      labels.severity = "page";
+      annotations = {
+        summary = "The OOM killer has been active in the past hour.";
+        description = "{{ $labels.alias }} has had {{ $value }} OOM killing(s) in the past hour. Please investigate.";
+      };
+    }
+    {
       alert = "cardano_graphql_down";
       expr = ''up{alias="cardano-graphql-exporter"} == 0'';
       for = "15m";
