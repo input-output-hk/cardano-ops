@@ -10,6 +10,8 @@ let
   highBlockUtilization = toString globals.alertHighBlockUtilization;
   slotLength = globals.environmentVariables.SLOT_LENGTH;
 in {
+  imports = [ ./ssh.nix ];
+
   services.monitoring-services.logging = false;
   services.monitoring-services.applicationDashboards = ./grafana/cardano;
   services.monitoring-services.applicationRules = [

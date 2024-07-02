@@ -4,6 +4,7 @@ pkgs: with pkgs; {config, ...}: {
   imports = [
     cardano-ops.modules.base-service
     ../modules/tcpdump.nix
+    ../modules/ssh.nix
   ];
 
   deployment.ec2.ebsInitialRootDiskSize = globals.systemDiskAllocationSize
