@@ -141,7 +141,8 @@ let
       boot.kernel.sysctl."net.ipv4.tcp_slow_start_after_idle" = 0;
     } [ "rel-a-5" "rel-b-5" "rel-c-5" "rel-d-5" "rel-e-5" "rel-f-5" ])
     (forNodes {
-      systemd.services.cardano-node-0.serviceConfig.MemoryMax = lib.mkForce "13500M";
+      services.cardano-node.totalMaxHeapSizeMbytes = 11300.0 * 2;
+      systemd.services.cardano-node-0.serviceConfig.MemoryMax = lib.mkForce "13000M";
       systemd.services.cardano-node-1.serviceConfig.MemoryMax = lib.mkForce "13000M";
     } [ "rel-a-30" ])
 
