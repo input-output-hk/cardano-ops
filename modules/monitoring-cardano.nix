@@ -22,7 +22,17 @@ in {
       labels.severity = "page";
       annotations = {
         summary = "The OOM killer has been active in the past hour.";
-        description = "{{ $labels.alias }} has had {{ $value }} OOM killing(s) in the past hour. Please investigate.";
+        description = "{{ $labels.alias }} has had {{ printf \"%.0f\" $value }} OOM killing(s) in the past hour. Please investigate.";
+      };
+    }
+    {
+      alert = "coredump_detected";
+      expr = ''cardano_coredumps_last_hour > 0'';
+      for = "5m";
+      labels.severity = "page";
+      annotations = {
+        summary = "Coredumps have been detected in the past hour.";
+        description = "{{ $labels.instance }} has had {{ printf \"%.0f\" $value }} coredump(s) in the past hour. Please investigate.";
       };
     }
     {
