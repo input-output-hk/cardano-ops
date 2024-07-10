@@ -220,10 +220,13 @@ in
           # producers or high load relays.  The service can still be
           # killed manually before this time is reached if needed, ex:
           #   systemctl kill $SERVICE
-          TimeoutStopSec = 600;
+          TimeoutStopSec = 120;
 
           MemoryMax = "${toString (1.15 * cfg.totalMaxHeapSizeMbytes / cfg.instances)}M";
           LimitNOFILE = "65535";
+
+          # Node uses SIGINT rather than the systemd default of SIGTERM for clean shutdown
+          KillSignal = "SIGINT";
         };
       };
     };
@@ -242,7 +245,7 @@ in
         TimeoutStartSec = "1h";
 
         # Same comment as above
-        TimeoutStopSec = 600;
+        TimeoutStopSec = 120;
       };
     };
 
