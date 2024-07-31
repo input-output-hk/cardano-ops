@@ -15,7 +15,7 @@ in {
 
     ports = lib.mkOption {
       type = lib.types.listOf lib.types.port;
-      default = [3001 3002];
+      default = [3001];
     };
 
     rotateSeconds = lib.mkOption {

@@ -10,6 +10,11 @@ pkgs: {
   # iohk-nix pin contains an updated backbone CNAME reference
   relaysNew = "relays-new.cardano-mainnet.iohk.io";
 
+  # Base line number of cardano-node instance per relay.
+  # Override the default machine sized calculation with a fixed value of 1
+  # for mainnet legacy relay scale down.
+  nbInstancesPerRelay = 1;
+
   # Explorer gateway and backends have moved to ci-world
   withExplorer = false;
   explorerHostName = "explorer.cardano.org";

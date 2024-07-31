@@ -143,21 +143,10 @@ let
     (forNodes {
       services.cardano-node.totalMaxHeapSizeMbytes = 11300.0 * 2;
       systemd.services.cardano-node-0.serviceConfig.MemoryMax = lib.mkForce "13000M";
-      systemd.services.cardano-node-1.serviceConfig.MemoryMax = lib.mkForce "13000M";
     } [ "rel-a-30" ])
 
-    # Begin transitioning relays to p2p.
     # All node instances on each relay listed below will utilize p2p.
     (forNodes {
-      networking.localCommands = ''
-        # Use a loopback interface for out of band intra-machine multi-node-instance comms.
-        # The ipv6 assignment is similar to ipv4 loopback for recognizability and the traffic
-        # for which will not be externally routed.
-        for i in $(seq 1 ${toString pkgs.globals.nbInstancesPerRelay}); do
-          ip -6 address add ::127.0.0.$i/96 dev lo || true
-        done
-      '';
-
       services.cardano-node = {
         # Options to enable p2p relays in mixed topology cluster:
 
@@ -166,16 +155,6 @@ let
         # Since systemd sockets are not used, there is no so_reuseport socket UID conflict.
         # For non-mingw32 hosts, node enables so_reuseport for socket configuration by default.
         shareIpv4port = true;
-
-        # The typical cardano-ops ipv4 legacy cluster topology uses systemd socket activation with an ipv6
-        # localhost listener of ::1 with different port binding to enable intra-machine node peering.
-        # Without systemd socket activation, node cli only parameterizes a single port option that is used for both ipv4 and ipv6.
-        # Enabling this option will ensure topology port declaration for intra-machine peering uses the same port.
-        # This means, though, that the ipv6 addresses for each instance on a machine will need to be different.
-        shareIpv6port = lib.mkForce true;
-
-        # Per above, we wish to increment the ipv6 address for each instance to create a unique intra-machine node listener.
-        shareIpv6Address = false;
 
         # Turn systemd socket activation off due to an so_reuseport UID kernel conflict when binding sockets for re-use as non-root user.
         systemdSocketActivation = lib.mkForce false;
@@ -190,7 +169,7 @@ let
         useInstancePublicProducersAsProducers = true;
 
         # Don't use any chain source outside of declared localRoots until after slot correlating with ~2024-01-10 21:45:09Z:
-        usePeersFromLedgerAfterSlot = 113356818;
+        usePeersFromLedgerAfterSlot = 128908821;
 
         extraNodeConfig = {
           PeerSharing = false;
@@ -205,7 +184,7 @@ let
     } (lib.flatten [
       # See the nixops deploy [--build-only] [--include ...] trace for calculated p2p percentages per region.
       # Leave one legacy topology relay as a canary, rel-a-1
-      (p2pRelayRegionList "a" 35) # Currently 36 total region a relays
+      (p2pRelayRegionList "a" 35) # Currently 36 total region a relays -- 1 remains as non-p2p canary
       (p2pRelayRegionList "b" 23) # Currently 23 total region b relays
       (p2pRelayRegionList "c" 9) # Currently 9 total region c relays
       (p2pRelayRegionList "d" 14) # Currently 14 total region d relays
