@@ -16,6 +16,16 @@ in {
   services.monitoring-services.applicationDashboards = ./grafana/cardano;
   services.monitoring-services.applicationRules = [
     {
+      alert = "cardano_node_elevated_restarts";
+      expr = ''changes(node_systemd_unit_state{name=~"cardano-node(-[0-9]+)?.service", state="active"}[1h]) > 1'';
+      for = "5m";
+      labels.severity = "page";
+      annotations = {
+        summary = "{{$labels.instance}}: cardano-node has experienced multiple restarts in the past hour.";
+        description = "{{$labels.instance}}: cardano-node has restarted {{ printf \"%.0f\" $value }} times in the past hour.";
+      };
+    }
+    {
       alert = "node_oom_detected";
       expr = ''increase(node_vmstat_oom_kill[1h]) > 0'';
       for = "5m";
