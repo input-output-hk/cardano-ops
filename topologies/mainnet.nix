@@ -26,22 +26,22 @@ let
   regions = {
     # Scale down ~25% from current existing size on 2024-08-07
     a = { name = "eu-central-1";   # Europe (Frankfurt);
-      minRelays = 18;
+      minRelays = 9;
     };
     b = { name = "us-east-2";      # US East (Ohio)
-      minRelays = 11;
+      minRelays = 5;
     };
     c = { name = "ap-southeast-1"; # Asia Pacific (Singapore)
-      minRelays = 5;
+      minRelays = 2;
     };
     d = { name = "eu-west-2";      # Europe (London)
-      minRelays = 7;
+      minRelays = 3;
     };
     e = { name = "us-west-1";      # US West (N. California)
-      minRelays = 7;
+      minRelays = 3;
     };
     f = { name = "ap-northeast-1"; # Asia Pacific (Tokyo)
-      minRelays = 5;
+      minRelays = 2;
     };
   };
 
@@ -184,12 +184,12 @@ let
     } (lib.flatten [
       # See the nixops deploy [--build-only] [--include ...] trace for calculated p2p percentages per region.
       # Leave one legacy topology relay as a canary, rel-a-1
-      (p2pRelayRegionList "a" 17) # Currently 18 total region a relays -- 1 remains as non-p2p canary
-      (p2pRelayRegionList "b" 11) # Currently 11 total region b relays
-      (p2pRelayRegionList "c" 5) # Currently 5 total region c relays
-      (p2pRelayRegionList "d" 7) # Currently 7 total region d relays
-      (p2pRelayRegionList "e" 7) # Currently 7 total region e relays
-      (p2pRelayRegionList "f" 5) # Currently 5 total region f relays
+      (p2pRelayRegionList "a" 8) # Currently 9 total region a relays -- 1 remains as non-p2p canary
+      (p2pRelayRegionList "b" 5) # Currently 5 total region b relays
+      (p2pRelayRegionList "c" 2) # Currently 2 total region c relays
+      (p2pRelayRegionList "d" 3) # Currently 3 total region d relays
+      (p2pRelayRegionList "e" 3) # Currently 3 total region e relays
+      (p2pRelayRegionList "f" 2) # Currently 2 total region f relays
     ]))
   ]) (
     map (withModule {
