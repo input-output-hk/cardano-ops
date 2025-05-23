@@ -10,6 +10,11 @@ pkgs: {
   # iohk-nix pin contains an updated backbone CNAME reference
   relaysNew = "relays-new.cardano-mainnet.iohk.io";
 
+  # Base line number of cardano-node instance per relay.
+  # Override the default machine sized calculation with a fixed value of 1
+  # for mainnet legacy relay scale down.
+  nbInstancesPerRelay = 1;
+
   # Explorer gateway and backends have moved to ci-world
   withExplorer = false;
   explorerHostName = "explorer.cardano.org";
@@ -31,9 +36,9 @@ pkgs: {
   withHighCapacityExplorer = true;
   withHighLoadRelays = true;
   withSmash = true;
-  withSnapshots = true;
+  withSnapshots = false;
 
-  withMetadata = true;
+  withMetadata = false;
   metadataHostName = "tokens.cardano.org";
 
   initialPythonExplorerDBSyncDone = true;
@@ -67,7 +72,7 @@ pkgs: {
     };
   };
 
-  relayUpdateArgs = "-m 2500 --maxNodes 11 -s -e devops@iohk.io";
+  relayUpdateArgs = "-m 2400 --maxNodes 11 -s -e devops@iohk.io";
   # Trigger relay topology refresh 12 hours before next epoch
   relayUpdateHoursBeforeNextEpoch = 12;
 

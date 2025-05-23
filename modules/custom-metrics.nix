@@ -264,7 +264,14 @@ in with pkgs; {
           CARDANO_PING_LATENCY=$(jq '.pongs[-1].sample * 1000' <<< "$CARDANO_PING_OUPUT")
         fi
 
+        COREDUMPS=$(coredumpctl -S -1h --json=pretty 2>&1 || true)
+        if [ "$COREDUMPS" = "No coredumps found." ]; then
+          COREDUMPS_LAST_HOUR="0"
+        else
+          COREDUMPS_LAST_HOUR=$(jq -re '. | length' <<< "$COREDUMPS")
+        fi
 
+        echo "cardano_coredumps_last_hour:''${COREDUMPS_LAST_HOUR}|g"
         echo "cardano_node_decode_certIssueNum:''${CERT_ISSUE_NUM}|g"
         echo "cardano_node_decode_kesCreatedPeriod:''${KES_CREATED_PERIOD}|g"
 
@@ -355,6 +362,7 @@ in with pkgs; {
           "cardano_node_cli_version_patch:''${CARDANO_CLI_VERSION_PATCH}|g"
 
         statsd \
+          "cardano_coredumps_last_hour:''${COREDUMPS_LAST_HOUR}|g" \
           "cardano_ping_latency_ms:''${CARDANO_PING_LATENCY}|g"
       '';
     };

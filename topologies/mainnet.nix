@@ -24,23 +24,24 @@ let
       abort ''p2pRelayRegionList generation must use count (${toString count}) less than the region "${region}" minRelays (${toString regionMinRelays}).'';
 
   regions = {
+    # Scale down ~25% from current existing size on 2024-08-07
     a = { name = "eu-central-1";   # Europe (Frankfurt);
-      minRelays = 40;
+      minRelays = 9;
     };
     b = { name = "us-east-2";      # US East (Ohio)
-      minRelays = 25;
+      minRelays = 5;
     };
     c = { name = "ap-southeast-1"; # Asia Pacific (Singapore)
-      minRelays = 10;
+      minRelays = 2;
     };
     d = { name = "eu-west-2";      # Europe (London)
-      minRelays = 15;
+      minRelays = 3;
     };
     e = { name = "us-west-1";      # US West (N. California)
-      minRelays = 15;
+      minRelays = 3;
     };
     f = { name = "ap-northeast-1"; # Asia Pacific (Tokyo)
-      minRelays = 10;
+      minRelays = 2;
     };
   };
 
@@ -140,22 +141,12 @@ let
       boot.kernel.sysctl."net.ipv4.tcp_slow_start_after_idle" = 0;
     } [ "rel-a-5" "rel-b-5" "rel-c-5" "rel-d-5" "rel-e-5" "rel-f-5" ])
     (forNodes {
-      systemd.services.cardano-node-0.serviceConfig.MemoryMax = lib.mkForce "13500M";
-      systemd.services.cardano-node-1.serviceConfig.MemoryMax = lib.mkForce "13000M";
+      services.cardano-node.totalMaxHeapSizeMbytes = 11300.0 * 2;
+      systemd.services.cardano-node-0.serviceConfig.MemoryMax = lib.mkForce "13000M";
     } [ "rel-a-30" ])
 
-    # Begin transitioning relays to p2p.
     # All node instances on each relay listed below will utilize p2p.
     (forNodes {
-      networking.localCommands = ''
-        # Use a loopback interface for out of band intra-machine multi-node-instance comms.
-        # The ipv6 assignment is similar to ipv4 loopback for recognizability and the traffic
-        # for which will not be externally routed.
-        for i in $(seq 1 ${toString pkgs.globals.nbInstancesPerRelay}); do
-          ip -6 address add ::127.0.0.$i/96 dev lo || true
-        done
-      '';
-
       services.cardano-node = {
         # Options to enable p2p relays in mixed topology cluster:
 
@@ -164,16 +155,6 @@ let
         # Since systemd sockets are not used, there is no so_reuseport socket UID conflict.
         # For non-mingw32 hosts, node enables so_reuseport for socket configuration by default.
         shareIpv4port = true;
-
-        # The typical cardano-ops ipv4 legacy cluster topology uses systemd socket activation with an ipv6
-        # localhost listener of ::1 with different port binding to enable intra-machine node peering.
-        # Without systemd socket activation, node cli only parameterizes a single port option that is used for both ipv4 and ipv6.
-        # Enabling this option will ensure topology port declaration for intra-machine peering uses the same port.
-        # This means, though, that the ipv6 addresses for each instance on a machine will need to be different.
-        shareIpv6port = lib.mkForce true;
-
-        # Per above, we wish to increment the ipv6 address for each instance to create a unique intra-machine node listener.
-        shareIpv6Address = false;
 
         # Turn systemd socket activation off due to an so_reuseport UID kernel conflict when binding sockets for re-use as non-root user.
         systemdSocketActivation = lib.mkForce false;
@@ -187,21 +168,28 @@ let
         # Make 3rd party producers localRoots rather than publicRoots for a 1:1 equivalency with legacy topology.
         useInstancePublicProducersAsProducers = true;
 
-        # Don't use any chain source outside of declared localRoots until after slot correlating with ~2023-08-23 21:44:52Z:
-        usePeersFromLedgerAfterSlot = 101260801;
+        # Don't use any chain source outside of declared localRoots until after slot correlating with ~2024-01-10 21:45:09Z:
+        usePeersFromLedgerAfterSlot = 128908821;
 
-        # Ensure p2p relay node instances utilize the same number of producers as legacy relays as best as possible
-        extraNodeConfig.TargetNumberOfActivePeers = maxProducersPerNode;
+        extraNodeConfig = {
+          PeerSharing = false;
+          TargetNumberOfRootPeers = 100;
+          TargetNumberOfKnownPeers = 100;
+
+
+          # Ensure p2p relay node instances utilize the same number of producers as legacy relays as best as possible
+          TargetNumberOfActivePeers = maxProducersPerNode;
+        };
       };
     } (lib.flatten [
       # See the nixops deploy [--build-only] [--include ...] trace for calculated p2p percentages per region.
       # Leave one legacy topology relay as a canary, rel-a-1
-      (p2pRelayRegionList "a" 39) # Currently 40 total region a relays, each represents 2.5% of region total
-      (p2pRelayRegionList "b" 25) # Currently 25 total region b relays, each represents 4.0% of region total
-      (p2pRelayRegionList "c" 10) # Currently 10 total region c relays, each represents 10.0% of region total
-      (p2pRelayRegionList "d" 15) # Currently 15 total region d relays, each represents 6.67% of region total
-      (p2pRelayRegionList "e" 15) # Currently 15 total region e relays, each represents 6.67% of region total
-      (p2pRelayRegionList "f" 10) # Currently 10 total region f relays, each represents 10.0% of region total
+      (p2pRelayRegionList "a" 8) # Currently 9 total region a relays -- 1 remains as non-p2p canary
+      (p2pRelayRegionList "b" 5) # Currently 5 total region b relays
+      (p2pRelayRegionList "c" 2) # Currently 2 total region c relays
+      (p2pRelayRegionList "d" 3) # Currently 3 total region d relays
+      (p2pRelayRegionList "e" 3) # Currently 3 total region e relays
+      (p2pRelayRegionList "f" 2) # Currently 2 total region f relays
     ]))
   ]) (
     map (withModule {
@@ -213,6 +201,7 @@ let
     inherit maxProducersPerNode regions;
     coreNodes = stakingPoolNodes;
     autoscaling = false;
+    scaledown = true;
     maxInRegionPeers = 5;
   }));
 
@@ -258,34 +247,6 @@ in {
     services.monitoring-services = {
       publicGrafana = false;
       prometheus.basicAuthFile = writeText "prometheus.htpasswd" globals.static.prometheusHtpasswd;
-    };
-  };
-
-  metadata = {
-    node = {
-      org = "CF";
-      roles.isPublicSsh = true;
-    };
-  };
-
-  # Correct the difference between the new iohk-nix for 8.7.2 and the legacy iohk-nix still required for dbsync on node 8.1.2
-  snapshots = let
-    iohkNix812 = import (import ../nix/sources.nix { inherit pkgs; })."iohk-nix-node-8.1.2" {};
-  in {
-    services.cardano-node = {
-      useNewTopology = false;
-      environments = {
-        "${globals.environmentName}" = iohkNix812.cardanoLib.environments.${globals.environmentName};
-      };
-      nodeConfig = iohkNix812.cardanoLib.environments.${globals.environmentName}.nodeConfig;
-      extraNodeConfig.EnableP2P = false;
-      producers = lib.mkForce [];
-      publicProducers = lib.mkForce [{accessPoints = [{address = "europe.relays-new.cardano-mainnet.iohk.io"; port = 3001; valency = 2;}];}];
-    };
-
-    services.cardano-db-sync = {
-      environment = iohkNix812.cardanoLib.environments.${globals.environmentName};
-      logConfig = iohkNix812.cardanoLib.defaultExplorerLogConfig // { PrometheusPort = globals.cardanoExplorerPrometheusExporterPort; };
     };
   };
 }

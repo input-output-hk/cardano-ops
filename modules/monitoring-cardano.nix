@@ -10,9 +10,41 @@ let
   highBlockUtilization = toString globals.alertHighBlockUtilization;
   slotLength = globals.environmentVariables.SLOT_LENGTH;
 in {
+  imports = [ ./ssh.nix ];
+
   services.monitoring-services.logging = false;
   services.monitoring-services.applicationDashboards = ./grafana/cardano;
   services.monitoring-services.applicationRules = [
+    {
+      alert = "cardano_node_elevated_restarts";
+      expr = ''round(increase(node_systemd_unit_state{name=~"cardano-node(-[0-9]+)?.service", state="active"}[1h])) > 1'';
+      for = "5m";
+      labels.severity = "page";
+      annotations = {
+        summary = "{{$labels.instance}}: cardano-node has experienced multiple restarts in the past hour.";
+        description = "{{$labels.instance}}: cardano-node has restarted {{ printf \"%.0f\" $value }} times in the past hour.";
+      };
+    }
+    {
+      alert = "node_oom_detected";
+      expr = ''increase(node_vmstat_oom_kill[1h]) > 0'';
+      for = "5m";
+      labels.severity = "page";
+      annotations = {
+        summary = "The OOM killer has been active in the past hour.";
+        description = "{{ $labels.alias }} has had {{ printf \"%.0f\" $value }} OOM killing(s) in the past hour. Please investigate.";
+      };
+    }
+    {
+      alert = "coredump_detected";
+      expr = ''cardano_coredumps_last_hour > 0'';
+      for = "5m";
+      labels.severity = "page";
+      annotations = {
+        summary = "Coredumps have been detected in the past hour.";
+        description = "{{ $labels.instance }} has had {{ printf \"%.0f\" $value }} coredump(s) in the past hour. Please investigate.";
+      };
+    }
     {
       alert = "cardano_graphql_down";
       expr = ''up{alias="cardano-graphql-exporter"} == 0'';

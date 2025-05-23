@@ -214,8 +214,19 @@ in
         serviceConfig = {
           # Allow time to uncompress when restoring db
           TimeoutStartSec = "1h";
+
+          # Allow an extended stop period rather than have systemd kill
+          # the node and result in a possibly extended replay on block
+          # producers or high load relays.  The service can still be
+          # killed manually before this time is reached if needed, ex:
+          #   systemctl kill $SERVICE
+          TimeoutStopSec = 120;
+
           MemoryMax = "${toString (1.15 * cfg.totalMaxHeapSizeMbytes / cfg.instances)}M";
           LimitNOFILE = "65535";
+
+          # Node uses SIGINT rather than the systemd default of SIGTERM for clean shutdown
+          KillSignal = "SIGINT";
         };
       };
     };
@@ -232,6 +243,9 @@ in
       serviceConfig = {
         # Allow time to uncompress when restoring db
         TimeoutStartSec = "1h";
+
+        # Same comment as above
+        TimeoutStopSec = 120;
       };
     };
 
